@@ -1,5 +1,6 @@
 package com.example.primeiroAppSpring.controller;
 
+import com.example.primeiroAppSpring.model.Usuario;
 import com.example.primeiroAppSpring.model.UsuarioForm;
 import com.example.primeiroAppSpring.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
-
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -56,11 +56,12 @@ public class UsuarioController {
     }
     @PostMapping("/login")
     public String processarLogin(@ModelAttribute UsuarioForm form, Model model){
-        if(form.getEmail().endsWith("@df.senac.br")){
-            return "redirect:/";
+        Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
+        if(usuario == null){
+            model.addAttribute("erro","E-mail ou senha incorreto!");
+            return "login";
         }
-        model.addAttribute("erro","E-mail ou senha inválidos!");
-        return "login";
+        return "redirect:/";
     }
 
     @GetMapping("/alterar-senha")
@@ -75,11 +76,12 @@ public class UsuarioController {
     }
     @PostMapping("/alterar-senha")
     public String processarAlterarSenha(@ModelAttribute UsuarioForm form, Model model){
-        if(!form.getSenha().equals(form.getConfirmarSenha())){
-            model.addAttribute("erro","Erro, as senhas não conferem!");
+        String erro = usuarioService.alterarSenha(form);
+
+        if(erro!=null){
+            model.addAttribute("erro", erro);
             return "alterarSenha";
         }
-        model.addAttribute("sucesso","Senha alterada com sucesso!");
 
         return "redirect:/login";
     }
