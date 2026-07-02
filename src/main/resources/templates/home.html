@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:https="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title >SENAC SIGEC — Painel do Instrutor</title>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+<link  rel="stylesheet" th:href="@{/styles/stylesHome.css} ">
+</head>
+<body>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
+    <div class="brand-text">
+      <h1 class="brand-title">SIGEC</h1>
+      <p class="brand-sub">Painel do Instrutor</p>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <p class="nav-group">Menu</p>
+    <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
+    <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
+    <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
+  </div>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menu-toggle"><span class="material-symbols-outlined">menu</span></button>
+    <div class="breadcrumb">
+      <span class="crumb-muted">SIGEC</span>
+      <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+      <span class="crumb-current">Início</span>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <div class="search-box">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text" placeholder="Buscar receita, turma...">
+    </div>
+
+    <div class="notif-wrap">
+      <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="badge-dot" id="notif-badge" hidden></span>
+      </button>
+
+      <div class="notif-panel" id="notif-panel">
+        <div class="notif-head">
+          <h3>Notificações</h3>
+          <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+        </div>
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+    </div>
+
+    <div class="user-box">
+      <div class="user-info">
+        <p class="user-name">Chef Ricardo Silva</p>
+        <p class="user-role">Instrutor Gastronomia</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="content">
+
+    <section class="hero flight-accent">
+      <div class="hero-text">
+        <p class="hero-date">Quarta-feira, 17 de Junho</p>
+        <h2 class="hero-title">Bom dia, Chef Ricardo!</h2>
+        <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
+      </div>
+    </section>
+
+    <div class="dashboard-top-grid">
+      
+      <section class="classes-col">
+        <div class="section-head split">
+          <div class="section-head plain">
+            <span class="material-symbols-outlined">today</span>
+            <h2 class="section-title">Receitas de Hoje</h2>
+          </div>
+          <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
+        </div>
+
+        <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
+          <div class="class-time"><p class="t-main">08:00</p><p class="t-end">12:00</p></div>
+          <div class="divider"></div>
+          <div class="class-info">
+            <p class="class-name">Técnicas Básicas de Confeitaria</p>
+            <p class="class-meta">Cozinha Pedagógica 02 • Turma 2024.1.C</p>
+          </div>
+          <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
+        </div>
+
+        <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
+          <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
+          <div class="divider sec"></div>
+          <div class="class-info">
+            <p class="class-name">Panificação Clássica Européia</p>
+            <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
+            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
+          </div>
+          <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
+        </div>
+
+        <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
+          <div class="class-time"><p class="t-main">19:00</p><p class="t-end">22:30</p></div>
+          <div class="divider"></div>
+          <div class="class-info">
+            <p class="class-name">Cozinha Internacional: Ásia</p>
+            <p class="class-meta">Cozinha Pedagógica 04 • Turma 2024.2.N</p>
+            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
+          </div>
+          <span class="status status-pending">Pendente</span>
+        </div>
+      </section>
+
+      <aside class="recipe-summary-card" id="recipe-summary-card">
+        <div class="summary-head flight-accent">
+          <span class="material-symbols-outlined">menu_book</span>
+          <h3 class="summary-title">Resumo da Receita</h3>
+        </div>
+        
+        <div class="summary-body">
+          <h4 class="summary-recipe-name" id="summary-recipe-name">Selecione uma aula</h4>
+          
+          <ol class="summary-steps-list" id="summary-steps">
+            <li style="list-style: none; color: var(--on-surface-variant);">
+              Clique em "Ver receita" ao lado para carregar os detalhes.
+            </li>
+          </ol>
+          
+          <div class="summary-footer mt-auto" id="summary-footer" style="display: none;">
+            <button class="btn-confirm" id="btn-open-kitchen">
+              Passo a passo
+            </button>
+            <div class="summary-meta" id="summary-meta-badge">
+              <span class="material-symbols-outlined sm">timer</span>
+              <span id="summary-time">--</span>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+
+    <div class="checklists-grid">
+
+      <section class="checklist-card">
+        <div class="checklist-head flight-accent">
+          <div class="ch-title-row">
+            <span class="material-symbols-outlined">checklist</span>
+            <h2 class="ch-title">Checklist da Aula (Insumos)</h2>
+          </div>
+
+          <label class="field-label" for="turma-select">Turma / Laboratório</label>
+          <div class="select-wrap">
+            <select id="turma-select"></select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+
+          <label class="field-label" for="recipe-select">Selecione a aula / receita</label>
+          <div class="select-wrap">
+            <select id="recipe-select"></select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
+          </div>
+          <p class="ch-recipe">Receita: <strong id="recipe-name">—</strong></p>
+          <p class="ch-loc" id="recipe-loc">—</p>
+          <p class="ch-turma-badge" id="turma-badge">—</p>
+        </div>
+
+        <div class="ch-tab-content active" id="tab-principal">
+          <div class="progress-block">
+            <div class="progress-info">
+              <span class="bold" id="main-progress-text">0 de 0 itens</span>
+              <span class="muted"><span id="main-progress-pct">0</span>%</span>
+            </div>
+            <div class="progress-track"><div id="main-progress-bar" class="progress-fill"></div></div>
+          </div>
+          
+          <div id="checklist-main" class="checklist-items"></div>
+          
+          <div class="add-row">
+            <button class="btn-add" id="btn-add-insumo">
+              <span class="material-symbols-outlined">add</span>Solicitar insumo extra
+            </button>
+          </div>
+          
+          <div class="checklist-footer">
+            <button id="main-btn-reset" class="btn-ghost">Limpar</button>
+            <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
+            <button class="btn-confirm btn-finish-class">Confirmar Separação</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="checklist-card">
+        <div class="checklist-head flight-accent">
+          <div class="ch-title-row">
+            <span class="material-symbols-outlined">blender</span>
+            <h2 class="ch-title">Checklist de Utensílios</h2>
+          </div>
+          <p class="ch-recipe">Aula: <strong id="util-recipe-name">—</strong></p>
+          <p class="ch-loc" id="util-recipe-loc">—</p>
+          <p class="ch-turma-badge" id="util-turma-badge">—</p>
+        </div>
+
+        <div class="progress-block">
+          <div class="progress-info">
+            <span class="bold" id="util-progress-text">0 de 0 itens</span>
+            <span class="muted"><span id="util-progress-pct">0</span>%</span>
+          </div>
+          <div class="progress-track"><div id="util-progress-bar" class="progress-fill"></div></div>
+        </div>
+
+        <div id="util-checklist" class="checklist-items"></div>
+
+        <div class="add-row">
+          <button class="btn-add" id="btn-add-util">
+            <span class="material-symbols-outlined">add</span>Adicionar utensílio extra
+          </button>
+        </div>
+
+        <div class="checklist-footer" style="justify-content: flex-start;">
+          <button id="util-btn-reset" class="btn-ghost" style="flex: none; padding: 11px 24px;">Limpar</button>
+          <button class="btn-confirm btn-finish-class" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+</main>
+
+<div class="cal-modal" id="cal-modal">
+  <div class="cal-box">
+    <div class="cal-header flight-accent">
+      <div class="cal-title-row">
+        <span class="material-symbols-outlined">calendar_month</span>
+        <h2 class="cal-title">Calendário de Aulas</h2>
+        <button class="cal-close" id="cal-close"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="cal-nav">
+        <button class="cal-nav-btn" id="cal-prev"><span class="material-symbols-outlined">chevron_left</span></button>
+        <span class="cal-month" id="cal-month">Junho 2026</span>
+        <button class="cal-nav-btn" id="cal-next"><span class="material-symbols-outlined">chevron_right</span></button>
+
+        <div class="cal-kitchen-filter">
+          <select id="cal-kitchen">
+            <option value="todas">Todas as cozinhas</option>
+            <option value="lab01">Padaria Lab 01</option>
+            <option value="lab02">Cozinha Pedagógica 02</option>
+            <option value="lab04">Cozinha Pedagógica 04</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="cal-body">
+      <div class="cal-grid-wrap">
+        <div class="cal-weekdays">
+          <span>Dom</span><span>Seg</span><span>Ter</span>
+          <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+        <div class="cal-legend">
+          <span><i class="dot dot-class"></i>Com aula</span>
+          <span><i class="dot dot-holiday"></i>Feriado/Recesso</span>
+          <span><i class="dot dot-weekend"></i>Fim de semana</span>
+        </div>
+      </div>
+
+      <aside class="cal-day-panel" id="cal-day-panel">
+        <div class="cal-panel-empty" id="cal-panel-empty">
+          <span class="material-symbols-outlined">event</span>
+          <p>Clique em um dia para ver e alocar fichas.</p>
+        </div>
+        <div class="cal-panel-content" id="cal-panel-content" style="display:none">
+          <p class="cal-panel-date" id="cal-panel-date">—</p>
+          <h3 class="cal-sub">Fichas alocadas</h3>
+          <div class="cal-allocated" id="cal-allocated"></div>
+          <h3 class="cal-sub">Fichas disponíveis</h3>
+          <div class="cal-available" id="cal-available"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="obs-modal">
+  <div class="modal flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title">Observação do item</h3>
+      <button class="modal-close" id="obs-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <p class="modal-item" id="obs-item-name">—</p>
+    <label class="field-label dark" for="obs-text">Anotação / Avaria</label>
+    <textarea id="obs-text" class="obs-textarea" placeholder="Ex.: substituir por farinha integral, pacote rasgado..."></textarea>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="obs-cancel">Cancelar</button>
+      <button class="btn-confirm" id="obs-save">Salvar Observação</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="extra-modal">
+  <div class="modal flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title">Solicitar Insumo Extra</h3>
+      <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">O item será registrado no checklist e enviado para validação.</p>
+    
+    <label class="field-label dark">Nome do Insumo</label>
+    <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
+    
+    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+        <div style="flex: 1;">
+            <label class="field-label dark">Quantidade</label>
+            <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+        </div>
+        <div style="flex: 1;">
+            <label class="field-label dark">Unidade</label>
+            <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+        </div>
+    </div>
+
+    <label class="field-label dark">Observação / Motivo</label>
+    <textarea id="extra-obs" class="obs-textarea" style="min-height: 60px; margin-bottom: 16px;" placeholder="Ex: Faltou para finalizar o prato..."></textarea>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="flex: 1;" id="extra-cancel">Cancelar</button>
+      <button class="btn-confirm" style="flex: 1;" id="extra-save">Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="util-modal">
+  <div class="modal flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title">Adicionar Utensílio Extra</h3>
+      <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Adicione um utensílio não previsto na ficha da receita.</p>
+    
+    <label class="field-label dark">Nome do Utensílio</label>
+    <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
+    
+    <label class="field-label dark">Quantidade (un)</label>
+    <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
+
+    <label class="field-label dark">Observação / Motivo</label>
+    <textarea id="util-obs" class="obs-textarea" style="min-height: 60px; margin-bottom: 16px;" placeholder="Ex: Precisamos de mais um para agilizar..."></textarea>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="flex: 1;" id="util-cancel">Cancelar</button>
+      <button class="btn-confirm" style="flex: 1;" id="util-save">Adicionar Utensílio</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="finish-modal">
+  <div class="modal flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title">Concluir Aula</h3>
+      <button class="modal-close" id="finish-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação geral sobre o andamento da aula.</p>
+    
+    <label class="field-label dark" for="finish-obs">Relato da Aula (Opcional)</label>
+    <textarea id="finish-obs" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: A turma estava muito agitada hoje..."></textarea>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="flex: 1;" id="finish-cancel">Cancelar</button>
+      <button class="btn-confirm" style="flex: 1;" id="finish-save">Salvar e Finalizar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="sobras-modal">
+  <div class="modal flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title">Nova Receita com Sobras</h3>
+      <button class="modal-close" id="sobras-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Selecione os insumos que sobraram e informe a quantidade.</p>
+    
+    <label class="field-label dark">Nome da Nova Ficha / Preparo</label>
+    <input type="text" id="sobras-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 16px;" placeholder="Ex: Pavlova de Frutas (Sobras)">
+    
+    <label class="field-label dark">Insumos da Receita Atual</label>
+    <div id="sobras-list" style="max-height: 250px; overflow-y: auto; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee;">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-ghost" style="flex: 1;" id="sobras-cancel">Cancelar</button>
+      <button class="btn-confirm" style="flex: 1;" id="sobras-save">Criar Nova Ficha</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="kitchen-modal">
+  <div class="modal modal-kitchen flight-accent">
+    <div class="modal-head">
+      <h3 class="modal-title" id="kitchen-title">Modo Cozinha</h3>
+      <button class="modal-close" id="kitchen-close"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="kitchen-content">
+      <ol class="kitchen-steps" id="kitchen-steps">
+        </ol>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<script th:src="@{/scripts/scriptHome.js}"></script>
+</body>
+</html>
