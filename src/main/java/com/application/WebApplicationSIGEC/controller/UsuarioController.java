@@ -1,8 +1,8 @@
-package com.example.WebApplicationSIGEC.controller;
+package com.application.WebApplicationSIGEC.controller;
 
-import com.example.WebApplicationSIGEC.model.Usuario;
-import com.example.WebApplicationSIGEC.model.UsuarioForm;
-import com.example.WebApplicationSIGEC.service.UsuarioService;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

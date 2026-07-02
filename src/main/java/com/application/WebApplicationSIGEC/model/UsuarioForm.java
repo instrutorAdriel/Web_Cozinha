@@ -1,4 +1,4 @@
-package com.example.WebApplicationSIGEC.model;
+package com.application.WebApplicationSIGEC.model;
 
 public class UsuarioForm {
     private String nome;

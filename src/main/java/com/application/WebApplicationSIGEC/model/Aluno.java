@@ -1,4 +1,4 @@
-package com.example.WebApplicationSIGEC.model;
+package com.application.WebApplicationSIGEC.model;
 
 public class Aluno {
     private String nome;

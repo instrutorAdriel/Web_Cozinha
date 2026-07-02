@@ -1,4 +1,4 @@
-package com.example.WebApplicationSIGEC.model;
+package com.application.WebApplicationSIGEC.model;
 
 import jakarta.persistence.*;
 
