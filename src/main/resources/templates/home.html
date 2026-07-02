@@ -91,7 +91,10 @@
           <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
         </div>
 
-        <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
+        <div class="class-card done"
+             data-recipe="confeitaria_bolo"
+             data-turma="2024.1.C"
+             onclick="abrirPassoAPasso(this.dataset.recipe)">
           <div class="class-time"><p class="t-main">08:00</p><p class="t-end">12:00</p></div>
           <div class="divider"></div>
           <div class="class-info">
@@ -101,13 +104,20 @@
           <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
         </div>
 
-        <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
+        <div class="class-card running flight-accent"
+             data-recipe="panificacao_pao"
+             data-turma="2024.1.A"
+             onclick="abrirPassoAPasso(this.dataset.recipe)">
           <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
           <div class="divider sec"></div>
           <div class="class-info">
             <p class="class-name">Panificação Clássica Européia</p>
             <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
-            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
+            <button class="recipe-link"
+                    onclick="abrirPassoAPasso(this.closest('.class-card').dataset.recipe)">
+              <span class="material-symbols-outlined sm">restaurant_menu</span>
+              Ver receita
+            </button>
           </div>
           <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
         </div>
