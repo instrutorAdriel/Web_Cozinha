@@ -2,7 +2,9 @@ package com.example.primeiroAppSpring.controller;
 
 import com.example.primeiroAppSpring.model.Usuario;
 import com.example.primeiroAppSpring.model.UsuarioForm;
+import com.example.primeiroAppSpring.service.SessaoService;
 import com.example.primeiroAppSpring.service.UsuarioService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private SessaoService sessaoService;
 
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
@@ -56,12 +60,16 @@ public class UsuarioController {
         return "login";
     }
     @PostMapping("/login")
-    public String processarLogin(@ModelAttribute UsuarioForm form, Model model){
+    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpSession session){
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
         if(usuario == null){
             model.addAttribute("erro","E-mail ou senha incorreto!");
             return "login";
         }
+
+        sessaoService.salvarUsuarioLogado(session,usuario);
+
+
         return "redirect:/home";
     }
 
