@@ -1,8 +1,8 @@
-package com.example.primeiroAppSpring.controller;
+package com.application.WebApplicationSIGEC.controller;
 
-import com.example.primeiroAppSpring.model.Usuario;
-import com.example.primeiroAppSpring.model.UsuarioForm;
-import com.example.primeiroAppSpring.service.UsuarioService;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -44,6 +44,7 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
+
     @GetMapping("/login")
     public String exibirLogin(Model model){
         //Criando formulário vazio
@@ -61,7 +62,7 @@ public class UsuarioController {
             model.addAttribute("erro","E-mail ou senha incorreto!");
             return "login";
         }
-        return "redirect:/";
+        return "redirect:/home";
     }
 
     @GetMapping("/alterar-senha")

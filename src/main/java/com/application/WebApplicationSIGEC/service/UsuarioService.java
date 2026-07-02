@@ -1,8 +1,8 @@
-package com.example.primeiroAppSpring.service;
+package com.application.WebApplicationSIGEC.service;
 
-import com.example.primeiroAppSpring.model.Usuario;
-import com.example.primeiroAppSpring.model.UsuarioForm;
-import com.example.primeiroAppSpring.repository.UsuarioRepository;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,7 +29,7 @@ public class UsuarioService {
         }
 
         if(!form.getEmail().endsWith("@df.senac.br")){
-            return "E-mail não valido. Insira um e-mail @df.senac.br";
+            return "E-mail inválido. Insira um e-mail @df.senac.br";
         }
 
         String senhaCriptografada = encoder.encode(form.getSenha());
