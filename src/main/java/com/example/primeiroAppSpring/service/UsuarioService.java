@@ -26,7 +26,7 @@ public class UsuarioService {
         }
 
         if(!form.getEmail().endsWith("@df.senac.br")){
-            return "E-mail não valido. Insira um e-mail @df.senac.br";
+            return "E-mail inválido. Insira um e-mail @df.senac.br";
         }
 
         String senhaCriptografada = encoder.encode(form.getSenha());
