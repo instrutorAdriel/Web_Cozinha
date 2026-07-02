@@ -44,6 +44,7 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
+
     @GetMapping("/login")
     public String exibirLogin(Model model){
         //Criando formulário vazio
@@ -61,7 +62,7 @@ public class UsuarioController {
             model.addAttribute("erro","E-mail ou senha incorreto!");
             return "login";
         }
-        return "redirect:/";
+        return "redirect:/home";
     }
 
     @GetMapping("/alterar-senha")
