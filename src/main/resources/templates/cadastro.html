@@ -47,6 +47,7 @@
                     placeholder="Digite sua senha"
                     required
             >
+            <div class="erro1" th:if="${erro1}" th:text="${erro1}"></div>
 
             <label for="confirmar">Confirmar Senha</label>
             <input

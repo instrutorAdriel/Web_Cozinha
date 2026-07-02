@@ -36,7 +36,7 @@ public class UsuarioController {
         String erro = usuarioService.cadastrar(form);
 
         if(erro!=null){
-            model.addAttribute("erro", erro);
+            model.addAttribute("erro1", erro);
             model.addAttribute("usuarioForm", form);
             return "cadastro";
         }
