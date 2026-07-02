@@ -1,8 +1,8 @@
-package com.example.primeiroAppSpring.service;
+package com.example.WebApplicationSIGEC.service;
 
-import com.example.primeiroAppSpring.model.Usuario;
-import com.example.primeiroAppSpring.model.UsuarioForm;
-import com.example.primeiroAppSpring.repository.UsuarioRepository;
+import com.example.WebApplicationSIGEC.model.Usuario;
+import com.example.WebApplicationSIGEC.model.UsuarioForm;
+import com.example.WebApplicationSIGEC.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

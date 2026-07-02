@@ -1,4 +1,4 @@
-package com.example.primeiroAppSpring.model;
+package com.example.WebApplicationSIGEC.model;
 
 import jakarta.persistence.*;
 

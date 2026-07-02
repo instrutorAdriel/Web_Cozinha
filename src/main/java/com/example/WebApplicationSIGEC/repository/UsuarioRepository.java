@@ -1,6 +1,6 @@
-package com.example.primeiroAppSpring.repository;
+package com.example.WebApplicationSIGEC.repository;
 
-import com.example.primeiroAppSpring.model.Usuario;
+import com.example.WebApplicationSIGEC.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
