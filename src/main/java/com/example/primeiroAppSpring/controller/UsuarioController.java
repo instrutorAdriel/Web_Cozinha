@@ -4,6 +4,7 @@ import com.example.primeiroAppSpring.model.Usuario;
 import com.example.primeiroAppSpring.model.UsuarioForm;
 import com.example.primeiroAppSpring.service.SessaoService;
 import com.example.primeiroAppSpring.service.UsuarioService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -60,14 +61,15 @@ public class UsuarioController {
         return "login";
     }
     @PostMapping("/login")
-    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpSession session){
+    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
         if(usuario == null){
-            model.addAttribute("erro","E-mail ou senha incorreto!");
+            model.addAttribute("erro", "E-mail ou senha incorreto!");
             return "login";
         }
-
-        sessaoService.salvarUsuarioLogado(session,usuario);
+        HttpSession session = request.getSession(true);
+        session.setAttribute("usuarioLogado", usuario);
+        //sessaoService.salvarUsuarioLogado(session,usuario);
 
 
         return "redirect:/home";

@@ -3,6 +3,7 @@ package com.example.primeiroAppSpring.controller;
 import com.example.primeiroAppSpring.model.Usuario;
 import com.example.primeiroAppSpring.model.UsuarioForm;
 import com.example.primeiroAppSpring.service.SessaoService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,18 +19,18 @@ public class HomeController {
     private SessaoService sessaoService;
 
 @GetMapping("/home")
-public String exibirHome(Model model, HttpSession session){
-    Usuario usuarioLogado = sessaoService.buscarUsuarioLogado(session);
 
-    if(usuarioLogado != null){
-        IO.println("Usuario não encontrado na sessão");
-        return  "redirect:/login";
+public String exibirHome(Model model, HttpServletRequest request){
+    HttpSession session = request.getSession(false);
+
+
+    if (session == null || session.getAttribute("usuarioLogado") == null) {
+        return "redirect:/login"; // Redireciona e PARA a execução
     }
 
-    
-    String nomeCompleto = usuarioLogado.getNome();
-    String primeiroNome =nomeCompleto.split(" ")[0];
-    model.addAttribute("nomeUsuario", primeiroNome);
+   Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+    model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
 
 
 

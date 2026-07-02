@@ -211,7 +211,7 @@ body{
   border:1px solid var(--outline-variant);border-radius:var(--r);cursor:pointer;transition:.2s}
 .check-item:hover{border-color:var(--primary-container);background:var(--surface-low)}
 
-/* 🔧 CORRIGIDO: input oculto, porém funcional para o toggle */
+/*  CORRIGIDO: input oculto, porém funcional para o toggle */
 .check-item input{
   position:absolute;
   opacity:0;
