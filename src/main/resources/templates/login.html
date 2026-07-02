@@ -16,9 +16,7 @@
         <p th:text="${subTituloPagina}"></p>
 
         <!-- Mensagem de erro -->
-        <div>
-            <div class="erro" th:if="${erro}" th:text="${erro}"></div>
-        </div>
+        <div class="erro" th:if="${erro}" th:text="${erro}"></div>
 
         <form th:action="@{/login}" th:object="${usuarioForm}" method="post">
 
