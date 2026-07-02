@@ -20,7 +20,10 @@ public class UsuarioService {
         if(!form.getSenha().equals(form.getConfirmarSenha())){
             return "As senhas não conferem";
         }
-        IO.println(form.getEmail()+"esse é o email");
+        String senhaRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        if (!form.getSenha().matches(senhaRegex)) {
+            return "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.";
+        }
         if(usuarioRepository.existsByEmail(form.getEmail())){
             return "E-mail já cadastrado no banco";
         }
