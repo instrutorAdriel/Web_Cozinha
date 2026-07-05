@@ -23,7 +23,8 @@
     <p class="nav-group">Menu</p>
     <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
     <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
-    <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+    <a th:href="@{/receitas}" class="nav-item">
+      <span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
   </nav>
   <div class="sidebar-footer">
     <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
@@ -420,6 +421,7 @@
     </div>
   </div>
 </div>
+
 
 <div class="overlay" id="overlay"></div>
 <script th:src="@{/scripts/scriptHome.js}"></script>
