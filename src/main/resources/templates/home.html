@@ -38,12 +38,15 @@
       <span class="material-symbols-outlined crumb-sep">chevron_right</span>
       <span class="crumb-current">Início</span>
     </div>
+    <div class="turma-select-topbar">
+      <label class="field-label dark" for="turma-select">Turma / Laboratório</label>
+      <div class="select-wrap">
+        <select id="turma-select"></select>
+        <span class="material-symbols-outlined select-arrow">expand_more</span>
+      </div>
+    </div>
   </div>
   <div class="topbar-actions">
-    <div class="search-box">
-      <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="Buscar receita, turma...">
-    </div>
 
     <div class="notif-wrap">
       <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
@@ -162,13 +165,7 @@
             <h2 class="ch-title">Checklist da Aula (Insumos)</h2>
           </div>
 
-          <label class="field-label" for="turma-select">Turma / Laboratório</label>
-          <div class="select-wrap">
-            <select id="turma-select"></select>
-            <span class="material-symbols-outlined select-arrow">expand_more</span>
-          </div>
-
-          <label class="field-label" for="recipe-select">Selecione a aula / receita</label>
+          <label class="field-label" for="recipe-select">Selecione a receita</label>
           <div class="select-wrap">
             <select id="recipe-select"></select>
             <span class="material-symbols-outlined select-arrow">expand_more</span>
@@ -198,7 +195,7 @@
           <div class="checklist-footer">
             <button id="main-btn-reset" class="btn-ghost">Limpar</button>
             <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
-            <button class="btn-confirm btn-finish-class">Confirmar Separação</button>
+            <button class="btn-confirm btn-finish-class">Confirmar</button>
           </div>
         </div>
       </section>

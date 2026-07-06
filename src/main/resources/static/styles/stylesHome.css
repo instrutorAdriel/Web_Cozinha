@@ -66,11 +66,10 @@ body{
 .crumb-sep{font-size:18px;color:var(--outline)}
 .crumb-current{color:var(--primary);font-weight:700}
 .topbar-actions{display:flex;align-items:center;gap:16px}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--surface-lowest);border:1px solid var(--outline-variant);
-  border-radius:var(--r);padding:8px 12px;width:240px;transition:.2s}
-.search-box:focus-within{border-bottom:2px solid var(--secondary-container)}
-.search-box .material-symbols-outlined{color:var(--outline);font-size:20px}
-.search-box input{border:none;outline:none;background:none;width:100%;font-size:14px;color:var(--on-surface)}
+.turma-select-topbar{display:flex;align-items:center;gap:10px;margin-left:8px;padding-left:16px;border-left:1px solid var(--outline-variant)}
+.turma-select-topbar .field-label{margin:0;white-space:nowrap}
+.turma-select-topbar .select-wrap{margin-bottom:0;width:220px}
+.turma-select-topbar #turma-select{width:100%;padding:9px 32px 9px 12px;font-size:13px}
 .icon-btn{position:relative;background:none;border:none;padding:8px;border-radius:var(--r-full);
   cursor:pointer;color:var(--on-surface-variant);transition:.2s}
 .icon-btn:hover{background:var(--surface-high)}
@@ -309,7 +308,7 @@ body{
 @media(max-width:1024px){
   .checklists-grid{grid-template-columns:1fr}
   .quick-actions{grid-template-columns:repeat(2,1fr)}
-  .search-box{display:none}
+  .turma-select-topbar .select-wrap{width:160px}
   .hero{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:768px){
@@ -318,6 +317,9 @@ body{
   .topbar{left:0} .main{margin-left:0}
   .menu-toggle{display:block}
   .content{padding:20px}
+  .turma-select-topbar{border-left:none;padding-left:0;margin-left:0}
+  .turma-select-topbar .field-label{display:none}
+  .turma-select-topbar .select-wrap{width:130px}
 }
 @media(prefers-reduced-motion:reduce){
   .checklist-items{transition:none}
