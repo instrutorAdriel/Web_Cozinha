@@ -26,8 +26,18 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    //metodo encerrar sessao
+    private void encerrarSessaoSeExistir(HttpSession session) {
+        if (session != null && session.getAttribute("usuarioLogado") != null) {
+            sessaoService.encerrarSessao(session);
+        }
+    }
+
     @GetMapping("/cadastro")
-    public String exibirCadastro(Model model){
+    public String exibirCadastro(Model model, HttpSession session){
+
+        encerrarSessaoSeExistir(session);
+
         //Criando formulário vazio
         model.addAttribute("usuarioForm", new UsuarioForm());
 
@@ -53,9 +63,7 @@ public class UsuarioController {
     @GetMapping("/login")
     public String exibirLogin(Model model, HttpSession session) {
 
-        if (session != null) {
-            sessaoService.encerrarSessao(session);
-        }
+        encerrarSessaoSeExistir(session);
 
         model.addAttribute("usuarioForm", new UsuarioForm());
         model.addAttribute("tituloPagina", "Bem-Vindo");
@@ -81,7 +89,10 @@ public class UsuarioController {
     }
 
     @GetMapping("/alterar-senha")
-    public String exibirAlterarSenha(Model model){
+    public String exibirAlterarSenha(Model model, HttpSession session){
+
+        encerrarSessaoSeExistir(session);
+
         //Criando formulário vazio
         model.addAttribute("usuarioForm", new UsuarioForm());
 
