@@ -51,15 +51,19 @@ public class UsuarioController {
 
 
     @GetMapping("/login")
-    public String exibirLogin(Model model){
-        //Criando formulário vazio
-        model.addAttribute("usuarioForm", new UsuarioForm());
+    public String exibirLogin(Model model, HttpSession session) {
 
+        if (session != null) {
+            sessaoService.encerrarSessao(session);
+        }
+
+        model.addAttribute("usuarioForm", new UsuarioForm());
         model.addAttribute("tituloPagina", "Bem-Vindo");
         model.addAttribute("subTituloPagina", "Sistema de Gerenciamento de Estoque da Cozinha");
 
         return "login";
     }
+
     @PostMapping("/login")
     public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
@@ -73,6 +77,7 @@ public class UsuarioController {
 
 
         return "redirect:/home";
+
     }
 
     @GetMapping("/alterar-senha")
@@ -98,3 +103,13 @@ public class UsuarioController {
     }
 
 }
+
+/*@GetMapping("/login")
+public String exibirLogin(HttpSession session) {
+
+    if (session != null) {
+        sessaoService.encerrarSessao(session);
+    }
+
+    return "login";
+}**/
