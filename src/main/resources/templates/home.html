@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:https="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title >SENAC SIGEC — Painel do Instrutor</title>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<link  rel="stylesheet" th:href="@{/styles/stylesHome.css} ">
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title >SENAC SIGEC — Painel do Instrutor</title>
+  <!-- Fontes do Google (Tipografia do Sistema) -->
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Ícones do Google (Material Symbols) -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <!-- Estilo CSS Principal (Via Thymeleaf) -->
+  <link  rel="stylesheet" th:href="@{/styles/stylesHome.css} ">
 </head>
 <body>
 
+<!-- ==========================================================================
+     BARRA LATERAL DE NAVEGAÇÃO (SIDEBAR)
+     ========================================================================== -->
 <aside class="sidebar" id="sidebar">
+  <!-- Logotipo e Identificação do Sistema -->
   <div class="sidebar-brand">
     <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
     <div class="brand-text">
@@ -19,18 +26,25 @@
     </div>
   </div>
 
+  <!-- Links de Navegação Principal -->
   <nav class="sidebar-nav">
     <p class="nav-group">Menu</p>
     <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
     <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
     <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
   </nav>
+
+  <!-- Rodapé da Sidebar (Botão de Sair) -->
   <div class="sidebar-footer">
     <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
   </div>
 </aside>
 
+<!-- ==========================================================================
+     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
+     ========================================================================== -->
 <header class="topbar">
+  <!-- Lado Esquerdo: Menu sanduíche e Localização Atual (Breadcrumb) -->
   <div class="topbar-left">
     <button class="menu-toggle" id="menu-toggle"><span class="material-symbols-outlined">menu</span></button>
     <div class="breadcrumb">
@@ -39,12 +53,30 @@
       <span class="crumb-current">Início</span>
     </div>
   </div>
-  <div class="topbar-actions">
-    <div class="search-box">
-      <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="Buscar receita, turma...">
-    </div>
 
+  <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
+  <div class="topbar-actions">
+
+      <div class="topbar-actions">
+
+        <label class="field-label" for="turma-select">Turma / Laboratório</label>
+
+        <div class="select-wrap">
+
+          <select id="turma-select">
+            <option value="">-- Selecione uma Turma --</option>
+            <option value="2024.1.A">Turma 2024.1.A</option>
+            <option value="2024.1.C">Turma 2024.1.C</option>
+          </select>
+
+          <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+        </div>
+
+
+      </div>
+
+    <!-- Central de Notificações (Menu expansível via JS) -->
     <div class="notif-wrap">
       <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
         <span class="material-symbols-outlined">notifications</span>
@@ -60,6 +92,7 @@
       </div>
     </div>
 
+    <!-- Perfil do Usuário Autenticado -->
     <div class="user-box">
       <div class="user-info">
         <p class="user-name">Chef Ricardo Silva</p>
@@ -69,9 +102,13 @@
   </div>
 </header>
 
+<!-- ==========================================================================
+     CONTEÚDO PRINCIPAL DO DASHBOARD
+     ========================================================================== -->
 <main class="main">
   <div class="content">
 
+    <!-- Banner de Boas-vindas (Hero Section) -->
     <section class="hero flight-accent">
       <div class="hero-text">
         <p class="hero-date">Quarta-feira, 17 de Junho</p>
@@ -80,8 +117,10 @@
       </div>
     </section>
 
+    <!-- Bloco Superior: Lista de Aulas e Resumo Dinâmico da Receita -->
     <div class="dashboard-top-grid">
-      
+
+      <!-- Listagem das Aulas/Turmas do Dia -->
       <section class="classes-col">
         <div class="section-head split">
           <div class="section-head plain">
@@ -91,6 +130,7 @@
           <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
         </div>
 
+        <!-- Aula 1: Concluída -->
         <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
           <div class="class-time"><p class="t-main">08:00</p><p class="t-end">12:00</p></div>
           <div class="divider"></div>
@@ -101,6 +141,7 @@
           <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
         </div>
 
+        <!-- Aula 2: Em Andamento -->
         <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
           <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
           <div class="divider sec"></div>
@@ -112,6 +153,7 @@
           <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
         </div>
 
+        <!-- Aula 3: Pendente -->
         <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
           <div class="class-time"><p class="t-main">19:00</p><p class="t-end">22:30</p></div>
           <div class="divider"></div>
@@ -124,21 +166,23 @@
         </div>
       </section>
 
+      <!-- Painel Lateral: Resumo Prático dos Passos da Receita Selecionada -->
       <aside class="recipe-summary-card" id="recipe-summary-card">
         <div class="summary-head flight-accent">
           <span class="material-symbols-outlined">menu_book</span>
           <h3 class="summary-title">Resumo da Receita</h3>
         </div>
-        
+
         <div class="summary-body">
           <h4 class="summary-recipe-name" id="summary-recipe-name">Selecione uma aula</h4>
-          
+
           <ol class="summary-steps-list" id="summary-steps">
             <li style="list-style: none; color: var(--on-surface-variant);">
               Clique em "Ver receita" ao lado para carregar os detalhes.
             </li>
           </ol>
-          
+
+          <!-- Rodapé do Resumo (Exibido via JavaScript ao carregar a receita) -->
           <div class="summary-footer mt-auto" id="summary-footer" style="display: none;">
             <button class="btn-confirm" id="btn-open-kitchen">
               Passo a passo
@@ -153,31 +197,28 @@
 
     </div>
 
+    <!-- Bloco Inferior: Área das Listas de Verificação (Checklists) -->
     <div class="checklists-grid">
 
+      <!-- Checklist 1: Separação e Conferência de Insumos (Ingredientes) -->
       <section class="checklist-card">
         <div class="checklist-head flight-accent">
           <div class="ch-title-row">
             <span class="material-symbols-outlined">checklist</span>
             <h2 class="ch-title">Checklist da Aula (Insumos)</h2>
           </div>
-
-          <label class="field-label" for="turma-select">Turma / Laboratório</label>
-          <div class="select-wrap">
-            <select id="turma-select"></select>
-            <span class="material-symbols-outlined select-arrow">expand_more</span>
-          </div>
-
           <label class="field-label" for="recipe-select">Selecione a aula / receita</label>
           <div class="select-wrap">
             <select id="recipe-select"></select>
             <span class="material-symbols-outlined select-arrow">expand_more</span>
           </div>
+          <!-- Metadados da Receita Ativa -->
           <p class="ch-recipe">Receita: <strong id="recipe-name">—</strong></p>
           <p class="ch-loc" id="recipe-loc">—</p>
           <p class="ch-turma-badge" id="turma-badge">—</p>
         </div>
 
+        <!-- Barra de Progresso e Lista de Itens dos Insumos -->
         <div class="ch-tab-content active" id="tab-principal">
           <div class="progress-block">
             <div class="progress-info">
@@ -186,15 +227,18 @@
             </div>
             <div class="progress-track"><div id="main-progress-bar" class="progress-fill"></div></div>
           </div>
-          
+
+          <!-- Container onde o JS irá renderizar os itens do checklist -->
           <div id="checklist-main" class="checklist-items"></div>
-          
+
+          <!-- Ação para Adicionar Itens Extras -->
           <div class="add-row">
             <button class="btn-add" id="btn-add-insumo">
               <span class="material-symbols-outlined">add</span>Solicitar insumo extra
             </button>
           </div>
-          
+
+          <!-- Controles de Finalização do Bloco -->
           <div class="checklist-footer">
             <button id="main-btn-reset" class="btn-ghost">Limpar</button>
             <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
@@ -203,6 +247,7 @@
         </div>
       </section>
 
+      <!-- Checklist 2: Conferência de Utensílios e Equipamentos -->
       <section class="checklist-card">
         <div class="checklist-head flight-accent">
           <div class="ch-title-row">
@@ -214,6 +259,7 @@
           <p class="ch-turma-badge" id="util-turma-badge">—</p>
         </div>
 
+        <!-- Barra de Progresso dos Utensílios -->
         <div class="progress-block">
           <div class="progress-info">
             <span class="bold" id="util-progress-text">0 de 0 itens</span>
@@ -222,14 +268,17 @@
           <div class="progress-track"><div id="util-progress-bar" class="progress-fill"></div></div>
         </div>
 
+        <!-- Container onde o JS irá renderizar os utensílios -->
         <div id="util-checklist" class="checklist-items"></div>
 
+        <!-- Ação para Adicionar Utensílio Extra -->
         <div class="add-row">
           <button class="btn-add" id="btn-add-util">
             <span class="material-symbols-outlined">add</span>Adicionar utensílio extra
           </button>
         </div>
 
+        <!-- Controles de Finalização de Utensílios -->
         <div class="checklist-footer" style="justify-content: flex-start;">
           <button id="util-btn-reset" class="btn-ghost" style="flex: none; padding: 11px 24px;">Limpar</button>
           <button class="btn-confirm btn-finish-class" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
@@ -241,8 +290,14 @@
   </div>
 </main>
 
+<!-- ==========================================================================
+     JANELAS MODAIS (MODAL DIALOGS) — Ocultas por padrão (Controladas via JS/CSS)
+     ========================================================================== -->
+
+<!-- 1. MODAL DO CALENDÁRIO DE AULAS -->
 <div class="cal-modal" id="cal-modal">
   <div class="cal-box">
+    <!-- Cabeçalho do Calendário com Filtros de Cozinha -->
     <div class="cal-header flight-accent">
       <div class="cal-title-row">
         <span class="material-symbols-outlined">calendar_month</span>
@@ -265,6 +320,7 @@
       </div>
     </div>
 
+    <!-- Grade de Dias e Painel Lateral de Detalhes do Dia -->
     <div class="cal-body">
       <div class="cal-grid-wrap">
         <div class="cal-weekdays">
@@ -279,6 +335,7 @@
         </div>
       </div>
 
+      <!-- Painel Dinâmico que detalha as fichas técnicas do dia clicado -->
       <aside class="cal-day-panel" id="cal-day-panel">
         <div class="cal-panel-empty" id="cal-panel-empty">
           <span class="material-symbols-outlined">event</span>
@@ -296,6 +353,7 @@
   </div>
 </div>
 
+<!-- 2. MODAL PARA ADICIONAR OBSERVAÇÃO/AVARIA EM UM ITEM ESPECÍFICO -->
 <div class="modal-overlay" id="obs-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
@@ -312,6 +370,7 @@
   </div>
 </div>
 
+<!-- 3. MODAL PARA SOLICITAÇÃO DE INSUMO EXTRA -->
 <div class="modal-overlay" id="extra-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
@@ -319,19 +378,19 @@
       <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">O item será registrado no checklist e enviado para validação.</p>
-    
+
     <label class="field-label dark">Nome do Insumo</label>
     <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
-    
+
     <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-        <div style="flex: 1;">
-            <label class="field-label dark">Quantidade</label>
-            <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
-        </div>
-        <div style="flex: 1;">
-            <label class="field-label dark">Unidade</label>
-            <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
-        </div>
+      <div style="flex: 1;">
+        <label class="field-label dark">Quantidade</label>
+        <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+      </div>
+      <div style="flex: 1;">
+        <label class="field-label dark">Unidade</label>
+        <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+      </div>
     </div>
 
     <label class="field-label dark">Observação / Motivo</label>
@@ -344,6 +403,7 @@
   </div>
 </div>
 
+<!-- 4. MODAL PARA ADICIONAR UTENSÍLIO EXTRA -->
 <div class="modal-overlay" id="util-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
@@ -351,10 +411,10 @@
       <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Adicione um utensílio não previsto na ficha da receita.</p>
-    
+
     <label class="field-label dark">Nome do Utensílio</label>
     <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
-    
+
     <label class="field-label dark">Quantidade (un)</label>
     <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
 
@@ -368,6 +428,7 @@
   </div>
 </div>
 
+<!-- 5. MODAL PARA INSERIR RELATO DE CONCLUSÃO DA AULA -->
 <div class="modal-overlay" id="finish-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
@@ -375,7 +436,7 @@
       <button class="modal-close" id="finish-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação geral sobre o andamento da aula.</p>
-    
+
     <label class="field-label dark" for="finish-obs">Relato da Aula (Opcional)</label>
     <textarea id="finish-obs" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: A turma estava muito agitada hoje..."></textarea>
 
@@ -386,6 +447,7 @@
   </div>
 </div>
 
+<!-- 6. MODAL PARA APROVEITAMENTO DE SOBRAS (GERAR NOVA FICHA) -->
 <div class="modal-overlay" id="sobras-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
@@ -393,11 +455,12 @@
       <button class="modal-close" id="sobras-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Selecione os insumos que sobraram e informe a quantidade.</p>
-    
+
     <label class="field-label dark">Nome da Nova Ficha / Preparo</label>
     <input type="text" id="sobras-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 16px;" placeholder="Ex: Pavlova de Frutas (Sobras)">
-    
+
     <label class="field-label dark">Insumos da Receita Atual</label>
+    <!-- Elemento onde o JS carregará dinamicamente os itens disponíveis para reuso -->
     <div id="sobras-list" style="max-height: 250px; overflow-y: auto; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee;">
     </div>
 
@@ -408,6 +471,7 @@
   </div>
 </div>
 
+<!-- 7. MODAL DE "MODO COZINHA" (EXECUÇÃO DA RECEITA PASSO A PASSO) -->
 <div class="modal-overlay" id="kitchen-modal">
   <div class="modal modal-kitchen flight-accent">
     <div class="modal-head">
@@ -415,13 +479,17 @@
       <button class="modal-close" id="kitchen-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <div class="kitchen-content">
+      <!-- Elemento ordenado mapeado por JS para guiar a execução prática -->
       <ol class="kitchen-steps" id="kitchen-steps">
-        </ol>
+      </ol>
     </div>
   </div>
 </div>
 
+<!-- Camada escura de fundo para focar a atenção nas modais abertas -->
 <div class="overlay" id="overlay"></div>
+
+<!-- Arquivo Script JS Principal (Via Thymeleaf) -->
 <script th:src="@{/scripts/scriptHome.js}"></script>
 </body>
 </html>
