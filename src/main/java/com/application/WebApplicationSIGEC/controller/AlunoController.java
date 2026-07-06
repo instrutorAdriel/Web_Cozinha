@@ -1,6 +1,6 @@
-package com.example.primeiroAppSpring.controller;
+package com.application.WebApplicationSIGEC.controller;
 
-import com.example.primeiroAppSpring.model.Aluno;
+import com.application.WebApplicationSIGEC.model.Aluno;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 

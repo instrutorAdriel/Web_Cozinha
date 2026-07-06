@@ -56,6 +56,7 @@
                     placeholder="Confirme sua senha"
                     required
             >
+            <div class="erro1" th:if="${erro1}" th:text="${erro1}"></div>
 
             <button type="submit">Cadastrar</button>
 

@@ -1006,7 +1006,7 @@ atualizarResumoReceita(receitaAtual);
   modal.addEventListener('click', e => { if (e.target === modal) fechar(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
 
-  document.querySelectorAll('.link-btn').forEach(btn => {
+  document.querySelectorAll('.nav-item').forEach(btn => {
     if (btn.textContent.includes('Calendário')) btn.addEventListener('click', abrir);
   });
 })();

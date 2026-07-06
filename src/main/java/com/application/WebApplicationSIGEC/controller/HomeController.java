@@ -1,6 +1,4 @@
-package com.example.primeiroAppSpring.controller;
-
-import com.example.primeiroAppSpring.model.UsuarioForm;
+package com.application.WebApplicationSIGEC.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
