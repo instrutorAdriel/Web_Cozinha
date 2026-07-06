@@ -5,6 +5,7 @@ import com.application.WebApplicationSIGEC.repository.FichasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -21,5 +22,9 @@ public class FichasService {
     public Fichas buscarData(LocalDate data){
         Optional<Fichas> rs = fichasRepository.findByData(data);
         return rs.orElse(null);
+    }
+
+    public List<Fichas> buscarTodas() {
+        return fichasRepository.findAll();
     }
 }

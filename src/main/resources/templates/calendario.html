@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário de Aulas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link  rel="stylesheet" th:href="@{/styles/calendario.css} ">
+</head>
+<body>
+
+<!-- Tela Completa do Calendário -->
+<main class="cal-page">
+    <!-- Cabeçalho -->
+    <header class="cal-header flight-accent">
+        <div class="cal-title-row">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <h1 class="cal-title">Planejamento de Aulas</h1>
+        </div>
+        <div class="cal-nav">
+            <button class="cal-nav-btn" id="cal-prev" title="Mês Anterior"><span class="material-symbols-outlined">chevron_left</span></button>
+            <span class="cal-month" id="cal-month">Junho 2026</span>
+            <button class="cal-nav-btn" id="cal-next" title="Próximo Mês"><span class="material-symbols-outlined">chevron_right</span></button>
+
+            <div class="cal-kitchen-filter">
+                <select id="cal-kitchen">
+                    <option value="todas">Todas as cozinhas</option>
+                    <option value="lab01">Padaria Lab 01</option>
+                    <option value="lab02">Cozinha Pedagógica 02</option>
+                    <option value="lab04">Cozinha Pedagógica 04</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Corpo (Grid + Painel) -->
+    <section class="cal-body">
+        <!-- Lado Esquerdo: Calendário -->
+        <div class="cal-grid-wrap">
+            <div class="cal-weekdays">
+                <span>Dom</span><span>Seg</span><span>Ter</span>
+                <span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+            </div>
+            <!-- Os dias serão gerados pelo JS abaixo -->
+            <div class="cal-grid" id="cal-grid"></div>
+            <!-- Legenda -->
+            <div class="cal-legend">
+                <span><i class="dot dot-class"></i>Com aula agendada</span>
+                <span><i class="dot dot-holiday"></i>Feriado / Recesso institucional</span>
+                <span><i class="dot dot-weekend"></i>Fim de semana</span>
+            </div>
+        </div>
+
+        <!-- Lado Direito: Painel do Dia Selecionado -->
+        <aside class="cal-day-panel" id="cal-day-panel">
+            <div class="cal-panel-empty" id="cal-panel-empty">
+                <span class="material-symbols-outlined">event_available</span>
+                <p>Selecione um dia no calendário<br>para visualizar e alocar fichas.</p>
+            </div>
+            <div class="cal-panel-content" id="cal-panel-content" style="display:none">
+                <h2 class="cal-panel-date" id="cal-panel-date">—</h2>
+                <h3 class="cal-sub">Fichas alocadas (Agenda do dia)</h3>
+                <div class="cal-allocated" id="cal-allocated">
+                    <!-- Exemplo preenchido -->
+                    <div class="cal-fiche">
+                        <div class="cal-fiche-info">
+                            <div class="cal-fiche-name">Padaria Básica - Pão Francês e Baguete</div>
+                            <div class="cal-fiche-stock stock-ok"><span class="material-symbols-outlined sm">check_circle</span> Estoque Completo</div>
+                        </div>
+                        <button class="cal-fiche-btn remove" title="Desalocar ficha"><span class="material-symbols-outlined sm">close</span></button>
+                    </div>
+                </div>
+                <h3 class="cal-sub">Fichas disponíveis no acervo</h3>
+                <div class="cal-available" id="cal-available">
+                    <!-- Exemplo preenchido -->
+                    <div class="cal-fiche">
+                        <div class="cal-fiche-info">
+                            <div class="cal-fiche-name">Confeitaria - Massa Sablée e Sucrée</div>
+                            <div class="cal-fiche-stock stock-low"><span class="material-symbols-outlined sm">warning</span> Faltam 2 ingredientes</div>
+                        </div>
+                        <button class="cal-fiche-btn" title="Alocar ficha neste dia"><span class="material-symbols-outlined sm">add</span></button>
+                    </div>
+                    <div class="cal-fiche">
+                        <div class="cal-fiche-info">
+                            <div class="cal-fiche-name">Cortes Básicos - Legumes</div>
+                            <div class="cal-fiche-stock stock-ok"><span class="material-symbols-outlined sm">check_circle</span> Estoque Completo</div>
+                        </div>
+                        <button class="cal-fiche-btn" title="Alocar ficha neste dia"><span class="material-symbols-outlined sm">add</span></button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </section>
+</main>
+
+<script>
+
+    // Gerar dias do mês (Lógica mock para visualização)
+
+    const grid = document.getElementById('cal-grid');
+
+    let htmlDays = '';
+
+    // Dia vazio para deslocar o início do mês na semana (ex: mês começa na terça)
+
+    htmlDays += `<div class="cal-day empty"></div><div class="cal-day empty"></div>`;
+
+    for(let i = 1; i <= 30; i++) {
+
+        let extraClass = '';
+
+        let dots = '';
+
+        // Criando cenários fakes para teste do layout
+
+        if(i === 15) extraClass = 'today';
+
+        if(i === 20) { extraClass = 'holiday'; dots = '<div class="cal-day-dots"><i class="dot-holiday"></i></div>'; }
+
+        // Fim de semana (considerando que começou na Terça no nosso offset)
+
+        if((i + 2) % 7 === 1 || (i + 2) % 7 === 0) extraClass += ' weekend';
+
+        // Dias com aulas alocadas
+
+        if(i === 10 || i === 12 || i === 15 || i === 28) {
+
+            dots = '<div class="cal-day-dots"><i></i><i></i></div>';
+
+        }
+
+        htmlDays += `
+<div class="cal-day ${extraClass}" onclick="selectDay(this, ${i})">
+<span class="cal-day-num">${i}</span>
+
+          ${dots}
+</div>
+
+      `;
+
+    }
+
+    grid.innerHTML = htmlDays;
+
+    // Interação: Clicar num dia
+
+    const panelEmpty = document.getElementById('cal-panel-empty');
+
+    const panelContent = document.getElementById('cal-panel-content');
+
+    const panelDate = document.getElementById('cal-panel-date');
+
+    function selectDay(element, dayNumber) {
+
+        // Bloqueia clique em fins de semana e feriados
+
+        if(element.classList.contains('weekend') || element.classList.contains('holiday')) return;
+
+        // Remove a marcação do dia selecionado anteriormente
+
+        document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
+
+        // Destaca o dia clicado
+
+        element.classList.add('selected');
+
+        // Troca a tela do painel lateral
+
+        panelEmpty.style.display = 'none';
+
+        panelContent.style.display = 'block';
+
+        panelDate.textContent = `${dayNumber} de Junho, 2026`;
+
+    }
+</script>
+</body>
+</html>
