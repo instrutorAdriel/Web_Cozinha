@@ -395,6 +395,13 @@ function abrirModoCozinha() {
 const btnOpenKitchen = $('btn-open-kitchen');
 if(btnOpenKitchen) btnOpenKitchen.addEventListener('click', abrirModoCozinha);
 
+if (summaryCard) {
+  summaryCard.addEventListener('click', () => {
+    if (summaryFooter && summaryFooter.style.display !== 'none') {
+      abrirModoCozinha();
+    }
+  });
+}
 function fecharModalCozinha() { 
   if(kitchenModal) kitchenModal.classList.remove('show'); 
 }
@@ -642,16 +649,14 @@ turmaSelect.innerHTML = Object.entries(turmas)
 document.querySelectorAll('.class-card').forEach(card => {
   const recipeKey = card.dataset.recipe;
   const turmaKey  = card.dataset.turma;
-  const link = card.querySelector('.recipe-link');
-  if (link && recipeKey) {
-    link.addEventListener('click', () => {
+  if (recipeKey) {
+    card.addEventListener('click', () => {
       if (turmaKey && turmas[turmaKey]) trocarTurma(turmaKey);
       trocarReceita(recipeKey);
-      // Removido o .scrollIntoView() para a tela não descer automaticamente!
+      abrirModoCozinha();
     });
   }
 });
-
 function highlightCard(key) {
   document.querySelectorAll('.class-card').forEach(c =>
     c.classList.toggle('selected', c.dataset.recipe === key)
