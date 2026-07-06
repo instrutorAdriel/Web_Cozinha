@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receitas</title>
+    <link rel="stylesheet"  th:href="@{/styles/stylesReceitas.css}">
+</head>
+<body>
+
+<div class="modal">
+    <header>
+        <div class="title-wrap">
+            <div class="icon-badge">📖</div>
+            Receitas
+        </div>
+        <button class="close-btn" title="Fechar">✕</button>
+    </header>
+
+    <div class="toolbar">
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Buscar receita...">
+        </div>
+        <select id="cuisineFilter"></select>
+    </div>
+
+    <div class="body-area">
+        <div class="list-col">
+            <div class="status-filters" id="statusFilters">
+                <button class="status-filter-btn active" data-status="todas">Todas</button>
+                <button class="status-filter-btn" data-status="disponivel">Disponíveis</button>
+                <button class="status-filter-btn" data-status="aplicada">Aplicadas</button>
+            </div>
+            <div id="listCol"></div>
+        </div>
+        <div class="detail-col" id="detailCol"></div>
+    </div>
+</div>
+
+<script th:src=" @{/scripts/scriptReceitas.js}"></script>
+</body>
+</html>
