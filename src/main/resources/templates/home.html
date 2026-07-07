@@ -75,20 +75,20 @@
     <section class="hero flight-accent">
       <div class="hero-text">
         <p class="hero-date">Quarta-feira, 17 de Junho</p>
-        <h2 class="hero-title">Bom dia, Chefe Fulano!</h2>
+        <h2 class="hero-title">Bom dia, Chef Ricardo!</h2>
         <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
       </div>
     </section>
 
     <div class="dashboard-top-grid">
-
+      
       <section class="classes-col">
         <div class="section-head split">
           <div class="section-head plain">
             <span class="material-symbols-outlined">today</span>
             <h2 class="section-title">Receitas de Hoje</h2>
           </div>
-
+          <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
         </div>
 
         <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
@@ -129,16 +129,16 @@
           <span class="material-symbols-outlined">menu_book</span>
           <h3 class="summary-title">Resumo da Receita</h3>
         </div>
-
+        
         <div class="summary-body">
           <h4 class="summary-recipe-name" id="summary-recipe-name">Selecione uma aula</h4>
-
+          
           <ol class="summary-steps-list" id="summary-steps">
             <li style="list-style: none; color: var(--on-surface-variant);">
               Clique em "Ver receita" ao lado para carregar os detalhes.
             </li>
           </ol>
-
+          
           <div class="summary-footer mt-auto" id="summary-footer" style="display: none;">
             <button class="btn-confirm" id="btn-open-kitchen">
               Passo a passo
@@ -186,19 +186,19 @@
             </div>
             <div class="progress-track"><div id="main-progress-bar" class="progress-fill"></div></div>
           </div>
-
+          
           <div id="checklist-main" class="checklist-items"></div>
-
+          
           <div class="add-row">
             <button class="btn-add" id="btn-add-insumo">
               <span class="material-symbols-outlined">add</span>Solicitar insumo extra
             </button>
           </div>
-
+          
           <div class="checklist-footer">
             <button id="main-btn-reset" class="btn-ghost">Limpar</button>
             <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
-            <button class="btn-confirm" id="btn-finish-insumos">Confirmar Separação</button>
+            <button class="btn-confirm btn-finish-class">Confirmar Separação</button>
           </div>
         </div>
       </section>
@@ -232,7 +232,7 @@
 
         <div class="checklist-footer" style="justify-content: flex-start;">
           <button id="util-btn-reset" class="btn-ghost" style="flex: none; padding: 11px 24px;">Limpar</button>
-          <button class="btn-confirm" id="btn-finish-utensilios" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
+          <button class="btn-confirm btn-finish-class" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
         </div>
       </section>
 
@@ -319,19 +319,19 @@
       <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">O item será registrado no checklist e enviado para validação.</p>
-
+    
     <label class="field-label dark">Nome do Insumo</label>
     <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
-
+    
     <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-      <div style="flex: 1;">
-        <label class="field-label dark">Quantidade</label>
-        <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
-      </div>
-      <div style="flex: 1;">
-        <label class="field-label dark">Unidade</label>
-        <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
-      </div>
+        <div style="flex: 1;">
+            <label class="field-label dark">Quantidade</label>
+            <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+        </div>
+        <div style="flex: 1;">
+            <label class="field-label dark">Unidade</label>
+            <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+        </div>
     </div>
 
     <label class="field-label dark">Observação / Motivo</label>
@@ -351,10 +351,10 @@
       <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Adicione um utensílio não previsto na ficha da receita.</p>
-
+    
     <label class="field-label dark">Nome do Utensílio</label>
     <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
-
+    
     <label class="field-label dark">Quantidade (un)</label>
     <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
 
@@ -368,40 +368,20 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="finish-modal_insumos">
+<div class="modal-overlay" id="finish-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
-      <h3 class="modal-title">Verificar Insumos</h3>
-      <!-- A classe voltou para 'modal-close' para manter o design -->
-      <button class="modal-close" id="finish-close_insumos"><span class="material-symbols-outlined">close</span></button>
+      <h3 class="modal-title">Concluir Aula</h3>
+      <button class="modal-close" id="finish-close"><span class="material-symbols-outlined">close</span></button>
     </div>
-    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação sobre os insumos recebidos.</p>
-
-    <label class="field-label dark" for="finish-obs_insumos">Observação (Opcional)</label>
-    <textarea id="finish-obs_insumos" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: Faltou 1kg de farinha de trigo na entrega..."></textarea>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação geral sobre o andamento da aula.</p>
+    
+    <label class="field-label dark" for="finish-obs">Relato da Aula (Opcional)</label>
+    <textarea id="finish-obs" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: A turma estava muito agitada hoje..."></textarea>
 
     <div class="modal-footer">
-      <button class="btn-ghost" style="flex: 1;" id="finish-cancel_insumos">Cancelar</button>
-      <button class="btn-confirm" style="flex: 1;" id="finish-save_insumos">Salvar e Finalizar</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="finish-modal_utensilios">
-  <div class="modal flight-accent">
-    <div class="modal-head">
-      <h3 class="modal-title">Verificar Utensílios</h3>
-      <!-- A classe voltou para 'modal-close' para manter o design -->
-      <button class="modal-close" id="finish-close_utensilios"><span class="material-symbols-outlined">close</span></button>
-    </div>
-    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação sobre a condição dos utensílios.</p>
-
-    <label class="field-label dark" for="finish-obs_utensilios">Observação (Opcional)</label>
-    <textarea id="finish-obs_utensilios" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: A espátula de silicone estava danificada..."></textarea>
-
-    <div class="modal-footer">
-      <button class="btn-ghost" style="flex: 1;" id="finish-cancel_utensilios">Cancelar</button>
-      <button class="btn-confirm" style="flex: 1;" id="finish-save_utensilios">Salvar e Finalizar</button>
+      <button class="btn-ghost" style="flex: 1;" id="finish-cancel">Cancelar</button>
+      <button class="btn-confirm" style="flex: 1;" id="finish-save">Salvar e Finalizar</button>
     </div>
   </div>
 </div>
@@ -413,10 +393,10 @@
       <button class="modal-close" id="sobras-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Selecione os insumos que sobraram e informe a quantidade.</p>
-
+    
     <label class="field-label dark">Nome da Nova Ficha / Preparo</label>
     <input type="text" id="sobras-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 16px;" placeholder="Ex: Pavlova de Frutas (Sobras)">
-
+    
     <label class="field-label dark">Insumos da Receita Atual</label>
     <div id="sobras-list" style="max-height: 250px; overflow-y: auto; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee;">
     </div>
@@ -436,7 +416,7 @@
     </div>
     <div class="kitchen-content">
       <ol class="kitchen-steps" id="kitchen-steps">
-      </ol>
+        </ol>
     </div>
   </div>
 </div>

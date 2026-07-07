@@ -36,14 +36,6 @@
     --clip-tr: polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,0 100%);
 }
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Hanken Grotesk',sans-serif;
-}
-
-
 body{
     min-height: 100vh;
     background:
