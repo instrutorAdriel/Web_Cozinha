@@ -1,8 +1,8 @@
-package com.example.primeiroAppSpring.controller;
+package com.application.WebApplicationSIGEC.controller;
 
-import com.example.primeiroAppSpring.model.Usuario;
-import com.example.primeiroAppSpring.model.UsuarioForm;
-import com.example.primeiroAppSpring.service.UsuarioService;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +36,12 @@ public class UsuarioController {
         String erro = usuarioService.cadastrar(form);
 
         if(erro!=null){
-            model.addAttribute("erro", erro);
+            if(erro.equals("A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.")){
+                model.addAttribute("erro1", erro);
+            }
+            else{
+                model.addAttribute("erro", erro);
+            }
             model.addAttribute("usuarioForm", form);
             return "cadastro";
         }
