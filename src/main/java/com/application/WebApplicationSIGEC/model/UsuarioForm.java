@@ -1,4 +1,4 @@
-package com.example.primeiroAppSpring.model;
+package com.application.WebApplicationSIGEC.model;
 
 public class UsuarioForm {
     private String nome;
