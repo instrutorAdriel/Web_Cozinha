@@ -1,9 +1,8 @@
-package com.example.primeiroAppSpring.service;
+package com.application.WebApplicationSIGEC.service;
 
 
-import com.example.primeiroAppSpring.model.Usuario;
+import com.application.WebApplicationSIGEC.model.Usuario;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

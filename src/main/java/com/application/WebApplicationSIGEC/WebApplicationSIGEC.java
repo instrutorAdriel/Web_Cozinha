@@ -1,4 +1,4 @@
-package com.example.primeiroAppSpring;
+package com.application.WebApplicationSIGEC;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

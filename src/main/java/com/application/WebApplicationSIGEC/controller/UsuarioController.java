@@ -1,9 +1,9 @@
-package com.example.primeiroAppSpring.controller;
+package com.application.WebApplicationSIGEC.controller;
 
-import com.example.primeiroAppSpring.model.Usuario;
-import com.example.primeiroAppSpring.model.UsuarioForm;
-import com.example.primeiroAppSpring.service.SessaoService;
-import com.example.primeiroAppSpring.service.UsuarioService;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.service.SessaoService;
+import com.application.WebApplicationSIGEC.service.UsuarioService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
