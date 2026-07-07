@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:https="http://www.w3.org/1999/xhtml">
 <head>
-<meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<title >SENAC SIGEC — Painel do Instrutor</title>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-<link  rel="stylesheet" th:href="@{/styles/style.css} ">
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title >SENAC SIGEC — Painel do Instrutor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link  rel="stylesheet" th:href="@{/styles/style.css} ">
 </head>
 <body>
 
@@ -81,7 +81,7 @@
     </section>
 
     <div class="dashboard-top-grid">
-      
+
       <section class="classes-col">
         <div class="section-head split">
           <div class="section-head plain">
@@ -129,16 +129,16 @@
           <span class="material-symbols-outlined">menu_book</span>
           <h3 class="summary-title">Resumo da Receita</h3>
         </div>
-        
+
         <div class="summary-body">
           <h4 class="summary-recipe-name" id="summary-recipe-name">Selecione uma aula</h4>
-          
+
           <ol class="summary-steps-list" id="summary-steps">
             <li style="list-style: none; color: var(--on-surface-variant);">
               Clique em "Ver receita" ao lado para carregar os detalhes.
             </li>
           </ol>
-          
+
           <div class="summary-footer mt-auto" id="summary-footer" style="display: none;">
             <button class="btn-confirm" id="btn-open-kitchen">
               Passo a passo
@@ -186,15 +186,15 @@
             </div>
             <div class="progress-track"><div id="main-progress-bar" class="progress-fill"></div></div>
           </div>
-          
+
           <div id="checklist-main" class="checklist-items"></div>
-          
+
           <div class="add-row">
             <button class="btn-add" id="btn-add-insumo">
               <span class="material-symbols-outlined">add</span>Solicitar insumo extra
             </button>
           </div>
-          
+
           <div class="checklist-footer">
             <button id="main-btn-reset" class="btn-ghost">Limpar</button>
             <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
@@ -319,19 +319,19 @@
       <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">O item será registrado no checklist e enviado para validação.</p>
-    
+
     <label class="field-label dark">Nome do Insumo</label>
     <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
-    
+
     <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-        <div style="flex: 1;">
-            <label class="field-label dark">Quantidade</label>
-            <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
-        </div>
-        <div style="flex: 1;">
-            <label class="field-label dark">Unidade</label>
-            <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
-        </div>
+      <div style="flex: 1;">
+        <label class="field-label dark">Quantidade</label>
+        <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+      </div>
+      <div style="flex: 1;">
+        <label class="field-label dark">Unidade</label>
+        <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+      </div>
     </div>
 
     <label class="field-label dark">Observação / Motivo</label>
@@ -351,10 +351,10 @@
       <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Adicione um utensílio não previsto na ficha da receita.</p>
-    
+
     <label class="field-label dark">Nome do Utensílio</label>
     <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
-    
+
     <label class="field-label dark">Quantidade (un)</label>
     <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
 
@@ -413,10 +413,10 @@
       <button class="modal-close" id="sobras-close"><span class="material-symbols-outlined">close</span></button>
     </div>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Selecione os insumos que sobraram e informe a quantidade.</p>
-    
+
     <label class="field-label dark">Nome da Nova Ficha / Preparo</label>
     <input type="text" id="sobras-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 16px;" placeholder="Ex: Pavlova de Frutas (Sobras)">
-    
+
     <label class="field-label dark">Insumos da Receita Atual</label>
     <div id="sobras-list" style="max-height: 250px; overflow-y: auto; background: #f8f9fa; padding: 12px; border-radius: 8px; margin-bottom: 16px; border: 1px solid #eee;">
     </div>
@@ -436,7 +436,7 @@
     </div>
     <div class="kitchen-content">
       <ol class="kitchen-steps" id="kitchen-steps">
-        </ol>
+      </ol>
     </div>
   </div>
 </div>
