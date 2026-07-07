@@ -476,40 +476,66 @@ $('util-save').addEventListener('click', () => {
   alert(`A solicitação de empréstimo para o utensílio "${nome}" foi enviada.`);
 });
 
-const finishModal = $('finish-modal');
-document.querySelectorAll('.btn-finish-class').forEach(btn => {
-  btn.addEventListener('click', () => {
-    $('finish-obs').value = ''; finishModal.classList.add('show'); $('finish-obs').focus();
+
+// === NOVO CÓDIGO PARA OS DOIS MODAIS DE CONCLUSÃO (Insumos e Utensílios) ===
+
+// 1. Modal de Insumos
+const finishModalInsumos = $('finish-modal_insumos');
+// Precisamos garantir que o botão no HTML que abre isso tenha o id "btn-finish-insumos"
+const btnFinishInsumos = $('btn-finish-insumos');
+
+if (btnFinishInsumos && finishModalInsumos) {
+  btnFinishInsumos.addEventListener('click', () => {
+    $('finish-obs_insumos').value = '';
+    finishModalInsumos.classList.add('show');
+    $('finish-obs_insumos').focus();
   });
-});
-function fecharModalFinish() { finishModal.classList.remove('show'); }
-$('finish-close').addEventListener('click', fecharModalFinish);
-$('finish-cancel').addEventListener('click', fecharModalFinish);
-finishModal.addEventListener('click', e => { if (e.target === finishModal) fecharModalFinish(); });
+}
 
-$('finish-save').addEventListener('click', () => {
-  const obsGeral = $('finish-obs').value.trim();
-  if (obsGeral) observacoes[`${turmaAtual}|${receitaAtual}|relato_geral`] = obsGeral;
+function fecharModalFinishInsumos() { if(finishModalInsumos) finishModalInsumos.classList.remove('show'); }
+if($('finish-close_insumos')) $('finish-close_insumos').addEventListener('click', fecharModalFinishInsumos);
+if($('finish-cancel_insumos')) $('finish-cancel_insumos').addEventListener('click', fecharModalFinishInsumos);
+if(finishModalInsumos) {
+  finishModalInsumos.addEventListener('click', e => { if (e.target === finishModalInsumos) fecharModalFinishInsumos(); });
+}
 
-  document.querySelectorAll('.class-card').forEach(card => {
-    if (card.dataset.recipe === receitaAtual && card.dataset.turma === turmaAtual) {
-      card.classList.remove('running', 'flight-accent');
-      card.classList.add('done');
-      const divider = card.querySelector('.divider.sec');
-      if (divider) divider.classList.remove('sec');
-      const timeMain = card.querySelector('.t-main.c-secondary');
-      if (timeMain) timeMain.classList.remove('c-secondary');
-      const statusSpan = card.querySelector('.status');
-      if (statusSpan) {
-        statusSpan.className = 'status status-done';
-        statusSpan.innerHTML = '<span class="material-symbols-outlined sm">check_circle</span>Concluída';
-      }
-    }
+if($('finish-save_insumos')) {
+  $('finish-save_insumos').addEventListener('click', () => {
+    const obsGeral = $('finish-obs_insumos').value.trim();
+    if (obsGeral) observacoes[`${turmaAtual}|${receitaAtual}|relato_insumos`] = obsGeral;
+    fecharModalFinishInsumos();
+    alert('Verificação de Insumos finalizada com sucesso!');
   });
+}
 
-  fecharModalFinish();
-  alert('Materiais separados e aula finalizada com sucesso!');
-});
+// 2. Modal de Utensílios
+const finishModalUtensilios = $('finish-modal_utensilios');
+// Precisamos garantir que o botão no HTML que abre isso tenha o id "btn-finish-utensilios"
+const btnFinishUtensilios = $('btn-finish-utensilios');
+
+if (btnFinishUtensilios && finishModalUtensilios) {
+  btnFinishUtensilios.addEventListener('click', () => {
+    $('finish-obs_utensilios').value = '';
+    finishModalUtensilios.classList.add('show');
+    $('finish-obs_utensilios').focus();
+  });
+}
+
+function fecharModalFinishUtensilios() { if(finishModalUtensilios) finishModalUtensilios.classList.remove('show'); }
+if($('finish-close_utensilios')) $('finish-close_utensilios').addEventListener('click', fecharModalFinishUtensilios);
+if($('finish-cancel_utensilios')) $('finish-cancel_utensilios').addEventListener('click', fecharModalFinishUtensilios);
+if(finishModalUtensilios) {
+  finishModalUtensilios.addEventListener('click', e => { if (e.target === finishModalUtensilios) fecharModalFinishUtensilios(); });
+}
+
+if($('finish-save_utensilios')) {
+  $('finish-save_utensilios').addEventListener('click', () => {
+    const obsGeral = $('finish-obs_utensilios').value.trim();
+    if (obsGeral) observacoes[`${turmaAtual}|${receitaAtual}|relato_utensilios`] = obsGeral;
+    fecharModalFinishUtensilios();
+    alert('Verificação de Utensílios finalizada com sucesso!');
+  });
+}
 
 
 // ===== REAPROVEITAMENTO DE SOBRAS (RF07) =====
@@ -980,7 +1006,7 @@ atualizarResumoReceita(receitaAtual);
   modal.addEventListener('click', e => { if (e.target === modal) fechar(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
 
-  document.querySelectorAll('.link-btn').forEach(btn => {
+  document.querySelectorAll('.nav-item').forEach(btn => {
     if (btn.textContent.includes('Calendário')) btn.addEventListener('click', abrir);
   });
 })();
