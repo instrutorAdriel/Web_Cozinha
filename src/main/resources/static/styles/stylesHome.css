@@ -52,8 +52,13 @@ body{
 .nav-item.active{background:var(--primary-container);color:#fff;border-left:3px solid var(--secondary-container)}
 .sidebar-footer{padding:16px 24px 0;margin-top:auto}
 .btn-logout{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border:none;
-  border-radius:var(--r);background:rgba(255,255,255,.08);color:#fff;font-weight:600;font-size:14px;cursor:pointer;transition:.2s}
+  border-radius:var(--r);background:rgba(255,255,255,.08);color:#fff;font-weight:600;font-size:14px;transition:.2s}
 .btn-logout:hover{background:var(--error)}
+#btn-open-kitchen {
+  position: relative;
+  z-index: 10; /* Garante que o botão fique acima de qualquer sobreposição */
+  pointer-events: auto; /* Garante que ele receba cliques mesmo se o pai tiver algo estranho */
+}
 
 /* ===== TOPBAR ===== */
 .topbar{position:fixed;top:0;left:264px;right:0;height:68px;z-index:30;background:rgba(251,248,255,.85);

@@ -343,7 +343,7 @@ configurarPainel(painels.util, 'util-btn-reset');
 // ===== RESUMO E MODO COZINHA =====
 const summaryName = $('summary-recipe-name');
 const summarySteps = $('summary-steps');
-const summaryFooter = $('summary-footer'); 
+const summaryFooter = $('summary-footer');
 const summaryTime = $('summary-time');
 const summaryCard = $('recipe-summary-card');
 
@@ -356,7 +356,7 @@ function atualizarResumoReceita(key) {
   if (!r) return;
 
   if(summaryName) summaryName.textContent = r.nome;
-  
+
   if(summarySteps) {
     if (r.modoPreparo && r.modoPreparo.length > 0) {
       summarySteps.innerHTML = r.modoPreparo.map(passo => `<li>${passo}</li>`).join('');
@@ -380,7 +380,7 @@ function abrirModoCozinha() {
   if (!r) return;
 
   if(kitchenTitle) kitchenTitle.textContent = r.nome;
-  
+
   if(kitchenSteps) {
     if (r.modoPreparo && r.modoPreparo.length > 0) {
       kitchenSteps.innerHTML = r.modoPreparo.map(passo => `<li>${passo}</li>`).join('');
@@ -388,15 +388,15 @@ function abrirModoCozinha() {
       kitchenSteps.innerHTML = `<li>Modo de preparo indisponível.</li>`;
     }
   }
-  
+
   if(kitchenModal) kitchenModal.classList.add('show');
 }
 
 const btnOpenKitchen = $('btn-open-kitchen');
 if(btnOpenKitchen) btnOpenKitchen.addEventListener('click', abrirModoCozinha);
 
-function fecharModalCozinha() { 
-  if(kitchenModal) kitchenModal.classList.remove('show'); 
+function fecharModalCozinha() {
+  if(kitchenModal) kitchenModal.classList.remove('show');
 }
 
 const kitchenClose = $('kitchen-close');
@@ -408,8 +408,8 @@ if(kitchenClose) {
 }
 
 if(kitchenModal) {
-  kitchenModal.addEventListener('click', e => { 
-    if (e.target === kitchenModal) fecharModalCozinha(); 
+  kitchenModal.addEventListener('click', e => {
+    if (e.target === kitchenModal) fecharModalCozinha();
   });
 }
 
@@ -635,14 +635,14 @@ function trocarReceita(key) {
   if (select) select.value = key;
   renderTudo();
   highlightCard(key);
-  atualizarResumoReceita(key); 
+  atualizarResumoReceita(key);
 }
 
 function popularReceitasDaTurma(turmaKey) {
   const permitidas = receitasPorTurma[turmaKey] || Object.keys(receitas);
   select.innerHTML = permitidas
-    .map(id => `<option value="${id}">${receitas[id].local} • ${receitas[id].nome}</option>`)
-    .join('');
+      .map(id => `<option value="${id}">${receitas[id].local} • ${receitas[id].nome}</option>`)
+      .join('');
 }
 
 function trocarTurma(key) {
@@ -663,7 +663,7 @@ select.addEventListener('change', e => trocarReceita(e.target.value));
 turmaSelect.addEventListener('change', e => trocarTurma(e.target.value));
 
 turmaSelect.innerHTML = Object.entries(turmas)
-  .map(([k, t]) => `<option value="${k}">${t.nome} — ${t.cozinha}</option>`).join('');
+    .map(([k, t]) => `<option value="${k}">${t.nome} — ${t.cozinha}</option>`).join('');
 
 document.querySelectorAll('.class-card').forEach(card => {
   const recipeKey = card.dataset.recipe;
@@ -680,7 +680,7 @@ document.querySelectorAll('.class-card').forEach(card => {
 
 function highlightCard(key) {
   document.querySelectorAll('.class-card').forEach(c =>
-    c.classList.toggle('selected', c.dataset.recipe === key)
+      c.classList.toggle('selected', c.dataset.recipe === key)
   );
 }
 
@@ -771,9 +771,9 @@ atualizarResumoReceita(receitaAtual);
   function getFichaCompleta(id) {
     let f = fichasDisponiveis.find(x => x.id === id);
     if (!f && receitas[id]) {
-       let turmaDaSobras = Object.keys(receitasPorTurma).find(k => receitasPorTurma[k].includes(id));
-       f = { id: id, nome: receitas[id].nome, turma: turmaDaSobras };
-       fichasDisponiveis.push(f);
+      let turmaDaSobras = Object.keys(receitasPorTurma).find(k => receitasPorTurma[k].includes(id));
+      f = { id: id, nome: receitas[id].nome, turma: turmaDaSobras };
+      fichasDisponiveis.push(f);
     }
     return f;
   }
@@ -867,7 +867,7 @@ atualizarResumoReceita(receitaAtual);
     const [y, m, d] = k.split('-');
     const data = new Date(y, m - 1, d);
     document.getElementById('cal-panel-date').textContent =
-      data.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+        data.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
 
     const aulas = (alocacoes[k] || []).filter(id => fichaPassaFiltro(getFichaCompleta(id)));
 
@@ -895,7 +895,7 @@ atualizarResumoReceita(receitaAtual);
     Object.keys(receitas).forEach(idKey => getFichaCompleta(idKey));
 
     const livres = fichasDisponiveis.filter(f =>
-      fichaPassaFiltro(f) && !alocadasDoDia.includes(f.id)
+        fichaPassaFiltro(f) && !alocadasDoDia.includes(f.id)
     );
 
     elDisp.innerHTML = livres.length ? livres.map(f => {
@@ -915,13 +915,13 @@ atualizarResumoReceita(receitaAtual);
               </p>` : ''}
           </div>
           ${bloqueada
-            ? `<button class="cal-fiche-btn locked" disabled title="Estoque insuficiente">
+          ? `<button class="cal-fiche-btn locked" disabled title="Estoque insuficiente">
                  <span class="material-symbols-outlined sm">block</span>
                </button>`
-            : `<button class="cal-fiche-btn" data-add="${f.id}" title="Alocar">
+          : `<button class="cal-fiche-btn" data-add="${f.id}" title="Alocar">
                  <span class="material-symbols-outlined sm">add_circle</span>
                </button>`
-          }
+      }
         </div>`;
     }).join('') : '<p class="cal-empty-text">Nenhuma ficha disponível para o filtro atual.</p>';
   }
@@ -974,7 +974,7 @@ atualizarResumoReceita(receitaAtual);
     }
     if (remBtn) {
       alocacoes[diaSelecionado] =
-        (alocacoes[diaSelecionado] || []).filter(x => x !== remBtn.dataset.remove);
+          (alocacoes[diaSelecionado] || []).filter(x => x !== remBtn.dataset.remove);
       if (!alocacoes[diaSelecionado].length) delete alocacoes[diaSelecionado];
     }
     salvar();
