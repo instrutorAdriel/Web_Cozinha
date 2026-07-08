@@ -39,11 +39,27 @@
       <span class="crumb-current">Início</span>
     </div>
   </div>
+
+  <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
   <div class="topbar-actions">
-    <div class="search-box">
-      <span class="material-symbols-outlined">search</span>
-      <input type="text" placeholder="Buscar receita, turma...">
-    </div>
+
+      <div class="topbar-actions">
+
+        <label class="field-label" for="turma-select">Turma / Laboratório</label>
+        <div class="select-wrap">
+
+          <select id="turma-select">
+            <option value="">-- Selecione uma Turma --</option>
+            <option value="2024.1.A">Turma 2024.1.A</option>
+            <option value="2024.1.C">Turma 2024.1.C</option>
+          </select>
+
+          <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+        </div>
+
+
+      </div>
 
     <div class="notif-wrap">
       <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
@@ -74,7 +90,7 @@
 
     <section class="hero flight-accent">
       <div class="hero-text">
-        <p class="hero-date">Quarta-feira, 17 de Junho</p>
+        <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
         <h2 class="hero-title">Bom dia, Chef Ricardo!</h2>
         <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
       </div>
@@ -88,7 +104,7 @@
             <span class="material-symbols-outlined">today</span>
             <h2 class="section-title">Receitas de Hoje</h2>
           </div>
-          <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
+
         </div>
 
         <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
@@ -162,12 +178,6 @@
             <h2 class="ch-title">Checklist da Aula (Insumos)</h2>
           </div>
 
-          <label class="field-label" for="turma-select">Turma / Laboratório</label>
-          <div class="select-wrap">
-            <select id="turma-select"></select>
-            <span class="material-symbols-outlined select-arrow">expand_more</span>
-          </div>
-
           <label class="field-label" for="recipe-select">Selecione a aula / receita</label>
           <div class="select-wrap">
             <select id="recipe-select"></select>
@@ -198,7 +208,7 @@
           <div class="checklist-footer">
             <button id="main-btn-reset" class="btn-ghost">Limpar</button>
             <button id="btn-sobras" class="btn-confirm">Criar Nova Receita</button>
-            <button class="btn-confirm btn-finish-class">Confirmar Separação</button>
+            <button class="btn-confirm" id="btn-finish-insumos">Confirmar Separação</button>
           </div>
         </div>
       </section>
@@ -232,7 +242,7 @@
 
         <div class="checklist-footer" style="justify-content: flex-start;">
           <button id="util-btn-reset" class="btn-ghost" style="flex: none; padding: 11px 24px;">Limpar</button>
-          <button class="btn-confirm btn-finish-class" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
+          <button class="btn-confirm" id="btn-finish-utensilios" style="flex: none; padding: 11px 24px;">Confirmar Utensílios</button>
         </div>
       </section>
 
@@ -368,14 +378,21 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="finish-modal_insumos">
+<!-- 5. MODAL PARA INSERIR RELATO DE CONCLUSÃO DA AULA -->
 <div class="modal-overlay" id="finish-modal">
   <div class="modal flight-accent">
     <div class="modal-head">
-      <h3 class="modal-title">Concluir Aula</h3>
-      <button class="modal-close" id="finish-close"><span class="material-symbols-outlined">close</span></button>
+      <h3 class="modal-title">Verificar Insumos</h3>
+      <!-- A classe voltou para 'modal-close' para manter o design -->
+      <button class="modal-close" id="finish-close_insumos"><span class="material-symbols-outlined">close</span></button>
     </div>
+    <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação sobre os insumos recebidos.</p>
+
+    <label class="field-label dark" for="finish-obs_insumos">Observação (Opcional)</label>
+    <textarea id="finish-obs_insumos" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: Faltou 1kg de farinha de trigo na entrega..."></textarea>
     <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Registre uma observação geral sobre o andamento da aula.</p>
-    
+
     <label class="field-label dark" for="finish-obs">Relato da Aula (Opcional)</label>
     <textarea id="finish-obs" class="obs-textarea" style="min-height: 100px; margin-bottom: 16px;" placeholder="Ex: A turma estava muito agitada hoje..."></textarea>
 
