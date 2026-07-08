@@ -19,6 +19,19 @@ body{
     align-items: center;
     padding: 20px;
 }
+.erro {
+    color: red;
+    background-color: rgba(173, 42, 2, 0.2);
+    border: 3px solid rgba(255, 100, 100, 0.6);
+    background-clip: border-box;
+    box-shadow: 0 0 0 6px rgba(173, 42, 2, 0.2);
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 5px 20px;
+    display: block;
+    margin: 20px 0;
+}
 
 .container{
     width: 100%;
@@ -152,4 +165,31 @@ button:hover{
         text-align: center;
     }
 
+}
+.erro1 {
+    display: flex;
+    align-items: center;
+    background-color: #fdf2f2; /* Vermelho bem claro/pastel de fundo */
+    color: #de3b3b;            /* Texto em vermelho escuro para bom contraste */
+    border-left: 4px solid #de3b3b; /* Barra lateral que dá o tom de "alerta" */
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 4px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Sombra bem de leve */
+    animation: fadeIn 0.3s ease-in-out; /* Transição suave ao aparecer */
+}
+
+/* Pequena animação para a mensagem não surgir do nada na tela */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

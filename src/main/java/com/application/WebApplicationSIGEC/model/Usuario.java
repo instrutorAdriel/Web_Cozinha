@@ -1,4 +1,4 @@
-package com.example.primeiroAppSpring.model;
+package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
