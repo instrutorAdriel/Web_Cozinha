@@ -23,7 +23,7 @@ public class HomeController {
     private SessaoService sessaoService;
 
 @GetMapping("/home")
-public String exibirHome(Model model, HttpServletRequest request){
+public String exibirHome(Model model, HttpServletRequest request) {
 
     HttpSession session = request.getSession(false);
 
@@ -32,9 +32,9 @@ public String exibirHome(Model model, HttpServletRequest request){
         return "redirect:/login"; // Redireciona e PARA a execução
     }
 
-   Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+    Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-   // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
+    // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
 
     String primeiroNome = usuarioLogado.getNome().split(" ")[0];
     primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
