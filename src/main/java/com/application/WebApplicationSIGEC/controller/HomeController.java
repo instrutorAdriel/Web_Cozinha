@@ -53,6 +53,7 @@ public String exibirHome(Model model, HttpServletRequest request) {
     return "home";
     }
 
+
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         sessaoService.encerrarSessao(session);
