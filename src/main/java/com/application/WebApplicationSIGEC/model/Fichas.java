@@ -14,9 +14,9 @@ public class Fichas {
     private int id;
 
     @Column(nullable = false, length = 100)
-    private String receita;
+    private String nome;
 
-    @Column(nullable = false, name = "data_cadastro")
+    @Column(name = "data")
     private LocalDate data;
 
     @Lob
@@ -26,8 +26,8 @@ public class Fichas {
     public Fichas() {
     }
 
-    public Fichas(String receita, LocalDate data, String preparo) {
-        this.receita = receita;
+    public Fichas(String nome, LocalDate data, String preparo) {
+        this.nome = nome;
         this.data = data;
         this.preparo = preparo;
     }
@@ -40,12 +40,12 @@ public class Fichas {
         this.id = id;
     }
 
-    public String getReceita() {
-        return receita;
+    public String getNome() {
+        return nome;
     }
 
-    public void setReceita(String receita) {
-        this.receita = receita;
+    public void setNome(String receita) {
+        this.nome = receita;
     }
 
     public LocalDate getData() {

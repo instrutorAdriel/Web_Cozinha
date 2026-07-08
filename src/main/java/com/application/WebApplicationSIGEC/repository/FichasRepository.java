@@ -8,9 +8,11 @@ import java.util.Optional;
 
 public interface FichasRepository extends JpaRepository<Fichas, Integer> {
 
-    Optional<Fichas> findByReceita(String receita);
+    Optional<Fichas> findByNome(String nome);
 
-    boolean existsFichasByReceita(String receita);
+    boolean existsFichasByNome(String nome);
 
-    Optional<Fichas> findByData(LocalDate data);
+    List<Fichas> findByData(LocalDate data);
+
+    List<Fichas> findByDataIsNull();
 }
