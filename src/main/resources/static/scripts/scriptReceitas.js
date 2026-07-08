@@ -76,148 +76,123 @@ const RECIPES = [
     }
 ];
 
-const CUISINES = ["Todas as cozinhas", ...Array.from(new Set(RECIPES.map(r=>r.cat)))];
 let activeId = RECIPES[0].id;
 let searchTerm = "";
-let activeCuisine = "Todas as cozinhas";
 let activeStatus = "todas";
 
-// Filtros por Status com verificação antiqueda
-document.querySelectorAll('.status-filter-btn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.status-filter-btn').forEach(b=>b.classList.remove('active'));
+// Abas de Status (Filtro Interno)
+document.querySelectorAll('.status-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.status-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        activeStatus = btn.dataset.status || (btn.textContent.trim().toLowerCase() === 'todas' ? 'todas' : btn.textContent.trim().toLowerCase().replace('í', 'i').replace('ê', 'e'));
+        activeStatus = btn.dataset.status || 'todas';
         renderList();
     });
 });
 
-// População e Filtro de Cozinha
-const cuisineFilterEl = document.getElementById('cuisineFilter');
-if (cuisineFilterEl) {
-    CUISINES.forEach(c=>{
-        const opt = document.createElement('option');
-        opt.value=c; opt.textContent=c;
-        cuisineFilterEl.appendChild(opt);
-    });
-
-    cuisineFilterEl.addEventListener('change', e=>{
-        activeCuisine = e.target.value;
-        renderList();
-    });
-}
-
-// Filtro de Busca por Texto
+// Filtro de Busca Integrado no Topo (Input da Barra Branca)
 const searchInputEl = document.getElementById('searchInput');
 if (searchInputEl) {
-    searchInputEl.addEventListener('input', e=>{
+    searchInputEl.addEventListener('input', e => {
         searchTerm = e.target.value.trim().toLowerCase();
         renderList();
     });
 }
 
-// Renderizar a Lista de Receitas (Esquerda)
-function renderList(){
+// Renderização da Lista de Cards (Sub-coluna Esquerda)
+function renderList() {
     const listCol = document.getElementById('listCol');
     if (!listCol) return;
 
     listCol.innerHTML = '';
 
     const filtered = RECIPES
-        .filter(r => activeCuisine === 'Todas as cozinhas' || r.cat === activeCuisine)
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
         .filter(r => r.name.toLowerCase().includes(searchTerm));
 
-    if(filtered.length === 0){
-        listCol.innerHTML = '<div style="font-size:12.5px;color:#9aa1b2;padding:10px;">Nenhuma receita encontrada.</div>';
+    if (filtered.length === 0) {
+        listCol.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:12px; text-align:center;">Nenhuma receita encontrada.</div>';
         return;
     }
 
-    filtered.forEach(r=>{
-        const item = document.createElement('div');
-        item.className = 'recipe-item' + (r.id === activeId ? ' active' : '');
-        item.innerHTML = `
-            <div class="ri-top">
-                <div class="ri-name">${r.name}</div>
+    filtered.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'recipe-card' + (r.id === activeId ? ' active' : '');
+        card.innerHTML = `
+            <div class="rc-header">
+                <div class="rc-title">${r.name}</div>
                 <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-aplicada'}">
                     ${r.status === 'disponivel' ? 'Disponível' : 'Aplicada'}
                 </div>
             </div>
-            <div class="ri-cat">${r.cat}</div>
-            <div class="ri-meta">${r.time} · ${r.level} · ${r.serves}</div>
+            <div class="rc-category">${r.cat}</div>
+            <div class="rc-meta">⏱ ${r.time} · 📊 ${r.level}</div>
         `;
-        item.addEventListener('click', ()=>{
+        card.addEventListener('click', () => {
             activeId = r.id;
             renderList();
             renderDetail();
         });
-        listCol.appendChild(item);
+        listCol.appendChild(card);
     });
+
+    if (filtered.length > 0 && !filtered.some(x => x.id === activeId)) {
+        activeId = filtered[0].id;
+        renderDetail();
+    }
 }
 
-// Renderizar Área de Detalhes da Receita (Direita)
-function renderDetail(){
+// Renderização dos Detalhes da Receita (Lado Direito)
+function renderDetail() {
     const detailCol = document.getElementById('detailCol');
     if (!detailCol) return;
 
-    const r = RECIPES.find(x=>x.id === activeId);
-    if(!r){ detailCol.innerHTML=''; return; }
+    const r = RECIPES.find(x => x.id === activeId);
+    if (!r) {
+        detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:40px;">Selecione uma receita da lista.</div>';
+        return;
+    }
 
     detailCol.innerHTML = `
-        <div class="detail-header">
+        <div class="detail-main-header">
             <div>
-                <div class="detail-cat">${r.cat}</div>
-                <h2 class="detail-title">${r.name}</h2>
+                <div class="rc-category">${r.cat}</div>
+                <h2 class="detail-main-title">${r.name}</h2>
             </div>
-            <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-aplicada'}">
+            <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-aplicada'}" style="font-size:11px; padding:6px 14px;">
                 ${r.status === 'disponivel' ? 'Disponível' : 'Aplicada'}
             </div>
         </div>
 
-        <div class="meta-row">
-            <div class="meta-chip">⏱ <b>${r.time}</b></div>
-            <div class="meta-chip">📊 <b>${r.level}</b></div>
-            <div class="meta-chip">🍽 <b>${r.serves}</b></div>
+        <div class="meta-info-grid">
+            <div class="info-tag">⏱ Tempo: <b>${r.time}</b></div>
+            <div class="info-tag">📊 Dificuldade: <b>${r.level}</b></div>
+            <div class="info-tag">🍽 Rendimento: <b>${r.serves}</b></div>
         </div>
 
-        <div class="description">${r.description}</div>
+        <div class="recipe-intro">${r.description}</div>
 
-        <div class="section-title"><span class="bar"></span> Ingredientes</div>
-        <ul class="ingredients">
-            ${r.ingredients.map(i=>`<li>${i}</li>`).join('')}
+        <div class="block-title">Ingredientes Necessários</div>
+        <ul class="ingredients-layout">
+            ${r.ingredients.map(i => `<li>${i}</li>`).join('')}
         </ul>
 
-        <div class="section-title"><span class="bar"></span> Modo de preparo</div>
-        <ul class="steps">
-            ${r.steps.map(s=>`
-                <li class="step-item">
-                    <div class="step-num"></div> <!-- Vazio para permitir o contador automático do CSS -->
-                    <div class="step-body">
+        <div class="block-title">Modo de Preparo Passo a Passo</div>
+        <ol class="steps-layout">
+            ${r.steps.map(s => `
+                <li class="step-card">
+                    <div class="step-circle"></div>
+                    <div class="step-content">
                         <h4>${s.title}</h4>
                         <p>${s.text}</p>
-                        <span class="step-time">⏱ ${s.time}</span>
+                        <span class="step-duration">⏱ ${s.time}</span>
                     </div>
                 </li>
             `).join('')}
-        </ul>
-
-        <div class="legend">
-            <span><i style="background:var(--green);"></i> Disponível</span>
-            <span><i style="background:var(--blue);"></i> Aplicada</span>
-            <span><i style="background:var(--orange);"></i> Etapa do preparo</span>
-        </div>
+        </ol>
     `;
 }
 
-// Botão Fechar Modal
-const closeBtnEl = document.querySelector('.close-btn');
-if (closeBtnEl) {
-    closeBtnEl.addEventListener('click', ()=>{
-        const modalEl = document.querySelector('.modal');
-        if (modalEl) modalEl.style.display='none';
-    });
-}
-
-// Inicialização segura
+// Inicialização segura das views
 renderList();
 renderDetail();

@@ -3,40 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Receitas</title>
-    <link rel="stylesheet"  th:href="@{/styles/stylesReceitas.css}">
+    <title>SIGEC - Receitas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/stylesReceitas.css}">
 </head>
 <body>
-
-<div class="modal">
-    <header>
-        <div class="title-wrap">
-            <div class="icon-badge">📖</div>
-            Receitas
-        </div>
-        <button class="close-btn" title="Fechar">✕</button>
-    </header>
-
-    <div class="toolbar">
-        <div class="search-wrap">
-            <input type="text" id="searchInput" placeholder="Buscar receita...">
-        </div>
-        <select id="cuisineFilter"></select>
-    </div>
-
-    <div class="body-area">
-        <div class="list-col">
-            <div class="status-filters" id="statusFilters">
-                <button class="status-filter-btn active" data-status="todas">Todas</button>
-                <button class="status-filter-btn" data-status="disponivel">Disponíveis</button>
-                <button class="status-filter-btn" data-status="aplicada">Aplicadas</button>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="brand">
+                <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC - Fecomércio Sesc" class="brand-img" /><br>
+                <div class="brand-text">
+                    <strong></strong>
+                    <span><br></span>
+                </div>
             </div>
-            <div id="listCol"></div>
-        </div>
-        <div class="detail-col" id="detailCol"></div>
-    </div>
-</div>
+            <div class="app-name">
+                <h1>SIGEC</h1>
+                <p>PAINEL DE INSTRUTOR</p>
+            </div>
+            <div class="menu-label">MENU</div>
 
-<script th:src=" @{/scripts/scriptReceitas.js}"></script>
+            <nav class="menu">
+                <a href="#" class="menu-item">
+                    <span class="material-symbols-outlined">home</span> Início
+                </a>
+                <a href="#" class="menu-item">
+                    <span class="material-symbols-outlined">calendar_month</span> Calendário
+                </a>
+                <a href="#" class="menu-item active">
+                    <span class="material-symbols-outlined">menu_book</span> Receitas
+                </a>
+            </nav>
+        </div>
+        <div class="sidebar-bottom">
+            <button class="logout-btn">
+                <span class="material-symbols-outlined">logout</span> Sair
+            </button>
+        </div>
+    </aside>
+
+    <div class="main-container">
+
+        <header class="top-navbar">
+            <div class="breadcrumb">
+                <span class="bc-parent">SIGEC</span>
+                <span class="bc-separator">&gt;</span>
+                <span class="bc-current">Receitas</span>
+            </div>
+
+            <div class="top-navbar-right">
+                <div class="top-search-wrap">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" placeholder="Buscar receita, turma...">
+                </div>
+
+                <button class="notification-btn" title="Notificações">
+                    🔔
+                </button>
+
+                <div class="user-profile">
+                    <div class="user-info">
+                        <span class="user-name">Chef Ricardo Silva</span>
+                        <span class="user-role">INSTRUTOR GASTRONOMIA</span>
+                    </div>
+                    <div class="user-avatar">RS</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="filter-toolbar">
+            <div class="toolbar-title">Receitas</div>
+        </div>
+
+        <div class="workspace-area">
+
+            <aside class="recipes-list-pane">
+                <div class="status-tabs">
+                    <button class="status-tab-btn active" data-status="todas">Todas</button>
+                    <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
+                    <button class="status-tab-btn" data-status="aplicada">Aplicadas</button>
+                </div>
+
+                <div id="listCol" class="scrollable-list">
+                </div>
+            </aside>
+            <main id="detailCol" class="recipe-detail-pane">
+            </main>
+        </div>
+    </div>
+
+</div>
+<script th:src="@{/scripts/scriptReceitas.js}"></script>
 </body>
 </html>
