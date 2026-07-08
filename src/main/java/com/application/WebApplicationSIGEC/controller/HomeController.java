@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
@@ -59,6 +60,18 @@ public String exibirHome(Model model, HttpServletRequest request) {
         sessaoService.encerrarSessao(session);
         return "redirect:/login";
     }
+    @GetMapping("/cronograma")
+    public String exibirCronograma(@RequestParam("data") LocalDate data, Model model) {
+        // 1. Filtra as aulas do dia solicitado
+        List<AulaDTO> aulasDoDia = aulaService.buscarAulasPorData(data);
 
+        // 2. Envia os dados para o Thymeleaf mapear
+        model.addAttribute("aulas", aulasDoDia);
+        model.addAttribute("diaFormatado", data.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        model.addAttribute("dataFiltro", data.toString());
+
+        // Retorna APENAS o bloco HTML que tiver o fragmento "bloco-aulas"
+        return "nome-da-sua-pagina :: bloco-aulas";
+    }
 
 }
