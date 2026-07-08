@@ -4,6 +4,8 @@ import com.application.WebApplicationSIGEC.model.Fichas;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
 
 import com.application.WebApplicationSIGEC.service.FichasService;
+import com.application.WebApplicationSIGEC.service.SessaoService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,8 +31,13 @@ public class FichasController {
     private FichasService fichasService;
 
     @GetMapping("/calendario")
-    public String exibirCalendario(Model model){
-       return "calendario";
+    public String exibirCalendario(Model model, HttpSession session){
+
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            return "redirect:/login"; // Redireciona e PARA a execução
+        }
+
+        return "calendario";
     }
 
     @GetMapping("/calendario/fichas")
