@@ -327,7 +327,16 @@
         </div>
         <div style="flex: 1;">
             <label class="field-label dark">Unidade</label>
-            <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+            <div class="select-wrap" style="margin-bottom: 0; width: 100%;">
+              <select id="extra-un" class="obs-select">
+                <option value="" disabled selected>Selecione</option>
+                <option value="Kg">Kg</option>
+                <option value="g">g</option>
+                <option value="L">L</option>
+                <option value="ml">ml</option>
+              </select>
+              <span class="material-symbols-outlined select-arrow">expand_more</span>
+            </div>
         </div>
     </div>
 

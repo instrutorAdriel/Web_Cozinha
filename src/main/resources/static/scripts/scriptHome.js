@@ -430,7 +430,7 @@ $('extra-save').addEventListener('click', () => {
   const nome = $('extra-name').value.trim();
   if (!nome) return alert("Por favor, insira o nome do insumo.");
   const necessario = parseFloat($('extra-qtd').value) || 0;
-  const unidade = $('extra-un').value.trim() || 'un';
+  const unidade = $('extra-un').value;
   const obs = $('extra-obs').value.trim();
   const id = 'item_extra_' + Date.now();
 
