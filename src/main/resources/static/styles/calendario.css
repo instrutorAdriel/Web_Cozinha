@@ -350,3 +350,29 @@ body {
     border-radius: 50%;
 }
 .btn-fiche-action.append:hover { background-color: #0b2545; color: var(--text-light); }
+.day-cell.bloqueado{
+    background-color: #f1f5f9;
+    border-color: #e3e1ec;
+    cursor: not-allowed;
+    opacity: 0.65;
+    pointer-events: none;
+}
+.day-cell.bloqueado span{
+    color: #9ca3af !important;
+    font-weight: 600;
+}
+.day-cell.bloqueado:hover {
+    background-color: #f1f5f9;
+    border-color: #e3e1ec;
+    transform: none;
+    box-shadow: none;
+}
+.day-cell.bloqueado::after{
+    content: "lock";
+    font-family: "Material Symbols Outlined";
+    font-size: 18px;
+    color: #94a3b8;
+    align-self: center;
+    margin-top: auto;
+    margin-bottom: auto;
+}

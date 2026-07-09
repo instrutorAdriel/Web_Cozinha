@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (diaSemana === 0 || diaSemana === 6) {
                 celula.classList.add("weekend");
-                celula.classList.add("bloqueando");
+                celula.classList.add("bloqueado");
             }
 
             // Formata a data atual da célula em string ISO (YYYY-MM-DD) para enviar ao Java
@@ -69,16 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
-            // Seleção automática do dia ativo (funciona na primeira carga e na troca de meses)
-            if (dia === diaSelecionadoGlobal) {
-                celula.classList.add("active-selected");
-                buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
-            }
-
             // Evento ao clicar em qualquer dia
             celula.addEventListener("click", () => {
-                if (celula.classList.contains("bloqueando")) {
-                    alert("Final de semana bloqueado para agendamento.");
+                if (celula.classList.contains("bloqueado")) {
                     return;
                 }
 
