@@ -1,7 +1,10 @@
 package com.application.WebApplicationSIGEC.controller;
 
 import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.service.AulaService;
+import com.application.WebApplicationSIGEC.model.AulasDTO;
 import com.application.WebApplicationSIGEC.service.SessaoService;
+import com.application.WebApplicationSIGEC.service.AulaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +14,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Locale;
 
 @Controller
@@ -60,10 +63,13 @@ public String exibirHome(Model model, HttpServletRequest request) {
         sessaoService.encerrarSessao(session);
         return "redirect:/login";
     }
+    @Autowired
+    protected AulaService aulaService;
     @GetMapping("/cronograma")
     public String exibirCronograma(@RequestParam("data") LocalDate data, Model model) {
         // 1. Filtra as aulas do dia solicitado
-        List<AulaDTO> aulasDoDia = aulaService.buscarAulasPorData(data);
+        // Note a letra minúscula aqui
+        List<AulasDTO> aulasDoDia = aulaService.buscarAulasPorData(data);
 
         // 2. Envia os dados para o Thymeleaf mapear
         model.addAttribute("aulas", aulasDoDia);
@@ -71,7 +77,7 @@ public String exibirHome(Model model, HttpServletRequest request) {
         model.addAttribute("dataFiltro", data.toString());
 
         // Retorna APENAS o bloco HTML que tiver o fragmento "bloco-aulas"
-        return "nome-da-sua-pagina :: bloco-aulas";
+        return "home :: bloco-aulas";
     }
 
 }

@@ -82,45 +82,51 @@
 
     <div class="dashboard-top-grid">
 
-      <section class="classes-col">
+      <section class="classes-col" th:fragment="bloco-aulas">
+
         <div class="section-head split">
           <div class="section-head plain">
             <span class="material-symbols-outlined">today</span>
-            <h2 class="section-title">Receitas de Hoje</h2>
+            <h2 class="section-title" th:text="'Receitas de ' + ${diaFormatado}">Receitas de Hoje</h2>
           </div>
-          <button class="link-btn"><span class="material-symbols-outlined sm">calendar_month</span>Calendário</button>
         </div>
 
-        <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
-          <div class="class-time"><p class="t-main">08:00</p><p class="t-end">12:00</p></div>
-          <div class="divider"></div>
-          <div class="class-info">
-            <p class="class-name">Técnicas Básicas de Confeitaria</p>
-            <p class="class-meta">Cozinha Pedagógica 02 • Turma 2024.1.C</p>
-          </div>
-          <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
-        </div>
+        <div th:each="aula : ${aulas}"
+             class="class-card"
+             th:classappend="${aula.status == 'CONCLUIDA' ? 'done' : (aula.status == 'EM_ANDAMENTO' ? 'running flight-accent' : '')}"
+             th:data-recipe="${aula.codigoReceita}"
+             th:data-turma="${aula.turma}">
 
-        <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
-          <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
-          <div class="divider sec"></div>
-          <div class="class-info">
-            <p class="class-name">Panificação Clássica Européia</p>
-            <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
-            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
+          <div class="class-time">
+            <p class="t-main" th:classappend="${aula.status == 'EM_ANDAMENTO'} ? 'c-secondary' : ''" th:text="${aula.horarioInicio}">08:00</p>
+            <p class="t-end" th:text="${aula.horarioFim}">12:00</p>
           </div>
-          <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
-        </div>
 
-        <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
-          <div class="class-time"><p class="t-main">19:00</p><p class="t-end">22:30</p></div>
-          <div class="divider"></div>
+          <div class="divider" th:classappend="${aula.status == 'EM_ANDAMENTO'} ? 'sec' : ''"></div>
+
           <div class="class-info">
-            <p class="class-name">Cozinha Internacional: Ásia</p>
-            <p class="class-meta">Cozinha Pedagógica 04 • Turma 2024.2.N</p>
-            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
+            <p class="class-name" th:text="${aula.nomeDisciplina}">Técnicas Básicas de Confeitaria</p>
+            <p class="class-meta" th:text="${aula.salaCozinha} + ' • Turma ' + ${aula.turma}">Cozinha Pedagógica 02 • Turma 2024.1.C</p>
+
+            <button class="recipe-link"
+                    th:if="${aula.status != 'CONCLUIDA'}"
+                    th:onclick="|location.href='@{/fichas/visualizar(codigo=${aula.codigoReceita}, turma=${aula.turma}, data=${dataFiltro})}'|">
+              <span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita
+            </button>
           </div>
-          <span class="status status-pending">Pendente</span>
+
+          <span th:switch="${aula.status}">
+      <span th:case="'CONCLUIDA'" class="status status-done">
+        <span class="material-symbols-outlined sm">check_circle</span>Concluída
+      </span>
+      <span th:case="'EM_ANDAMENTO'" class="status status-running">
+        <span class="material-symbols-outlined sm">timer</span>Em Curso
+      </span>
+      <span th:case="*" class="status status-pending">
+        Pendente
+      </span>
+    </span>
+
         </div>
       </section>
 
