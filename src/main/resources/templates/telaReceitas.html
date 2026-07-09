@@ -32,29 +32,34 @@
 
     <div class="main-container">
 
-        <header class="top-navbar">
-            <div class="breadcrumb">
-                <span class="bc-parent">SIGEC</span>
-                <span class="bc-separator">&gt;</span>
-                <span class="bc-current">Receitas</span>
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menu-toggle">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <div class="breadcrumb">
+                    <span class="crumb-muted">SIGEC</span>
+                    <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+                    <span class="crumb-current">Receitas</span>
+                </div>
             </div>
 
-            <div class="top-navbar-right">
-                <div class="top-search-wrap">
-                    <span class="search-icon">🔍</span>
+            <div class="topbar-actions">
+                <div class="search-box">
+                    <span class="material-symbols-outlined">search</span>
                     <input type="text" id="searchInput" placeholder="Buscar receita, turma...">
                 </div>
 
-                <button class="notification-btn" title="Notificações">
-                    🔔
+                <button class="icon-btn" title="Notificações">
+                    <span class="material-symbols-outlined">notifications</span>
                 </button>
 
-                <div class="user-profile">
+                <div class="user-box">
                     <div class="user-info">
-                        <span class="user-name">Chef Ricardo Silva</span>
-                        <span class="user-role">INSTRUTOR GASTRONOMIA</span>
+                        <p class="user-name">Chef Ricardo Silva</p>
+                        <p class="user-role">Instrutor Gastronomia</p>
                     </div>
-                    <div class="user-avatar">RS</div>
                 </div>
             </div>
         </header>
