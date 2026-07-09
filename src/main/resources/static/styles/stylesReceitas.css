@@ -327,11 +327,11 @@ body{
     .hero{flex-direction:column;align-items:flex-start}
 }
 @media(max-width:768px){
-    .sidebar{transform:translateX(-100%)}
-    .sidebar.open{transform:translateX(0)}
-    .topbar{left:0} .main{margin-left:0} .main-container{margin-left:0}
-    .menu-toggle{display:block}
-    .content{padding:20px}
+    .main-container{margin-left:0;}
+    .recipes-list-pane{width: 100%}
+    .workspace-area{ flex-direction: column;}
+    .top-navbar{padding:0 16px}
+    .top-search-wrap{display: none;}
 }
 @media(prefers-reduced-motion:reduce){
     .checklist-items{transition:none}
@@ -798,9 +798,9 @@ body{
 /* ----- Layout geral da tela de Receitas ----- */
 .app-container {
     display: flex;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+    width: 100vh;
+
+
 }
 
 /* ----- Marca (variação usada nas Receitas) ----- */
