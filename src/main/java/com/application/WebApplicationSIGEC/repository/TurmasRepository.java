@@ -13,4 +13,7 @@ public interface TurmasRepository extends JpaRepository<Turmas, Integer> {
 
     @Query("SELECT t FROM Turmas t JOIN t.usuarios u WHERE u.id = :usuarioId")
     List<Turmas> findByUsuarioId(@Param("usuarioId") int usuarioId);
+
+    @Query("SELECT t FROM Turmas t JOIN t.usuarios u WHERE u.email = :email")
+    List<Turmas> findByUsuarioEmail(@Param("email") String email);
 }
