@@ -1,5 +1,6 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
@@ -13,15 +14,19 @@ public class Fichas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String nome;
+
+    @Column(columnDefinition = "TEXT")
+    private String preparo;
 
     @Column(name = "data")
     private LocalDate data;
 
-    @Lob
-    @Column(nullable = false, columnDefinition = "TEXT")
-    private String preparo;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "turmas")
+    @JsonIgnoreProperties({"fichas", "usuarios"}) // IMPEDE O LOOP: Ignora o carregamento reverso ao gerar o JSON
+    private Turmas turmas;
 
     public Fichas() {
     }
@@ -62,5 +67,13 @@ public class Fichas {
 
     public void setPreparo(String preparo) {
         this.preparo = preparo;
+    }
+
+    public Turmas getTurma() {
+        return turmas;
+    }
+
+    public void setTurma(Turmas turmas) {
+        this.turmas = turmas;
     }
 }

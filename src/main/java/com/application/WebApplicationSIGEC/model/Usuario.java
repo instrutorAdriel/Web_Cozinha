@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "usuarios")
@@ -17,6 +18,8 @@ public class Usuario {
     private String email;
     @Column(nullable = false, length = 255)
     private String senha;
+    @ManyToMany(mappedBy = "usuarios", fetch = FetchType.LAZY)
+    private List<Turmas> turmas;
 
     protected Usuario() {
     }
@@ -51,4 +54,11 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public List<Turmas> getTurmas() {
+        return turmas;
+    }
+
+    public void setTurmas(List<Turmas> turmas) {
+        this.turmas = turmas;
+    }
 }

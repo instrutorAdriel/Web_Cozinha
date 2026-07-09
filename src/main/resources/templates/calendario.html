@@ -55,9 +55,11 @@
     </div>
 
     <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
+        <div class="turma-select-wrap" style="display: flex; align-items: center; gap: 8px;">
+            <span class="material-symbols-outlined">groups</span>
+            <select id="selectTurma" class="form-control" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; font-family: 'Hanken Grotesk', sans-serif; font-weight: 500;">
+                <option value="">A carregar turmas...</option>
+            </select>
         </div>
 
         <div class="notif-wrap">
@@ -66,57 +68,6 @@
                 <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
             </button>
             <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                </div>
-                <div class="notif-list">
-                    <div th:each="notif : ${notificacoes}" class="notif-item unread">
-                        <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
-                        <div class="notif-body">
-                            <p class="notif-title" th:text="${notif.titulo}"></p>
-                            <p class="notif-text" th:text="${notif.mensagem}"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="user-box">
-            <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
-                <p class="user-role" th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor Gastronomia</p>
-            </div>
-        </div>
-    </div>
-</header>
-
-<header class="topbar">
-    <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
-        <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Calendário</span>
-        </div>
-    </div>
-
-    <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
-        </div>
-
-        <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
-            </button>
-            <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                </div>
                 <div class="notif-list">
                     <div th:each="notif : ${notificacoes}" class="notif-item unread">
                         <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>

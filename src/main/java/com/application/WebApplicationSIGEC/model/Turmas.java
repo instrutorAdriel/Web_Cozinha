@@ -1,8 +1,8 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import org.hibernate.annotations.ManyToAny;
-
+import java.util.List;
 
 @Entity
 @Table(name = "turmas")
@@ -17,9 +17,18 @@ public class Turmas {
     @Column(nullable = false)
     private String laboratorio;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "usuarios",referencedColumnName = "id", nullable = false)
-    private Usuario usuarios;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuarios_turmas",
+            joinColumns = @JoinColumn(name = "turmas", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "usuarios", referencedColumnName = "id")
+    )
+    @JsonIgnoreProperties("turmas") // Evita loop ao serializar a lista de usuários da turma
+    private List<Usuario> usuarios;
+
+    @OneToMany(mappedBy = "turmas", fetch = FetchType.LAZY) // Certifique-se que na classe Fichas o atributo se chama "turma" ou "turmas"
+    @JsonIgnoreProperties({"turma", "turmas"}) // CORREÇÃO AQUI: Impede o Jackson de voltar para dentro da turma ao ler a Ficha
+    private List<Fichas> fichas;
 
     public Turmas() {
     }
@@ -27,6 +36,14 @@ public class Turmas {
     public Turmas(String nomeTurma, String laboratorio) {
         this.nomeTurma = nomeTurma;
         this.laboratorio = laboratorio;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNomeTurma() {
@@ -45,7 +62,19 @@ public class Turmas {
         this.laboratorio = laboratorio;
     }
 
-    public Usuario getUsuarios() {
+    public List<Usuario> getUsuarios() {
         return usuarios;
+    }
+
+    public void setUsuarios(List<Usuario> usuarios) {
+        this.usuarios = usuarios;
+    }
+
+    public List<Fichas> getFichas() {
+        return fichas;
+    }
+
+    public void setFichas(List<Fichas> fichas) {
+        this.fichas = fichas;
     }
 }

@@ -1,7 +1,9 @@
 package com.application.WebApplicationSIGEC.service;
 
 import com.application.WebApplicationSIGEC.model.Fichas;
+import com.application.WebApplicationSIGEC.model.Turmas;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
+import com.application.WebApplicationSIGEC.repository.TurmasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,9 @@ public class FichasService {
 
     @Autowired
     private FichasRepository fichasRepository;
+
+    @Autowired
+    private TurmasRepository turmasRepository;
 
     public Fichas buscarReceitas(String nome){
         Optional<Fichas> rs = fichasRepository.findByNome(nome);
@@ -38,12 +43,12 @@ public class FichasService {
         return fichasRepository.findAll();
     }
 
-    // Dentro do teu FichasService.java
-
     @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
-    public void alocarFicha(int idFicha, LocalDate novaData) {
+    public void alocarFicha(int idFicha, LocalDate novaData, int IdTurma) {
         Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+        Turmas turma = turmasRepository.findById(IdTurma).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         ficha.setData(novaData);
+        ficha.setTurma(turma);
         fichasRepository.save(ficha);
     }
 
@@ -51,6 +56,7 @@ public class FichasService {
     public void desalocarFicha(int idFicha) {
         Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         ficha.setData(null);
+        ficha.setTurma(null);
         fichasRepository.save(ficha);
     }
 }

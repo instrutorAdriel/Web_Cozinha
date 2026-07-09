@@ -29,15 +29,17 @@ public class FichasController {
     private FichasService fichasService;
 
     @GetMapping("/calendario")
-    public String exibirCalendario(Model model){
-       return "calendario";
+    public String exibirCalendario(Model model) {
+        return "calendario";
     }
 
     @GetMapping("/calendario/fichas")
-    public ResponseEntity<Map<String, Object>> exibirFichaData (@RequestParam("data") String data){
+    public ResponseEntity<Map<String, Object>> exibirFichaData(
+            @RequestParam("data") String data,
+            @RequestParam("idTurma") int idTurma) { // <-- Novo parâmetro que vem do Select/Checkbox da tela
         LocalDate dataSelecionada = LocalDate.parse(data);
-        List<Fichas> rs = fichasRepository.findByData(dataSelecionada);
-        List<Fichas> rsall = fichasRepository.findByDataIsNull();
+        List<Fichas> rs = fichasRepository.findByDataAndTurmasId(dataSelecionada, idTurma);
+        List<Fichas> rsall = fichasRepository.findByDataIsNullAndTurmasIsNull();
         Map<String, Object> rsFinal = new HashMap<>();
         rsFinal.put("alocadas", rs);
         rsFinal.put("Disponiveis", rsall);
@@ -47,15 +49,18 @@ public class FichasController {
 
     @GetMapping("/calendario/alocar")
     @ResponseBody
-    public ResponseEntity<String> alocarFicha (@RequestParam("id") int id, @RequestParam("data") String dataFinal){
+    public ResponseEntity<String> alocarFicha(
+            @RequestParam("id") int id,
+            @RequestParam("data") String dataFinal,
+            @RequestParam("idTurma") int idTurma) {
         LocalDate novaData = LocalDate.parse(dataFinal);
-        fichasService.alocarFicha(id, novaData);
+        fichasService.alocarFicha(id, novaData, idTurma);
         return ResponseEntity.ok("Receita atualizada com sucesso!");
     }
 
     @GetMapping("/calendario/desalocar")
     @ResponseBody
-    public ResponseEntity<String> desalocarFicha (@RequestParam("id") int id){
+    public ResponseEntity<String> desalocarFicha(@RequestParam("id") int id) {
         fichasService.desalocarFicha(id);
         return ResponseEntity.ok("Receita desalocada com sucesso!");
     }
