@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Container para organizar as bolinhas no rodapé da célula
                 const containerBolinhas = document.createElement("div");
                 containerBolinhas.className = "indicator-dots";
-                
+
                 // Estilização inline para posicionamento no canto inferior direito
                 containerBolinhas.style.justifyContent = "flex-end";
                 containerBolinhas.style.marginLeft = "auto";
@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agenda...</p>';
         containerDisponiveis.innerHTML = '<p class="crumb-muted">A carregar acervo...</p>';
 
-        // Faz o pedido AJAX ao endpoint do teu FichasController
+        // Faz o pedido AJAX ao endpoint do  FichasController
         fetch(`/calendario/fichas?data=${dataIso}`)
             .then(response => {
                 if (!response.ok) throw new Error("Erro na resposta do servidor");
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
                 } else {
                     dados.alocadas.forEach(ficha => {
-                        // AJUSTADO: Agora passa ficha.id como primeiro parâmetro
+                        // AJUSTADO: passa ficha.id como primeiro parâmetro
                         containerAlocadas.appendChild(criarCardFicha(ficha.id, ficha.nome, 'success', "delete"));
                     });
                 }
@@ -236,6 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // ==========================================
         if (acao === 'delete') {
             card.querySelector('.btn-fiche-action').addEventListener('click', () => {
+                if (!confirm("Tem certeza que deseja remover esta ficha?")) return;
                 const celulaAtiva = document.querySelector('.day-cell.active-selected');
 
                 // Dispara a requisição para remover a data da ficha
