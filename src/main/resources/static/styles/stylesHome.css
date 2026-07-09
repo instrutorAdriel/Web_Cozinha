@@ -877,9 +877,13 @@ body {
     opacity: 1
 }
 
+#util-btn-reset{
+    padding: 11px 60px;
+
+}
 #btn-finish-utensilios {
-flex: none;
-    padding: 11px 24px;
+
+    padding: 11px 60px;
 }
 
 .checklist-footer {
