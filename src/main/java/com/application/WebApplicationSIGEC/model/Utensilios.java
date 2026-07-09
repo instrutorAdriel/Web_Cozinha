@@ -1,6 +1,8 @@
 package com.application.WebApplicationSIGEC.model;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "utensilios")
 public class Utensilios {
@@ -9,20 +11,32 @@ public class Utensilios {
     private Long id;
     @Column(nullable = false, length = 100)
     private String nome;
+    @Column(nullable = false)
+    private Integer quantidade;
+
+    @ManyToMany(mappedBy = "utensilios")
+    private List<Fichas> fichas;
 
     protected Utensilios() {
     }
 
-    public Utensilios(String nome) {
+    public Utensilios(String nome, Integer quantidade) {
         this.nome = nome;
+        this.quantidade = quantidade;
     }
-
+    public Long getId() {
+        return id;
+    }
     public String getNome() {
         return nome;
     }
-
     public void setNome(String nome) {
         this.nome = nome;
     }
-
+    public Integer getQuantidade() {
+        return quantidade;
+    }
+    public void setQuantidade(Integer quantidade) {
+        this.quantidade = quantidade;
+    }
 }
