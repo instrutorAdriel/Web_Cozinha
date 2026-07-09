@@ -1129,3 +1129,24 @@ atualizarResumoReceita(receitaAtual);
 
   render();
 })();
+
+function atualizarSaudacao() {
+  const dataAtual = new Date();
+  const hora = dataAtual.getHours();
+  let saudacao = "";
+
+  if (hora >= 0 && hora < 12) {
+    saudacao = "Bom dia";
+  } else if (hora >= 12 && hora < 18) {
+    saudacao = "Boa tarde";
+  } else {
+    saudacao = "Boa noite";
+  }
+
+  const elementoSaudacao = document.getElementById("mensagem-tempo");
+  if (elementoSaudacao) {
+    elementoSaudacao.innerText = saudacao;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", atualizarSaudacao);
