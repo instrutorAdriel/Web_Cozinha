@@ -31,6 +31,14 @@ public class Fichas {
     )
     private List<Insumos> insumos;
 
+    @ManyToMany
+    @JoinTable(
+            name = "fichas_utensilios",
+            joinColumns = @JoinColumn(name = "ficha_id"),
+            inverseJoinColumns = @JoinColumn(name = "utensilio_id")
+    )
+    private List<Utensilios> utensilios;
+
     public Fichas() {
     }
 
@@ -78,5 +86,11 @@ public class Fichas {
 
     public void setInsumos(List<Insumos> insumos) {
         this.insumos = insumos;
+    }
+    public List<Utensilios> getUtensilios() {
+        return utensilios;
+    }
+    public void setUtensilios(List<Utensilios> utensilios) {
+        this.utensilios = utensilios;
     }
 }

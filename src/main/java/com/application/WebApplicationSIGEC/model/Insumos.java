@@ -1,4 +1,5 @@
 package com.application.WebApplicationSIGEC.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ public class Insumos {
     @Column(nullable = false, length = 100)
     private String unidade_medida;
 
-
+    @JsonIgnore
     @ManyToMany(mappedBy = "insumos")
     private List<Fichas> fichas;
 
