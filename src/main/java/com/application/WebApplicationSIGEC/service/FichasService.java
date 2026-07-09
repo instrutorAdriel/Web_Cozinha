@@ -46,9 +46,9 @@ public class FichasService {
     @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
     public void alocarFicha(int idFicha, LocalDate novaData, int IdTurma) {
         Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
-        Turmas turma = turmasRepository.findById(IdTurma).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+        Turmas turmas = turmasRepository.findById(IdTurma).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
         ficha.setData(novaData);
-        ficha.setTurma(turma);
+        ficha.setTurmas((List<Turmas>) turmas);
         fichasRepository.save(ficha);
     }
 
@@ -56,7 +56,7 @@ public class FichasService {
     public void desalocarFicha(int idFicha) {
         Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         ficha.setData(null);
-        ficha.setTurma(null);
+        ficha.setTurmas(null);
         fichasRepository.save(ficha);
     }
 }

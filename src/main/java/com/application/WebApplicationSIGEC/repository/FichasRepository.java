@@ -19,7 +19,9 @@ public interface FichasRepository extends JpaRepository<Fichas, Integer> {
 
     List<Fichas> findByDataIsNull();
 
-    @Query("SELECT f FROM Fichas f WHERE f.data = :data AND f.turmas.id = :turmaId")
+    // Procure por este método no seu FichasRepository.java e mude para:
+
+    @Query("SELECT f FROM Fichas f JOIN f.turmas t WHERE f.data = :data AND t.id = :turmaId")
     List<Fichas> findByDataAndTurmasId(@Param("data") LocalDate data, @Param("turmaId") int turmaId);
 
     // CORREÇÃO AQUI: Mudado de TurmaIsNull para TurmasIsNull (Plural)

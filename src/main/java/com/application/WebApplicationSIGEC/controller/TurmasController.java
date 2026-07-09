@@ -1,8 +1,11 @@
 package com.application.WebApplicationSIGEC.controller;
 
 import com.application.WebApplicationSIGEC.model.Turmas;
+import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.repository.TurmasRepository;
+import com.application.WebApplicationSIGEC.service.SessaoService;
 import com.application.WebApplicationSIGEC.service.TurmasService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,34 +19,38 @@ import java.util.List;
 @Controller
 @RequestMapping("/")
 public class TurmasController {
-
-    @Autowired
-    private TurmasService turmasService;
-
     @Autowired
     private TurmasRepository turmasRepository;
 
-    @GetMapping("/conectado")
-    public List<Turmas> listarTurmasDoProfessorConectado(HttpSession session) {
-        // Procura o e-mail ou objeto que guardou na sessão durante o login
-        String emailUsuarioLogado = (String) session.getAttribute("usuarioEmail");
+    @Autowired
+    private SessaoService sessaoService;
 
-        if (emailUsuarioLogado == null) {
-            // Se não houver ninguém na sessão, lança um erro ou retorna uma lista vazia
-            throw new RuntimeException("Nenhum utilizador conectado.");
+    @Autowired
+    private TurmasService turmasService; // Injetado para usar no fluxo principal ou fallback
+
+    @GetMapping("/calendario/turmas")
+    @ResponseBody
+    public ResponseEntity<List<Turmas>> obterTurmasDoProfessor(HttpServletRequest request) {
+
+        // 1. Captura a sessão atual de forma segura (sem criar uma nova se não existir)
+        HttpSession session = request.getSession(false);
+
+        Usuario usuarioLogado = null;
+        if (session != null) {
+            usuarioLogado = sessaoService.buscarUsuarioLogado(session);
         }
 
-        return turmasRepository.findByUsuarioEmail(emailUsuarioLogado);
-    }
+        // 2. MODO DE TESTE / SEGURANÇA: Se o usuário não estiver logado na sessão,
+        // mantém o comportamento anterior usando o ID 1 fixo para não travar seus testes do calendário!
+        if (usuarioLogado == null) {
+            int idProfessorLogadoMock = 1;
+            List<Turmas> turmasMock = turmasService.listarTurmasPorUsuario(idProfessorLogadoMock);
+            return ResponseEntity.ok(turmasMock);
+        }
 
-    @GetMapping("/calendario/exibirturmas")
-    @ResponseBody
-    public ResponseEntity<List<Turmas>> obterTurmasDoProfessor() {
-        // Exemplo: Fixando o ID do professor logado como 1 para testar.
-        // No futuro, você pegará o ID do usuário logado na sessão ou no Spring Security.
-        int idProfessorLogado = 1;
-
-        List<com.application.WebApplicationSIGEC.model.Turmas> turmas = turmasService.listarTurmasPorUsuario(idProfessorLogado);
+        // 3. FLUXO REAL: Se o usuário estiver devidamente logado,
+        // busca as turmas dinamicamente usando o e-mail dele através do repositório
+        List<Turmas> turmas = turmasRepository.findByUsuarioEmail(usuarioLogado.getEmail());
         return ResponseEntity.ok(turmas);
     }
 }

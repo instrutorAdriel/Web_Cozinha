@@ -58,7 +58,7 @@ public class FichasController {
 
     @GetMapping("/calendario/fichas-alocadas")
     public ResponseEntity<List<Fichas>> obterTodasFichasAlocadas() {
-        List<Fichas> alocadas = fichasRepository.findByDataIsNotNull();
+        List<Fichas> alocadas = fichasRepository.findByDataIsNull();
         return ResponseEntity.ok(alocadas);
     }
 

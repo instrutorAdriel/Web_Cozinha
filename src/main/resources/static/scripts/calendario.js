@@ -40,7 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 turmas.forEach(turma => {
                     const option = document.createElement('option');
                     option.value = turma.id;
-                    option.textContent = turma.nome; // Ex: "Gastronomia Noturno - Turma A"
+                    // AJUSTADO: Agora usa corretamente o atributo 'nomeTurma' vindo do Java
+                    option.textContent = `${turma.nomeTurma} (${turma.laboratorio || 'Geral'})`;
                     selectTurma.appendChild(option);
                 });
 
@@ -93,12 +94,11 @@ document.addEventListener("DOMContentLoaded", () => {
                     }
                 });
 
-                // Com o mapa atualizado, desenha o calendário
+                // Com o mapa updated, desenha o calendário
                 renderizarGrid();
             })
             .catch(erro => {
                 console.error("Erro ao processar contagem de fichas alocadas: ", erro);
-                // Mesmo em caso de erro, renderiza o grid vazio de notificações para não quebrar a tela
                 renderizarGrid();
             });
     }
@@ -119,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
         const totalDiasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-        // Validação de segurança para meses menores
         if (diaSelecionadoGlobal > totalDiasNoMes) {
             diaSelecionadoGlobal = totalDiasNoMes;
         }
@@ -140,43 +139,32 @@ document.addEventListener("DOMContentLoaded", () => {
             spanNumero.textContent = dia;
             celula.appendChild(spanNumero);
 
-            // Marca fins de semana de forma automática
             const diaSemana = new Date(ano, mes, dia).getDay();
             if (diaSemana === 0 || diaSemana === 6) {
                 celula.classList.add("weekend");
             }
 
-            // Formata a data atual da célula em string ISO (YYYY-MM-DD) para enviar ao Java
             const strMes = String(mes + 1).padStart(2, '0');
             const strDia = String(dia).padStart(2, '0');
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
-            // Seleção automática do dia ativo
-            // Adiciona as bolinhas de notificação laranjas se houver fichas alocadas no dia
             if (alocacoesPorData[dataIso]) {
                 const quantidadeFichas = alocacoesPorData[dataIso];
-
-                // Container para organizar as bolinhas no rodapé da célula
                 const containerBolinhas = document.createElement("div");
                 containerBolinhas.className = "indicator-dots";
-
-                // Estilização inline para posicionamento no canto inferior direito
                 containerBolinhas.style.justifyContent = "flex-end";
                 containerBolinhas.style.marginLeft = "auto";
                 containerBolinhas.style.marginTop = "auto";
 
-                // Loop que desenha o número de bolinhas correspondente ao total de fichas alocadas
                 for (let k = 0; k < quantidadeFichas; k++) {
                     const bolinha = document.createElement("div");
                     bolinha.className = "dot orange";
                     containerBolinhas.appendChild(bolinha);
                 }
-
                 celula.appendChild(containerBolinhas);
             }
 
-            // Seleção automática do dia ativo (funciona na primeira carga e na troca de meses)
             if (dia === diaSelecionadoGlobal) {
                 celula.classList.add("active-selected");
                 buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
@@ -186,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
                 celula.classList.add("active-selected");
                 diaSelecionadoGlobal = dia;
-
                 buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
             });
 
@@ -195,23 +182,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Comunica-se assincronamente com o FichasController (Java) - ATUALIZADO COM ID TURMA
+     * Comunica-se assincronamente com o FichasController (Java)
      */
     function buscarFichasViaHibernate(dataIso, dia, nomeMes, ano) {
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
 
-        // Feedback visual rápido enquanto o Java responde
         containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agenda...</p>';
         containerDisponiveis.innerHTML = '<p class="crumb-muted">A carregar acervo...</p>';
 
-        // Se nenhuma turma foi carregada ainda, não faz a requisição para evitar erros
-        if (!turmaAtivaId) {
+        // BLINDAGEM: Se não houver ID de turma selecionado ou se for a string "undefined"
+        if (!turmaAtivaId || turmaAtivaId === "undefined") {
             containerAlocadas.innerHTML = '<p class="crumb-muted">Selecione uma turma para ver a agenda.</p>';
             containerDisponiveis.innerHTML = '<p class="crumb-muted">Selecione uma turma para ver o acervo.</p>';
             return;
         }
 
-        // ATUALIZADO: Agora passa o parâmetro &idTurma na URL
         fetch(`/calendario/fichas?data=${dataIso}&idTurma=${turmaAtivaId}`)
             .then(response => {
                 if (!response.ok) throw new Error("Erro na resposta do servidor");
@@ -221,22 +206,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 containerAlocadas.innerHTML = "";
                 containerDisponiveis.innerHTML = "";
 
-                // 1. Popula as Fichas Alocadas vindas do banco
                 if (!dados.alocadas || dados.alocadas.length === 0) {
                     containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
                 } else {
                     dados.alocadas.forEach(ficha => {
-                        // AJUSTADO: Agora passa ficha.id como primeiro parâmetro
                         containerAlocadas.appendChild(criarCardFicha(ficha.id, ficha.nome, 'success', "delete"));
                     });
                 }
 
-                // 2. Popula as Fichas Disponíveis
                 if (!dados.Disponiveis || dados.Disponiveis.length === 0) {
                     containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
                 } else {
                     dados.Disponiveis.forEach(ficha => {
-                        // AJUSTADO: Agora passa ficha.id como primeiro parâmetro
                         containerDisponiveis.appendChild(criarCardFicha(ficha.id, ficha.nome, 'warning', "append"));
                     });
                 }
@@ -249,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Cria a estrutura do card HTML para cada Ficha - ATUALIZADO COM ID TURMA
+     * Cria a estrutura do card HTML para cada Ficha
      */
     function criarCardFicha(id, nome, status, acao) {
         const card = document.createElement("div");
@@ -270,25 +251,31 @@ document.addEventListener("DOMContentLoaded", () => {
             </button>
         `;
 
+        // BLINDAGEM EXTRA: Se o ID da própria Ficha vier nulo ou indefinido por erro de mapeamento do banco
+        if (!id || id === "undefined") {
+            card.querySelector('.btn-fiche-action').disabled = true;
+            card.querySelector('.btn-fiche-action').style.opacity = "0.5";
+            return card;
+        }
+
         // AÇÃO 1: Adicionar (+)
         if (acao === 'append') {
             card.querySelector('.btn-fiche-action').addEventListener('click', () => {
                 const celulaAtiva = document.querySelector('.day-cell.active-selected');
                 if (!celulaAtiva) return;
-                if (!turmaAtivaId) {
-                    alert("Selecione uma turma antes de alocar.");
+
+                if (!turmaAtivaId || turmaAtivaId === "undefined") {
+                    alert("Selecione uma turma válida antes de alocar.");
                     return;
                 }
 
                 const dataIso = celulaAtiva.getAttribute('data-date');
 
-                // ATUALIZADO: Passa também o idTurma na hora de salvar o vínculo
                 fetch(`/calendario/alocar?id=${id}&data=${dataIso}&idTurma=${turmaAtivaId}`, {method: 'GET'})
                     .then(response => {
                         if (!response.ok) throw new Error("Erro ao alocar");
-                        // Recarrega as alocações e atualiza o calendário com as bolinhas correspondentes
                         carregarAlocacoesERenderizarGrid();
-                        celulaAtiva.click(); // Recarrega o dia atualizado
+                        celulaAtiva.click();
                     })
                     .catch(err => console.error("Erro na alocação:", err));
             });
@@ -305,9 +292,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         return response.text();
                     })
                     .then(mensagem => {
-                        if (celulaAtiva) celulaAtiva.click(); // Recarrega as listas do dia instantaneamente
-                        alert(mensagem); // Alerta opcional de sucesso
-                        // Recarrega as alocações e atualiza o calendário com as bolinhas correspondentes
+                        if (celulaAtiva) celulaAtiva.click();
+                        alert(mensagem);
                         carregarAlocacoesERenderizarGrid();
                     })
                     .catch(err => {
@@ -335,8 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // GATILHO INICIAL: O fluxo agora inicia buscando as turmas, que por sua vez renderiza o calendário!
+    // GATILHO INICIAL
     inicializarSelectTurmas();
-    // Inicialização da primeira renderização automática buscando os dados alocados do banco
     carregarAlocacoesERenderizarGrid();
 });

@@ -26,8 +26,10 @@ public class Turmas {
     @JsonIgnoreProperties("turmas") // Evita loop ao serializar a lista de usuários da turma
     private List<Usuario> usuarios;
 
-    @OneToMany(mappedBy = "turmas", fetch = FetchType.LAZY) // Certifique-se que na classe Fichas o atributo se chama "turma" ou "turmas"
-    @JsonIgnoreProperties({"turma", "turmas"}) // CORREÇÃO AQUI: Impede o Jackson de voltar para dentro da turma ao ler a Ficha
+    // Dentro de Turmas.java
+
+    @ManyToMany(mappedBy = "turmas", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("turmas")
     private List<Fichas> fichas;
 
     public Turmas() {

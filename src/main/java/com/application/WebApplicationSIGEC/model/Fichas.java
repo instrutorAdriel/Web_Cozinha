@@ -3,7 +3,7 @@ package com.application.WebApplicationSIGEC.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-
+import java.util.List;
 
 
 @Entity
@@ -23,11 +23,14 @@ public class Fichas {
     @Column(name = "data")
     private LocalDate data;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "turmas")
-    @JsonIgnoreProperties({"fichas", "usuarios"}) // IMPEDE O LOOP: Ignora o carregamento reverso ao gerar o JSON
-    private Turmas turmas;
-
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "fichas_turmas", // Tabela dedicada unicamente para Fichas e Turmas
+            joinColumns = @JoinColumn(name = "ficha_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "turma_id", referencedColumnName = "id")
+    )
+    @JsonIgnoreProperties("fichas")
+    private List<Turmas> turmas;
     public Fichas() {
     }
 
@@ -35,14 +38,6 @@ public class Fichas {
         this.nome = nome;
         this.data = data;
         this.preparo = preparo;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getNome() {
@@ -69,11 +64,11 @@ public class Fichas {
         this.preparo = preparo;
     }
 
-    public Turmas getTurma() {
+    public List<Turmas> getTurmas() {
         return turmas;
     }
 
-    public void setTurma(Turmas turmas) {
+    public void setTurmas(List<Turmas> turmas) {
         this.turmas = turmas;
     }
 }
