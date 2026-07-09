@@ -10,37 +10,23 @@
 </head>
 <body>
 <div class="app-container">
-    <aside class="sidebar">
-        <div class="sidebar-top">
-            <div class="brand">
-                <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC - Fecomércio Sesc" class="brand-img" /><br>
-                <div class="brand-text">
-                    <strong></strong>
-                    <span><br></span>
-                </div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
+            <div class="brand-text">
+                <h1 class="brand-title">SIGEC</h1>
+                <p class="brand-sub">Painel do Instrutor</p>
             </div>
-            <div class="app-name">
-                <h1>SIGEC</h1>
-                <p>PAINEL DE INSTRUTOR</p>
-            </div>
-            <div class="menu-label">MENU</div>
-
-            <nav class="menu">
-                <a href="#" class="menu-item">
-                    <span class="material-symbols-outlined">home</span> Início
-                </a>
-                <a href="#" class="menu-item">
-                    <span class="material-symbols-outlined">calendar_month</span> Calendário
-                </a>
-                <a href="#" class="menu-item active">
-                    <span class="material-symbols-outlined">menu_book</span> Receitas
-                </a>
-            </nav>
         </div>
-        <div class="sidebar-bottom">
-            <button class="logout-btn">
-                <span class="material-symbols-outlined">logout</span> Sair
-            </button>
+
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
+            <a href="#" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
+            <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
         </div>
     </aside>
 
