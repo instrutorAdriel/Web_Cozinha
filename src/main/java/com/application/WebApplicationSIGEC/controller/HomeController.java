@@ -1,5 +1,6 @@
 package com.application.WebApplicationSIGEC.controller;
 
+<<<<<<< HEAD
 import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.service.AulaService;
 import com.application.WebApplicationSIGEC.model.AulasDTO;
@@ -7,17 +8,32 @@ import com.application.WebApplicationSIGEC.service.SessaoService;
 import com.application.WebApplicationSIGEC.service.AulaService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+=======
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
+>>>>>>> b672467f3806d1c366e2a067e33735a8b0135b67
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+<<<<<<< HEAD
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+=======
+
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.service.SessaoService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+>>>>>>> b672467f3806d1c366e2a067e33735a8b0135b67
 
 @Controller
 @RequestMapping("/")

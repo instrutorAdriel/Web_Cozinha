@@ -74,8 +74,15 @@
 
     <section class="hero flight-accent">
       <div class="hero-text">
+<<<<<<< HEAD
         <p class="hero-date">Quarta-feira, 17 de Junho</p>
         <h2 class="hero-title">Bom dia, Chef Ricardo!</h2>
+=======
+        <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
+        <h2 class="hero-title">
+            <span id="mensagem-tempo">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
+        </h2>
+>>>>>>> b672467f3806d1c366e2a067e33735a8b0135b67
         <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
       </div>
     </section>
@@ -390,6 +397,7 @@
       <button class="btn-confirm" style="flex: 1;" id="finish-save">Salvar e Finalizar</button>
     </div>
   </div>
+</div>
 </div>
 
 <div class="modal-overlay" id="sobras-modal">
