@@ -43,6 +43,8 @@ body{
     margin-bottom: 20px;
 }
 
+
+
 .logo img{
     width: 220px;
     filter: drop-shadow(0 5px 10px rgba(0,0,0,.2));
@@ -193,3 +195,31 @@ button:hover{
         transform: translateY(0);
     }
 }
+
+
+/* --- ESTILOS DA CAIXA DE SENHA --- */
+.caixa-senha {
+    position: relative;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.caixa-senha input {
+    margin-bottom: 0;
+    padding-right: 45px; /* Abre espaço para o ícone não ficar por cima do texto */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Aplica o estilo para qualquer ícone (tag <i>) dentro da caixa-senha */
+.caixa-senha i {
+    position: absolute;
+    top: 50%;
+    right: 15px;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #004A8D;
+    font-size: 18px;
+    transition: 0.3s;
+}
+
