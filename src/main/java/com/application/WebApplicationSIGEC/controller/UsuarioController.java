@@ -61,7 +61,7 @@ public class UsuarioController {
             else{
                 model.addAttribute("erro", erro);
             }
-            model.addAttribute("usuarioForm", form);
+                model.addAttribute("usuarioForm", form);
             return "cadastro";
         }
 
@@ -123,13 +123,3 @@ public class UsuarioController {
     }
 
 }
-
-/*@GetMapping("/login")
-public String exibirLogin(HttpSession session) {
-
-    if (session != null) {
-        sessaoService.encerrarSessao(session);
-    }
-
-    return "login";
-}**/
