@@ -1,4 +1,4 @@
-package com.example.primeiroAppSpring.controller;
+package com.application.WebApplicationSIGEC.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
