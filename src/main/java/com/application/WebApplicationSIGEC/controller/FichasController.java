@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import com.application.WebApplicationSIGEC.model.Fichas;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
@@ -71,5 +68,20 @@ public class FichasController {
     public ResponseEntity<String> desalocarFicha (@RequestParam("id") int id){
         fichasService.desalocarFicha(id);
         return ResponseEntity.ok("Receita desalocada com sucesso!");
+    }
+
+    @GetMapping("/api/fichas/todas")
+    @ResponseBody
+    public ResponseEntity<List<Fichas>> listarTodasFichas() {
+        List<Fichas> todasAsFichas = fichasRepository.findAll();
+        return ResponseEntity.ok(todasAsFichas);
+    }
+
+    @GetMapping("/api/fichas/{id}")
+    @ResponseBody
+    public ResponseEntity buscarFichaPorId(@PathVariable int id) {
+        // Usa o repositório que já está injetado na sua classe para buscar a ficha pelo ID
+        Fichas ficha = fichasRepository.findById(id).orElse(null);
+        return ResponseEntity.ok(ficha);
     }
 }

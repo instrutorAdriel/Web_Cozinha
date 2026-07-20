@@ -244,6 +244,82 @@ const painels = {
 const select = $('recipe-select');
 const turmaSelect = $('turma-select');
 
+async function carregarReceitasDoBanco() {
+  try {
+    // 1. Faz a requisição para a rota do Controller que criamos no Java
+    const resposta = await fetch('/api/fichas/todas');
+    const fichasDoBanco = await resposta.json();
+
+    // 2. Limpa as opções e insere uma padrão
+    select.innerHTML = '<option value="">-- Selecione uma Receita --</option>';
+
+    // 3. Itera sobre o JSON e cria uma <option> para cada ficha do banco
+    fichasDoBanco.forEach(ficha => {
+      const optionHtml = `<option value="${ficha.id}">${ficha.nome}</option>`;
+      select.innerHTML += optionHtml;
+    });
+
+    // 4. Seleciona a primeira receita automaticamente (se existir alguma)
+    if (fichasDoBanco.length > 0) {
+      const primeiraId = fichasDoBanco[0].id;
+      select.value = primeiraId;
+
+      // Chama a função para puxar os detalhes (insumos/utensílios) da primeira receita
+      trocarReceita(primeiraId);
+    }
+
+  } catch (erro) {
+    console.error("Erro ao carregar as receitas do banco:", erro);
+    select.innerHTML = '<option value="">Erro ao carregar receitas</option>';
+  }
+}
+
+// ===== Troca de receita / Detalhes do Banco =====
+async function trocarReceita(idDaFicha) {
+  if (!idDaFicha) return;
+
+  try {
+    // Busca os detalhes específicos (insumos e utensílios) da ficha no Java
+    const resposta = await fetch(`/api/fichas/${idDaFicha}`);
+    const fichaDoBanco = await resposta.json();
+
+    receitaAtual = idDaFicha;
+    if (select) select.value = idDaFicha;
+
+    // Traduz os dados do Java para a estrutura que os painéis amarelos esperam
+    receitas[idDaFicha] = {
+      nome: fichaDoBanco.nome,
+      local: "Cozinha do Banco de Dados",
+      tempoPreparo: "--",
+      modoPreparo: fichaDoBanco.preparo ? [fichaDoBanco.preparo] : ["Modo de preparo não informado."],
+
+      // Mapeia os insumos vindos do banco
+      itens: (fichaDoBanco.insumos || []).map(insumo => ({
+        id: insumo.id,
+        nome: insumo.nome,
+        necessario: 1, // Valor padrão provisório
+        unidade: insumo.unidade_medida || "un"
+      }))
+    };
+
+    // Mapeia os utensílios vindos do banco
+    utensiliosFicha[idDaFicha] = (fichaDoBanco.utensilios || []).map(util => ({
+      id: util.id,
+      nome: util.nome,
+      necessario: 1,
+      unidade: "un"
+    }));
+
+    // Renderiza os painéis amarelos atualizados
+    renderTudo();
+    highlightCard(idDaFicha);
+    atualizarResumoReceita(idDaFicha);
+
+  } catch (erro) {
+    console.error("Erro ao buscar detalhes da receita:", erro);
+  }
+}
+
 function aplicarScrollAdaptativo(container, qtd, rotulo) {
   const ativar = qtd > LIMITE_SCROLL;
   container.classList.toggle('is-scrollable', ativar);
@@ -627,16 +703,7 @@ if ($('sobras-save')) {
   });
 }
 
-// ===== Troca de receita / turma =====
-function trocarReceita(key) {
-  const permitidas = receitasPorTurma[turmaAtual] || Object.keys(receitas);
-  if (!receitas[key] || !permitidas.includes(key)) key = permitidas[0];
-  receitaAtual = key;
-  if (select) select.value = key;
-  renderTudo();
-  highlightCard(key);
-  atualizarResumoReceita(key); 
-}
+
 
 function popularReceitasDaTurma(turmaKey) {
   const permitidas = receitasPorTurma[turmaKey] || Object.keys(receitas);
@@ -732,15 +799,15 @@ obsModal.addEventListener('click', e => { if (e.target === obsModal) fecharObs()
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharObs(); });
 
 // ===== Inicialização =====
-turmaAtual   = '2024.1.A';
-turmaSelect.value = turmaAtual;
-popularReceitasDaTurma(turmaAtual);
-receitaAtual = (receitasPorTurma[turmaAtual] || Object.keys(receitas))[0];
-select.value = receitaAtual;
+turmaAtual = '2024.1.A';
+if (turmaSelect) {
+  turmaSelect.value = turmaAtual;
+}
 
-renderTudo();
-highlightCard(receitaAtual);
-atualizarResumoReceita(receitaAtual);
+// Dispara o carregamento das receitas vindas do banco de dados MySQL
+carregarReceitasDoBanco();
+// Inicia a busca no banco de dados.
+carregarReceitasDoBanco();
 
 // ===== CALENDÁRIO INTERATIVO =====
 (function () {
