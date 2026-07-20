@@ -2,7 +2,7 @@ package com.application.WebApplicationSIGEC.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-
+import java.util.List;
 
 
 @Entity
@@ -22,6 +22,22 @@ public class Fichas {
     @Lob
     @Column(nullable = false, columnDefinition = "TEXT")
     private String preparo;
+
+    @ManyToMany
+    @JoinTable(
+            name = "fichas_insumos",
+            joinColumns = @JoinColumn(name= "ficha_id"),
+            inverseJoinColumns = @JoinColumn(name = "insumos_id")
+    )
+    private List<Insumos> insumos;
+
+    @ManyToMany
+    @JoinTable(
+            name = "fichas_utensilios",
+            joinColumns = @JoinColumn(name = "ficha_id"),
+            inverseJoinColumns = @JoinColumn(name = "utensilio_id")
+    )
+    private List<Utensilios> utensilios;
 
     public Fichas() {
     }
@@ -62,5 +78,19 @@ public class Fichas {
 
     public void setPreparo(String preparo) {
         this.preparo = preparo;
+    }
+
+    public List<Insumos> getInsumos() {
+        return insumos;
+    }
+
+    public void setInsumos(List<Insumos> insumos) {
+        this.insumos = insumos;
+    }
+    public List<Utensilios> getUtensilios() {
+        return utensilios;
+    }
+    public void setUtensilios(List<Utensilios> utensilios) {
+        this.utensilios = utensilios;
     }
 }
