@@ -1,198 +1,221 @@
 <!DOCTYPE html>
 <html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>SENAC SIGEC — Calendário de Planejamento</title>
-    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" th:href="@{/styles/calendario.css}">
 </head>
+
 <body>
 
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img">
-        <div class="brand-text">
-            <h1 class="brand-title">SIGEC</h1>
-            <p class="brand-sub">Painel do Instrutor</p>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <p class="nav-group">Menu</p>
-        <a th:href="@{/home}" class="nav-item">
-            <span class="material-symbols-outlined">home</span>
-            <span>Início</span>
-        </a>
-        <a th:href="@{/calendario}" class="nav-item active">
-            <span class="material-symbols-outlined">calendar_month</span>
-            <span>Calendário</span>
-        </a>
-        <a th:href="@{/receitas}" class="nav-item">
-            <span class="material-symbols-outlined">menu_book</span>
-            <span>Receitas</span>
-        </a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <button class="btn-logout">
-            <span class="material-symbols-outlined">logout</span>Sair
-        </button>
-    </div>
-</aside>
-
-<header class="topbar">
-    <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
-        <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Calendário</span>
-        </div>
-    </div>
-
-    <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img">
+            <div class="brand-text">
+                <h1 class="brand-title">SIGEC</h1>
+                <p class="brand-sub">Painel do Instrutor</p>
+            </div>
         </div>
 
-        <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a th:href="@{/home}" class="nav-item">
+                <span class="material-symbols-outlined">home</span>
+                <span>Início</span>
+            </a>
+            <a th:href="@{/calendario}" class="nav-item active">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span>Calendário</span>
+            </a>
+            <a th:href="@{/receitas}" class="nav-item">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Receitas</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <button class="btn-logout">
+                <span class="material-symbols-outlined">logout</span>Sair
             </button>
-            <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                </div>
-                <div class="notif-list">
-                    <div th:each="notif : ${notificacoes}" class="notif-item unread">
-                        <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
-                        <div class="notif-body">
-                            <p class="notif-title" th:text="${notif.titulo}"></p>
-                            <p class="notif-text" th:text="${notif.mensagem}"></p>
+        </div>
+    </aside>
+
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" id="menu-toggle">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <div class="breadcrumb">
+                <span class="crumb-muted">SIGEC</span>
+                <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+                <span class="crumb-current">Calendário</span>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <div class="search-box">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Buscar receita, turma...">
+            </div>
+
+            <div class="notif-wrap">
+                <button class="icon-btn" id="notif-btn" aria-label="Notificações">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
+                </button>
+                <div class="notif-panel" id="notif-panel">
+                    <div class="notif-head">
+                        <h3>Notificações</h3>
+                    </div>
+                    <div class="notif-list">
+                        <div th:each="notif : ${notificacoes}" class="notif-item unread">
+                            <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
+                            <div class="notif-body">
+                                <p class="notif-title" th:text="${notif.titulo}"></p>
+                                <p class="notif-text" th:text="${notif.mensagem}"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="user-box">
-            <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
-                <p class="user-role" th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor Gastronomia</p>
+            <div class="user-box">
+                <div class="user-info">
+                    <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">
+                        Chef Ricardo Silva</p>
+                    <p class="user-role"
+                        th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor
+                        Gastronomia</p>
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<header class="topbar">
-    <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
-        <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Calendário</span>
-        </div>
-    </div>
-
-    <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
-        </div>
-
-        <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" id="menu-toggle">
+                <span class="material-symbols-outlined">menu</span>
             </button>
-            <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                </div>
-                <div class="notif-list">
-                    <div th:each="notif : ${notificacoes}" class="notif-item unread">
-                        <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
-                        <div class="notif-body">
-                            <p class="notif-title" th:text="${notif.titulo}"></p>
-                            <p class="notif-text" th:text="${notif.mensagem}"></p>
+            <div class="breadcrumb">
+                <span class="crumb-muted">SIGEC</span>
+                <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+                <span class="crumb-current">Calendário</span>
+            </div>
+        </div>
+
+        <div class="topbar-actions">
+            <div class="search-box">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Buscar receita, turma...">
+            </div>
+
+            <div class="notif-wrap">
+                <button class="icon-btn" id="notif-btn" aria-label="Notificações">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
+                </button>
+                <div class="notif-panel" id="notif-panel">
+                    <div class="notif-head">
+                        <h3>Notificações</h3>
+                    </div>
+                    <div class="notif-list">
+                        <div th:each="notif : ${notificacoes}" class="notif-item unread">
+                            <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
+                            <div class="notif-body">
+                                <p class="notif-title" th:text="${notif.titulo}"></p>
+                                <p class="notif-text" th:text="${notif.mensagem}"></p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <div class="user-box">
+                <div class="user-info">
+                    <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">
+                        Chef Ricardo Silva</p>
+                    <p class="user-role"
+                        th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor
+                        Gastronomia</p>
+                </div>
+            </div>
         </div>
+    </header>
 
-        <div class="user-box">
-            <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
-                <p class="user-role" th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor Gastronomia</p>
-            </div>
+    <main class="main-container">
+        <div class="cal-dashboard-layout">
+
+            <section class="cal-calendar-section">
+                <div class="cal-card-header">
+                    <div class="cal-header-title">
+                        <span class="material-symbols-outlined">calendar_month</span>
+                        <h2>Planejamento de Aulas</h2>
+                    </div>
+
+                    <div class="cal-header-controls">
+                        <button class="btn-cal-arrow" id="cal-prev">
+                            <span class="material-symbols-outlined">chevron_left</span>
+                        </button>
+                        <span class="cal-month-indicator" id="cal-month">Junho 2026</span>
+                        <button class="btn-cal-arrow" id="cal-next">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cal-grid-container">
+                    <div class="cal-weekdays-grid">
+                        <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
+                    </div>
+
+                    <div class="cal-days-grid" id="cal-grid"></div>
+
+                    <div class="cal-legend-footer">
+                        <span class="legend-item"><i class="badge orange"></i>Com aula agendada</span>
+                        <span class="legend-item"><i class="badge red"></i>Feriado / Recesso institucional</span>
+                        <span class="legend-item"><i class="badge gray"></i>Fim de semana</span>
+                    </div>
+                </div>
+            </section>
+
+            <aside class="cal-side-panel" id="cal-day-panel">
+                <h2 class="panel-date-title" id="cal-panel-date">16 De Junho, 2026</h2>
+
+                <div class="panel-section">
+                    <h3 class="panel-section-title">FICHAS ALOCADAS (AGENDA DO DIA)</h3>
+                    <div class="fiche-stack" id="cal-allocated">
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3 class="panel-section-title">FICHAS DISPONÍVEIS NO ACERVO</h3>
+                    <div class="fiche-stack" id="cal-available">
+                    </div>
+                </div>
+            </aside>
+
         </div>
-    </div>
-</header>
-
-<main class="main-container">
-    <div class="cal-dashboard-layout">
-
-        <section class="cal-calendar-section">
-            <div class="cal-card-header">
-                <div class="cal-header-title">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    <h2>Planejamento de Aulas</h2>
-                </div>
-
-                <div class="cal-header-controls">
-                    <button class="btn-cal-arrow" id="cal-prev">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </button>
-                    <span class="cal-month-indicator" id="cal-month">Junho 2026</span>
-                    <button class="btn-cal-arrow" id="cal-next">
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </button>
+        <dialog id="modal-confirmacao" class="custom-dialog">
+            <div class="dialog-content">
+                <span class="material-symbols-outlined icon-warning">warning</span>
+                <h3>Confirmar Ação</h3>
+                <p>Deseja mesmo retirar a ficha deste dia?</p>
+                <div class="dialog-actions">
+                    <button id="btn-cancelar-exclusao" class="btn-secondary">Não, manter</button>
+                    <button id="btn-confirmar-exclusao" class="btn-danger">Sim, retirar</button>
                 </div>
             </div>
+        </dialog>
 
-            <div class="cal-grid-container">
-                <div class="cal-weekdays-grid">
-                    <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
-                </div>
+    </main>
 
-                <div class="cal-days-grid" id="cal-grid"></div>
-
-                <div class="cal-legend-footer">
-                    <span class="legend-item"><i class="badge orange"></i>Com aula agendada</span>
-                    <span class="legend-item"><i class="badge red"></i>Feriado / Recesso institucional</span>
-                    <span class="legend-item"><i class="badge gray"></i>Fim de semana</span>
-                </div>
-            </div>
-        </section>
-
-        <aside class="cal-side-panel" id="cal-day-panel">
-            <h2 class="panel-date-title" id="cal-panel-date">16 De Junho, 2026</h2>
-
-            <div class="panel-section">
-                <h3 class="panel-section-title">FICHAS ALOCADAS (AGENDA DO DIA)</h3>
-                <div class="fiche-stack" id="cal-allocated">
-                </div>
-            </div>
-
-            <div class="panel-section">
-                <h3 class="panel-section-title">FICHAS DISPONÍVEIS NO ACERVO</h3>
-                <div class="fiche-stack" id="cal-available">
-                </div>
-            </div>
-        </aside>
-
-    </div>
-</main>
-
-<script th:src="@{/scripts/calendario.js}"></script>
+    <script th:src="@{/scripts/calendario.js}"></script>
 </body>
+
 </html>
