@@ -55,10 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
             spanNumero.textContent = dia;
             celula.appendChild(spanNumero);
 
-            // Marca fins de semana de forma automática
+            // Marca e bloqueia fins de semana
             const diaSemana = new Date(ano, mes, dia).getDay();
             if (diaSemana === 0 || diaSemana === 6) {
                 celula.classList.add("weekend");
+                celula.classList.add("bloqueado");
             }
 
             // Formata a data atual da célula em string ISO (YYYY-MM-DD) para enviar ao Java
