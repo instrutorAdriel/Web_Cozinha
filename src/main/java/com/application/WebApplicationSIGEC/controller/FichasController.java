@@ -1,9 +1,10 @@
 package com.application.WebApplicationSIGEC.controller;
 
-import com.application.WebApplicationSIGEC.model.Fichas;
-import com.application.WebApplicationSIGEC.repository.FichasRepository;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.application.WebApplicationSIGEC.service.FichasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,11 +14,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.*;
+import com.application.WebApplicationSIGEC.model.Fichas;
+import com.application.WebApplicationSIGEC.repository.FichasRepository;
+import com.application.WebApplicationSIGEC.service.FichasService;
+
+import jakarta.servlet.http.HttpSession;
+
 
 @Controller
 @RequestMapping("/")
@@ -29,8 +31,13 @@ public class FichasController {
     private FichasService fichasService;
 
     @GetMapping("/calendario")
-    public String exibirCalendario(Model model){
-       return "calendario";
+    public String exibirCalendario(Model model, HttpSession session){
+
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            return "redirect:/login"; // Redireciona e PARA a execução
+        }
+
+        return "calendario";
     }
 
     @GetMapping("/calendario/fichas")
@@ -43,6 +50,12 @@ public class FichasController {
         rsFinal.put("Disponiveis", rsall);
 
         return ResponseEntity.ok(rsFinal);
+    }
+
+    @GetMapping("/calendario/fichas-alocadas")
+    public ResponseEntity<List<Fichas>> obterTodasFichasAlocadas() {
+        List<Fichas> alocadas = fichasRepository.findByDataIsNotNull();
+        return ResponseEntity.ok(alocadas);
     }
 
     @GetMapping("/calendario/alocar")

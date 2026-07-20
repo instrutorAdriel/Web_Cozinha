@@ -57,10 +57,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Marca fins de semana de forma automática
             const diaSemana = new Date(ano, mes, dia).getDay();
-
             if (diaSemana === 0 || diaSemana === 6) {
                 celula.classList.add("weekend");
-                celula.classList.add("bloqueado");
             }
 
             // Formata a data atual da célula em string ISO (YYYY-MM-DD) para enviar ao Java
@@ -69,18 +67,22 @@ document.addEventListener("DOMContentLoaded", () => {
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
+            // Seleção automática do dia ativo (funciona na primeira carga e na troca de meses)
+            if (dia === diaSelecionadoGlobal) {
+                celula.classList.add("active-selected");
+                buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
+            }
+
             // Evento ao clicar em qualquer dia
             celula.addEventListener("click", () => {
-                if (celula.classList.contains("bloqueado")) {
-                    return;
-                }
-
                 document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
                 celula.classList.add("active-selected");
                 diaSelecionadoGlobal = dia;
 
+                // Chama o backend Java passando a data selecionada
                 buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
             });
+
             grid.appendChild(celula);
         }
     }
