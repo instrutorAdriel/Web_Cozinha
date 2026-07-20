@@ -3,6 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let dataCalendario = new Date();
     let diaSelecionadoGlobal = new Date().getDate();
 
+    // Dicionário/Mapa para armazenar o número de fichas alocadas por data (ex: {'2026-07-16': 2})
+    let alocacoesPorData = {};
+
     const nomesMeses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -16,6 +19,37 @@ document.addEventListener("DOMContentLoaded", () => {
     const containerDisponiveis = document.getElementById("cal-available");
     const btnPrev = document.getElementById("cal-prev");
     const btnNext = document.getElementById("cal-next");
+
+    /**
+     * Busca assincronamente todas as fichas alocadas no banco de dados,
+     * constrói o mapa de contagem por dia e chama a renderização do grid.
+     */
+    function carregarAlocacoesERenderizarGrid() {
+        fetch("/calendario/fichas-alocadas")
+            .then(response => {
+                if (!response.ok) throw new Error("Erro ao buscar fichas alocadas");
+                return response.json();
+            })
+            .then(fichas => {
+                // Reinicia o mapeamento para limpar alocações antigas
+                alocacoesPorData = {};
+
+                // Agrupa e conta a quantidade de fichas associadas a cada data
+                fichas.forEach(ficha => {
+                    if (ficha.data) {
+                        alocacoesPorData[ficha.data] = (alocacoesPorData[ficha.data] || 0) + 1;
+                    }
+                });
+
+                // Com o mapa atualizado, desenha o calendário
+                renderizarGrid();
+            })
+            .catch(erro => {
+                console.error("Erro ao processar contagem de fichas alocadas: ", erro);
+                // Mesmo em caso de erro, renderiza o grid vazio de notificações para não quebrar a tela
+                renderizarGrid();
+            });
+    }
 
     /**
      * Renderiza o grid de dias do calendário
@@ -66,6 +100,29 @@ document.addEventListener("DOMContentLoaded", () => {
             const strDia = String(dia).padStart(2, '0');
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
+
+            // Adiciona as bolinhas de notificação laranjas se houver fichas alocadas no dia
+            if (alocacoesPorData[dataIso]) {
+                const quantidadeFichas = alocacoesPorData[dataIso];
+
+                // Container para organizar as bolinhas no rodapé da célula
+                const containerBolinhas = document.createElement("div");
+                containerBolinhas.className = "indicator-dots";
+                
+                // Estilização inline para posicionamento no canto inferior direito
+                containerBolinhas.style.justifyContent = "flex-end";
+                containerBolinhas.style.marginLeft = "auto";
+                containerBolinhas.style.marginTop = "auto";
+
+                // Loop que desenha o número de bolinhas correspondente ao total de fichas alocadas
+                for (let k = 0; k < quantidadeFichas; k++) {
+                    const bolinha = document.createElement("div");
+                    bolinha.className = "dot orange";
+                    containerBolinhas.appendChild(bolinha);
+                }
+
+                celula.appendChild(containerBolinhas);
+            }
 
             // Seleção automática do dia ativo (funciona na primeira carga e na troca de meses)
             if (dia === diaSelecionadoGlobal) {
@@ -167,7 +224,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 fetch(`/calendario/alocar?id=${id}&data=${dataIso}`, { method: 'GET' })
                     .then(response => {
                         if (!response.ok) throw new Error("Erro ao alocar");
-                        celulaAtiva.click(); // Recarrega a listagem do dia
+                        // Recarrega as alocações e atualiza o calendário com as bolinhas correspondentes
+                        carregarAlocacoesERenderizarGrid();
                     })
                     .catch(err => console.error("Erro na alocação:", err));
             });
@@ -188,7 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     })
                     .then(mensagem => {
                         alert(mensagem); // Alerta opcional de sucesso
-                        if (celulaAtiva) celulaAtiva.click(); // Recarrega as listas do dia instantaneamente
+                        // Recarrega as alocações e atualiza o calendário com as bolinhas correspondentes
+                        carregarAlocacoesERenderizarGrid();
                     })
                     .catch(err => {
                         console.error("Erro na desalocação:", err);
@@ -204,17 +263,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnPrev) {
         btnPrev.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() - 1);
-            renderizarGrid();
+            carregarAlocacoesERenderizarGrid();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() + 1);
-            renderizarGrid();
+            carregarAlocacoesERenderizarGrid();
         });
     }
 
-    // Inicialização da primeira renderização automática
-    renderizarGrid();
+    // Inicialização da primeira renderização automática buscando os dados alocados do banco
+    carregarAlocacoesERenderizarGrid();
 });
