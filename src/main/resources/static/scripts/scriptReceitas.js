@@ -132,6 +132,12 @@ function renderList() {
             activeId = r.id;
             renderList();
             renderDetail();
+
+            // Em telas menores, ao escolher uma receita, fecha a lista
+            // e mostra o painel de detalhes automaticamente
+            if (window.innerWidth <= 768) {
+                document.body.classList.add('show-detail');
+            }
         });
         listCol.appendChild(card);
     });
@@ -192,6 +198,44 @@ function renderDetail() {
         </ol>
     `;
 }
+
+/* ==========================================================================
+   RESPONSIVIDADE — Toggle da Sidebar (mobile/tablet)
+   Requer no HTML:
+     - botão com id="menu-toggle" (já existe no topbar)
+     - a sidebar com id="sidebar" (já existe)
+     - um elemento <div class="overlay" id="overlay"></div>
+       logo após a <aside class="sidebar" id="sidebar"> no HTML
+   ========================================================================== */
+(function initSidebarToggle() {
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menu-toggle');
+    const overlay = document.getElementById('overlay');
+
+    if (!sidebar || !menuToggle || !overlay) return;
+
+    function openSidebar() {
+        sidebar.classList.add('show');
+        overlay.classList.add('show');
+    }
+
+    function closeSidebar() {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    }
+
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.contains('show') ? closeSidebar() : openSidebar();
+    });
+
+    overlay.addEventListener('click', closeSidebar);
+
+    // Fecha a sidebar automaticamente se a tela for redimensionada
+    // para um tamanho onde ela volta a ficar fixa (desktop)
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 1024) closeSidebar();
+    });
+})();
 
 // Inicialização segura das views
 renderList();
