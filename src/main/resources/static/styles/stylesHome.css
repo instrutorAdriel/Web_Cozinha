@@ -1221,7 +1221,8 @@ body {
     }
 
     .search-box {
-        display: none
+        display: none;
+
     }
 
     .hero {
