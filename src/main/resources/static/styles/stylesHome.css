@@ -877,14 +877,15 @@ body {
     opacity: 1
 }
 
+#util-btn-reset{
+    padding: 11px 60px;
+
+}
 #btn-finish-utensilios {
-flex: none;
+
     padding: 11px 60px;
 }
 
-#util-btn-reset{
-    padding: 11px 60px;
-}
 .checklist-footer {
     padding: 20px 24px;
     display: flex;
