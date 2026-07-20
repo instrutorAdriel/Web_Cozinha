@@ -1,4 +1,5 @@
 package com.application.WebApplicationSIGEC.model;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class Utensilios {
     public String getNome() {
         return nome;
     }
+
     public void setNome(String nome) {
         this.nome = nome;
     }
@@ -39,4 +41,12 @@ public class Utensilios {
     public void setQuantidade(Integer quantidade) {
         this.quantidade = quantidade;
     }
+
+    public List<Fichas> getFichas() {
+        return fichas;
+    }
+    public void setFichas(List<Fichas> fichas) {
+        this.fichas = fichas;
+    }
+
 }
