@@ -1,9 +1,9 @@
 package com.application.WebApplicationSIGEC.service;
 
 
-import com.application.WebApplicationSIGEC.model.Usuario;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class SessaoService {
