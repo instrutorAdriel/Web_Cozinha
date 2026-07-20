@@ -1,13 +1,13 @@
-package com.example.primeiroAppSpring;
+package com.application.WebApplicationSIGEC;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PrimeiroAppSpringApplication {
+public class WebApplicationSIGEC {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PrimeiroAppSpringApplication.class, args);
+		SpringApplication.run(WebApplicationSIGEC.class, args);
 	}
 
 }
