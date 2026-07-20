@@ -797,9 +797,9 @@ body{
 
 /* ----- Layout geral da tela de Receitas ----- */
 .app-container {
+    width: 100%;
     display: flex;
-    width: 100vh;
-
+    min-height: 100vh;
 
 }
 
