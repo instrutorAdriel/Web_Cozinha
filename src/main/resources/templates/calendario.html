@@ -6,6 +6,7 @@
     <title>SENAC SIGEC — Calendário de Planejamento</title>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/stylesHome.css}">
     <link rel="stylesheet" th:href="@{/styles/calendario.css}">
 </head>
 <body>
@@ -36,12 +37,17 @@
     </nav>
 
     <div class="sidebar-footer">
-        <button class="btn-logout">
-            <span class="material-symbols-outlined">logout</span>Sair
-        </button>
+        <form th:action="@{/logout}" method="get">
+            <button type="submit" class="btn-logout">
+                <span class="material-symbols-outlined">logout</span>Sair
+            </button>
+        </form>
     </div>
 </aside>
 
+<!-- ==========================================================================
+     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR) - CORRIGIDA E PADRONIZADA
+     ========================================================================== -->
 <header class="topbar">
     <div class="topbar-left">
         <button class="menu-toggle" id="menu-toggle">
@@ -55,15 +61,20 @@
     </div>
 
     <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
+        <label class="field-label" for="turma-select">Turma / Laboratório</label>
+        <div class="select-wrap">
+            <select id="turma-select">
+                <option value="">-- Selecione uma Turma --</option>
+                <option value="2024.1.A">Turma 2024.1.A</option>
+                <option value="2024.1.C">Turma 2024.1.C</option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
         </div>
 
         <div class="notif-wrap">
             <button class="icon-btn" id="notif-btn" aria-label="Notificações">
                 <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
+                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span >
             </button>
             <div class="notif-panel" id="notif-panel">
                 <div class="notif-head">
@@ -83,56 +94,7 @@
 
         <div class="user-box">
             <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
-                <p class="user-role" th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor Gastronomia</p>
-            </div>
-        </div>
-    </div>
-</header>
-
-<header class="topbar">
-    <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
-        <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Calendário</span>
-        </div>
-    </div>
-
-    <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma...">
-        </div>
-
-        <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
-            </button>
-            <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                </div>
-                <div class="notif-list">
-                    <div th:each="notif : ${notificacoes}" class="notif-item unread">
-                        <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
-                        <div class="notif-body">
-                            <p class="notif-title" th:text="${notif.titulo}"></p>
-                            <p class="notif-text" th:text="${notif.mensagem}"></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="user-box">
-            <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
-                <p class="user-role" th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor Gastronomia</p>
+                <p class="user-name" th:text="${nomeUsuario != null ? nomeUsuario : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
             </div>
         </div>
     </div>
