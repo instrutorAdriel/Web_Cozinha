@@ -279,46 +279,94 @@ async function trocarReceita(idDaFicha) {
   if (!idDaFicha) return;
 
   try {
-    // Busca os detalhes específicos (insumos e utensílios) da ficha no Java
     const resposta = await fetch(`/api/fichas/${idDaFicha}`);
+    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
     const fichaDoBanco = await resposta.json();
+    console.log("FICHA COMPLETA:", JSON.stringify(fichaDoBanco, null, 2));
+    console.log("UTENSILIOS DO BANCO:", fichaDoBanco.utensilios);
+    console.log(`DADOS DO BANCO (Ficha ${idDaFicha}):`, fichaDoBanco);
 
     receitaAtual = idDaFicha;
     if (select) select.value = idDaFicha;
+    // --- INGREDIENTES (blindado) ---
+    const listaIngredientes = fichaDoBanco.ingredientes || fichaDoBanco.insumos || [];
+    let itensMapeados = (Array.isArray(listaIngredientes) ? listaIngredientes : [])
+        .map((rel, i) => {
+          if (!rel || typeof rel !== 'object') return null;
+          const obj = rel.insumos || rel.insumo || rel.Insumos || rel;
+          if (!obj || typeof obj !== 'object') return null;
+          const idBase = obj.id ?? rel.id;
+          const nome = obj.nome || rel.nome || "Insumo sem nome";
+          return {
+            id: idBase != null ? String(idBase) : `ins_${i}`,
+            nome,
+            necessario: rel.quantidade ?? obj.quantidade ?? 0,
+            unidade: obj.unidade_medida || obj.unidadeMedida || "un"
+          };
+        })
+        .filter(Boolean);
 
-    // Traduz os dados do Java para a estrutura que os painéis amarelos esperam
+// --- UTENSÍLIOS (blindado) ---
+    const listaUtensilios = fichaDoBanco.utensilios || [];
+    const utensiliosMapeados = (Array.isArray(listaUtensilios) ? listaUtensilios : [])
+        .map((rel, i) => {
+          if (!rel || typeof rel !== 'object') return null;
+          const obj = rel.utensilios || rel.utensilio || rel.Utensilios || rel;
+          if (!obj || typeof obj !== 'object') return null;
+          const idBase = obj.id ?? rel.id;
+          const nome = obj.nome || rel.nome || "Utensílio";
+          return {
+            id: idBase != null ? String(idBase) : `util_${i}`,
+            nome,
+            necessario: rel.quantidade ?? 1,
+            unidade: "un"
+          };
+        })
+        .filter(Boolean);
+
+
+    // --- Salva nos objetos globais ---
     receitas[idDaFicha] = {
-      nome: fichaDoBanco.nome,
+      nome: fichaDoBanco.nome || "Receita sem nome",
       local: "Cozinha do Banco de Dados",
       tempoPreparo: "--",
-      modoPreparo: fichaDoBanco.preparo ? [fichaDoBanco.preparo] : ["Modo de preparo não informado."],
-
-      // Mapeia os insumos vindos do banco
-      itens: (fichaDoBanco.insumos || []).map(insumo => ({
-        id: insumo.id,
-        nome: insumo.nome,
-        necessario: 1, // Valor padrão provisório
-        unidade: insumo.unidade_medida || "un"
-      }))
+      modoPreparo: fichaDoBanco.preparo
+          ? String(fichaDoBanco.preparo).split(/\r?\n/).filter(l => l.trim())
+          : ["Modo de preparo não informado."],
+      itens: itensMapeados
     };
+    utensiliosFicha[idDaFicha] = utensiliosMapeados;
 
-    // Mapeia os utensílios vindos do banco
-    utensiliosFicha[idDaFicha] = (fichaDoBanco.utensilios || []).map(util => ({
-      id: util.id,
-      nome: util.nome,
-      necessario: 1,
-      unidade: "un"
-    }));
+    // Fichas do banco usam ids próprios que não existem em estoquePorTurma.
+    // Garantimos que a estrutura exista e que cada item tenha um valor.
+    if (!estoquePorTurma[turmaAtual]) {
+      estoquePorTurma[turmaAtual] = { insumos: {}, utensilios: {} };
+    }
+    const est = estoquePorTurma[turmaAtual];
+    if (!est.insumos) est.insumos = {};
+    if (!est.utensilios) est.utensilios = {};
 
-    // Renderiza os painéis amarelos atualizados
+    itensMapeados.forEach(it => {
+      // Se o banco não fornece estoque, assume o necessário para não travar o checklist.
+      // Troque para 0 se preferir sinalizar falta real.
+      if (est.insumos[it.id] == null) est.insumos[it.id] = it.necessario;
+    });
+    utensiliosMapeados.forEach(ut => {
+      if (est.utensilios[ut.id] == null) est.utensilios[ut.id] = ut.necessario;
+    });
+
     renderTudo();
     highlightCard(idDaFicha);
     atualizarResumoReceita(idDaFicha);
 
+    if (window.atualizarNotificacoes) window.atualizarNotificacoes();
+
   } catch (erro) {
     console.error("Erro ao buscar detalhes da receita:", erro);
+    alert("Não foi possível carregar a ficha. Verifique se o servidor está rodando.");
   }
 }
+
 
 function aplicarScrollAdaptativo(container, qtd, rotulo) {
   const ativar = qtd > LIMITE_SCROLL;
@@ -704,26 +752,17 @@ if ($('sobras-save')) {
 }
 
 
-
-function popularReceitasDaTurma(turmaKey) {
-  const permitidas = receitasPorTurma[turmaKey] || Object.keys(receitas);
-  select.innerHTML = permitidas
-    .map(id => `<option value="${id}">${receitas[id].local} • ${receitas[id].nome}</option>`)
-    .join('');
-}
-
 function trocarTurma(key) {
+  // Verifica se a turma existe, se não, define um padrão
   if (!turmas[key]) key = '2024.1.A';
+
   turmaAtual = key;
   if (turmaSelect) turmaSelect.value = key;
 
-  popularReceitasDaTurma(key);
-  const permitidas = receitasPorTurma[key] || Object.keys(receitas);
-  if (!permitidas.includes(receitaAtual)) receitaAtual = permitidas[0];
-  select.value = receitaAtual;
-
-  renderTudo();
-  highlightCard(receitaAtual);
+  if (receitaAtual) {
+    renderTudo();
+    highlightCard(receitaAtual);
+  }
 }
 
 select.addEventListener('change', e => trocarReceita(e.target.value));
@@ -740,7 +779,7 @@ document.querySelectorAll('.class-card').forEach(card => {
     link.addEventListener('click', () => {
       if (turmaKey && turmas[turmaKey]) trocarTurma(turmaKey);
       trocarReceita(recipeKey);
-      // Removido o .scrollIntoView() para a tela não descer automaticamente!
+
     });
   }
 });
@@ -806,8 +845,7 @@ if (turmaSelect) {
 
 // Dispara o carregamento das receitas vindas do banco de dados MySQL
 carregarReceitasDoBanco();
-// Inicia a busca no banco de dados.
-carregarReceitasDoBanco();
+
 
 // ===== CALENDÁRIO INTERATIVO =====
 (function () {

@@ -23,13 +23,8 @@ public class Fichas {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String preparo;
 
-    @ManyToMany
-    @JoinTable(
-            name = "fichas_insumos",
-            joinColumns = @JoinColumn(name= "ficha_id"),
-            inverseJoinColumns = @JoinColumn(name = "insumos_id")
-    )
-    private List<Insumos> insumos;
+    @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceitaInsumo> ingredientes;
 
     @ManyToMany
     @JoinTable(
@@ -80,16 +75,18 @@ public class Fichas {
         this.preparo = preparo;
     }
 
-    public List<Insumos> getInsumos() {
-        return insumos;
+    public List<ReceitaInsumo> getIngredientes() {
+        return ingredientes;
     }
 
-    public void setInsumos(List<Insumos> insumos) {
-        this.insumos = insumos;
+    public void setIngredientes(List<ReceitaInsumo> ingredientes) {
+        this.ingredientes = ingredientes;
     }
+
     public List<Utensilios> getUtensilios() {
         return utensilios;
     }
+
     public void setUtensilios(List<Utensilios> utensilios) {
         this.utensilios = utensilios;
     }
