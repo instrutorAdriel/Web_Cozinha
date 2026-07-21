@@ -50,3 +50,29 @@ function mostrarOcultarSenha(iconeClicado) {
 
 }
 
+// ==========================================
+// PRÉ-VISUALIZAÇÃO DA FOTO DE PERFIL
+// ==========================================
+
+// 1. Selecionamos o input oculto e a imagem que está aparecendo na tela
+const inputFoto = document.getElementById('foto-upload');
+const imagemPerfil = document.querySelector('.img-padrao');
+
+// 2. Só executamos o código se esses elementos existirem na página (evita erros em outras páginas)
+if (inputFoto && imagemPerfil) {
+
+    // 3. Ficamos "escutando" para ver se o usuário escolheu algum arquivo
+    inputFoto.addEventListener('change', function(evento) {
+
+        // Pega o primeiro arquivo que o usuário selecionou
+        const arquivo = evento.target.files[0];
+
+        if (arquivo) {
+            // Cria um link temporário na memória do navegador para essa imagem
+            const urlTemporaria = URL.createObjectURL(arquivo);
+
+            // Troca o caminho da imagem padrão pelo link da foto do usuário!
+            imagemPerfil.src = urlTemporaria;
+        }
+    });
+}
