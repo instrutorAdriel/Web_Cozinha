@@ -190,146 +190,42 @@ body {
 }
 
 /* ===== TOPBAR ===== */
-.topbar {
-    position: fixed;
-    top: 0;
-    left: 264px;
-    right: 0;
-    height: 68px;
-    z-index: 30;
-    background: rgba(251, 248, 255, .85);
-    backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--outline-variant);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 24px;
-    transition: left .3s
-}
+.topbar{position:fixed;top:0;left:264px;right:0;height:68px;z-index:30;background:rgba(251,248,255,.85);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--outline-variant);
+  display:flex;align-items:center;justify-content:space-between;padding:0 24px;transition:left .3s}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;color:var(--primary);padding:6px}
+.breadcrumb{display:flex;align-items:center;gap:4px;font-size:14px}
+.crumb-muted{color:var(--on-surface-variant);font-weight:600}
+.crumb-sep{font-size:18px;color:var(--outline)}
+.crumb-current{color:var(--primary);font-weight:700}
+.topbar-actions{display:flex;align-items:center;gap:16px}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--surface-lowest);border:1px solid var(--outline-variant);
+  border-radius:var(--r);padding:8px 12px;width:240px;transition:.2s}
+.search-box:focus-within{border-bottom:2px solid var(--secondary-container)}
+.search-box .material-symbols-outlined{color:var(--outline);font-size:20px}
+.search-box input{border:none;outline:none;background:none;width:100%;font-size:14px;color:var(--on-surface)}
+.icon-btn{position:relative;background:none;border:none;padding:8px;border-radius:var(--r-full);
+  cursor:pointer;color:var(--on-surface-variant);transition:.2s}
+.icon-btn:hover{background:var(--surface-high)}
+.badge-dot{position:absolute;top:7px;right:7px;width:8px;height:8px;background:var(--secondary-container);border-radius:50%;border:1.5px solid var(--background)}
+.user-box{display:flex;align-items:center;gap:12px;padding-left:16px;border-left:1px solid var(--outline-variant)}
+.user-info{display:flex;align-items:center;gap:12px;text-align:right}
+/* ===== Foto do Perfil no Cabeçalho ===== */
+.user-info img.avatar-header {
+  width: 55px;
+  height: 55px;
+  object-fit: cover;
+  border: 2px solid var(--outline-variant);
+  border-radius: 6px;
+  flex-shrink: 0;
 
-.topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px
-}
-
-.menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--primary);
-    padding: 6px
-}
-
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 14px
-}
-
-.crumb-muted {
-    color: var(--on-surface-variant);
-    font-weight: 600
-}
-
-.crumb-sep {
-    font-size: 18px;
-    color: var(--outline)
-}
-
-.crumb-current {
-    color: var(--primary);
-    font-weight: 700
-}
-
-.topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px
-}
-
-.search-box {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--surface-lowest);
-    border: 1px solid var(--outline-variant);
-    border-radius: var(--r);
-    padding: 8px 12px;
-    width: 240px;
-    transition: .2s
-}
-
-.search-box:focus-within {
-    border-bottom: 2px solid var(--secondary-container)
-}
-
-.search-box .material-symbols-outlined {
-    color: var(--outline);
-    font-size: 20px
-}
-
-.search-box input {
-    border: none;
-    outline: none;
-    background: none;
-    width: 100%;
-    font-size: 14px;
-    color: var(--on-surface)
-}
-
-.icon-btn {
-    position: relative;
-    background: none;
-    border: none;
-    padding: 8px;
-    border-radius: var(--r-full);
-    cursor: pointer;
-    color: var(--on-surface-variant);
-    transition: .2s
-}
-
-.icon-btn:hover {
-    background: var(--surface-high)
-}
-
-.badge-dot {
-    position: absolute;
-    top: 7px;
-    right: 7px;
-    width: 8px;
-    height: 8px;
-    background: var(--secondary-container);
-    border-radius: 50%;
-    border: 1.5px solid var(--background)
-}
-
-.user-box {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding-left: 16px;
-    border-left: 1px solid var(--outline-variant)
-}
-
-.user-info {
-    text-align: right
-}
-
-.user-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary)
-}
-
-.user-role {
-    font-size: 11px;
-    color: var(--on-surface-variant);
-    text-transform: uppercase;
-    letter-spacing: .05em
-}
+  /* Quando a imagem original é muito grande (464x475), o padrão do navegador
+     (sem filtros forçados) é o que gera o melhor redimensionamento sem serrilhados */
+  image-rendering: auto;
+}}
+.user-name{font-size:14px;font-weight:700;color:var(--primary)}
+.user-role{font-size:11px;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:.05em}
 
 /* ===== MAIN ===== */
 .main {
