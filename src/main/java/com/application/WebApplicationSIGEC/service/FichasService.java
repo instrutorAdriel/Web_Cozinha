@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,42 +22,53 @@ public class FichasService {
     @Autowired
     private TurmasRepository turmasRepository;
 
-    public Fichas buscarReceitas(String nome){
+    @Transactional(readOnly = true)
+    public Fichas buscarReceitas(String nome) {
         Optional<Fichas> rs = fichasRepository.findByNome(nome);
         return rs.orElse(null);
     }
 
-    // AJUSTE: Mude o retorno de 'Fichas' para 'List<Fichas>'
+    @Transactional(readOnly = true)
     public List<Fichas> buscarData(LocalDate data) {
         List<Fichas> rs = fichasRepository.findByData(data);
-
-        // Verificamos se a lista NÃO está vazia
         if (!rs.isEmpty()) {
-            return rs; // Retorna a lista com todas as fichas encontradas
+            return rs;
         }
-
-        return java.util.Collections.emptyList(); // Retorna uma lista vazia segura em vez de null
+        return Collections.emptyList();
     }
 
-    // função temporaria
+    @Transactional(readOnly = true)
     public List<Fichas> buscarTodas() {
         return fichasRepository.findAll();
     }
 
-    @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
-    public void alocarFicha(int idFicha, LocalDate novaData, int IdTurma) {
-        Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
-        Turmas turmas = turmasRepository.findById(IdTurma).orElseThrow(() -> new RuntimeException("Turma não encontrada"));
+    @Transactional
+    public void alocarFicha(int idFicha, LocalDate novaData, int idTurma) {
+        Fichas ficha = fichasRepository.findByIdWithTurmas(idFicha)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada com o ID: " + idFicha));
+
+        Turmas turma = turmasRepository.findById(idTurma)
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada com o ID: " + idTurma));
+
         ficha.setData(novaData);
-        ficha.setTurmas((List<Turmas>) turmas);
+        ficha.getTurmas().add(turma); // Adiciona com segurança sem fazer Cast manual!
+
         fichasRepository.save(ficha);
     }
 
-    @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
-    public void desalocarFicha(int idFicha) {
-        Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
-        ficha.setData(null);
-        ficha.setTurmas(null);
+    @Transactional
+    public void desalocarFicha(int idFicha, int idTurma) {
+        Fichas ficha = fichasRepository.findByIdWithTurmas(idFicha)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada com o ID: " + idFicha));
+
+        // Remove a turma específica associada
+        ficha.getTurmas().removeIf(t -> t.getId() == idTurma);
+
+        // Se não restar nenhuma turma vinculada, limpa a data
+        if (ficha.getTurmas().isEmpty()) {
+            ficha.setData(null);
+        }
+
         fichasRepository.save(ficha);
     }
 }

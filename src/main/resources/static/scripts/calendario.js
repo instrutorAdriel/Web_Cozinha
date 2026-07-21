@@ -286,14 +286,19 @@ document.addEventListener("DOMContentLoaded", () => {
             card.querySelector('.btn-fiche-action').addEventListener('click', () => {
                 const celulaAtiva = document.querySelector('.day-cell.active-selected');
 
-                fetch(`/calendario/desalocar?id=${id}`, {method: 'GET'})
+                if (!turmaAtivaId || turmaAtivaId === "undefined") {
+                    alert("Selecione uma turma válida antes de desalocar.");
+                    return;
+                }
+
+                // AJUSTADO: Passa a idTurma na query string
+                fetch(`/calendario/desalocar?id=${id}&idTurma=${turmaAtivaId}`, {method: 'GET'})
                     .then(response => {
                         if (!response.ok) throw new Error("Erro ao desalocar");
                         return response.text();
                     })
                     .then(mensagem => {
                         if (celulaAtiva) celulaAtiva.click();
-                        alert(mensagem);
                         carregarAlocacoesERenderizarGrid();
                     })
                     .catch(err => {

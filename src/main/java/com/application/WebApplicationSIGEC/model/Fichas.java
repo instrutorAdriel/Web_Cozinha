@@ -3,8 +3,8 @@ package com.application.WebApplicationSIGEC.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.List;
-
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "fichas")
@@ -25,12 +25,13 @@ public class Fichas {
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "fichas_turmas", // Tabela dedicada unicamente para Fichas e Turmas
+            name = "fichas_turmas",
             joinColumns = @JoinColumn(name = "ficha_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "turma_id", referencedColumnName = "id")
     )
     @JsonIgnoreProperties("fichas")
-    private List<Turmas> turmas;
+    private Set<Turmas> turmas = new HashSet<>();
+
     public Fichas() {
     }
 
@@ -40,12 +41,20 @@ public class Fichas {
         this.preparo = preparo;
     }
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public String getNome() {
         return nome;
     }
 
-    public void setNome(String receita) {
-        this.nome = receita;
+    public void setNome(String nome) {
+        this.nome = nome;
     }
 
     public LocalDate getData() {
@@ -64,11 +73,11 @@ public class Fichas {
         this.preparo = preparo;
     }
 
-    public List<Turmas> getTurmas() {
+    public Set<Turmas> getTurmas() {
         return turmas;
     }
 
-    public void setTurmas(List<Turmas> turmas) {
+    public void setTurmas(Set<Turmas> turmas) {
         this.turmas = turmas;
     }
 }
