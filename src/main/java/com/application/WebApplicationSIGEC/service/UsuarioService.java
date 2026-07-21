@@ -83,7 +83,7 @@ public class UsuarioService {
         Usuario usuario = resultado.get();
         usuario.setSenha(encoder.encode(form.getSenha()));
 
-        usuarioRepository.save(usuario);
+            usuarioRepository.save(usuario);
 
         return null;
     }

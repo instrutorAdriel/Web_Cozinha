@@ -72,7 +72,7 @@ if (inputFoto && imagemPerfil) {
             const urlTemporaria = URL.createObjectURL(arquivo);
 
             // Troca o caminho da imagem padrão pelo link da foto do usuário!
-            imagemPerfil.src = urlTemporaria;
+                imagemPerfil.src = urlTemporaria;
         }
     });
 }

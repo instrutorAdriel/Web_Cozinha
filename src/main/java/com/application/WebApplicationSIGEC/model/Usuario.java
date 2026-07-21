@@ -68,6 +68,6 @@ public class Usuario {
     }
 
     public void setFoto(byte[] foto) {
-        this.foto = foto;
+            this.foto = foto;
     }
 }
