@@ -218,3 +218,49 @@ button:hover{
         transform: translateY(0);
     }
 }
+
+/* ===== UPLOAD DE FOTO (CADASTRO) ===== */
+.perfil-upload-wrap {
+    display: flex;
+    justify-content: center; /* Centraliza a foto no formulário */
+    margin-bottom: 20px;
+}
+
+.perfil-upload-label {
+    position: relative; /* FUNDAMENTAL: Permite que as imagens fiquem sobrepostas dentro deste limite */
+    width: 110px;
+    height: 110px;
+    cursor: pointer;
+    border-radius: 20px; /* Arredondamento para combinar com seu card */
+    overflow: hidden;
+}
+
+.img-padrao,
+.img-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease; /* Cria o efeito de transição suave, sem "piscar" */
+}
+
+/* Estado inicial: Imagem de hover invisível */
+.img-hover {
+    opacity: 0;
+}
+
+/* Quando o mouse passa por cima do label: */
+.perfil-upload-label:hover .img-padrao {
+    opacity: 0; /* Esconde a original */
+}
+
+.perfil-upload-label:hover .img-hover {
+    opacity: 1; /* Revela a imagem com o "+" */
+}
+
+/* Esconde o feioso input nativo do navegador */
+.perfil-input-oculto {
+    display: none;
+}
