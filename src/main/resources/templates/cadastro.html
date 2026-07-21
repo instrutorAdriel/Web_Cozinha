@@ -11,16 +11,32 @@
 <body>
 <div class="container">
     <div class="logo">
-        <img th:src="@{/img/senac-logo.png}" alt="Logo Senac">
+        <img th:src="@{/img/Logo-Senac-Branca.png}" alt="Logo Senac">
     </div>
+
     <div class="card">
+
+        <!-- Prévia da foto -->
+        <div class="foto-perfil">
+            <img
+                    id="preview"
+                    th:src="@{/img/perfil-padrao.png}"
+                    alt="Foto de Perfil"
+            >
+        </div>
+
         <h1 th:text="${tituloPagina}"></h1>
         <p th:text="${subTituloPagina}"></p>
 
         <!-- Mensagem de erro -->
         <div class="erro" th:if="${erro}" th:text="${erro}"></div>
 
-        <form th:action="@{/cadastro}" th:object="${usuarioForm}" method="post">
+        <form
+                th:action="@{/cadastro}"
+                th:object="${usuarioForm}"
+                method="post"
+                enctype="multipart/form-data"
+        >
 
             <label for="nome">Nome Completo</label>
             <input
@@ -41,7 +57,7 @@
             >
 
             <label for="senha">Senha</label>
-            <div class="input-container">
+            <div class="caixa-senha">
                 <input
                         type="password"
                         id="senha"
@@ -49,12 +65,11 @@
                         placeholder="Digite sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="mostrarOcultarSenha(this)"></i>
+                <i class="fa-solid fa-eye-slash" onclick="mostrarOcultarSenha(this)"></i>
             </div>
 
-
             <label for="confirmar">Confirmar Senha</label>
-            <div class="input-container">
+            <div class="caixa-senha">
                 <input
                         type="password"
                         id="confirmar"
@@ -62,8 +77,21 @@
                         placeholder="Confirme sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password"  onclick="mostrarOcultarSenha(this)"></i>
+                <i class="fa-solid fa-eye-slash" onclick="mostrarOcultarSenha(this)"></i>
             </div>
+
+            <div class="perfil">
+                <label for="foto">Foto de Perfil</label>
+
+                <input
+                        type="file"
+                        id="foto"
+                        th:field="*{foto}"
+                        accept="image/*"
+                >
+            </div>
+
+            <br>
 
             <div class="erro1" th:if="${erro1}" th:text="${erro1}"></div>
 
@@ -72,9 +100,27 @@
             <div class="links">
                 <a th:href="@{/login}">Já possui uma conta? Entrar</a>
             </div>
+
         </form>
     </div>
 </div>
+
 <script th:src="@{/scripts/script.js}"></script>
+
+<script>
+    const foto = document.getElementById("foto");
+    const preview = document.getElementById("preview");
+
+    if (foto) {
+        foto.addEventListener("change", function () {
+            const arquivo = this.files[0];
+
+            if (arquivo) {
+                preview.src = URL.createObjectURL(arquivo);
+            }
+        });
+    }
+</script>
+
 </body>
 </html>
