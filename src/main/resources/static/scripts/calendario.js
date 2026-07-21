@@ -196,21 +196,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const card = document.createElement("div");
         card.className = "fiche-card";
 
-        const icone = status === "success" ? "check_circle" : "warning";
-        const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
-
         card.innerHTML = `
-        <div class="fiche-info">
-            <p class="fiche-name">${nome}</p>
-            <span class="stock-status ${status}">
-                <span class="material-symbols-outlined">${icone}</span>${textoEstoque}
-            </span>
-        </div>
-        <button class="btn-fiche-action ${acao}">
-            <span class="material-symbols-outlined">${acao === 'delete' ? 'close' : 'add'}</span>
-        </button>
-    `;
-
+    <div class="fiche-info">
+        <p class="fiche-name">${nome}</p>
+    </div>
+    <button class="btn-fiche-action ${acao}">
+        <span class="material-symbols-outlined">${acao === 'delete' ? 'close' : 'add'}</span>
+    </button>
+`;
         // ==========================================
         // AÇÃO 1: Configura o botão de Adicionar (+)
         // ==========================================

@@ -350,3 +350,12 @@ body {
     border-radius: 50%;
 }
 .btn-fiche-action.append:hover { background-color: #0b2545; color: var(--text-light); }
+
+
+.cal-fiche-stock {
+    display: none;
+}
+
+.cal-fiche-locked {
+    display: none;
+}
