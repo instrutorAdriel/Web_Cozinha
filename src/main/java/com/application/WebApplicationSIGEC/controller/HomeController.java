@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,46 +19,43 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/")
 public class HomeController {
 
-    @Autowired
-    private SessaoService sessaoService;
+    private final SessaoService sessaoService;
 
-@GetMapping("/home")
-public String exibirHome(Model model, HttpServletRequest request) {
-
-    HttpSession session = request.getSession(false);
-
-
-    if (session == null || session.getAttribute("usuarioLogado") == null) {
-        return "redirect:/login"; // Redireciona e PARA a execução
+    // Injeção de dependência via Construtor
+    public HomeController(SessaoService sessaoService) {
+        this.sessaoService = sessaoService;
     }
 
-    Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+    @GetMapping("/home")
+    public String exibirHome(Model model, HttpSession session) {
 
-    // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
+        // Usa o SessaoService para validar o usuário logado
+        Usuario usuarioLogado = sessaoService.buscarUsuarioLogado(session);
 
-    String primeiroNome = usuarioLogado.getNome().split(" ")[0];
-    primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
-            + primeiroNome.substring(1).toLowerCase();
+        if (usuarioLogado == null) {
+            return "redirect:/login";
+        }
 
-    model.addAttribute("nomeUsuario", primeiroNome);
+        // Formatação do Primeiro Nome
+        String primeiroNome = usuarioLogado.getNome().split(" ")[0];
+        primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
+                + primeiroNome.substring(1).toLowerCase();
 
+        model.addAttribute("nomeUsuario", primeiroNome);
 
-    //Data
-    LocalDate hoje = LocalDate.now();
-    DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
-    String dataAtualFormatada = hoje.format(formatador).toUpperCase();
+        // Data Formatada
+        LocalDate hoje = LocalDate.now();
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
+        String dataAtualFormatada = hoje.format(formatador).toUpperCase();
 
-    // Envia para o HTML com o nome "dataDeHoje"
-    model.addAttribute("dataDeHoje", dataAtualFormatada);
-    return "home";
+        model.addAttribute("dataDeHoje", dataAtualFormatada);
+
+        return "home";
     }
-
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         sessaoService.encerrarSessao(session);
         return "redirect:/login";
     }
-
-
 }

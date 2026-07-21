@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Inicializa na data atual do sistema para carregar o mês real de forma dinâmica
+    // Estado Global
     let dataCalendario = new Date();
     let diaSelecionadoGlobal = new Date().getDate();
-    let turmaAtivaId = null; // Guardará o ID da turma selecionada na Top Bar
-    let alocacoesPorData = {};
+    let turmaAtivaId = null;
 
-    const nomesMeses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const nomesMeses = [
+        "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+    ];
 
-    // Elementos do DOM do HTML
+    // Elementos da DOM
     const grid = document.getElementById("cal-grid");
     const indicadorMes = document.getElementById("cal-month");
     const labelDataPainel = document.getElementById("cal-panel-date");
@@ -18,93 +20,73 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectTurma = document.getElementById('selectTurma');
 
     /**
-     * Função para carregar as turmas no select da Top Bar
+     * Helper para requisições padronizadas
      */
-    function inicializarSelectTurmas() {
+    function fetchApi(url, options = {}) {
+        const defaultOptions = {
+            credentials: 'include', // Garante que o cookie JSESSIONID é mantido
+            headers: { 'Content-Type': 'application/json' }
+        };
+
+        return fetch(url, { ...defaultOptions, ...options })
+            .then(response => {
+                // Tratamento específico de não autorizado retornado pelo SessaoService
+                if (response.status === 401) {
+                    alert("Sua sessão expirou. Redirecionando para a tela de login.");
+                    window.location.href = "/login";
+                    throw new Error("Sessão expirada");
+                }
+                return response;
+            });
+    }
+
+    /**
+     * 1. Carrega turmas via GET /api/agendamentos/turmas
+     */
+    function inicializarSistema() {
         if (!selectTurma) return;
 
-        fetch('/calendario/turmas')
-            .then(response => {
-                if (!response.ok) throw new Error("Erro ao buscar turmas do instrutor");
-                return response.json();
+        fetchApi('/api/agendamentos/turmas')
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao carregar turmas.");
+                return res.json();
             })
             .then(turmas => {
-                selectTurma.innerHTML = ''; // Limpa o texto de "A carregar..."
-
-                if (turmas.length === 0) {
-                    selectTurma.innerHTML = '<option value="">Nenhuma turma associada</option>';
+                selectTurma.innerHTML = '';
+                if (!turmas || turmas.length === 0) {
+                    selectTurma.innerHTML = '<option value="">Nenhuma turma vinculada</option>';
+                    renderizarGrid();
                     return;
                 }
 
-                // Popula o select com as turmas vindas do banco
                 turmas.forEach(turma => {
                     const option = document.createElement('option');
                     option.value = turma.id;
-                    // AJUSTADO: Agora usa corretamente o atributo 'nomeTurma' vindo do Java
-                    option.textContent = `${turma.nomeTurma} (${turma.laboratorio || 'Geral'})`;
+                    option.textContent = `${turma.nomeTurma || turma.nome || 'Turma'} (${turma.laboratorio || 'Geral'})`;
                     selectTurma.appendChild(option);
                 });
 
-                // Define a primeira turma como ativa por padrão
                 turmaAtivaId = selectTurma.value;
-
-                // Renderiza o grid pela primeira vez (já vai trazer as fichas filtradas)
                 renderizarGrid();
             })
             .catch(err => {
                 console.error("Erro na inicialização:", err);
-                // Se falhar, renderiza o grid mesmo assim para não quebrar a tela
                 renderizarGrid();
             });
     }
 
     /**
-     * Escuta quando o utilizador troca a turma no select da Top Bar
+     * Troca de Turma
      */
     if (selectTurma) {
-        selectTurma.addEventListener('change', (event) => {
-            turmaAtivaId = event.target.value;
-
-            // Recarrega o dia atual do calendário para trazer os dados da nova turma
-            const celulaAtiva = document.querySelector('.day-cell.active-selected');
-            if (celulaAtiva) {
-                celulaAtiva.click(); // Força o clique no dia selecionado para recarregar as fichas
-            }
+        selectTurma.addEventListener('change', (e) => {
+            turmaAtivaId = e.target.value;
+            recarregarDiaAtual();
         });
     }
 
     /**
-     * Busca assincronamente todas as fichas alocadas no banco de dados,
-     * constrói o mapa de contagem por dia e chama a renderização do grid.
-     */
-    function carregarAlocacoesERenderizarGrid() {
-        fetch("/calendario/fichas-alocadas")
-            .then(response => {
-                if (!response.ok) throw new Error("Erro ao buscar fichas alocadas");
-                return response.json();
-            })
-            .then(fichas => {
-                // Reinicia o mapeamento para limpar alocações antigas
-                alocacoesPorData = {};
-
-                // Agrupa e conta a quantidade de fichas associadas a cada data
-                fichas.forEach(ficha => {
-                    if (ficha.data) {
-                        alocacoesPorData[ficha.data] = (alocacoesPorData[ficha.data] || 0) + 1;
-                    }
-                });
-
-                // Com o mapa updated, desenha o calendário
-                renderizarGrid();
-            })
-            .catch(erro => {
-                console.error("Erro ao processar contagem de fichas alocadas: ", erro);
-                renderizarGrid();
-            });
-    }
-
-    /**
-     * Renderiza o grid de dias do calendário
+     * 2. Desenha o Grid do Calendário
      */
     function renderizarGrid() {
         if (!grid) return;
@@ -113,7 +95,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const ano = dataCalendario.getFullYear();
         const mes = dataCalendario.getMonth();
 
-        // Atualiza o texto do mês principal (Ex: "Julho 2026")
         if (indicadorMes) indicadorMes.textContent = `${nomesMeses[mes]} ${ano}`;
 
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
@@ -123,14 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
             diaSelecionadoGlobal = totalDiasNoMes;
         }
 
-        // 1. Cria os espaços vazios
+        // Espaços vazios
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
             espaco.className = "day-cell space";
             grid.appendChild(espaco);
         }
 
-        // 2. Cria os blocos numéricos dos dias reais
+        // Blocos dos dias
         for (let dia = 1; dia <= totalDiasNoMes; dia++) {
             const celula = document.createElement("div");
             celula.className = "day-cell";
@@ -149,32 +130,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
-            if (alocacoesPorData[dataIso]) {
-                const quantidadeFichas = alocacoesPorData[dataIso];
-                const containerBolinhas = document.createElement("div");
-                containerBolinhas.className = "indicator-dots";
-                containerBolinhas.style.justifyContent = "flex-end";
-                containerBolinhas.style.marginLeft = "auto";
-                containerBolinhas.style.marginTop = "auto";
-
-                for (let k = 0; k < quantidadeFichas; k++) {
-                    const bolinha = document.createElement("div");
-                    bolinha.className = "dot orange";
-                    containerBolinhas.appendChild(bolinha);
-                }
-                celula.appendChild(containerBolinhas);
-            }
-
             if (dia === diaSelecionadoGlobal) {
                 celula.classList.add("active-selected");
-                buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
+                buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
             }
 
             celula.addEventListener("click", () => {
                 document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
                 celula.classList.add("active-selected");
                 diaSelecionadoGlobal = dia;
-                buscarFichasViaHibernate(dataIso, dia, nomesMeses[mes], ano);
+                buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
             });
 
             grid.appendChild(celula);
@@ -182,151 +147,160 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Comunica-se assincronamente com o FichasController (Java)
+     * 3. Busca Agendamentos -> GET /api/agendamentos?turmaId=X&data=YYYY-MM-DD
      */
-    function buscarFichasViaHibernate(dataIso, dia, nomeMes, ano) {
+    function buscarAgendamentos(dataIso, dia, nomeMes, ano) {
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
 
-        containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agenda...</p>';
-        containerDisponiveis.innerHTML = '<p class="crumb-muted">A carregar acervo...</p>';
+        if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agendamentos...</p>';
 
-        // BLINDAGEM: Se não houver ID de turma selecionado ou se for a string "undefined"
-        if (!turmaAtivaId || turmaAtivaId === "undefined") {
-            containerAlocadas.innerHTML = '<p class="crumb-muted">Selecione uma turma para ver a agenda.</p>';
-            containerDisponiveis.innerHTML = '<p class="crumb-muted">Selecione uma turma para ver o acervo.</p>';
+        if (!turmaAtivaId) {
+            if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">Selecione uma turma.</p>';
             return;
         }
 
-        fetch(`/calendario/fichas?data=${dataIso}&idTurma=${turmaAtivaId}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Erro na resposta do servidor");
-                return response.json();
+        fetchApi(`/api/agendamentos?turmaId=${turmaAtivaId}&data=${dataIso}`)
+            .then(res => {
+                if (!res.ok) throw new Error("Erro ao buscar agendamentos");
+                return res.json();
             })
-            .then(dados => {
+            .then(agendamentos => {
+                if (!containerAlocadas) return;
                 containerAlocadas.innerHTML = "";
-                containerDisponiveis.innerHTML = "";
 
-                if (!dados.alocadas || dados.alocadas.length === 0) {
-                    containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
+                if (!agendamentos || agendamentos.length === 0) {
+                    containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhum agendamento para este dia.</p>';
                 } else {
-                    dados.alocadas.forEach(ficha => {
-                        containerAlocadas.appendChild(criarCardFicha(ficha.id, ficha.nome, 'success', "delete"));
-                    });
-                }
-
-                if (!dados.Disponiveis || dados.Disponiveis.length === 0) {
-                    containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
-                } else {
-                    dados.Disponiveis.forEach(ficha => {
-                        containerDisponiveis.appendChild(criarCardFicha(ficha.id, ficha.nome, 'warning', "append"));
+                    agendamentos.forEach(item => {
+                        // Trata se o objeto do Spring vier com o relacionamento 'ficha' ou plano
+                        const fichaObj = item.ficha || item;
+                        containerAlocadas.appendChild(
+                            criarCardFicha(fichaObj.id, fichaObj.nome || 'Ficha Técnica', 'delete', dataIso)
+                        );
                     });
                 }
             })
-            .catch(erro => {
-                console.error("Erro ao processar requisição: ", erro);
-                containerAlocadas.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
-                containerDisponiveis.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
+            .catch(err => {
+                console.error("Erro ao listar agendamentos:", err);
+                if (containerAlocadas) containerAlocadas.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
             });
     }
 
     /**
-     * Cria a estrutura do card HTML para cada Ficha
+     * 4. Constrói a View do Card de Agendamento
      */
-    function criarCardFicha(id, nome, status, acao) {
+    function criarCardFicha(fichaId, nomeFicha, acao, dataIso) {
         const card = document.createElement("div");
         card.className = "fiche-card";
 
-        const icone = status === "success" ? "check_circle" : "warning";
-        const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
-
         card.innerHTML = `
             <div class="fiche-info">
-                <p class="fiche-name">${nome}</p>
-                <span class="stock-status ${status}">
-                    <span class="material-symbols-outlined">${icone}</span>${textoEstoque}
-                </span>
+                <p class="fiche-name">${nomeFicha}</p>
             </div>
             <button class="btn-fiche-action ${acao}">
                 <span class="material-symbols-outlined">${acao === 'delete' ? 'close' : 'add'}</span>
             </button>
         `;
 
-        // BLINDAGEM EXTRA: Se o ID da própria Ficha vier nulo ou indefinido por erro de mapeamento do banco
-        if (!id || id === "undefined") {
-            card.querySelector('.btn-fiche-action').disabled = true;
-            card.querySelector('.btn-fiche-action').style.opacity = "0.5";
-            return card;
-        }
+        const btnAcao = card.querySelector('.btn-fiche-action');
 
-        // AÇÃO 1: Adicionar (+)
-        if (acao === 'append') {
-            card.querySelector('.btn-fiche-action').addEventListener('click', () => {
-                const celulaAtiva = document.querySelector('.day-cell.active-selected');
-                if (!celulaAtiva) return;
-
-                if (!turmaAtivaId || turmaAtivaId === "undefined") {
-                    alert("Selecione uma turma válida antes de alocar.");
-                    return;
-                }
-
-                const dataIso = celulaAtiva.getAttribute('data-date');
-
-                fetch(`/calendario/alocar?id=${id}&data=${dataIso}&idTurma=${turmaAtivaId}`, {method: 'GET'})
-                    .then(response => {
-                        if (!response.ok) throw new Error("Erro ao alocar");
-                        carregarAlocacoesERenderizarGrid();
-                        celulaAtiva.click();
-                    })
-                    .catch(err => console.error("Erro na alocação:", err));
-            });
-        }
-
-        // AÇÃO 2: Remover (X)
-        if (acao === 'delete') {
-            card.querySelector('.btn-fiche-action').addEventListener('click', () => {
-                const celulaAtiva = document.querySelector('.day-cell.active-selected');
-
-                if (!turmaAtivaId || turmaAtivaId === "undefined") {
-                    alert("Selecione uma turma válida antes de desalocar.");
-                    return;
-                }
-
-                // AJUSTADO: Passa a idTurma na query string
-                fetch(`/calendario/desalocar?id=${id}&idTurma=${turmaAtivaId}`, {method: 'GET'})
-                    .then(response => {
-                        if (!response.ok) throw new Error("Erro ao desalocar");
-                        return response.text();
-                    })
-                    .then(mensagem => {
-                        if (celulaAtiva) celulaAtiva.click();
-                        carregarAlocacoesERenderizarGrid();
-                    })
-                    .catch(err => {
-                        console.error("Erro na desalocação:", err);
-                        alert("Não foi possível remover a ficha.");
-                    });
-            });
-        }
+        btnAcao.addEventListener('click', () => {
+            if (acao === 'append') {
+                executarAlocacao(fichaId, turmaAtivaId, dataIso, btnAcao);
+            } else if (acao === 'delete') {
+                executarDesalocacao(fichaId, turmaAtivaId, dataIso, btnAcao);
+            }
+        });
 
         return card;
     }
 
-    // Ouvintes de cliques nos botões de navegação dos meses
+    /**
+     * 5. Alocar Ficha -> POST /api/agendamentos/alocar
+     */
+    function executarAlocacao(fichaId, turmaId, dataIso, btnElement) {
+        btnElement.disabled = true;
+
+        const payload = {
+            fichaId: parseInt(fichaId),
+            turmaId: parseInt(turmaId),
+            data: dataIso
+        };
+
+        fetchApi('/api/agendamentos/alocar', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || 'Erro ao agendar'); });
+                }
+                return res.json();
+            })
+            .then(() => recarregarDiaAtual())
+            .catch(err => {
+                alert(err.message);
+                btnElement.disabled = false;
+            });
+    }
+
+    /**
+     * 6. Desalocar Ficha -> POST /api/agendamentos/desalocar
+     */
+    function executarDesalocacao(fichaId, turmaId, dataIso, btnElement) {
+        btnElement.disabled = true;
+
+        const payload = {
+            fichaId: parseInt(fichaId),
+            turmaId: parseInt(turmaId),
+            data: dataIso
+        };
+
+        fetchApi('/api/agendamentos/desalocar', {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || 'Erro ao desalocar'); });
+                }
+                return res.json();
+            })
+            .then(() => recarregarDiaAtual())
+            .catch(err => {
+                alert(err.message);
+                btnElement.disabled = false;
+            });
+    }
+
+    /**
+     * Recarrega os dados da data selecionada
+     */
+    function recarregarDiaAtual() {
+        const celulaAtiva = document.querySelector('.day-cell.active-selected');
+        if (celulaAtiva) {
+            const dataIso = celulaAtiva.getAttribute('data-date');
+            buscarAgendamentos(dataIso, diaSelecionadoGlobal, nomesMeses[dataCalendario.getMonth()], dataCalendario.getFullYear());
+        } else {
+            renderizarGrid();
+        }
+    }
+
+    // Controles do Mês
     if (btnPrev) {
         btnPrev.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() - 1);
-            carregarAlocacoesERenderizarGrid();
+            renderizarGrid();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() + 1);
-            carregarAlocacoesERenderizarGrid();
+            renderizarGrid();
         });
     }
 
-    // GATILHO INICIAL
-    inicializarSelectTurmas();
-    carregarAlocacoesERenderizarGrid();
+    // Execução Inicial
+    inicializarSistema();
 });

@@ -1,29 +1,28 @@
 package com.application.WebApplicationSIGEC.service;
 
-
 import com.application.WebApplicationSIGEC.model.Usuario;
-import org.springframework.stereotype.Service;
-
 import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Service;
 
 @Service
 public class SessaoService {
 
+    // A chave DEVE ser exatamente igual em todas as chamadas
+    public static final String CHAVE_SESSAO = "UsuarioLogado";
 
-    private static final String Chave_Session = "UsuarioLogado";
-
-    public void salvarUsuarioLogado(HttpSession session, Usuario usuario){
-        session.setAttribute(Chave_Session, usuario);
+    public void salvarUsuarioLogado(HttpSession session, Usuario usuario) {
+        session.setAttribute(CHAVE_SESSAO, usuario);
     }
 
-    public Usuario buscarUsuarioLogado(HttpSession session){
-        return (Usuario)session.getAttribute(Chave_Session);
+    public Usuario buscarUsuarioLogado(HttpSession session) {
+        if (session == null) return null;
+        return (Usuario) session.getAttribute(CHAVE_SESSAO);
     }
 
-
-    public void encerrarSessao(HttpSession session){
-        session.removeAttribute(Chave_Session);
-        session.invalidate();
+    public void encerrarSessao(HttpSession session) {
+        if (session != null) {
+            session.removeAttribute(CHAVE_SESSAO);
+            session.invalidate();
+        }
     }
-
 }

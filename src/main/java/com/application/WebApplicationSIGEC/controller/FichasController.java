@@ -10,8 +10,10 @@ import com.application.WebApplicationSIGEC.model.Turmas;
 import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
 import com.application.WebApplicationSIGEC.repository.TurmasRepository;
+import com.application.WebApplicationSIGEC.service.AgendamentoService;
 import com.application.WebApplicationSIGEC.service.FichasService;
 
+import com.application.WebApplicationSIGEC.service.SessaoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -35,25 +37,18 @@ public class FichasController {
     @Autowired
     private FichasService fichasService;
 
+    @Autowired
+    private SessaoService sessaoService;
+
     @GetMapping("/calendario")
     public String exibirCalendario(Model model, HttpSession session) {
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
+        // CORRIGIDO: Agora usa a mesma validação do SessaoService
+        if (sessaoService.buscarUsuarioLogado(session) == null) {
             return "redirect:/login";
         }
         return "calendario";
     }
 
-    // Endpoint esperado pelo JS para popular o select de turmas
-    /*@GetMapping("/calendario/turmas")
-    public ResponseEntity<List<Turmas>> listarTurmasInstrutor(HttpSession session) {
-        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        List<Turmas> turmas = turmasRepository.findByUsuarioEmail(usuarioLogado.getEmail());
-        return ResponseEntity.ok(turmas);
-    }*/
 
     @GetMapping("/calendario/fichas")
     public ResponseEntity<Map<String, Object>> exibirFichaData(
