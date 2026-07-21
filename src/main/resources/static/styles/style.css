@@ -115,6 +115,7 @@ input:focus{
     justify-content: center;
     width: auto;
     height: auto;
+    font-size: 16px;
     z-index: 5;
 }
 form button{
