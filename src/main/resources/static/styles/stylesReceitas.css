@@ -1285,73 +1285,114 @@ body{
 
 }
 /* ============================================================
-   RESPONSIVIDADE E FIXAÇÃO PARA A TELA DE RECEITAS (MOBILE)
+   RESPONSIVIDADE — TELA DE RECEITAS (MOBILE) — versão corrigida
    ============================================================ */
-
 @media screen and (max-width: 768px) {
 
-    /* 1. Sidebar e Topbar (mantém como já estava) */
+    /* Sidebar vira off-canvas, controlada pelo JS (classe .show) */
     .sidebar {
         transform: translateX(-100%);
-        transition: transform 0.3s ease;
     }
-
-    .sidebar.open {
+    .sidebar.show {
         transform: translateX(0);
-    }
-
-    .topbar {
-        left: 0 !important;
-        width: 100% !important;
     }
 
     .main-container {
         margin-left: 0 !important;
-        padding-top: 68px !important;
         width: 100% !important;
     }
 
-    /* 2. Área de trabalho: lista + detalhe em coluna */
+    /* Topbar ocupa a tela toda e mostra o botão de menu */
+    .topbar {
+        left: 0 !important;
+    }
+    .menu-toggle {
+        display: flex;
+    }
+
+    /* Esconde a busca grande do topo em telas pequenas (opcional) */
+    .top-search-wrap,
+    .search-box {
+        display: none;
+    }
+
+    /* Empilha lista + detalhe em vez de lado a lado */
     .workspace-area {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        padding: 12px !important;
-        height: auto !important;
+        flex-direction: column;
+        overflow: visible;      /* corrige o corte causado pelo overflow:hidden */
+        height: auto;
     }
 
-    /* 3. Painel da lista de receitas (o que aparece no seu print) */
     .recipes-list-pane {
-        width: 100% !important;
-        max-width: 100% !important;
-        height: auto !important;           /* deixa a altura ser definida pelo conteúdo */
-        max-height: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-        overflow: visible !important;
+        width: 100%;
+        height: auto;
+        max-height: 260px;      /* lista de receitas some com o conteúdo, com scroll próprio */
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
     }
 
-    .status-tabs {
-        flex-shrink: 0 !important; /* garante que as abas não sejam espremidas */
-        overflow-x: auto !important; /* rolagem horizontal caso não caibam as 3 abas */
-        white-space: nowrap !important;
-    }
-
-    /* 4. Scroll interno na lista de cards */
-    .scrollable-list {
-        flex: none !important;             /* não precisa mais esticar, o pai já é "auto" */
-        overflow-y: visible !important;
-        max-height: none !important;
-    }
-
-    /* 5. Painel de detalhe da receita — some quando não estiver ativo,
-          some deve virar tela cheia quando o usuário clicar num card */
     .recipe-detail-pane {
-        width: 100% !important;
-        max-width: 100% !important;
+        width: 100%;
+        padding: 16px;          /* reduz o padding de 32px/40px do desktop */
+        height: auto;
+        overflow: visible;
     }
 
-    .recipe-detail-pane:empty {
-        display: none !important; /* evita espaço vazio quando nenhuma receita foi selecionada */
+    /* Cabeçalho do detalhe: título e badge empilham em vez de cortar */
+    .detail-main-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .detail-main-title {
+        font-size: 20px;
+    }
+
+    /* Tags de tempo/dificuldade/rendimento quebram linha */
+    .meta-info-grid {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .info-tag {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    /* Ingredientes: 1 coluna só, sem cortar texto */
+    .ingredients-layout {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+
+    /* Passos do preparo com respiro menor */
+    .step-card {
+        gap: 10px;
+    }
+    .step-circle {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+
+    /* Abas de status (Todas / Disponíveis / Aplicadas) não cortam texto */
+    .status-tabs {
+        padding: 12px;
+        gap: 4px;
+    }
+    .status-tab-btn {
+        font-size: 11px;
+        padding: 8px 2px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .detail-main-title {
+        font-size: 18px;
+    }
+    .recipe-intro {
+        font-size: 13px;
+        padding: 12px;
     }
 }
