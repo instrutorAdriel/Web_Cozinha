@@ -28,7 +28,7 @@ const RECIPES = [
     },
     {
         id:3, name:"Sushi de Salmão", cat:"Japonesa", time:"45 min", level:"Difícil", serves:"2 porções",
-        status:"aplicada",
+        status:"datada",
         description:"Sushi tradicional japonês com arroz temperado, salmão fresco e alga nori, enrolado e cortado em peças elegantes.",
         ingredients:["2 xícaras de arroz para sushi","3 colheres de vinagre de arroz","200g de salmão fresco","4 folhas de alga nori","Molho shoyu","Gengibre em conserva","Wasabi"],
         steps:[
@@ -64,7 +64,7 @@ const RECIPES = [
     },
     {
         id:6, name:"Ratatouille", cat:"Francesa", time:"55 min", level:"Médio", serves:"4 porções",
-        status:"aplicada",
+        status:"datada",
         description:"Ensopado clássico francês de vegetais como abobrinha, berinjela e tomate, cozidos lentamente com ervas provençais.",
         ingredients:["1 berinjela","2 abobrinhas","2 tomates","1 pimentão","1 cebola","2 dentes de alho","Ervas de Provence","Azeite de oliva"],
         steps:[
@@ -121,8 +121,8 @@ function renderList() {
         card.innerHTML = `
             <div class="rc-header">
                 <div class="rc-title">${r.name}</div>
-                <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-aplicada'}">
-                    ${r.status === 'disponivel' ? 'Disponível' : 'Aplicada'}
+                <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-datada'}">
+                    ${r.status === 'disponivel' ? 'Disponível' : 'datada'}
                 </div>
             </div>
             <div class="rc-category">${r.cat}</div>
@@ -165,8 +165,8 @@ function renderDetail() {
                 <div class="rc-category">${r.cat}</div>
                 <h2 class="detail-main-title">${r.name}</h2>
             </div>
-            <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-aplicada'}" style="font-size:11px; padding:6px 14px;">
-                ${r.status === 'disponivel' ? 'Disponível' : 'Aplicada'}
+            <div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-datada'}" style="font-size:11px; padding:6px 14px;">
+                ${r.status === 'disponivel' ? 'Disponível' : 'Datada'}
             </div>
         </div>
 
