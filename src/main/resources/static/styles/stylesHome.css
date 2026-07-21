@@ -730,7 +730,9 @@ body {
 
 .select-wrap {
     position: relative;
-    margin-bottom: 14px
+    margin-bottom: 14px;
+    width: 212px;
+    height: 36px;
 }
 
 #recipe-select {
@@ -846,6 +848,7 @@ body {
     color: #fff;
     font-size: 18px;
     opacity: 0
+
 }
 
 .check-label {
@@ -1723,6 +1726,8 @@ body {
 .badge-dot[hidden] {
     display: none
 }
+
+
 
 .notif-panel {
     position: absolute;
