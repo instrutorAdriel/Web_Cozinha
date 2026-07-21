@@ -1,10 +1,15 @@
 package com.application.WebApplicationSIGEC.model;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class UsuarioForm {
     private String nome;
     private String email;
     private String senha;
     private String confirmarSenha;
+
+    // Foto de perfil enviada pelo formulário
+    private MultipartFile foto;
 
     public String getNome() {
         return nome;
@@ -36,5 +41,13 @@ public class UsuarioForm {
 
     public void setConfirmarSenha(String confirmarSenha) {
         this.confirmarSenha = confirmarSenha;
+    }
+
+    public MultipartFile getFoto() {
+        return foto;
+    }
+
+    public void setFoto(MultipartFile foto) {
+        this.foto = foto;
     }
 }
