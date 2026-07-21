@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes da Receita</title>
+    <link rel="stylesheet" th:href="@{/styles/receita.css}">
+</head>
+<body>
+
+<aside class="sidebar">
+    <h1>Senac</h1>
+    <h2>SIGEC</h2>
+    <p>PAINEL DO INSTRUTOR</p>
+
+    <nav>
+        <a href="home.html">🏠 Início</a>
+        <a href="#">📅 Calendário</a>
+        <a href="receita.html" class="ativo">📖 Receitas</a>
+        <a href="#">📊 Relatórios</a>
+        <a href="#">👥 Turmas</a>
+    </nav>
+
+    <button class="sair">↪ Sair</button>
+</aside>
+
+<main class="conteudo">
+
+    <header class="topo">
+        <span>SIGEC > Receitas > Detalhes da Receita</span>
+        <input type="text" placeholder="Buscar receita, turma...">
+    </header>
+
+    <section class="card-principal">
+        <img src="https://images.unsplash.com/photo-1549931319-a545dcf3bc73" alt="Pão Francês">
+
+        <div class="info">
+            <h1>Pão Francês & Baguete</h1>
+            <span class="categoria">🥖 PADARIA</span>
+            <p>
+                Receita clássica da panificação francesa, com casca crocante
+                e miolo leve e aerado. Ideal para o dia a dia.
+            </p>
+
+            <div class="dados">
+                <div>⏱️ <strong>3h 30min</strong><br>Tempo total</div>
+                <div>📊 <strong>Intermediário</strong><br>Nível</div>
+                <div>🌾 <strong>8 unidades</strong><br>Rendimento</div>
+                <div>👨‍🍳 <strong>2024.1.A</strong><br>Turma</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="grid">
+
+        <div class="card">
+            <h2>🥣 Ingredientes</h2>
+            <ul>
+                <li>Farinha de trigo tipo 1 <span>1 kg</span></li>
+                <li>Sal <span>18 g</span></li>
+                <li>Fermento biológico fresco <span>20 g</span></li>
+                <li>Água gelada <span>600 ml</span></li>
+                <li>Melhorador de farinha <span>10 g</span></li>
+            </ul>
+
+            <div class="dica">
+                💡 <strong>Dica do Chef</strong>
+                <p>Utilize água sempre gelada para controlar a fermentação.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🍴 Utensílios</h2>
+            <ul>
+                <li>✔ Batedeira planetária</li>
+                <li>✔ Balança digital</li>
+                <li>✔ Bowl grande</li>
+                <li>✔ Assadeiras perfuradas</li>
+                <li>✔ Forno</li>
+            </ul>
+        </div>
+
+        <div class="card preparo">
+            <h2>🍲 Modo de Preparo</h2>
+
+            <ol>
+                <li>Misture a farinha, o sal e o melhorador na masseira.</li>
+                <li>Adicione 80% da água gelada e misture em velocidade baixa.</li>
+                <li>Quando a massa homogeneizar, adicione o fermento fresco.</li>
+                <li>Divida a massa, boleie e deixe descansar por 1 hora.</li>
+                <li>Modele os pães e faça os cortes superficiais.</li>
+                <li>Asse em forno pré-aquecido a 230°C por 20 a 25 minutos.</li>
+            </ol>
+
+            <div class="alerta">
+                ⚠️ <strong>Atenção</strong>
+                <p>O vapor no início do forno é essencial para a crocância da casca.</p>
+            </div>
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>
