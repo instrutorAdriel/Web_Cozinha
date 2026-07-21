@@ -1118,7 +1118,7 @@ body{
 }
 
 .status-disponivel { background: var(--green-bg); color: var(--green); }
-.status-datada { background: var(--blue-bg); color: var(--blue); }
+.status-datadas { background: var(--blue-bg); color: var(--blue); }
 
 .rc-category {
     font-size: 11px;
