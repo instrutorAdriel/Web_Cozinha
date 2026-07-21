@@ -1289,14 +1289,15 @@ body{
    ============================================================ */
 
 @media screen and (max-width: 768px) {
-    /* 1. RECOLHER ELEMENTOS DA HOME / SIDEBAR */
+
+    /* 1. Sidebar e Topbar (mantém como já estava) */
     .sidebar {
-        transform: translateX(-100%); /* Oculta a barra lateral da Home para fora da tela */
+        transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
 
     .sidebar.open {
-        transform: translateX(0); /* Abre somente quando ativa via JS */
+        transform: translateX(0);
     }
 
     .topbar {
@@ -1304,53 +1305,53 @@ body{
         width: 100% !important;
     }
 
-    .main,
     .main-container {
         margin-left: 0 !important;
         padding-top: 68px !important;
         width: 100% !important;
     }
 
-    /* Oculta áreas/colunas secundárias da Home quando estiver na visão mobile */
-    .dashboard-top-grid,
-    .quick-actions,
-    .recipes-list-pane {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    /* 2. MANTER A TELA DE RECEITA FIXA E RESPONSIVA */
-    .workspace-area,
-    .recipe-details-container {
+    /* 2. Área de trabalho: lista + detalhe em coluna */
+    .workspace-area {
         display: flex !important;
         flex-direction: column !important;
         width: 100% !important;
         padding: 12px !important;
+        height: auto !important;
     }
 
-    .recipe-summary-card,
-    .recipe-details {
-        position: relative;
+    /* 3. Painel da lista de receitas (o que aparece no seu print) */
+    .recipes-list-pane {
         width: 100% !important;
         max-width: 100% !important;
-        height: calc(100vh - 90px) !important; /* Fixa a altura máxima na tela disponível */
+        height: auto !important;           /* deixa a altura ser definida pelo conteúdo */
         max-height: none !important;
         display: flex !important;
         flex-direction: column !important;
-        overflow: hidden !important; /* Evita que o card extrapole a tela */
+        overflow: visible !important;
     }
 
-    /* 3. SCROLL INTERNO NA RECEITA */
-    .summary-body,
-    .recipe-content-body {
-        flex: 1 !important;
-        overflow-y: auto !important; /* Cria rolagem suave dentro do card da receita */
-        -webkit-overflow-scrolling: touch;
-        padding: 16px !important;
+    .status-tabs {
+        flex-shrink: 0 !important; /* garante que as abas não sejam espremidas */
+        overflow-x: auto !important; /* rolagem horizontal caso não caibam as 3 abas */
+        white-space: nowrap !important;
     }
 
-    .summary-steps-list {
-        padding-left: 20px !important;
+    /* 4. Scroll interno na lista de cards */
+    .scrollable-list {
+        flex: none !important;             /* não precisa mais esticar, o pai já é "auto" */
+        overflow-y: visible !important;
+        max-height: none !important;
+    }
+
+    /* 5. Painel de detalhe da receita — some quando não estiver ativo,
+          some deve virar tela cheia quando o usuário clicar num card */
+    .recipe-detail-pane {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .recipe-detail-pane:empty {
+        display: none !important; /* evita espaço vazio quando nenhuma receita foi selecionada */
     }
 }

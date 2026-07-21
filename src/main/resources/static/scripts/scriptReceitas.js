@@ -171,9 +171,7 @@ function renderDetail() {
         </div>
 
         <div class="meta-info-grid">
-            <div class="info-tag">⏱ Tempo: <b>${r.time}</b></div>
-            <div class="info-tag">📊 Dificuldade: <b>${r.level}</b></div>
-            <div class="info-tag">🍽 Rendimento: <b>${r.serves}</b></div>
+            
         </div>
 
         <div class="recipe-intro">${r.description}</div>
