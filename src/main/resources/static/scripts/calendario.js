@@ -20,17 +20,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const selectTurma = document.getElementById('selectTurma');
 
     /**
-     * Helper para requisições padronizadas
+     * Helper para requisições padronizadas (Inclui CSRF + Session Cookie)
      */
     function fetchApi(url, options = {}) {
+        // Captura tokens do Spring Security das Meta Tags (se existirem)
+        const token = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
+        const headerName = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
+
+        const defaultHeaders = { 'Content-Type': 'application/json' };
+        if (token && headerName) {
+            defaultHeaders[headerName] = token;
+        }
+
         const defaultOptions = {
-            credentials: 'include', // Garante que o cookie JSESSIONID é mantido
-            headers: { 'Content-Type': 'application/json' }
+            credentials: 'include', // Mantém o cookie JSESSIONID ativo
+            headers: { ...defaultHeaders, ...options.headers }
         };
 
         return fetch(url, { ...defaultOptions, ...options })
             .then(response => {
-                // Tratamento específico de não autorizado retornado pelo SessaoService
                 if (response.status === 401) {
                     alert("Sua sessão expirou. Redirecionando para a tela de login.");
                     window.location.href = "/login";
@@ -147,42 +155,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * 3. Busca Agendamentos -> GET /api/agendamentos?turmaId=X&data=YYYY-MM-DD
+     * 3. Busca Agendamentos (Alocadas) e Fichas do Acervo (Disponíveis)
+     * Consome: GET /calendario/fichas?data=YYYY-MM-DD&idTurma=X
      */
     function buscarAgendamentos(dataIso, dia, nomeMes, ano) {
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
 
-        if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agendamentos...</p>';
+        if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">Carregando...</p>';
+        if (containerDisponiveis) containerDisponiveis.innerHTML = '<p class="crumb-muted">Carregando...</p>';
 
         if (!turmaAtivaId) {
             if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">Selecione uma turma.</p>';
+            if (containerDisponiveis) containerDisponiveis.innerHTML = '<p class="crumb-muted">Selecione uma turma.</p>';
             return;
         }
 
-        fetchApi(`/api/agendamentos?turmaId=${turmaAtivaId}&data=${dataIso}`)
+        fetchApi(`/calendario/fichas?data=${dataIso}&idTurma=${turmaAtivaId}`)
             .then(res => {
-                if (!res.ok) throw new Error("Erro ao buscar agendamentos");
+                if (!res.ok) throw new Error("Erro ao carregar fichas.");
                 return res.json();
             })
-            .then(agendamentos => {
-                if (!containerAlocadas) return;
-                containerAlocadas.innerHTML = "";
+            .then(data => {
+                const alocadas = data.alocadas || [];
+                const todasFichas = data.Disponiveis || [];
 
-                if (!agendamentos || agendamentos.length === 0) {
-                    containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhum agendamento para este dia.</p>';
-                } else {
-                    agendamentos.forEach(item => {
-                        // Trata se o objeto do Spring vier com o relacionamento 'ficha' ou plano
-                        const fichaObj = item.ficha || item;
-                        containerAlocadas.appendChild(
-                            criarCardFicha(fichaObj.id, fichaObj.nome || 'Ficha Técnica', 'delete', dataIso)
-                        );
-                    });
+                // 1. Renderiza a Coluna de Fichas Alocadas (Esquerda)
+                if (containerAlocadas) {
+                    containerAlocadas.innerHTML = "";
+                    if (alocadas.length === 0) {
+                        containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma ficha agendada para este dia.</p>';
+                    } else {
+                        alocadas.forEach(ficha => {
+                            const nome = ficha.nome || ficha.nomePrato || ficha.nomeFicha || 'Ficha Técnica';
+                            containerAlocadas.appendChild(
+                                criarCardFicha(ficha.id, nome, 'delete', dataIso)
+                            );
+                        });
+                    }
+                }
+
+                // 2. Filtra e Renderiza a Coluna de Fichas Disponíveis (Direita)
+                if (containerDisponiveis) {
+                    containerDisponiveis.innerHTML = "";
+
+                    // IDs agendados no dia
+                    const idsAlocados = alocadas.map(f => f.id);
+
+                    // Mantém na lista apenas o que NÃO está agendado hoje
+                    const disponiveisParaExibir = todasFichas.filter(f => !idsAlocados.includes(f.id));
+
+                    if (disponiveisParaExibir.length === 0) {
+                        containerDisponiveis.innerHTML = '<p class="crumb-muted">Nenhuma ficha disponível para agendar.</p>';
+                    } else {
+                        disponiveisParaExibir.forEach(ficha => {
+                            const nome = ficha.nome || ficha.nomePrato || ficha.nomeFicha || 'Ficha Técnica';
+                            containerDisponiveis.appendChild(
+                                criarCardFicha(ficha.id, nome, 'append', dataIso)
+                            );
+                        });
+                    }
                 }
             })
             .catch(err => {
-                console.error("Erro ao listar agendamentos:", err);
+                console.error("Erro ao carregar fichas:", err);
                 if (containerAlocadas) containerAlocadas.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
+                if (containerDisponiveis) containerDisponiveis.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
             });
     }
 
@@ -231,9 +268,10 @@ document.addEventListener("DOMContentLoaded", () => {
             method: 'POST',
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
                 if (!res.ok) {
-                    return res.json().then(err => { throw new Error(err.error || 'Erro ao agendar'); });
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Erro ao agendar ficha');
                 }
                 return res.json();
             })
@@ -260,9 +298,10 @@ document.addEventListener("DOMContentLoaded", () => {
             method: 'POST',
             body: JSON.stringify(payload)
         })
-            .then(res => {
+            .then(async res => {
                 if (!res.ok) {
-                    return res.json().then(err => { throw new Error(err.error || 'Erro ao desalocar'); });
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || 'Erro ao desalocar ficha');
                 }
                 return res.json();
             })

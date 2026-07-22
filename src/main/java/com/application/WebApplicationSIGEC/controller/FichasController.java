@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Fichas;
 import com.application.WebApplicationSIGEC.model.Turmas;
 import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.repository.AgendamentoRepository;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
 import com.application.WebApplicationSIGEC.repository.TurmasRepository;
 import com.application.WebApplicationSIGEC.service.AgendamentoService;
@@ -16,6 +18,7 @@ import com.application.WebApplicationSIGEC.service.FichasService;
 import com.application.WebApplicationSIGEC.service.SessaoService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -40,6 +43,9 @@ public class FichasController {
     @Autowired
     private SessaoService sessaoService;
 
+    @Autowired
+    private AgendamentoRepository agendamentoRepository;
+
     @GetMapping("/calendario")
     public String exibirCalendario(Model model, HttpSession session) {
         // CORRIGIDO: Agora usa a mesma validação do SessaoService
@@ -51,18 +57,32 @@ public class FichasController {
 
 
     @GetMapping("/calendario/fichas")
-    public ResponseEntity<Map<String, Object>> exibirFichaData(
+    public ResponseEntity<?> exibirFichaData(
             @RequestParam("data") String data,
-            @RequestParam("idTurma") int idTurma) {
+            @RequestParam("idTurma") int idTurma,
+            HttpSession session) {
+
+        // 1. Valida a sessão
+        if (sessaoService.buscarUsuarioLogado(session) == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         LocalDate dataSelecionada = LocalDate.parse(data);
-        List<Fichas> alocadas = fichasRepository.findByDataAndTurmasId(dataSelecionada, idTurma);
-        List<Fichas> disponiveis = fichasRepository.findByDataIsNullAndTurmasIsNull();
+
+        // 2. Busca os agendamentos do dia/turma[cite: 1, 5, 7]
+        List<Agendamento> agendamentos = agendamentoRepository.findByTurmaIdAndData(idTurma, dataSelecionada);
+
+        // Extrai as fichas alocadas
+        List<Fichas> alocadas = agendamentos.stream()
+                .map(Agendamento::getFicha)
+                .toList();
+
+        // 3. ⚠️ AQUI ESTÁ O PONTO: Tem que buscar TODAS as fichas do acervo
+        List<Fichas> todasFichas = fichasRepository.findAll();
 
         Map<String, Object> rsFinal = new HashMap<>();
-        // Mapeado exatamente como o seu JS lê (Disponiveis com D maiúsculo se mantiver o JS)
         rsFinal.put("alocadas", alocadas);
-        rsFinal.put("Disponiveis", disponiveis);
+        rsFinal.put("Disponiveis", todasFichas); // JS vai filtrar as que já estão em 'alocadas'
 
         return ResponseEntity.ok(rsFinal);
     }
