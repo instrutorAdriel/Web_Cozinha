@@ -46,16 +46,42 @@
                 </div>
             </div>
 
+            <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
             <div class="topbar-actions">
-                <div class="search-box">
-                    <span class="material-symbols-outlined">search</span>
-                    <input type="text" id="searchInput" placeholder="Buscar receita, turma...">
+
+                <div class="topbar-actions">
+
+                    <label class="field-label" for="turma-select">Turma / Laboratório</label>
+                    <div class="select-wrap">
+
+                        <select id="turma-select">
+                            <option value="">-- Selecione uma Turma --</option>
+                            <option value="2024.1.A">Turma 2024.1.A</option>
+                            <option value="2024.1.C">Turma 2024.1.C</option>
+                        </select>
+
+                        <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+                    </div>
+
+
                 </div>
 
-                <button class="icon-btn" title="Notificações">
-                    <span class="material-symbols-outlined">notifications</span>
-                </button>
+                <!-- Central de Notificações (Menu expansível via JS) -->
+                <div class="notif-wrap">
+                    <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="badge-dot" id="notif-badge" hidden></span>
+                    </button>
 
+                    <div class="notif-panel" id="notif-panel">
+                        <div class="notif-head">
+                            <h3>Notificações</h3>
+                            <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+                        </div>
+                        <div class="notif-list" id="notif-list"></div>
+                    </div>
+                </div>
                 <div class="user-box">
                     <div class="user-info">
                         <p class="user-name">Chef Ricardo Silva</p>

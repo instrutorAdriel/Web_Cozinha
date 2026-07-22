@@ -1,3 +1,36 @@
+// ===== ENTIDADES DE TURMA (igual ao scriptHome.js) =====
+const turmas = {
+    "2024.1.A": { nome: "Turma 2024.1.A", cozinha: "Padaria Lab 01" },
+    "2024.1.C": { nome: "Turma 2024.1.C", cozinha: "Cozinha Pedagógica 02" },
+    "2024.2.N": { nome: "Turma 2024.2.N", cozinha: "Cozinha Pedagógica 04" }
+};
+
+let turmaAtual = "2024.1.A"; // turma selecionada por padrão
+
+const turmaSelect = document.getElementById('turma-select');
+
+// Popula o <select> com o mesmo formato usado na Home: "Nome — Cozinha"
+function popularSeletorTurmas() {
+    if (!turmaSelect) return;
+    turmaSelect.innerHTML = Object.entries(turmas)
+        .map(([k, t]) => `<option value="${k}">${t.nome} — ${t.cozinha}</option>`)
+        .join('');
+    turmaSelect.value = turmaAtual;
+}
+
+// (Opcional) Reage à troca de turma. Hoje as receitas não são filtradas por
+// turma nesta tela, mas a variável fica disponível caso queira usar depois
+// (ex.: destacar receitas da cozinha daquela turma).
+if (turmaSelect) {
+    turmaSelect.addEventListener('change', e => {
+        turmaAtual = e.target.value;
+        // Espaço reservado para filtrar/realçar receitas pela turma, se desejado.
+    });
+}
+
+popularSeletorTurmas();
+
+// ===== RECEITAS =====
 const RECIPES = [
     {
         id:1, name:"Risoto de Funghi", cat:"Italiana", time:"40 min", level:"Médio", serves:"4 porções",
