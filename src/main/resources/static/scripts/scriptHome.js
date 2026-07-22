@@ -1149,4 +1149,25 @@ function atualizarSaudacao() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", atualizarSaudacao);
+// ==========================================
+// PUXAR FOTO DO PERFIL PARA O CABEÇALHO
+// ==========================================
+function carregarFotoPerfil() {
+  const avatarTopo = document.querySelector('.avatar-header');
+
+  if (avatarTopo) {
+    // Busca a foto salva no momento do cadastro
+    const fotoGuardada = localStorage.getItem('minhaFotoSalva');
+
+    // Se existir, substitui o ícone de chef laranja pela foto real!
+    if (fotoGuardada) {
+      avatarTopo.src = fotoGuardada;
+    }
+  }
+}
+
+// Inicializa as funções de interface assim que a Home carrega
+document.addEventListener("DOMContentLoaded", () => {
+  atualizarSaudacao();
+  carregarFotoPerfil();
+});

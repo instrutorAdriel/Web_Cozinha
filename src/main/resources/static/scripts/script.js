@@ -36,28 +36,60 @@ function mostrarOcultarSenha(iconeClicado) {
 }
 
 // ==========================================
-// PRÉ-VISUALIZAÇÃO DA FOTO DE PERFIL
+// 1. TELA DE CADASTRO: SALVAR A FOTO E TRAVAR O HOVER
 // ==========================================
-
-// 1. Selecionamos o input oculto e a imagem que está aparecendo na tela
 const inputFoto = document.getElementById('foto-upload');
 const imagemPerfil = document.querySelector('.img-padrao');
+const labelUpload = document.querySelector('.perfil-upload-label');
 
-// 2. Só executamos o código se esses elementos existirem na página (evita erros em outras páginas)
-if (inputFoto && imagemPerfil) {
-
-    // 3. Ficamos "escutando" para ver se o usuário escolheu algum arquivo
+if (inputFoto && imagemPerfil && labelUpload) {
     inputFoto.addEventListener('change', function(evento) {
-
-        // Pega o primeiro arquivo que o usuário selecionou
         const arquivo = evento.target.files[0];
 
         if (arquivo) {
-            // Cria um link temporário na memória do navegador para essa imagem
-            const urlTemporaria = URL.createObjectURL(arquivo);
+            // O FileReader "lê" a foto do seu PC e a transforma em um texto (Base64)
+            const leitor = new FileReader();
 
-            // Troca o caminho da imagem padrão pelo link da foto do usuário!
-            imagemPerfil.src = urlTemporaria;
+            leitor.onload = function(e) {
+                const fotoTextoBase64 = e.target.result;
+
+                // 1. Atualiza a imagem na tela de cadastro
+                imagemPerfil.src = fotoTextoBase64;
+
+                // 2. Adiciona a classe que avisa o CSS para DESLIGAR o hover da foto com o "+"
+                labelUpload.classList.add('tem-foto');
+
+                // 3. Salva esse texto gigante da foto no pendrive do navegador (localStorage)
+                localStorage.setItem('minhaFotoSalva', fotoTextoBase64);
+            };
+
+            // Dispara o comando para o leitor começar a trabalhar
+            leitor.readAsDataURL(arquivo);
+        }
+    });
+}
+
+// ==========================================
+// 2. TELA DE LOGIN: REVELAR FOTO AO DIGITAR E-MAIL
+// ==========================================
+const campoEmailLogin = document.getElementById('email');
+const avatarLogin = document.getElementById('avatar-login');
+
+// Verifica se os elementos existem (para garantir que só rode na tela de Login)
+if (campoEmailLogin && avatarLogin) {
+
+    // O evento 'blur' escuta o exato momento que o usuário tira o foco da caixa de texto
+    campoEmailLogin.addEventListener('blur', function() {
+
+        // Pede para o navegador buscar a foto salva no cofre
+        const fotoGuardada = localStorage.getItem('minhaFotoSalva');
+
+        // Se a pessoa digitou um e-mail válido E a foto existe no cofre...
+        if (campoEmailLogin.value.trim() !== "" && fotoGuardada) {
+            avatarLogin.src = fotoGuardada; // Injeta a foto na tag
+            avatarLogin.style.display = 'block'; // Muda a tag de invisível para visível
+        } else {
+            avatarLogin.style.display = 'none'; // Garante que fique escondida se apagar o e-mail
         }
     });
 }

@@ -251,13 +251,13 @@ button:hover{
     opacity: 0;
 }
 
-/* Quando o mouse passa por cima do label: */
-.perfil-upload-label:hover .img-padrao {
-    opacity: 0; /* Esconde a original */
+/* Quando o mouse passa por cima (SÓ FUNCIONA SE NÃO TIVER A CLASSE .tem-foto) */
+.perfil-upload-label:not(.tem-foto):hover .img-padrao {
+    opacity: 0;
 }
 
-.perfil-upload-label:hover .img-hover {
-    opacity: 1; /* Revela a imagem com o "+" */
+.perfil-upload-label:not(.tem-foto):hover .img-hover {
+    opacity: 1;
 }
 
 /* Esconde o feioso input nativo do navegador */
