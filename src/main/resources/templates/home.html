@@ -10,8 +10,9 @@
     <!-- Ícones do Google (Material Symbols) -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet">
-    <!-- Estilo CSS Principal (Via Thymeleaf) -->
-    <link rel="stylesheet" th:href="@{/styles/stylesHome.css} ">
+    <!-- Estilos CSS (Via Thymeleaf) -->
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
+    <link rel="stylesheet" th:href="@{/styles/stylesHome.css}">
 </head>
 <body>
 
@@ -97,8 +98,12 @@
 
     <!-- Perfil do Usuário Autenticado -->
     <div class="user-box">
-      <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
-        <img src="img/Ícone de Perfil (110 x 110 px).png?v=2" alt="Ícone de Perfil" class="avatar-header">
+      <div class="perfil-upload-wrap perfil-header-wrap">
+        <label for="foto-header-upload" class="perfil-upload-label perfil-header-label" title="Alterar foto de perfil">
+          <img th:src="@{/usuario/foto}" alt="Foto de Perfil" class="img-padrao avatar-header" id="avatar-header-img">
+          <img th:src="@{/img/Adicionar Ícone de Perfil (110 x 110 px).png}" alt="Adicionar Foto" class="img-hover">
+        </label>
+        <input type="file" id="foto-header-upload" name="fotoPerfilHeader" class="perfil-input-oculto" accept="image/*">
       </div>
     </div>
   </div>
@@ -571,7 +576,8 @@
 <!-- Camada escura de fundo para focar a atenção nas modais abertas -->
 <div class="overlay" id="overlay"></div>
 
-<!-- Arquivo Script JS Principal (Via Thymeleaf) -->
+<!-- Arquivo Script JS Principal e Global (Via Thymeleaf) -->
+<script th:src="@{/scripts/script.js}"></script>
 <script th:src="@{/scripts/scriptHome.js}"></script>
 </body>
 </html>

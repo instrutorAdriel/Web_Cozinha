@@ -6,9 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-
-
 
 @Entity
 @Table(name = "usuarios")
@@ -23,6 +22,10 @@ public class Usuario {
     @Column(nullable = false, length = 255)
     private String senha;
 
+    @Lob
+    @Column(name = "foto", columnDefinition = "MEDIUMBLOB")
+    private byte[] foto;
+
     protected Usuario() {
     }
 
@@ -30,6 +33,14 @@ public class Usuario {
         this.nome = nome;
         this.email = email;
         this.senha = senha;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -56,4 +67,12 @@ public class Usuario {
         this.senha = senha;
     }
 
+    public byte[] getFoto() {
+        return foto;
+    }
+
+    public void setFoto(byte[] foto) {
+        this.foto = foto;
+    }
 }
+

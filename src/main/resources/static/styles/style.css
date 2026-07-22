@@ -251,13 +251,24 @@ button:hover{
     opacity: 0;
 }
 
-/* Quando o mouse passa por cima (SÓ FUNCIONA SE NÃO TIVER A CLASSE .tem-foto) */
-.perfil-upload-label:not(.tem-foto):hover .img-padrao {
-    opacity: 0;
+/* Quando o mouse passa por cima (fica levemente escura com ícone + em laranja) */
+.perfil-upload-label:hover .img-hover {
+    opacity: 1;
 }
 
-.perfil-upload-label:not(.tem-foto):hover .img-hover {
-    opacity: 1;
+/* ===== ESTILO PARA A FOTO DE PERFIL NO CABEÇALHO / HEADER ===== */
+.perfil-header-wrap {
+    margin-bottom: 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.perfil-header-label {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+    border: 2px solid #004A8D;
+    flex-shrink: 0;
 }
 
 /* Esconde o feioso input nativo do navegador */

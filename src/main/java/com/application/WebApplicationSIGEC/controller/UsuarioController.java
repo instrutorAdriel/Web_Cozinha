@@ -1,15 +1,27 @@
 package com.application.WebApplicationSIGEC.controller;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.model.UsuarioForm;
+import com.application.WebApplicationSIGEC.repository.UsuarioRepository;
 import com.application.WebApplicationSIGEC.service.SessaoService;
 import com.application.WebApplicationSIGEC.service.UsuarioService;
 
@@ -22,10 +34,13 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
     private SessaoService sessaoService;
 
-    public UsuarioController(UsuarioService usuarioService) {
+    public UsuarioController(UsuarioService usuarioService, UsuarioRepository usuarioRepository) {
         this.usuarioService = usuarioService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     //metodo encerrar sessao
@@ -34,8 +49,6 @@ public class UsuarioController {
             sessaoService.encerrarSessao(session);
         }
     }
-
-
 
     @GetMapping("/cadastro")
     public String exibirCadastro(Model model, HttpSession session){
@@ -68,7 +81,6 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
-
     @GetMapping("/login")
     public String exibirLogin(Model model, HttpSession session) {
 
@@ -90,11 +102,8 @@ public class UsuarioController {
         }
         HttpSession session = request.getSession(true);
         session.setAttribute("usuarioLogado", usuario);
-        //sessaoService.salvarUsuarioLogado(session,usuario);
-
 
         return "redirect:/home";
-
     }
 
     @GetMapping("/alterar-senha")
@@ -122,7 +131,86 @@ public class UsuarioController {
         return "redirect:/login";
     }
 
+    @GetMapping("/usuario/foto")
+    @ResponseBody
+    public ResponseEntity<byte[]> exibirFotoUsuarioLogado(HttpSession session) {
+        if (session != null) {
+            Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+            if (usuarioLogado != null && usuarioLogado.getId() != null) {
+                Optional<Usuario> opt = usuarioRepository.findById(usuarioLogado.getId());
+                if (opt.isPresent() && opt.get().getFoto() != null && opt.get().getFoto().length > 0) {
+                    return ResponseEntity.ok()
+                            .contentType(MediaType.IMAGE_JPEG)
+                            .body(opt.get().getFoto());
+                }
+            }
+        }
+        return obterFotoPadrao();
+    }
+
+    @GetMapping("/usuario/foto/by-email")
+    @ResponseBody
+    public ResponseEntity<byte[]> exibirFotoPorEmail(@RequestParam("email") String email) {
+        if (email != null && !email.trim().isEmpty()) {
+            Optional<Usuario> opt = usuarioRepository.findByEmail(email.trim());
+            if (opt.isPresent() && opt.get().getFoto() != null && opt.get().getFoto().length > 0) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(opt.get().getFoto());
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @PostMapping("/usuario/foto/upload")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> uploadFotoPerfil(
+            @RequestParam(value = "fotoPerfil", required = false) MultipartFile file,
+            HttpSession session) {
+        Map<String, Object> resposta = new HashMap<>();
+
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            resposta.put("success", false);
+            resposta.put("message", "Usuário não autenticado.");
+            return ResponseEntity.status(401).body(resposta);
+        }
+
+        if (file == null || file.isEmpty()) {
+            resposta.put("success", false);
+            resposta.put("message", "Arquivo de imagem vazio.");
+            return ResponseEntity.badRequest().body(resposta);
+        }
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        try {
+            Usuario usuarioAtualizado = usuarioService.atualizarFoto(usuarioLogado.getId(), file.getBytes());
+            if (usuarioAtualizado != null) {
+                session.setAttribute("usuarioLogado", usuarioAtualizado);
+                resposta.put("success", true);
+                resposta.put("message", "Foto atualizada com sucesso!");
+                return ResponseEntity.ok(resposta);
+            }
+        } catch (IOException e) {
+            resposta.put("success", false);
+            resposta.put("message", "Erro ao processar imagem: " + e.getMessage());
+        }
+
+        resposta.put("success", false);
+        resposta.put("message", "Erro ao atualizar foto.");
+        return ResponseEntity.status(500).body(resposta);
+    }
+
+    private ResponseEntity<byte[]> obterFotoPadrao() {
+        try (InputStream is = getClass().getResourceAsStream("/static/img/Ícone de Perfil Cadastro (110 x 110 px).png")) {
+            if (is != null) {
+                return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(is.readAllBytes());
+            }
+        } catch (Exception ignored) {}
+        return ResponseEntity.notFound().build();
+    }
 }
+
 
 /*@GetMapping("/login")
 public String exibirLogin(HttpSession session) {

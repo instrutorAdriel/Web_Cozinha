@@ -36,8 +36,26 @@ public class UsuarioService {
 
         Usuario novoUsuario = new Usuario(form.getNome(), form.getEmail(), senhaCriptografada);
 
+        if (form.getFotoPerfil() != null && !form.getFotoPerfil().isEmpty()) {
+            try {
+                novoUsuario.setFoto(form.getFotoPerfil().getBytes());
+            } catch (Exception e) {
+                // Erro ao ler os bytes da imagem
+            }
+        }
+
         usuarioRepository.save(novoUsuario);
 
+        return null;
+    }
+
+    public Usuario atualizarFoto(Long id, byte[] foto) {
+        Optional<Usuario> resultado = usuarioRepository.findById(id);
+        if (resultado.isPresent()) {
+            Usuario usuario = resultado.get();
+            usuario.setFoto(foto);
+            return usuarioRepository.save(usuario);
+        }
         return null;
     }
 

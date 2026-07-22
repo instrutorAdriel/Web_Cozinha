@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalhes da Receita</title>
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
     <link rel="stylesheet" th:href="@{/styles/receita.css}">
 </head>
 <body>
@@ -29,6 +30,15 @@
     <header class="topo">
         <span>SIGEC > Receitas > Detalhes da Receita</span>
         <input type="text" placeholder="Buscar receita, turma...">
+        <div class="user-box">
+            <div class="perfil-upload-wrap perfil-header-wrap">
+                <label for="foto-header-upload" class="perfil-upload-label perfil-header-label" title="Alterar foto de perfil">
+                    <img th:src="@{/usuario/foto}" alt="Foto de Perfil" class="img-padrao avatar-header" id="avatar-header-img">
+                    <img th:src="@{/img/Adicionar Ícone de Perfil (110 x 110 px).png}" alt="Adicionar Foto" class="img-hover">
+                </label>
+                <input type="file" id="foto-header-upload" name="fotoPerfilHeader" class="perfil-input-oculto" accept="image/*">
+            </div>
+        </div>
     </header>
 
     <section class="card-principal">
@@ -102,5 +112,6 @@
 
 </main>
 
+<script th:src="@{/scripts/script.js}"></script>
 </body>
 </html>
