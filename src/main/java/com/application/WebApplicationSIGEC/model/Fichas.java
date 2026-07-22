@@ -1,9 +1,10 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
-
 
 @Entity
 @Table(name = "fichas")
@@ -23,19 +24,15 @@ public class Fichas {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String preparo;
 
+    // Relação intermediária com quantidade por ficha
+
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReceitaInsumo> ingredientes;
+    private List<FichaUtensilio> utensilios = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "fichas_utensilios",
-            joinColumns = @JoinColumn(name = "ficha_id"),
-            inverseJoinColumns = @JoinColumn(name = "utensilio_id")
-    )
-    private List<Utensilios> utensilios;
+    @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceitaInsumo> ingredientes = new ArrayList<>();
 
-    public Fichas() {
-    }
+    public Fichas() {}
 
     public Fichas(String nome, LocalDate data, String preparo) {
         this.nome = nome;
@@ -43,51 +40,21 @@ public class Fichas {
         this.preparo = preparo;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
 
-    public String getNome() {
-        return nome;
-    }
+    public LocalDate getData() { return data; }
+    public void setData(LocalDate data) { this.data = data; }
 
-    public void setNome(String receita) {
-        this.nome = receita;
-    }
+    public String getPreparo() { return preparo; }
+    public void setPreparo(String preparo) { this.preparo = preparo; }
 
-    public LocalDate getData() {
-        return data;
-    }
+    public List<ReceitaInsumo> getIngredientes() { return ingredientes; }
+    public void setIngredientes(List<ReceitaInsumo> ingredientes) { this.ingredientes = ingredientes; }
 
-    public void setData(LocalDate data) {
-        this.data = data;
-    }
-
-    public String getPreparo() {
-        return preparo;
-    }
-
-    public void setPreparo(String preparo) {
-        this.preparo = preparo;
-    }
-
-    public List<ReceitaInsumo> getIngredientes() {
-        return ingredientes;
-    }
-
-    public void setIngredientes(List<ReceitaInsumo> ingredientes) {
-        this.ingredientes = ingredientes;
-    }
-
-    public List<Utensilios> getUtensilios() {
-        return utensilios;
-    }
-
-    public void setUtensilios(List<Utensilios> utensilios) {
-        this.utensilios = utensilios;
-    }
+    public List<FichaUtensilio> getUtensilios() { return utensilios; }
+    public void setUtensilios(List<FichaUtensilio> utensilios) { this.utensilios = utensilios; }
 }
