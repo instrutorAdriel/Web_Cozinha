@@ -15,33 +15,39 @@
 </head>
 <body>
 
+
 <aside class="sidebar" id="sidebar">
-    <!-- Logotipo e Identificação do Sistema -->
     <div class="sidebar-brand">
-        <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img"/><br>
+        <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img">
         <div class="brand-text">
             <h1 class="brand-title">SIGEC</h1>
             <p class="brand-sub">Painel do Instrutor</p>
         </div>
     </div>
 
-  <!-- Links de Navegação Principal -->
-  <nav class="sidebar-nav">
-    <p class="nav-group">Menu</p>
-    <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
-    <a th:href="@{/calendario}" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
-    <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
-  </nav>
+    <nav class="sidebar-nav">
+        <p class="nav-group">Menu</p>
+        <a th:href="@{/home}" class="nav-item active">
+            <span class="material-symbols-outlined">home</span>
+            <span>Início</span>
+        </a>
+        <a th:href="@{/calendario}" class="nav-item ">
+            <span class="material-symbols-outlined">calendar_month</span>
+            <span>Calendário</span>
+        </a>
+        <a th:href="@{/receitas}" class="nav-item ">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span>Receitas</span>
+        </a>
+    </nav>
 
-  <!-- Rodapé da Sidebar (Botão de Sair) -->
-  <div class="sidebar-footer">
-    <form th:action="@{/logout}" method="get">
-      <button type="submit" class="btn-logout">
-        <span class="material-symbols-outlined">logout</span>
-        Sair
-      </button>
-    </form>
-  </div>
+    <div class="sidebar-footer">
+        <form th:action="@{/logout}" method="get">
+            <button type="submit" class="btn-logout">
+                <span class="material-symbols-outlined">logout</span>Sair
+            </button>
+        </form>
+    </div>
 </aside>
 
 <!-- ==========================================================================
@@ -95,13 +101,13 @@
             </div>
         </div>
 
-    <!-- Perfil do Usuário Autenticado -->
-    <div class="user-box">
-      <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
-        <img src="img/Ícone de Perfil (110 x 110 px).png?v=2" alt="Ícone de Perfil" class="avatar-header">
-      </div>
+        <!-- Perfil do Usuário Autenticado -->
+        <div class="user-box">
+            <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
+                <img src="img/Ícone de Perfil (110 x 110 px).png?v=2" alt="Ícone de Perfil" class="avatar-header">
+            </div>
+        </div>
     </div>
-  </div>
 </header>
 
 <!-- ==========================================================================
@@ -110,16 +116,17 @@
 <main class="main">
     <div class="content">
 
-    <!-- Banner de Boas-vindas (Hero Section) -->
-    <section class="hero flight-accent">
-      <div class="hero-text">
-        <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
-        <h2 class="hero-title">
-            <span id="mensagem-tempo">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
-        </h2>
-        <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
-      </div>
-    </section>
+        <!-- Banner de Boas-vindas (Hero Section) -->
+        <section class="hero flight-accent">
+            <div class="hero-text">
+                <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
+                <h2 class="hero-title">
+                    <span id="mensagem-tempo">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
+                </h2>
+                <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.
+                </p>
+            </div>
+        </section>
 
         <!-- Bloco Superior: Lista de Aulas e Resumo Dinâmico da Receita -->
         <div class="dashboard-top-grid">
@@ -146,30 +153,36 @@
                     <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
                 </div>
 
-        <!-- Aula 2: Em Andamento -->
-        <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
-          <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
-          <div class="divider sec"></div>
-          <div class="class-info">
-            <p class="class-name">Panificação Clássica Européia</p>
-            <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
-            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
-          </div>
-          <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
-        </div>
+                <!-- Aula 2: Em Andamento -->
+                <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
+                    <div class="class-time"><p class="t-main c-secondary">13:30</p>
+                        <p class="t-end">17:30</p></div>
+                    <div class="divider sec"></div>
+                    <div class="class-info">
+                        <p class="class-name">Panificação Clássica Européia</p>
+                        <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
+                        <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver
+                            receita
+                        </button>
+                    </div>
+                    <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
+                </div>
 
-        <!-- Aula 3: Pendente -->
-        <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
-          <div class="class-time"><p class="t-main">19:00</p><p class="t-end">22:30</p></div>
-          <div class="divider"></div>
-          <div class="class-info">
-            <p class="class-name">Cozinha Internacional: Ásia</p>
-            <p class="class-meta">Cozinha Pedagógica 04 • Turma 2024.2.N</p>
-            <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
-          </div>
-          <span class="status status-pending">Pendente</span>
-        </div>
-      </section>
+                <!-- Aula 3: Pendente -->
+                <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
+                    <div class="class-time"><p class="t-main">19:00</p>
+                        <p class="t-end">22:30</p></div>
+                    <div class="divider"></div>
+                    <div class="class-info">
+                        <p class="class-name">Cozinha Internacional: Ásia</p>
+                        <p class="class-meta">Cozinha Pedagógica 04 • Turma 2024.2.N</p>
+                        <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver
+                            receita
+                        </button>
+                    </div>
+                    <span class="status status-pending">Pendente</span>
+                </div>
+            </section>
 
             <!-- Painel Lateral: Resumo Prático dos Passos da Receita Selecionada -->
             <aside class="recipe-summary-card" id="recipe-summary-card">
@@ -287,12 +300,12 @@
                     </button>
                 </div>
 
-        <!-- Controles de Finalização de Utensílios -->
-        <div class="checklist-footer">
-          <button id="util-btn-reset" class="btn-ghost">Limpar</button>
-          <button class="btn-confirm" id="btn-finish-utensilios">Confirmar Utensílios</button>
-        </div>
-      </section>
+                <!-- Controles de Finalização de Utensílios -->
+                <div class="checklist-footer">
+                    <button id="util-btn-reset" class="btn-ghost">Limpar</button>
+                    <button class="btn-confirm" id="btn-finish-utensilios">Confirmar Utensílios</button>
+                </div>
+            </section>
 
         </div>
 
