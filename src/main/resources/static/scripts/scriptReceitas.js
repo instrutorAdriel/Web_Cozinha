@@ -33,21 +33,21 @@ popularSeletorTurmas();
 // ===== RECEITAS =====
 const RECIPES = [
     {
-        id:1, name:"Risoto de Funghi", cat:"Italiana", time:"40 min", level:"Médio", serves:"4 porções",
+        id:1, name:"Risoto de Funghi", cat:"Italiana", serves:"4 porções",
         status:"disponivel",
         description:"Um risoto cremoso italiano que leva funghi secchi reidratados, caldo de legumes e um toque final de manteiga e queijo parmesão. Ideal para um jantar especial.",
         ingredients:["1 xícara de arroz arbóreo","30g de funghi secchi","1L de caldo de legumes","1/2 cebola picada","2 colheres de manteiga","1/2 xícara de vinho branco","50g de queijo parmesão ralado","Sal e pimenta a gosto"],
         steps:[
-            {title:"Hidrate o funghi", text:"Deixe o funghi secchi de molho em água morna por 20 minutos. Escorra e pique.", time:"20 min"},
-            {title:"Refogue a cebola", text:"Em uma panela, derreta 1 colher de manteiga e refogue a cebola até ficar transparente.", time:"5 min"},
-            {title:"Toste o arroz", text:"Adicione o arroz arbóreo e mexa por 2 minutos até ficar levemente translúcido.", time:"2 min"},
-            {title:"Deglaceie com vinho", text:"Adicione o vinho branco e mexa até evaporar completamente.", time:"3 min"},
-            {title:"Cozinhe adicionando caldo aos poucos", text:"Adicione o caldo quente em conchas, mexendo sempre, até o arroz absorver antes de adicionar mais.", time:"18 min"},
-            {title:"Finalize", text:"Fora do fogo, adicione a manteiga restante e o parmesão. Misture bem e sirva imediatamente.", time:"2 min"}
+            {title:"Hidrate o funghi", text:"Deixe o funghi secchi de molho em água morna por 20 minutos. Escorra e pique.",},
+            {title:"Refogue a cebola", text:"Em uma panela, derreta 1 colher de manteiga e refogue a cebola até ficar transparente.",},
+            {title:"Toste o arroz", text:"Adicione o arroz arbóreo e mexa por 2 minutos até ficar levemente translúcido.",},
+            {title:"Deglaceie com vinho", text:"Adicione o vinho branco e mexa até evaporar completamente.",},
+            {title:"Cozinhe adicionando caldo aos poucos", text:"Adicione o caldo quente em conchas, mexendo sempre, até o arroz absorver antes de adicionar mais.",},
+            {title:"Finalize", text:"Fora do fogo, adicione a manteiga restante e o parmesão. Misture bem e sirva imediatamente.",}
         ]
     },
     {
-        id:2, name:"Feijoada Completa", cat:"Brasileira", time:"3h", level:"Difícil", serves:"8 porções",
+        id:2, name:"Feijoada Completa", cat:"Brasileira", serves:"8 porções",
         status:"disponivel",
         description:"Prato típico brasileiro à base de feijão preto cozido lentamente com carnes defumadas e salgadas, servido tradicionalmente com arroz, couve e farofa.",
         ingredients:["500g de feijão preto","300g de carne seca","200g de linguiça calabresa","200g de costelinha de porco","2 folhas de louro","1 cebola picada","4 dentes de alho","Sal e pimenta a gosto"],
@@ -60,7 +60,7 @@ const RECIPES = [
         ]
     },
     {
-        id:3, name:"Sushi de Salmão", cat:"Japonesa", time:"45 min", level:"Difícil", serves:"2 porções",
+        id:3, name:"Sushi de Salmão", cat:"Japonesa", serves:"2 porções",
         status:"datadas",
         description:"Sushi tradicional japonês com arroz temperado, salmão fresco e alga nori, enrolado e cortado em peças elegantes.",
         ingredients:["2 xícaras de arroz para sushi","3 colheres de vinagre de arroz","200g de salmão fresco","4 folhas de alga nori","Molho shoyu","Gengibre em conserva","Wasabi"],
@@ -72,7 +72,7 @@ const RECIPES = [
         ]
     },
     {
-        id:4, name:"Curry Vegano de Grão-de-bico", cat:"Vegana", time:"35 min", level:"Fácil", serves:"4 porções",
+        id:4, name:"Curry Vegano de Grão-de-bico", cat:"Vegana", serves:"4 porções",
         status:"disponivel",
         description:"Curry cremoso e reconfortante feito com leite de coco, grão-de-bico e especiarias indianas, perfeito para uma refeição vegana rápida.",
         ingredients:["2 latas de grão-de-bico cozido","1 lata de leite de coco","1 cebola picada","2 dentes de alho","1 colher de curry em pó","1 colher de páprica","Coentro fresco","Sal a gosto"],
@@ -84,7 +84,7 @@ const RECIPES = [
         ]
     },
     {
-        id:5, name:"Tacos de Carnitas", cat:"Mexicana", time:"1h", level:"Médio", serves:"4 porções",
+        id:5, name:"Tacos de Carnitas", cat:"Mexicana", serves:"4 porções",
         status:"disponivel",
         description:"Tacos mexicanos com carne de porco desfiada e levemente crocante, servidos em tortilhas quentes com pico de gallo e limão.",
         ingredients:["600g de carne de porco","1 laranja (suco)","2 dentes de alho","1 colher de cominho","Tortillas de milho","Cebola roxa picada","Coentro fresco","Limão"],
@@ -96,7 +96,7 @@ const RECIPES = [
         ]
     },
     {
-        id:6, name:"Ratatouille", cat:"Francesa", time:"55 min", level:"Médio", serves:"4 porções",
+        id:6, name:"Ratatouille", cat:"Francesa", serves:"4 porções",
         status:"datadas",
         description:"Ensopado clássico francês de vegetais como abobrinha, berinjela e tomate, cozidos lentamente com ervas provençais.",
         ingredients:["1 berinjela","2 abobrinhas","2 tomates","1 pimentão","1 cebola","2 dentes de alho","Ervas de Provence","Azeite de oliva"],
@@ -159,7 +159,7 @@ function renderList() {
                 </div>
             </div>
             <div class="rc-category">${r.cat}</div>
-            <div class="rc-meta">⏱ ${r.time} · 📊 ${r.level}</div>
+           
         `;
         card.addEventListener('click', () => {
             activeId = r.id;
@@ -222,7 +222,7 @@ function renderDetail() {
                     <div class="step-content">
                         <h4>${s.title}</h4>
                         <p>${s.text}</p>
-                        <span class="step-duration">⏱ ${s.time}</span>
+                
                     </div>
                 </li>
             `).join('')}

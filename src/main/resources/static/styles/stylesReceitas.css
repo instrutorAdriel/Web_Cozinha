@@ -1271,19 +1271,7 @@ body{
     line-height: 1.6;
 }
 
-.step-duration {
-    font-size: 11px;
-    color: var(--orange);
-    font-weight: 700;
-    margin-top: 6px;
-    display: inline-block;
-    background: var(--orange-light);
-    padding: 3px 10px;
-    border-radius: 20px;
 
-
-
-}
 /* ============================================================
    RESPONSIVIDADE — TELA DE RECEITAS (MOBILE) — versão corrigida
    ============================================================ */
