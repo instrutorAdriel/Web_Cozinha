@@ -1,10 +1,11 @@
 package com.application.WebApplicationSIGEC.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.List;
+
 
 @Entity
 @Table(name = "fichas")
@@ -14,7 +15,7 @@ public class Fichas {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(length = 100)
+    @Column(nullable = false, length = 100)
     private String nome;
 
     @Column(columnDefinition = "TEXT")
@@ -31,6 +32,22 @@ public class Fichas {
     )
     @JsonIgnoreProperties("fichas")
     private Set<Turmas> turmas = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "fichas_insumos",
+            joinColumns = @JoinColumn(name= "ficha_id"),
+            inverseJoinColumns = @JoinColumn(name = "insumos_id")
+    )
+    private List<Insumos> insumos;
+
+    @ManyToMany
+    @JoinTable(
+            name = "fichas_utensilios",
+            joinColumns = @JoinColumn(name = "ficha_id"),
+            inverseJoinColumns = @JoinColumn(name = "utensilio_id")
+    )
+    private List<Utensilios> utensilios;
 
     public Fichas() {
     }
@@ -71,6 +88,20 @@ public class Fichas {
 
     public void setPreparo(String preparo) {
         this.preparo = preparo;
+    }
+
+    public List<Insumos> getInsumos() {
+        return insumos;
+    }
+
+    public void setInsumos(List<Insumos> insumos) {
+        this.insumos = insumos;
+    }
+    public List<Utensilios> getUtensilios() {
+        return utensilios;
+    }
+    public void setUtensilios(List<Utensilios> utensilios) {
+        this.utensilios = utensilios;
     }
 
     public Set<Turmas> getTurmas() {
