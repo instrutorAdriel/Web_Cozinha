@@ -1,6 +1,5 @@
 package com.application.WebApplicationSIGEC.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -30,7 +29,7 @@ public class Fichas {
     private List<FichaUtensilio> utensilios = new ArrayList<>();
 
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ReceitaInsumo> ingredientes = new ArrayList<>();
+    private List<FichaInsumo> ingredientes = new ArrayList<>();
 
     public Fichas() {}
 
@@ -52,8 +51,8 @@ public class Fichas {
     public String getPreparo() { return preparo; }
     public void setPreparo(String preparo) { this.preparo = preparo; }
 
-    public List<ReceitaInsumo> getIngredientes() { return ingredientes; }
-    public void setIngredientes(List<ReceitaInsumo> ingredientes) { this.ingredientes = ingredientes; }
+    public List<FichaInsumo> getIngredientes() { return ingredientes; }
+    public void setIngredientes(List<FichaInsumo> ingredientes) { this.ingredientes = ingredientes; }
 
     public List<FichaUtensilio> getUtensilios() { return utensilios; }
     public void setUtensilios(List<FichaUtensilio> utensilios) { this.utensilios = utensilios; }

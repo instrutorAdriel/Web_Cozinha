@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "fichas_insumos")
 
-public class ReceitaInsumo {
+public class FichaInsumo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class ReceitaInsumo {
     @Column(name = "quantidade", nullable = false)
     private Double quantidade;
 
-    public ReceitaInsumo() {}
+    public FichaInsumo() {}
 
     public Long getId() {
         return id;

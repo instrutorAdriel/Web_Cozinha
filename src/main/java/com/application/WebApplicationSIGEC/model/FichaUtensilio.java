@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "ficha_utensilio")
+@Table(name = "fichas_utensilios")
 public class FichaUtensilio {
 
     @Id
@@ -12,12 +12,12 @@ public class FichaUtensilio {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ficha_id")
+    @JoinColumn(name = "ficha_id", nullable = false)
     @JsonIgnore // evita loop infinito na serialização
     private Fichas ficha;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "utensilio_id")
+    @JoinColumn(name = "utensilio_id", nullable = false)
     private Utensilios utensilio;
 
     private Integer quantidade;
