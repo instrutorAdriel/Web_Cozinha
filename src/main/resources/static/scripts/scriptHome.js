@@ -9,189 +9,12 @@ const turmas = {
   "2024.2.N": { nome: "Turma 2024.2.N", cozinha: "Cozinha Pedagógica 04" }
 };
 
-// RECEITAS ENRIQUECIDAS COM DESCRIÇÃO E MODO DE PREPARO
-const receitas = {
-  confeitaria_bolo: {
-    nome: "Bolo de Cenoura com Cobertura",
-    local: "08:00 • Cozinha Pedagógica 02",
-    descricao: "Massa fofa de cenoura com cobertura clássica de chocolate em pó 50%, focada em técnicas de emulsão.",
-    tempoPreparo: "45 min",
-    modoPreparo: [
-      "Pré-aqueça o forno a 180°C e unte as 6 formas.",
-      "No liquidificador, bata as cenouras, os ovos e o óleo até obter um creme liso.",
-      "Em uma tigela inox, misture a farinha e o açúcar. Despeje o creme de cenoura e incorpore com a espátula.",
-      "Adicione o fermento e misture delicadamente. Distribua nas formas e asse por 35 minutos.",
-      "Para a cobertura: misture o chocolate, açúcar e manteiga e leve ao fogo até desgrudar do fundo."
-    ],
-    itens: [
-      { id: "cenoura", nome: "Cenoura Fresca",      necessario: 500,  unidade: "g" },
-      { id: "farinha", nome: "Farinha de Trigo",    necessario: 2000, unidade: "g" },
-      { id: "acucar",  nome: "Açúcar Refinado",     necessario: 1000, unidade: "g" },
-      { id: "ovos",    nome: "Ovos",                necessario: 12,   unidade: "un" },
-      { id: "choco",   nome: "Chocolate em Pó 50%", necessario: 300,  unidade: "g" },
-      { id: "formas",  nome: "Formas de Bolo",      necessario: 6,    unidade: "un" }
-    ]
-  },
-  confeitaria_torta: {
-    nome: "Torta de Maçã Caramelada",
-    local: "10:00 • Cozinha Pedagógica 02",
-    descricao: "Clássica torta doce com massa brisée e recheio de maçãs caramelizadas, com foco em ponto de massa quebradiça.",
-    tempoPreparo: "1h 30min",
-    modoPreparo: [
-      "Prepare a massa brisée misturando farinha e manteiga gelada com as pontas dos dedos.",
-      "Adicione água gelada aos poucos até dar ponto. Leve à geladeira por 30 minutos.",
-      "Descasque e corte as maçãs. Caramelize o açúcar e cozinhe as maçãs brevemente.",
-      "Abra a massa e forre as formas. Adicione o recheio já frio.",
-      "Asse a 180°C até a massa dourar e o recheio borbulhar."
-    ],
-    itens: [
-      { id: "farinha",  nome: "Farinha de Trigo", necessario: 1500, unidade: "g" },
-      { id: "manteiga", nome: "Manteiga",         necessario: 500,  unidade: "g" },
-      { id: "acucar",   nome: "Açúcar Refinado",  necessario: 600,  unidade: "g" },
-      { id: "ovos",     nome: "Ovos",             necessario: 4,    unidade: "un" },
-      { id: "maca",     nome: "Maçã Verde",       necessario: 1500, unidade: "g" }
-    ]
-  },
-  panificacao_pao: {
-    nome: "Pão Francês & Baguete",
-    local: "13:30 • Padaria Lab 01",
-    descricao: "Clássico pão de casca crocante e miolo super macio. Foco em sova, fermentação e corte (pestana).",
-    tempoPreparo: "3h 30min",
-    modoPreparo: [
-      "Misture a farinha tipo 1, o sal e o melhorador na masseira.",
-      "Adicione 80% da água gelada e inicie a mistura na velocidade baixa (1ª marcha).",
-      "Quando a massa homogeneizar, adicione o fermento fresco e o restante da água. Passe para a 2ª marcha até o ponto de véu.",
-      "Divida a massa, boleie e deixe descansar nas cestas de fermentação.",
-      "Faça os cortes (grigne) com a lâmina e asse em forno de lastro a 200°C com vapor inicial."
-    ],
-    itens: [
-      { id: "farinha_t1", nome: "Farinha de Trigo Tipo 1",   necessario: 5000, unidade: "g" },
-      { id: "fermento",   nome: "Fermento Biológico Fresco", necessario: 250,  unidade: "g" },
-      { id: "sal",        nome: "Sal Refinado",              necessario: 100,  unidade: "g" },
-      { id: "melhorador", nome: "Melhorador de Farinha",     necessario: 50,   unidade: "g" },
-      { id: "agua",       nome: "Água Filtrada",             necessario: 3000, unidade: "ml" },
-      { id: "assadeiras", nome: "Formas / Assadeiras",       necessario: 6,    unidade: "un" }
-    ]
-  },
-  panificacao_brioche: {
-    nome: "Brioche Amanteigado",
-    local: "15:30 • Padaria Lab 01",
-    descricao: "Pão francês de luxo, altamente enriquecido com manteiga e ovos, resultando em um miolo amarelo e desfiável.",
-    tempoPreparo: "4h",
-    modoPreparo: [
-      "Na masseira, coloque a farinha, o fermento e o açúcar.",
-      "Adicione os ovos aos poucos na velocidade baixa até formar uma massa consistente.",
-      "Quando atingir 50% de desenvolvimento do glúten, adicione a manteiga gelada em cubos pequenos progressivamente.",
-      "Bata até o ponto de véu perfeito e brilhante.",
-      "Deixe fermentar, modele nas formas específicas e asse a 180°C."
-    ],
-    itens: [
-      { id: "farinha_t1", nome: "Farinha de Trigo Tipo 1",   necessario: 2000, unidade: "g" },
-      { id: "fermento",   nome: "Fermento Biológico Fresco", necessario: 100,  unidade: "g" },
-      { id: "manteiga_p", nome: "Manteiga Premium",          necessario: 800,  unidade: "g" },
-      { id: "ovos_p",     nome: "Ovos",                      necessario: 10,   unidade: "un" },
-      { id: "acucar_p",   nome: "Açúcar Refinado",           necessario: 400,  unidade: "g" }
-    ]
-  },
-  asia_yakisoba: {
-    nome: "Yakisoba & Tempurá de Legumes",
-    local: "19:00 • Cozinha Pedagógica 04",
-    descricao: "Preparo tradicional asiático que combina a técnica do stir-fry no wok para o yakisoba e a fritura de imersão leve para o tempurá.",
-    tempoPreparo: "40 min",
-    modoPreparo: [
-      "Prepare a massa do tempurá com água extremamente gelada e mantenha sob refrigeração.",
-      "Corte os legumes para o tempurá e para o yakisoba.",
-      "Aqueça bem o wok, adicione óleo e sele as carnes (se houver). Reserve.",
-      "No mesmo wok, refogue os legumes firmes, adicione o macarrão pré-cozido e o molho shoyu. Finalize com óleo de gergelim.",
-      "Mergulhe os legumes do tempurá na massa e frite em óleo quente até a casca ficar crocante e clara."
-    ],
-    itens: [
-      { id: "macarrao", nome: "Macarrão para Yakisoba", necessario: 2000, unidade: "g" },
-      { id: "shoyu",    nome: "Molho Shoyu",            necessario: 1000, unidade: "ml" },
-      { id: "gengibre", nome: "Gengibre Fresco",        necessario: 200,  unidade: "g" },
-      { id: "legumes",  nome: "Legumes Variados",       necessario: 3000, unidade: "g" },
-      { id: "oleo",     nome: "Óleo para Fritura",      necessario: 5000, unidade: "ml" },
-      { id: "tempura",  nome: "Farinha Tempurá",        necessario: 1000, unidade: "g" }
-    ]
-  },
-  asia_sushi: {
-    nome: "Sushi & Sashimi Tradicional",
-    local: "20:30 • Cozinha Pedagógica 04",
-    descricao: "Técnicas de corte de peixes para sashimi e preparo do shari (arroz de sushi) temperado com su para montagem de makis.",
-    tempoPreparo: "2h",
-    modoPreparo: [
-      "Lave o arroz repetidas vezes até a água sair cristalina. Cozinhe com a proporção exata de água.",
-      "Misture o vinagre, açúcar e sal para fazer o 'su'. Tempere o arroz quente e resfrie rapidamente.",
-      "Prepare os cortes de salmão utilizando a faca yanagiba (cortes limpos, sem serrar).",
-      "Posicione a alga nori sobre a esteira, espalhe o arroz, recheie e enrole com firmeza.",
-      "Corte os rolos e sirva imediatamente com shoyu e gengibre em conserva."
-    ],
-    itens: [
-      { id: "arroz",    nome: "Arroz para Sushi", necessario: 1500, unidade: "g" },
-      { id: "shoyu",    nome: "Molho Shoyu",      necessario: 500,  unidade: "ml" },
-      { id: "gengibre", nome: "Gengibre Fresco",  necessario: 150,  unidade: "g" },
-      { id: "salmao",   nome: "Salmão Fresco",    necessario: 1000, unidade: "g" },
-      { id: "alga",     nome: "Alga Nori",        necessario: 100,  unidade: "un" }
-    ]
-  }
-};
+// Populado via /api/fichas
+const receitas = {};
 
-const receitasPorTurma = {
-  "2024.1.A": ["panificacao_pao", "panificacao_brioche"],
-  "2024.1.C": ["confeitaria_bolo", "confeitaria_torta"],
-  "2024.2.N": ["asia_yakisoba", "asia_sushi"]
-};
+const utensiliosFicha = {};
 
-const utensiliosFicha = {
-  confeitaria_bolo: [
-    { id: "batedeira", nome: "Batedeira Planetária", necessario: 1, unidade: "un" },
-    { id: "tigelas",   nome: "Tigelas Inox",         necessario: 4, unidade: "un" },
-    { id: "espatula",  nome: "Espátula de Silicone", necessario: 3, unidade: "un" },
-    { id: "balanca",   nome: "Balança Digital",      necessario: 1, unidade: "un" }
-  ],
-  confeitaria_torta: [
-    { id: "rolo",     nome: "Rolo de Massa",        necessario: 2, unidade: "un" },
-    { id: "formas_t", nome: "Formas de Torta",      necessario: 4, unidade: "un" },
-    { id: "balanca",  nome: "Balança Digital",      necessario: 1, unidade: "un" }
-  ],
-  panificacao_pao: [
-    { id: "masseira", nome: "Masseira / Amassadeira",   necessario: 1, unidade: "un" },
-    { id: "forno",    nome: "Forno de Lastro",          necessario: 1, unidade: "un" },
-    { id: "cestas",   nome: "Cestas de Fermentação",    necessario: 8, unidade: "un" },
-    { id: "lamina",   nome: "Lâmina de Corte (grigne)", necessario: 2, unidade: "un" }
-  ],
-  panificacao_brioche: [
-    { id: "masseira", nome: "Masseira / Amassadeira", necessario: 1, unidade: "un" },
-    { id: "forno",    nome: "Forno de Lastro",        necessario: 1, unidade: "un" },
-    { id: "formas_b", nome: "Formas de Brioche",      necessario: 6, unidade: "un" }
-  ],
-  asia_yakisoba: [
-    { id: "wok",        nome: "Wok",             necessario: 2, unidade: "un" },
-    { id: "fritadeira", nome: "Fritadeira",      necessario: 1, unidade: "un" },
-    { id: "escumadeira",nome: "Escumadeira",     necessario: 2, unidade: "un" },
-    { id: "tabuas",     nome: "Tábuas de Corte", necessario: 4, unidade: "un" }
-  ],
-  asia_sushi: [
-    { id: "esteira",  nome: "Esteira de Bambu",  necessario: 4, unidade: "un" },
-    { id: "faca_s",   nome: "Faca Yanagiba",     necessario: 2, unidade: "un" },
-    { id: "tabuas",   nome: "Tábuas de Corte",   necessario: 4, unidade: "un" }
-  ]
-};
-
-const estoquePorTurma = {
-  "2024.1.A": {
-    insumos: { farinha_t1: 8000, fermento: 400, sal: 200, melhorador: 80, agua: 6000, assadeiras: 6, manteiga_p: 1000, ovos_p: 24, acucar_p: 600 },
-    utensilios: { masseira: 1, forno: 1, cestas: 8, lamina: 2, formas_b: 6 }
-  },
-  "2024.1.C": {
-    insumos: { cenoura: 800, farinha: 4000, acucar: 2000, ovos: 24, choco: 500, formas: 6, manteiga: 700, maca: 2000 },
-    utensilios: { batedeira: 1, tigelas: 4, espatula: 3, balanca: 1, rolo: 2, formas_t: 4 }
-  },
-  "2024.2.N": {
-    insumos: { macarrao: 3000, shoyu: 2000, gengibre: 500, legumes: 4000, oleo: 8000, tempura: 1500, arroz: 2500, salmao: 1500, alga: 200 },
-    utensilios: { wok: 2, fritadeira: 1, escumadeira: 2, tabuas: 4, esteira: 4, faca_s: 2 }
-  }
-};
+const estoquePorTurma = {};
 
 const observacoes = {};
 let receitaAtual;
@@ -217,7 +40,7 @@ function obsKey(tipo, id) { return `${turmaAtual}|${receitaAtual}|${tipo}|${id}`
 const painels = {
   main: {
     tipo: 'insumo',
-    getItens: () => receitas[receitaAtual].itens,
+    getItens: () => receitas[receitaAtual]?.itens || [],
     lista: $('checklist-main'),
     name: $('recipe-name'),
     loc: $('recipe-loc'),
@@ -243,6 +66,123 @@ const painels = {
 
 const select = $('recipe-select');
 const turmaSelect = $('turma-select');
+
+async function carregarReceitasDoBanco() {
+  try {
+    // 1. Faz a requisição para a rota do Controller que criamos no Java
+    const resposta = await fetch('/api/fichas/todas');
+    const fichasDoBanco = await resposta.json();
+
+    // 2. Limpa as opções e insere uma padrão
+    select.innerHTML = '<option value="">-- Selecione uma Receita --</option>';
+
+    // 3. Itera sobre o JSON e cria uma <option> para cada ficha do banco
+    fichasDoBanco.forEach(ficha => {
+      const optionHtml = `<option value="${ficha.id}">${ficha.nome}</option>`;
+      select.innerHTML += optionHtml;
+    });
+
+    // 4. Seleciona a primeira receita automaticamente (se existir alguma)
+    if (fichasDoBanco.length > 0) {
+      const primeiraId = fichasDoBanco[0].id;
+      select.value = primeiraId;
+
+      // Chama a função para puxar os detalhes (insumos/utensílios) da primeira receita
+      trocarReceita(primeiraId);
+    }
+
+  } catch (erro) {
+    console.error("Erro ao carregar as receitas do banco:", erro);
+    select.innerHTML = '<option value="">Erro ao carregar receitas</option>';
+  }
+}
+
+// ===== Troca de receita / Detalhes do Banco =====
+async function trocarReceita(idDaFicha) {
+  if (!idDaFicha) return;
+
+  try {
+    const resposta = await fetch(`/api/fichas/${idDaFicha}`);
+    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+    const fichaDoBanco = await resposta.json();
+
+    receitaAtual = idDaFicha;
+    if (select) select.value = idDaFicha;
+    //  INGREDIENTES
+    const listaIngredientes = fichaDoBanco.ingredientes || fichaDoBanco.insumos || [];
+    let itensMapeados = (Array.isArray(listaIngredientes) ? listaIngredientes : [])
+        .map((rel, i) => {
+          if (!rel || typeof rel !== 'object') return null;
+          const obj = rel.insumos || rel.insumo || rel.Insumos || rel;
+          if (!obj || typeof obj !== 'object') return null;
+          const idBase = obj.id ?? rel.id;
+          const nome = obj.nome || rel.nome || "Insumo sem nome";
+          return {
+            id: idBase != null ? String(idBase) : `ins_${i}`,
+            nome,
+            necessario: rel.quantidade ?? obj.quantidade ?? 0,
+            unidade: obj.unidade_medida || obj.unidadeMedida || "un"
+          };
+        })
+        .filter(Boolean);
+
+//  UTENSÍLIOS
+    const listaUtensilios = fichaDoBanco.utensilios || [];
+    const utensiliosMapeados = (Array.isArray(listaUtensilios) ? listaUtensilios : [])
+        .map((rel, i) => {
+          if (!rel || typeof rel !== 'object') return null;
+          const obj = rel.utensilios || rel.utensilio || rel.Utensilios || rel;
+          if (!obj || typeof obj !== 'object') return null;
+          const idBase = obj.id ?? rel.id;
+          const nome = obj.nome || rel.nome || "Utensílio";
+          return {
+            id: idBase != null ? String(idBase) : `util_${i}`,
+            nome,
+            necessario: rel.quantidade ?? 1,
+            unidade: "un"
+          };
+        })
+        .filter(Boolean);
+
+    // --- Salva nos objetos globais ---
+    receitas[idDaFicha] = {
+      nome: fichaDoBanco.nome || "Receita sem nome",
+      local: "Cozinha do Banco de Dados",
+      tempoPreparo: "--",
+      modoPreparo: fichaDoBanco.preparo
+          ? String(fichaDoBanco.preparo).split(/\r?\n/).filter(l => l.trim())
+          : ["Modo de preparo não informado."],
+      itens: itensMapeados
+    };
+    utensiliosFicha[idDaFicha] = utensiliosMapeados;
+
+    // Garante estrutura de estoque
+    if (!estoquePorTurma[turmaAtual]) {
+      estoquePorTurma[turmaAtual] = { insumos: {}, utensilios: {} };
+    }
+    const est = estoquePorTurma[turmaAtual];
+    if (!est.insumos) est.insumos = {};
+    if (!est.utensilios) est.utensilios = {};
+
+    itensMapeados.forEach(it => {
+      if (est.insumos[it.id] == null) est.insumos[it.id] = it.necessario;
+    });
+    utensiliosMapeados.forEach(ut => {
+      if (est.utensilios[ut.id] == null) est.utensilios[ut.id] = ut.necessario;
+    });
+
+    renderTudo();
+    highlightCard(idDaFicha);
+    atualizarResumoReceita(idDaFicha);
+
+    if (window.atualizarNotificacoes) window.atualizarNotificacoes();
+
+  } catch (erro) {
+    console.error("Erro ao buscar detalhes da receita:", erro);
+    alert("Não foi possível carregar a ficha. Verifique se o servidor está rodando.");
+  }
+}
+
 
 function aplicarScrollAdaptativo(container, qtd, rotulo) {
   const ativar = qtd > LIMITE_SCROLL;
@@ -345,8 +285,6 @@ const summaryName = $('summary-recipe-name');
 const summarySteps = $('summary-steps');
 const summaryFooter = $('summary-footer'); 
 const summaryTime = $('summary-time');
-const summaryCard = $('recipe-summary-card');
-
 const kitchenModal = $('kitchen-modal');
 const kitchenTitle = $('kitchen-title');
 const kitchenSteps = $('kitchen-steps');
@@ -477,7 +415,7 @@ $('util-save').addEventListener('click', () => {
 });
 
 
-// === NOVO CÓDIGO PARA OS DOIS MODAIS DE CONCLUSÃO (Insumos e Utensílios) ===
+// MODAIS DE CONCLUSÃO (Insumos e Utensílios)
 
 // 1. Modal de Insumos
 const finishModalInsumos = $('finish-modal_insumos');
@@ -510,7 +448,6 @@ if($('finish-save_insumos')) {
 
 // 2. Modal de Utensílios
 const finishModalUtensilios = $('finish-modal_utensilios');
-// Precisamos garantir que o botão no HTML que abre isso tenha o id "btn-finish-utensilios"
 const btnFinishUtensilios = $('btn-finish-utensilios');
 
 if (btnFinishUtensilios && finishModalUtensilios) {
@@ -537,8 +474,7 @@ if($('finish-save_utensilios')) {
   });
 }
 
-
-// ===== REAPROVEITAMENTO DE SOBRAS (RF07) =====
+// REAPROVEITAMENTO DE SOBRAS
 const sobrasModal = $('sobras-modal');
 
 if ($('btn-sobras')) {
@@ -615,48 +551,36 @@ if ($('sobras-save')) {
     receitas[novaId] = {
       nome: `🌟 Criativa: ${nomeNovaFicha}`,
       local: `Sobras • ${turmas[turmaAtual].cozinha}`,
+      tempoPreparo: "--",
+      modoPreparo: ["Aula criativa a partir de sobras."],
       itens: novosItens
     };
-
-    receitasPorTurma[turmaAtual].push(novaId);
-    popularReceitasDaTurma(turmaAtual);
-    trocarReceita(novaId);
+    utensiliosFicha[novaId] = [];
+    // Adiciona no select e seleciona (sem fetch — ficha 100% local)
+    select.innerHTML += `<option value="${novaId}">${receitas[novaId].nome}</option>`;
+    receitaAtual = novaId;
+    select.value = novaId;
+    renderTudo();
+    atualizarResumoReceita(novaId);
+    if (window.atualizarNotificacoes) window.atualizarNotificacoes();
 
     fecharModalSobras();
-    alert(`Aula criativa criada com sucesso!\nForam reaproveitados ${novosItens.length} itens com as quantidades ajustadas.`);
+    alert(`Aula criativa criada com sucesso!\nForam reaproveitados ${novosItens.length} itens.`);
   });
 }
 
-// ===== Troca de receita / turma =====
-function trocarReceita(key) {
-  const permitidas = receitasPorTurma[turmaAtual] || Object.keys(receitas);
-  if (!receitas[key] || !permitidas.includes(key)) key = permitidas[0];
-  receitaAtual = key;
-  if (select) select.value = key;
-  renderTudo();
-  highlightCard(key);
-  atualizarResumoReceita(key); 
-}
-
-function popularReceitasDaTurma(turmaKey) {
-  const permitidas = receitasPorTurma[turmaKey] || Object.keys(receitas);
-  select.innerHTML = permitidas
-    .map(id => `<option value="${id}">${receitas[id].local} • ${receitas[id].nome}</option>`)
-    .join('');
-}
 
 function trocarTurma(key) {
+  // Verifica se a turma existe, se não, define um padrão
   if (!turmas[key]) key = '2024.1.A';
+
   turmaAtual = key;
   if (turmaSelect) turmaSelect.value = key;
 
-  popularReceitasDaTurma(key);
-  const permitidas = receitasPorTurma[key] || Object.keys(receitas);
-  if (!permitidas.includes(receitaAtual)) receitaAtual = permitidas[0];
-  select.value = receitaAtual;
-
-  renderTudo();
-  highlightCard(receitaAtual);
+  if (receitaAtual) {
+    renderTudo();
+    highlightCard(receitaAtual);
+  }
 }
 
 select.addEventListener('change', e => trocarReceita(e.target.value));
@@ -673,7 +597,7 @@ document.querySelectorAll('.class-card').forEach(card => {
     link.addEventListener('click', () => {
       if (turmaKey && turmas[turmaKey]) trocarTurma(turmaKey);
       trocarReceita(recipeKey);
-      // Removido o .scrollIntoView() para a tela não descer automaticamente!
+
     });
   }
 });
@@ -732,350 +656,48 @@ obsModal.addEventListener('click', e => { if (e.target === obsModal) fecharObs()
 document.addEventListener('keydown', e => { if (e.key === 'Escape') fecharObs(); });
 
 // ===== Inicialização =====
-turmaAtual   = '2024.1.A';
-turmaSelect.value = turmaAtual;
-popularReceitasDaTurma(turmaAtual);
-receitaAtual = (receitasPorTurma[turmaAtual] || Object.keys(receitas))[0];
-select.value = receitaAtual;
+turmaAtual = '2024.1.A';
+if (turmaSelect) {
+  turmaSelect.value = turmaAtual;
+}
+// Dispara o carregamento das receitas vindas do banco de dados MySQL
+carregarReceitasDoBanco();
 
-renderTudo();
-highlightCard(receitaAtual);
-atualizarResumoReceita(receitaAtual);
-
-// ===== CALENDÁRIO INTERATIVO =====
+// ===== NOTIFICAÇÕES (baseadas na receita atual carregada) =====
 (function () {
-  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-    'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-  const FERIADOS = {
-    '01-01': 'Ano Novo', '04-21': 'Tiradentes', '05-01': 'Trabalho',
-    '09-07': 'Independência', '10-12': 'N. Sra.', '11-15': 'República',
-    '12-25': 'Natal', '06-19': 'Recesso', '07-09': 'Recesso'
-  };
-
-  const cozinhaToValue = {
-    "Padaria Lab 01":        "lab01",
-    "Cozinha Pedagógica 02": "lab02",
-    "Cozinha Pedagógica 04": "lab04"
-  };
-
-  const fichasDisponiveis = [
-    { id: 'confeitaria_bolo',     nome: 'Confeitaria: Bolo de Cenoura', turma: '2024.1.C' },
-    { id: 'confeitaria_torta',    nome: 'Confeitaria: Torta de Maçã',   turma: '2024.1.C' },
-    { id: 'panificacao_pao',      nome: 'Panificação: Pão & Baguete',   turma: '2024.1.A' },
-    { id: 'panificacao_brioche',  nome: 'Panificação: Brioche',         turma: '2024.1.A' },
-    { id: 'asia_yakisoba',        nome: 'Ásia: Yakisoba & Tempurá',     turma: '2024.2.N' },
-    { id: 'asia_sushi',           nome: 'Ásia: Sushi & Sashimi',        turma: '2024.2.N' }
-  ];
-
-  function getFichaCompleta(id) {
-    let f = fichasDisponiveis.find(x => x.id === id);
-    if (!f && receitas[id]) {
-       let turmaDaSobras = Object.keys(receitasPorTurma).find(k => receitasPorTurma[k].includes(id));
-       f = { id: id, nome: receitas[id].nome, turma: turmaDaSobras };
-       fichasDisponiveis.push(f);
-    }
-    return f;
-  }
-
-  const alocacoes = JSON.parse(localStorage.getItem('sigec-alocacoes') || '{}');
-  function salvar() { localStorage.setItem('sigec-alocacoes', JSON.stringify(alocacoes)); }
-
-  let viewDate = new Date(2026, 5, 1);
-  let diaSelecionado = null;
-  let calFiltroCozinha = 'todas';
-
-  const modal      = document.getElementById('cal-modal');
-  const grid       = document.getElementById('cal-grid');
-  const monthEl    = document.getElementById('cal-month');
-  const kitchenSel = document.getElementById('cal-kitchen');
-
-  const pad = n => String(n).padStart(2, '0');
-  const chave = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const mmdd  = d => `${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-
-  function fichaPassaFiltro(f) {
-    if (!f) return false;
-    const turmaInfo = turmas[f.turma];
-    const cozValue = turmaInfo ? (cozinhaToValue[turmaInfo.cozinha] || turmaInfo.cozinha) : '';
-    return calFiltroCozinha === 'todas' || cozValue === calFiltroCozinha;
-  }
-
-  function statusEstoque(ficha) {
-    const r = receitas[ficha.id];
-    if (!r) return { classe: 'stock-out', txt: 'Sem ficha' };
-    const e = estoquePorTurma[ficha.turma];
-    if (!e) return { classe: 'stock-out', txt: 'Turma sem estoque' };
-    const total = r.itens.length;
-    if (total === 0) return { classe: 'stock-ok', txt: 'Estoque OK' };
-    let ok = 0, algum = 0;
-    r.itens.forEach(it => {
-      const disp = e.insumos?.[it.id] ?? 0;
-      if (disp >= it.necessario) ok++;
-      if (disp > 0) algum++;
-    });
-    if (ok === total) return { classe: 'stock-ok',  txt: 'Estoque OK' };
-    if (algum === 0)  return { classe: 'stock-out', txt: 'Sem estoque' };
-    return { classe: 'stock-low', txt: `${total - ok} item(s) em falta` };
-  }
-
-  function fichaBloqueada(ficha) {
-    return statusEstoque(ficha).classe !== 'stock-ok';
-  }
-
-  function render() {
-    const ano = viewDate.getFullYear();
-    const mes = viewDate.getMonth();
-    monthEl.textContent = `${MESES[mes]} ${ano}`;
-
-    const primeiro = new Date(ano, mes, 1).getDay();
-    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
-    const hoje = chave(new Date());
-
-    let html = '';
-    for (let i = 0; i < primeiro; i++) html += `<div class="cal-day empty"></div>`;
-
-    for (let d = 1; d <= diasNoMes; d++) {
-      const data = new Date(ano, mes, d);
-      const k = chave(data);
-      const dow = data.getDay();
-      const feriado = FERIADOS[mmdd(data)];
-      const fimDeSemana = dow === 0 || dow === 6;
-
-      let cls = 'cal-day';
-      if (k === hoje) cls += ' today';
-      if (fimDeSemana) cls += ' weekend';
-      if (feriado) cls += ' holiday';
-
-      const aulas = (alocacoes[k] || []).filter(id => fichaPassaFiltro(getFichaCompleta(id)));
-      const dots = aulas.map(() => '<i></i>').join('');
-
-      html += `
-        <div class="${cls}" data-date="${k}">
-          <span class="cal-day-num">${d}</span>
-          ${feriado ? `<span class="cal-day-tag">${feriado}</span>` : ''}
-          <div class="cal-day-dots">${dots}</div>
-        </div>`;
-    }
-    grid.innerHTML = html;
-  }
-
-  function renderPainelCal(k) {
-    document.getElementById('cal-panel-empty').style.display = 'none';
-    document.getElementById('cal-panel-content').style.display = 'block';
-
-    const [y, m, d] = k.split('-');
-    const data = new Date(y, m - 1, d);
-    document.getElementById('cal-panel-date').textContent =
-      data.toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
-
-    const aulas = (alocacoes[k] || []).filter(id => fichaPassaFiltro(getFichaCompleta(id)));
-
-    const elAloc = document.getElementById('cal-allocated');
-    elAloc.innerHTML = aulas.length ? aulas.map(id => {
-      const f = getFichaCompleta(id);
-      const st = statusEstoque(f || { id });
-      return `
-        <div class="cal-fiche">
-          <div class="cal-fiche-info">
-            <p class="cal-fiche-name">${f ? f.nome : id} <small>(${f ? f.turma : ''})</small></p>
-            <p class="cal-fiche-stock ${st.classe}">
-              <span class="material-symbols-outlined sm">inventory_2</span>${st.txt}
-            </p>
-          </div>
-          <button class="cal-fiche-btn remove" data-remove="${id}" title="Remover">
-            <span class="material-symbols-outlined sm">delete</span>
-          </button>
-        </div>`;
-    }).join('') : '<p class="cal-empty-text">Nenhuma ficha alocada para o filtro atual.</p>';
-
-    const elDisp = document.getElementById('cal-available');
-    const alocadasDoDia = alocacoes[k] || [];
-
-    Object.keys(receitas).forEach(idKey => getFichaCompleta(idKey));
-
-    const livres = fichasDisponiveis.filter(f =>
-      fichaPassaFiltro(f) && !alocadasDoDia.includes(f.id)
-    );
-
-    elDisp.innerHTML = livres.length ? livres.map(f => {
-      const st = statusEstoque(f);
-      const bloqueada = fichaBloqueada(f);
-      return `
-        <div class="cal-fiche ${bloqueada ? 'is-blocked' : ''}">
-          <div class="cal-fiche-info">
-            <p class="cal-fiche-name">${f.nome} <small>(${f.turma})</small></p>
-            <p class="cal-fiche-stock ${st.classe}">
-              <span class="material-symbols-outlined sm">inventory_2</span>${st.txt}
-            </p>
-            ${bloqueada ? `
-              <p class="cal-fiche-locked">
-                <span class="material-symbols-outlined sm">lock</span>
-                Indisponível — insumos insuficientes
-              </p>` : ''}
-          </div>
-          ${bloqueada
-            ? `<button class="cal-fiche-btn locked" disabled title="Estoque insuficiente">
-                 <span class="material-symbols-outlined sm">block</span>
-               </button>`
-            : `<button class="cal-fiche-btn" data-add="${f.id}" title="Alocar">
-                 <span class="material-symbols-outlined sm">add_circle</span>
-               </button>`
-          }
-        </div>`;
-    }).join('') : '<p class="cal-empty-text">Nenhuma ficha disponível para o filtro atual.</p>';
-  }
-
-  grid.addEventListener('click', e => {
-    const dia = e.target.closest('.cal-day');
-    if (!dia || dia.classList.contains('empty')) return;
-    if (dia.classList.contains('weekend') || dia.classList.contains('holiday')) {
-      alert('Dia indisponível (fim de semana, feriado ou recesso).');
-      return;
-    }
-    grid.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
-    dia.classList.add('selected');
-    diaSelecionado = dia.dataset.date;
-    renderPainelCal(diaSelecionado);
-  });
-
-  document.getElementById('cal-day-panel').addEventListener('click', e => {
-    const addBtn = e.target.closest('[data-add]');
-    const remBtn = e.target.closest('[data-remove]');
-    if (!diaSelecionado) return;
-
-    if (addBtn) {
-      const id = addBtn.dataset.add;
-      const f = getFichaCompleta(id);
-
-      if (!f || fichaBloqueada(f)) {
-        alert(`🚫 Alocação bloqueada.\nReponha o estoque antes de agendar.`);
-        return;
-      }
-
-      const alocacoesNoDia = alocacoes[diaSelecionado] || [];
-      const cozinhaDaFichaAtual = turmas[f.turma].cozinha;
-
-      const conflito = alocacoesNoDia.some(idAlocado => {
-        const fichaAlocada = getFichaCompleta(idAlocado);
-        if (fichaAlocada) {
-          const cozinhaAlocada = turmas[fichaAlocada.turma].cozinha;
-          return cozinhaAlocada === cozinhaDaFichaAtual;
-        }
-        return false;
-      });
-
-      if (conflito) {
-        alert(`⚠️ Conflito de Agenda!\nA ${cozinhaDaFichaAtual} já está ocupada por outra turma neste dia. Cancele a aula anterior ou escolha outro dia.`);
-        return;
-      }
-
-      (alocacoes[diaSelecionado] = alocacoes[diaSelecionado] || []).push(id);
-    }
-    if (remBtn) {
-      alocacoes[diaSelecionado] =
-        (alocacoes[diaSelecionado] || []).filter(x => x !== remBtn.dataset.remove);
-      if (!alocacoes[diaSelecionado].length) delete alocacoes[diaSelecionado];
-    }
-    salvar();
-    render();
-    grid.querySelector(`[data-date="${diaSelecionado}"]`)?.classList.add('selected');
-    renderPainelCal(diaSelecionado);
-  });
-
-  document.getElementById('cal-prev').addEventListener('click', () => {
-    viewDate.setMonth(viewDate.getMonth() - 1); render();
-  });
-  document.getElementById('cal-next').addEventListener('click', () => {
-    viewDate.setMonth(viewDate.getMonth() + 1); render();
-  });
-
-  kitchenSel?.addEventListener('change', e => {
-    calFiltroCozinha = e.target.value;
-    render();
-    if (diaSelecionado) renderPainelCal(diaSelecionado);
-  });
-
-  function abrir() {
-    modal.classList.add('show');
-    render();
-  }
-  function fechar() { modal.classList.remove('show'); }
-
-  document.getElementById('cal-close').addEventListener('click', fechar);
-  modal.addEventListener('click', e => { if (e.target === modal) fechar(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') fechar(); });
-
-  document.querySelectorAll('.nav-item').forEach(btn => {
-    if (btn.textContent.includes('Calendário')) btn.addEventListener('click', abrir);
-  });
-})();
-
-// ===== NOTIFICAÇÕES =====
-(function () {
-  const btn    = document.getElementById('notif-btn');
-  const panel  = document.getElementById('notif-panel');
-  const list   = document.getElementById('notif-list');
-  const badge  = document.getElementById('notif-badge');
-  const clear  = document.getElementById('notif-clear');
+  const btn = document.getElementById('notif-btn');
+  const panel = document.getElementById('notif-panel');
+  const list = document.getElementById('notif-list');
+  const badge = document.getElementById('notif-badge');
+  const clear = document.getElementById('notif-clear');
   if (!btn || !panel) return;
-
-  function fichaTurmaMap() {
-    const map = {};
-    Object.entries(receitasPorTurma).forEach(([turmaId, fichas]) => {
-      fichas.forEach(f => map[f] = turmaId);
-    });
-    return map;
-  }
 
   function gerarNotificacoes() {
     const notifs = [];
     const lidas = JSON.parse(localStorage.getItem('sigec-notif-lidas') || '[]');
-    const fichaTurma = fichaTurmaMap();
 
-    Object.entries(receitas).forEach(([fichaId, receita]) => {
-      const turmaId = fichaTurma[fichaId];
-      if (!turmaId) return;
-      const est = estoquePorTurma[turmaId];
-      if (!est) return;
+    const receita = receitas[receitaAtual];
+    const est = estoquePorTurma[turmaAtual];
+    if (!receita || !est) return [];
 
-      receita.itens.forEach(item => {
-        const id = `${turmaId}-${fichaId}-insumo-${item.id}`;
-        if (item.pendente) {
-          notifs.push({
-            id, tipo: 'info',
-            titulo: `Aprovação Pendente`,
-            texto: `Aguardando liberação do insumo extra: ${item.nome}.`
-          });
-        } else {
-          const disp = est.insumos?.[item.id] ?? 0;
-          if (disp === 0) {
-            notifs.push({
-              id, tipo: 'err',
-              titulo: `Sem estoque: ${item.nome}`,
-              texto: `${turmas[turmaId].nome} • ${receita.nome} — falta tudo (${item.necessario}${item.unidade}).`
-            });
-          } else if (disp < item.necessario) {
-            notifs.push({
-              id, tipo: 'warn',
-              titulo: `Estoque baixo: ${item.nome}`,
-              texto: `${turmas[turmaId].nome} • falta ${item.necessario - disp}${item.unidade} de ${item.nome}.`
-            });
-          }
+    (receita.itens || []).forEach(item => {
+      const id = `${turmaAtual}-${receitaAtual}-insumo-${item.id}`;
+      if (item.pendente) {
+        notifs.push({ id, tipo: 'info', titulo: 'Aprovação Pendente', texto: `Aguardando liberação do insumo extra: ${item.nome}.` });
+      } else {
+        const disp = est.insumos?.[item.id] ?? 0;
+        if (disp === 0) {
+          notifs.push({ id, tipo: 'err', titulo: `Sem estoque: ${item.nome}`, texto: `${turmas[turmaAtual].nome} • ${receita.nome} — falta tudo (${item.necessario}${item.unidade}).` });
+        } else if (disp < item.necessario) {
+          notifs.push({ id, tipo: 'warn', titulo: `Estoque baixo: ${item.nome}`, texto: `${turmas[turmaAtual].nome} • falta ${item.necessario - disp}${item.unidade} de ${item.nome}.` });
         }
-      });
+      }
+    });
 
-      const utensilios = utensiliosFicha[fichaId] || [];
-      utensilios.forEach(item => {
-        const id = `${turmaId}-${fichaId}-util-${item.id}`;
-        if (item.pendente) {
-          notifs.push({
-            id, tipo: 'info',
-            titulo: `Aprovação Pendente`,
-            texto: `Aguardando liberação do utensílio extra: ${item.nome}.`
-          });
-        }
-      });
+    (utensiliosFicha[receitaAtual] || []).forEach(item => {
+      if (item.pendente) {
+        notifs.push({ id: `${turmaAtual}-${receitaAtual}-util-${item.id}`, tipo: 'info', titulo: 'Aprovação Pendente', texto: `Aguardando liberação do utensílio extra: ${item.nome}.` });
+      }
     });
 
     return notifs.map(n => ({ ...n, lida: lidas.includes(n.id) }));
@@ -1083,20 +705,16 @@ atualizarResumoReceita(receitaAtual);
 
   function render() {
     const notifs = gerarNotificacoes();
-    const naoLidas = notifs.filter(n => !n.lida).length;
-    badge.hidden = naoLidas === 0;
+    badge.hidden = notifs.filter(n => !n.lida).length === 0;
 
     if (!notifs.length) {
       list.innerHTML = `<p class="notif-empty">🎉 Tudo certo! Nenhuma pendência.</p>`;
       return;
     }
-
     const icone = { err: 'error', warn: 'warning', info: 'schedule' };
     list.innerHTML = notifs.map(n => `
       <div class="notif-item ${n.lida ? '' : 'unread'}">
-        <span class="notif-icon ${n.tipo}">
-          <span class="material-symbols-outlined">${icone[n.tipo]}</span>
-        </span>
+        <span class="notif-icon ${n.tipo}"><span class="material-symbols-outlined">${icone[n.tipo]}</span></span>
         <div class="notif-body">
           <p class="notif-title">${n.titulo}</p>
           <p class="notif-text">${n.texto}</p>
@@ -1107,46 +725,27 @@ atualizarResumoReceita(receitaAtual);
   window.atualizarNotificacoes = render;
 
   function marcarTodasLidas() {
-    const ids = gerarNotificacoes().map(n => n.id);
-    localStorage.setItem('sigec-notif-lidas', JSON.stringify(ids));
+    localStorage.setItem('sigec-notif-lidas', JSON.stringify(gerarNotificacoes().map(n => n.id)));
     render();
   }
-
   function toggle(open) {
     const abrir = open ?? !panel.classList.contains('show');
     panel.classList.toggle('show', abrir);
     btn.setAttribute('aria-expanded', abrir);
     if (abrir) render();
   }
-
   btn.addEventListener('click', e => { e.stopPropagation(); toggle(); });
   clear.addEventListener('click', marcarTodasLidas);
-
-  document.addEventListener('click', e => {
-    if (!panel.contains(e.target) && !btn.contains(e.target)) toggle(false);
-  });
+  document.addEventListener('click', e => { if (!panel.contains(e.target) && !btn.contains(e.target)) toggle(false); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
-
   render();
 })();
 
+// ===== SAUDAÇÃO =====
 function atualizarSaudacao() {
-  const dataAtual = new Date();
-  const hora = dataAtual.getHours();
-  let saudacao = "";
-
-  if (hora >= 0 && hora < 12) {
-    saudacao = "Bom dia";
-  } else if (hora >= 12 && hora < 18) {
-    saudacao = "Boa tarde";
-  } else {
-    saudacao = "Boa noite";
-  }
-
-  const elementoSaudacao = document.getElementById("mensagem-tempo");
-  if (elementoSaudacao) {
-    elementoSaudacao.innerText = saudacao;
-  }
+  const hora = new Date().getHours();
+  const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+  const el = document.getElementById("mensagem-tempo");
+  if (el) el.innerText = saudacao;
 }
-
 document.addEventListener("DOMContentLoaded", atualizarSaudacao);

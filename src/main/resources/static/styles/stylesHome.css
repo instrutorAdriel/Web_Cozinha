@@ -223,7 +223,7 @@ body {
   /* Quando a imagem original é muito grande (464x475), o padrão do navegador
      (sem filtros forçados) é o que gera o melhor redimensionamento sem serrilhados */
   image-rendering: auto;
-}}
+}
 .user-name{font-size:14px;font-weight:700;color:var(--primary)}
 .user-role{font-size:11px;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:.05em}
 
