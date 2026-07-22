@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -66,10 +67,18 @@ public class FichasController {
         return ResponseEntity.ok("Receita atualizada com sucesso!");
     }
 
-    @GetMapping("/calendario/desalocar")
+        @PostMapping("/calendario/desalocar")
     @ResponseBody
-    public ResponseEntity<String> desalocarFicha (@RequestParam("id") int id){
+    public ResponseEntity<String> desalocarFicha (@RequestParam("id") int id, HttpSession session){
+        // Validação de segurança no Back-End (Impede requisições de usuários deslogados)
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            return ResponseEntity.status(401).body("Acesso negado: Usuário não autenticado.");
+        }
+
+        // Processa a regra de negócio segura via JPA
         fichasService.desalocarFicha(id);
         return ResponseEntity.ok("Receita desalocada com sucesso!");
     }
+
 }
+
