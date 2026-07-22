@@ -1659,7 +1659,8 @@ body {
     font-weight: 600;
     cursor: pointer;
     outline: none;
-    transition: .2s
+    transition: .2s;
+
 }
 
 #turma-select:focus {
