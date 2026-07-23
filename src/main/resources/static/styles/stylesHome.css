@@ -725,7 +725,9 @@ body {
 
 .select-wrap {
     position: relative;
-    margin-bottom: 14px
+    margin-bottom: 14px;
+    width: 212px;
+    height: 36px;
 }
 
 #recipe-select {
@@ -841,6 +843,7 @@ body {
     color: #fff;
     font-size: 18px;
     opacity: 0
+
 }
 
 .check-label {
@@ -1216,7 +1219,8 @@ body {
     }
 
     .search-box {
-        display: none
+        display: none;
+
     }
 
     .hero {
@@ -1650,7 +1654,8 @@ body {
     font-weight: 600;
     cursor: pointer;
     outline: none;
-    transition: .2s
+    transition: .2s;
+
 }
 
 #turma-select:focus {
@@ -1717,6 +1722,8 @@ body {
 .badge-dot[hidden] {
     display: none
 }
+
+
 
 .notif-panel {
     position: absolute;
