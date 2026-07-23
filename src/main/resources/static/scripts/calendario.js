@@ -1,15 +1,18 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Estado Global
+    // ===== ESTADO GLOBAL =====
     let dataCalendario = new Date();
     let diaSelecionadoGlobal = new Date().getDate();
     let turmaAtivaId = null;
+
+    // Guarda a quantidade de fichas por data vindas do BD -> { "2026-06-16": 2 }
+    let contagemFichasPorData = {};
 
     const nomesMeses = [
         "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
 
-    // Elementos da DOM
+    // ===== ELEMENTOS DA DOM =====
     const grid = document.getElementById("cal-grid");
     const indicadorMes = document.getElementById("cal-month");
     const labelDataPainel = document.getElementById("cal-panel-date");
@@ -19,11 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnNext = document.getElementById("cal-next");
     const selectTurma = document.getElementById('selectTurma');
 
+    // Modais
+    const dialogConfirmacao = document.getElementById("modal-confirmacao");
+    const btnConfirmarExclusao = document.getElementById("btn-confirmar-exclusao");
+    const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
+
+    let fichaPendenteDesalocacao = null;
+
     /**
-     * Helper para requisições padronizadas (Inclui CSRF + Session Cookie)
+     * Helper para requisições padronizadas
      */
     function fetchApi(url, options = {}) {
-        // Captura tokens do Spring Security das Meta Tags (se existirem)
         const token = document.querySelector("meta[name='_csrf']")?.getAttribute("content");
         const headerName = document.querySelector("meta[name='_csrf_header']")?.getAttribute("content");
 
@@ -33,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const defaultOptions = {
-            credentials: 'include', // Mantém o cookie JSESSIONID ativo
+            credentials: 'include',
             headers: { ...defaultHeaders, ...options.headers }
         };
 
@@ -48,9 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    /**
-     * 1. Carrega turmas via GET /api/agendamentos/turmas
-     */
+    /* ======================================================
+       1. INICIALIZAÇÃO
+       ====================================================== */
     function inicializarSistema() {
         if (!selectTurma) return;
 
@@ -63,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 selectTurma.innerHTML = '';
                 if (!turmas || turmas.length === 0) {
                     selectTurma.innerHTML = '<option value="">Nenhuma turma vinculada</option>';
-                    renderizarGrid();
+                    atualizarEExibirCalendario();
                     return;
                 }
 
@@ -75,27 +84,50 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
 
                 turmaAtivaId = selectTurma.value;
-                renderizarGrid();
+                atualizarEExibirCalendario();
             })
             .catch(err => {
                 console.error("Erro na inicialização:", err);
-                renderizarGrid();
+                atualizarEExibirCalendario();
             });
     }
 
-    /**
-     * Troca de Turma
-     */
     if (selectTurma) {
         selectTurma.addEventListener('change', (e) => {
             turmaAtivaId = e.target.value;
-            recarregarDiaAtual();
+            atualizarEExibirCalendario();
         });
     }
 
-    /**
-     * 2. Desenha o Grid do Calendário
-     */
+    /* ======================================================
+       2. BUSCA DO RESUMO MENSAL (BOLINHAS)
+       ====================================================== */
+    function carregarAgendamentosDoMes() {
+        if (!turmaAtivaId) return Promise.resolve();
+
+        const ano = dataCalendario.getFullYear();
+        const mes = dataCalendario.getMonth() + 1;
+
+        return fetchApi(`/api/agendamentos/mes?ano=${ano}&mes=${mes}&idTurma=${turmaAtivaId}`)
+            .then(res => res.ok ? res.json() : {})
+            .then(mapaContagem => {
+                contagemFichasPorData = mapaContagem || {};
+            })
+            .catch(err => {
+                console.warn("Erro ao buscar resumo das bolinhas:", err);
+                contagemFichasPorData = {};
+            });
+    }
+
+    function atualizarEExibirCalendario() {
+        carregarAgendamentosDoMes().finally(() => {
+            renderizarGrid();
+        });
+    }
+
+    /* ======================================================
+       3. RENDERIZAÇÃO DO GRID
+       ====================================================== */
     function renderizarGrid() {
         if (!grid) return;
         grid.innerHTML = "";
@@ -112,14 +144,14 @@ document.addEventListener("DOMContentLoaded", () => {
             diaSelecionadoGlobal = totalDiasNoMes;
         }
 
-        // Espaços vazios
+        // Espaços em branco
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
             espaco.className = "day-cell space";
             grid.appendChild(espaco);
         }
 
-        // Blocos dos dias
+        // Dias
         for (let dia = 1; dia <= totalDiasNoMes; dia++) {
             const celula = document.createElement("div");
             celula.className = "day-cell";
@@ -138,6 +170,21 @@ document.addEventListener("DOMContentLoaded", () => {
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
+            // RENDERIZAÇÃO DAS BOLINHAS (INDICATOR DOTS)
+            const qtdFichas = contagemFichasPorData[dataIso] || 0;
+            if (qtdFichas > 0) {
+                const indicatorContainer = document.createElement("div");
+                indicatorContainer.className = "indicator-dots";
+
+                const totalBolinhas = Math.min(qtdFichas, 3);
+                for (let b = 0; b < totalBolinhas; b++) {
+                    const dot = document.createElement("span");
+                    dot.className = "dot orange";
+                    indicatorContainer.appendChild(dot);
+                }
+                celula.appendChild(indicatorContainer);
+            }
+
             if (dia === diaSelecionadoGlobal) {
                 celula.classList.add("active-selected");
                 buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
@@ -154,10 +201,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * 3. Busca Agendamentos (Alocadas) e Fichas do Acervo (Disponíveis)
-     * Consome: GET /calendario/fichas?data=YYYY-MM-DD&idTurma=X
-     */
+    /* ======================================================
+       4. PAINEL LATERAL (FICHAS)
+       ====================================================== */
     function buscarAgendamentos(dataIso, dia, nomeMes, ano) {
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
 
@@ -179,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const alocadas = data.alocadas || [];
                 const todasFichas = data.Disponiveis || [];
 
-                // 1. Renderiza a Coluna de Fichas Alocadas (Esquerda)
                 if (containerAlocadas) {
                     containerAlocadas.innerHTML = "";
                     if (alocadas.length === 0) {
@@ -187,21 +232,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else {
                         alocadas.forEach(ficha => {
                             const nome = ficha.nome || ficha.nomePrato || ficha.nomeFicha || 'Ficha Técnica';
-                            containerAlocadas.appendChild(
-                                criarCardFicha(ficha.id, nome, 'delete', dataIso)
-                            );
+                            containerAlocadas.appendChild(criarCardFicha(ficha.id, nome, 'delete', dataIso));
                         });
                     }
                 }
 
-                // 2. Filtra e Renderiza a Coluna de Fichas Disponíveis (Direita)
                 if (containerDisponiveis) {
                     containerDisponiveis.innerHTML = "";
-
-                    // IDs agendados no dia
                     const idsAlocados = alocadas.map(f => f.id);
-
-                    // Mantém na lista apenas o que NÃO está agendado hoje
                     const disponiveisParaExibir = todasFichas.filter(f => !idsAlocados.includes(f.id));
 
                     if (disponiveisParaExibir.length === 0) {
@@ -209,9 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     } else {
                         disponiveisParaExibir.forEach(ficha => {
                             const nome = ficha.nome || ficha.nomePrato || ficha.nomeFicha || 'Ficha Técnica';
-                            containerDisponiveis.appendChild(
-                                criarCardFicha(ficha.id, nome, 'append', dataIso)
-                            );
+                            containerDisponiveis.appendChild(criarCardFicha(ficha.id, nome, 'append', dataIso));
                         });
                     }
                 }
@@ -223,9 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    /**
-     * 4. Constrói a View do Card de Agendamento
-     */
     function criarCardFicha(fichaId, nomeFicha, acao, dataIso) {
         const card = document.createElement("div");
         card.className = "fiche-card";
@@ -245,16 +278,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (acao === 'append') {
                 executarAlocacao(fichaId, turmaAtivaId, dataIso, btnAcao);
             } else if (acao === 'delete') {
-                executarDesalocacao(fichaId, turmaAtivaId, dataIso, btnAcao);
+                abrirModalDesalocacao(fichaId, dataIso, btnAcao);
             }
         });
 
         return card;
     }
 
-    /**
-     * 5. Alocar Ficha -> POST /api/agendamentos/alocar
-     */
+    /* ======================================================
+       5. AÇÕES REST (ALOCAR E DESALOCAR COM PERSISTÊNCIA)
+       ====================================================== */
     function executarAlocacao(fichaId, turmaId, dataIso, btnElement) {
         btnElement.disabled = true;
 
@@ -275,18 +308,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 return res.json();
             })
-            .then(() => recarregarDiaAtual())
+            .then(() => {
+                // Atualiza o mapa de bolinhas e redesenha a tela
+                atualizarEExibirCalendario();
+            })
             .catch(err => {
                 alert(err.message);
                 btnElement.disabled = false;
             });
     }
 
-    /**
-     * 6. Desalocar Ficha -> POST /api/agendamentos/desalocar
-     */
     function executarDesalocacao(fichaId, turmaId, dataIso, btnElement) {
-        btnElement.disabled = true;
+        if (btnElement) btnElement.disabled = true;
 
         const payload = {
             fichaId: parseInt(fichaId),
@@ -305,38 +338,61 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 return res.json();
             })
-            .then(() => recarregarDiaAtual())
+            .then(() => {
+                // Atualiza o mapa de bolinhas e redesenha a tela
+                atualizarEExibirCalendario();
+            })
             .catch(err => {
                 alert(err.message);
-                btnElement.disabled = false;
+                if (btnElement) btnElement.disabled = false;
             });
     }
 
-    /**
-     * Recarrega os dados da data selecionada
-     */
-    function recarregarDiaAtual() {
-        const celulaAtiva = document.querySelector('.day-cell.active-selected');
-        if (celulaAtiva) {
-            const dataIso = celulaAtiva.getAttribute('data-date');
-            buscarAgendamentos(dataIso, diaSelecionadoGlobal, nomesMeses[dataCalendario.getMonth()], dataCalendario.getFullYear());
+    // Modal de confirmação
+    function abrirModalDesalocacao(fichaId, dataIso, btnElement) {
+        fichaPendenteDesalocacao = { fichaId, dataIso, btnElement };
+        if (dialogConfirmacao) {
+            if (typeof dialogConfirmacao.showModal === "function") {
+                dialogConfirmacao.showModal();
+            } else {
+                dialogConfirmacao.setAttribute("open", "true");
+            }
         } else {
-            renderizarGrid();
+            if (confirm("Deseja mesmo retirar a ficha deste dia?")) {
+                executarDesalocacao(fichaId, turmaAtivaId, dataIso, btnElement);
+            }
         }
     }
 
-    // Controles do Mês
+    if (btnCancelarExclusao) {
+        btnCancelarExclusao.addEventListener("click", () => {
+            if (dialogConfirmacao) dialogConfirmacao.close();
+            fichaPendenteDesalocacao = null;
+        });
+    }
+
+    if (btnConfirmarExclusao) {
+        btnConfirmarExclusao.addEventListener("click", () => {
+            if (fichaPendenteDesalocacao) {
+                const { fichaId, dataIso, btnElement } = fichaPendenteDesalocacao;
+                if (dialogConfirmacao) dialogConfirmacao.close();
+                executarDesalocacao(fichaId, turmaAtivaId, dataIso, btnElement);
+            }
+        });
+    }
+
+    // Navegação
     if (btnPrev) {
         btnPrev.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() - 1);
-            renderizarGrid();
+            atualizarEExibirCalendario();
         });
     }
 
     if (btnNext) {
         btnNext.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() + 1);
-            renderizarGrid();
+            atualizarEExibirCalendario();
         });
     }
 
