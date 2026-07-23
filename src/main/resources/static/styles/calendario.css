@@ -144,30 +144,22 @@ body {
 .crumb-current { font-weight: 700; color: var(--bg-primary); }
 .menu-toggle { display: none; background: none; border: none; cursor: pointer; }
 
-.topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
+
 
 /* COMPONENTE CHOICEBOX (TURMA SELECT) */
-.field-label {
-    font-size: 11px;
-    color: var(--bg-primary);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    font-weight: bold;
-}
+
 .select-wrap {
     position: relative;
+    margin-bottom: 14px
 }
 #turma-select {
+    width: 100%;
     appearance: none;
     background: #fff;
     color: var(--bg-primary);
     border: 1px solid var(--ui-border);
     border-radius: var(--radius-sm);
-    padding: 8px 36px 8px 12px;
+    padding: 11px 36px 11px 12px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -376,3 +368,85 @@ body {
     border-radius: 50%;
 }
 .btn-fiche-action.append:hover { background-color: var(--bg-primary); color: var(--text-light); }
+
+/* ===== AJUSTES DE PADRONIZAÇÃO DA TOPBAR E CHOICEBOX ===== */
+.topbar-select-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.select-wrap {
+    margin-bottom: 0; /* Remove margem inferior que desalinhava o campo na topbar */
+    position: relative;
+    width: 280px; /* Largura padronizada para exibir Turma + Laboratório */
+}
+
+.topbar-actions #turma-select {
+    width: 100%;
+    height: 40px;
+    appearance: none;
+    background: var(--surface-lowest);
+    color: var(--primary);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--r);
+    padding: 0 36px 0 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.topbar-actions #turma-select:focus {
+    border-color: var(--primary-container);
+    border-bottom: 2px solid var(--secondary-container);
+}
+
+.select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    pointer-events: none;
+}
+
+.topbar-select-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.select-wrap {
+    margin-bottom: 0; /* Impede que a margem padrão empurre o campo para baixo */
+}
+
+.topbar-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.field-label{
+    margin-bottom:0;
+    white-space:nowrap;
+}

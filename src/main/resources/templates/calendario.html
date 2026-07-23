@@ -46,7 +46,7 @@
 </aside>
 
 <!-- ==========================================================================
-     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR) - CORRIGIDA E PADRONIZADA
+     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR) - CORRIGIDA E ALINHADA
      ========================================================================== -->
 <header class="topbar">
     <div class="topbar-left">
@@ -61,20 +61,24 @@
     </div>
 
     <div class="topbar-actions">
-        <label class="field-label" for="turma-select">Turma / Laboratório</label>
-        <div class="select-wrap">
-            <select id="turma-select">
-                <option value="">-- Selecione uma Turma --</option>
-                <option value="2024.1.A">Turma 2024.1.A</option>
-                <option value="2024.1.C">Turma 2024.1.C</option>
-            </select>
-            <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+        <!-- CORREÇÃO APLICADA AQUI: Adicionado topbar-select-group e topbar-label -->
+        <div class="topbar-select-group">
+            <label class="topbar-label" for="turma-select">Turma / Laboratório</label>
+            <div class="select-wrap">
+                <select id="turma-select">
+                    <option value="2024.1.A">Turma 2024.1.A — Padaria Lab 01</option>
+                    <option value="2024.1.C">Turma 2024.1.C — Cozinha Pedagógica 02</option>
+                    <option value="2024.2.N">Turma 2024.2.N — Cozinha Pedagógica 04</option>
+                </select>
+                <span class="material-symbols-outlined select-arrow">expand_more</span>
+            </div>
         </div>
 
         <div class="notif-wrap">
             <button class="icon-btn" id="notif-btn" aria-label="Notificações">
                 <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span >
+                <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
             </button>
             <div class="notif-panel" id="notif-panel">
                 <div class="notif-head">
@@ -94,7 +98,7 @@
 
         <div class="user-box">
             <div class="user-info">
-                <p class="user-name" th:text="${nomeUsuario != null ? nomeUsuario : 'Chef Ricardo Silva'}">Chef Ricardo Silva</p>
+                <p class="user-name" th:text="${nomeUsuario != null ? nomeUsuario : 'Matheus'}">Matheus</p>
             </div>
         </div>
     </div>

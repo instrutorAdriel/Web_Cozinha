@@ -244,12 +244,6 @@ body {
     font-weight: 700
 }
 
-.topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 16px
-}
-
 .search-box {
     display: flex;
     align-items: center;
@@ -309,9 +303,10 @@ body {
 .user-box {
     display: flex;
     align-items: center;
-    gap: 12px;
     padding-left: 16px;
-    border-left: 1px solid var(--outline-variant)
+    border-left: 1px solid var(--outline-variant, #c2c7d0);
+    white-space: nowrap;
+    height: 32px;
 }
 
 .user-info {
@@ -2369,3 +2364,129 @@ body {
         padding: 24px 20px
     }
 }
+
+/* ===== AJUSTES DE PADRONIZAÇÃO DA TOPBAR E CHOICEBOX ===== */
+
+.topbar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.topbar-actions #turma-select:focus {
+    border-color: var(--primary-container, #003d6b);
+    border-bottom: 2px solid var(--secondary-container, #ff8928);
+}
+
+.topbar-actions .select-arrow {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary, #002747);
+    pointer-events: none;
+}
+
+/* ===== ALINHAMENTO LADO A LADO DA TOPBAR ===== */
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.topbar-select-group {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Garante que o texto fique ao LADO ESQUERDO da choicebox */
+}
+
+.topbar-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.topbar-actions .select-wrap {
+    position: relative;
+    margin-bottom: 0 !important; /* Remove margem que empurrava o campo para baixo */
+    width: 280px;
+    display: flex;
+    align-items: center;
+}
+
+.topbar-select-group #turma-select {
+    width: 100%;
+    height: 38px;
+    appearance: none;
+    background: var(--surface-lowest);
+    color: var(--primary);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--r);
+    padding: 0 34px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.topbar-select-group #turma-select:focus {
+    border-color: var(--primary-container);
+    border-bottom: 2px solid var(--secondary-container);
+}
+
+
+
+.user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary, #002747);
+    margin: 0;
+}
+
+/* ===== ESTRUTURA E ALINHAMENTO DA TOPBAR ===== */
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Grupo de seleção Turma / Laboratório em linha */
+
+.field-label-topbar {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--on-surface-variant, #42474f);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    margin: 0;
+}
+
+/* Container do select dentro da topbar */
+
+.topbar-actions #turma-select {
+    width: 100%;
+    height: 40px;
+    appearance: none;
+    background: var(--surface-lowest, #ffffff);
+    color: var(--primary, #002747);
+    border: 1px solid var(--outline-variant, #c2c7d0);
+    border-radius: var(--r, 0.25rem);
+    padding: 0 36px 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+
+
+
