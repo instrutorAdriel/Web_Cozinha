@@ -3,6 +3,7 @@ package com.application.WebApplicationSIGEC.controller;
 import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Turmas;
 import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.repository.AgendamentoRepository;
 import com.application.WebApplicationSIGEC.service.AgendamentoService;
 import com.application.WebApplicationSIGEC.service.SessaoService;
 import jakarta.servlet.http.HttpSession;
