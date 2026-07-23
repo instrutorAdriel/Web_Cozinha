@@ -671,3 +671,73 @@ function renderDetail() {
 // Inicialização segura das views
 renderList();
 renderDetail();
+
+// ===== NOTIFICAÇÕES (Receitas) — estrutura pronta, sem regras de conteúdo ainda =====
+(function () {
+    const btn   = document.getElementById('notif-btn');
+    const panel = document.getElementById('notif-panel');
+    const list  = document.getElementById('notif-list');
+    const badge = document.getElementById('notif-badge');
+    const clear = document.getElementById('notif-clear');
+    if (!btn || !panel) return;
+
+    const STORAGE_KEY = 'sigec-notif-lidas-receitas';
+
+    // TODO: quando definir a regra, popule este array com objetos:
+    // { id, tipo: 'err' | 'warn' | 'info', titulo, texto }
+    function gerarNotificacoes() {
+        const notifs = [];
+
+        const lidas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        return notifs.map(n => ({ ...n, lida: lidas.includes(n.id) }));
+    }
+
+    function render() {
+        const notifs = gerarNotificacoes();
+        const naoLidas = notifs.filter(n => !n.lida).length;
+        badge.hidden = naoLidas === 0;
+
+        if (!notifs.length) {
+            list.innerHTML = `<p class="notif-empty">🎉 Tudo certo! Nenhuma pendência.</p>`;
+            return;
+        }
+
+        const icone = { err: 'error', warn: 'warning', info: 'schedule' };
+        list.innerHTML = notifs.map(n => `
+            <div class="notif-item ${n.lida ? '' : 'unread'}">
+                <span class="notif-icon ${n.tipo}">
+                    <span class="material-symbols-outlined">${icone[n.tipo]}</span>
+                </span>
+                <div class="notif-body">
+                    <p class="notif-title">${n.titulo}</p>
+                    <p class="notif-text">${n.texto}</p>
+                </div>
+            </div>`).join('');
+    }
+
+    // Permite acionar de fora (ex: depois de adicionar alguma regra dinamicamente)
+    window.atualizarNotificacoesReceitas = render;
+
+    function marcarTodasLidas() {
+        const ids = gerarNotificacoes().map(n => n.id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+        render();
+    }
+
+    function toggle(open) {
+        const abrir = open ?? !panel.classList.contains('show');
+        panel.classList.toggle('show', abrir);
+        btn.setAttribute('aria-expanded', abrir);
+        if (abrir) render();
+    }
+
+    btn.addEventListener('click', e => { e.stopPropagation(); toggle(); });
+    clear.addEventListener('click', marcarTodasLidas);
+
+    document.addEventListener('click', e => {
+        if (!panel.contains(e.target) && !btn.contains(e.target)) toggle(false);
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') toggle(false); });
+
+    render();
+})();
