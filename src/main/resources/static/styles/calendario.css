@@ -332,9 +332,10 @@ body {
 
 /* ===== MAIN WORKSPACE DESIGN ===== */
 .main-container {
-    margin-left: 264px;
+    margin-left: 400px;
     padding-top: 68px;
     min-height: 100vh
+
 }
 
 .cal-dashboard-layout {
