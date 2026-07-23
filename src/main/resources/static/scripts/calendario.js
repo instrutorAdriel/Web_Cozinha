@@ -19,6 +19,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const containerDisponiveis = document.getElementById("cal-available");
     const btnPrev = document.getElementById("cal-prev");
     const btnNext = document.getElementById("cal-next");
+    const dialogConfirmacao = document.getElementById("modal-confirmacao");
+    const btnConfirmarExclusao = document.getElementById("btn-confirmar-exclusao");
+    const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
+    let fichaIdParaDesalocar = null;
+
+    // Ações do Modal de Confirmação
+    if (btnCancelarExclusao) {
+        btnCancelarExclusao.addEventListener("click", () => {
+            dialogConfirmacao.close();
+            fichaIdParaDesalocar = null;
+        });
+    }
+
+    if (btnConfirmarExclusao) {
+        btnConfirmarExclusao.addEventListener("click", () => {
+            if (fichaIdParaDesalocar !== null) {
+                fetch(`/calendario/desalocar?id=${fichaIdParaDesalocar}`, {
+                    method: 'POST'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Erro ao desalocar a ficha");
+                    dialogConfirmacao.close();
+                    fichaIdParaDesalocar = null;
+                    carregarAlocacoesERenderizarGrid();
+                })
+                .catch(err => {
+                    console.error("Erro ao remover ficha:", err);
+                    alert("Ocorreu um erro ao tentar retirar a ficha do calendário.");
+                });
+            }
+        });
+    }
+
+
 
     /**
      * Busca assincronamente todas as fichas alocadas no banco de dados,
@@ -108,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Container para organizar as bolinhas no rodapé da célula
                 const containerBolinhas = document.createElement("div");
                 containerBolinhas.className = "indicator-dots";
-                
+
                 // Estilização inline para posicionamento no canto inferior direito
                 containerBolinhas.style.justifyContent = "flex-end";
                 containerBolinhas.style.marginLeft = "auto";
@@ -234,25 +268,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // ==========================================
         // AÇÃO 2: Configura o botão de Remover (X)
         // ==========================================
+        // Dentro de criarCardFicha(id, nome, status, acao)
+        // Substitua o bloco de 'delete' atual por:
         if (acao === 'delete') {
             card.querySelector('.btn-fiche-action').addEventListener('click', () => {
-                const celulaAtiva = document.querySelector('.day-cell.active-selected');
-
-                // Dispara a requisição para remover a data da ficha
-                fetch(`/calendario/desalocar?id=${id}`, { method: 'GET' })
-                    .then(response => {
-                        if (!response.ok) throw new Error("Erro ao desalocar");
-                        return response.text();
-                    })
-                    .then(mensagem => {
-                        alert(mensagem); // Alerta opcional de sucesso
-                        // Recarrega as alocações e atualiza o calendário com as bolinhas correspondentes
-                        carregarAlocacoesERenderizarGrid();
-                    })
-                    .catch(err => {
-                        console.error("Erro na desalocação:", err);
-                        alert("Não foi possível remover a ficha.");
-                    });
+                // Guarda o id no estado temporário e abre o popup
+                fichaIdParaDesalocar = id;
+                dialogConfirmacao.showModal(); // Método nativo que gerencia foco e acessibilidade
             });
         }
 
