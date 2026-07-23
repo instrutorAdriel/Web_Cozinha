@@ -1,4 +1,5 @@
 package com.application.WebApplicationSIGEC.model;
+package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;

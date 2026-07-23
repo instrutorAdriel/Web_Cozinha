@@ -116,4 +116,10 @@ public class FichasController {
         fichasService.desalocarFicha(id, idTurma);
         return ResponseEntity.ok("Receita desalocada com sucesso!");
     }
+
+    @GetMapping("/calendario/logout")
+    public String logout(HttpSession session) {
+        sessaoService.encerrarSessao(session);
+        return "redirect:/login";
+    }
 }

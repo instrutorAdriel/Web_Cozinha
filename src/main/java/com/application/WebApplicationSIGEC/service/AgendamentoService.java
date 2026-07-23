@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class AgendamentoService {
@@ -36,6 +38,18 @@ public class AgendamentoService {
     @Transactional(readOnly = true)
     public List<Agendamento> buscarAgendamentosPorTurmaEData(Integer turmaId, LocalDate data) {
         return agendamentoRepository.findByTurmaIdAndData(turmaId, data);
+    }
+
+    public Map<String, Long> buscarResumoAgendamentosDoMes(int ano, int mes, Integer turmaId) {
+        // Busca todos os agendamentos daquela turma no mês/ano
+        List<Agendamento> agendamentos = agendamentoRepository.findByTurmaIdAndMesEAno(turmaId, mes, ano);
+
+        // Agrupa por data formatada (YYYY-MM-DD) e conta quantas fichas existem em cada dia
+        return agendamentos.stream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getData().toString(), // Chave: "2026-07-22"
+                        Collectors.counting()        // Valor: Quantidade de fichas no dia
+                ));
     }
 
     @Transactional

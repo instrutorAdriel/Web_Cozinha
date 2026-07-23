@@ -27,6 +27,26 @@ public class AgendamentoController {
         this.sessaoService = sessaoService;
     }
 
+    @GetMapping("/mes")
+    public ResponseEntity<?> obterResumoAgendamentosDoMes(
+            @RequestParam("ano") int ano,
+            @RequestParam("mes") int mes,
+            @RequestParam("idTurma") Integer turmaId,
+            HttpSession session) {
+
+        if (sessaoService.buscarUsuarioLogado(session) == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            // Retorna um Map<String, Long> no formato: {"2026-07-22": 3, "2026-07-25": 1}
+            Map<String, Long> resumoMes = agendamentoService.buscarResumoAgendamentosDoMes(ano, mes, turmaId);
+            return ResponseEntity.ok(resumoMes);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/turmas")
     public ResponseEntity<?> listarTurmasInstrutor(HttpSession session) {
         Usuario usuario = sessaoService.buscarUsuarioLogado(session);
