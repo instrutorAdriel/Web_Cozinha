@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let diaSelecionadoGlobal = new Date().getDate();
     let turmaAtivaId = null;
 
-    // Guarda a quantidade de fichas por data vindas do BD -> { "2026-06-16": 2 }
+    // Mapa de contagem de fichas por data -> { "2026-07-22": 2 }
     let contagemFichasPorData = {};
 
     const nomesMeses = [
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnNext = document.getElementById("cal-next");
     const selectTurma = document.getElementById('selectTurma');
 
-    // Modais
+    // Modais de confirmação
     const dialogConfirmacao = document.getElementById("modal-confirmacao");
     const btnConfirmarExclusao = document.getElementById("btn-confirmar-exclusao");
     const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       1. INICIALIZAÇÃO
+       1. INICIALIZAÇÃO E CARREGAMENTO DAS TURMAS
        ====================================================== */
     function inicializarSistema() {
         if (!selectTurma) return;
@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       3. RENDERIZAÇÃO DO GRID
+       3. RENDERIZAÇÃO DO GRID DO CALENDÁRIO
        ====================================================== */
     function renderizarGrid() {
         if (!grid) return;
@@ -144,14 +144,14 @@ document.addEventListener("DOMContentLoaded", () => {
             diaSelecionadoGlobal = totalDiasNoMes;
         }
 
-        // Espaços em branco
+        // Preenche células vazias no início do mês
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
             espaco.className = "day-cell space";
             grid.appendChild(espaco);
         }
 
-        // Dias
+        // Renderiza cada dia do mês
         for (let dia = 1; dia <= totalDiasNoMes; dia++) {
             const celula = document.createElement("div");
             celula.className = "day-cell";
@@ -160,49 +160,55 @@ document.addEventListener("DOMContentLoaded", () => {
             spanNumero.textContent = dia;
             celula.appendChild(spanNumero);
 
-            const diaSemana = new Date(ano, mes, dia).getDay();
-            if (diaSemana === 0 || diaSemana === 6) {
-                celula.classList.add("weekend");
-            }
-
             const strMes = String(mes + 1).padStart(2, '0');
             const strDia = String(dia).padStart(2, '0');
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
-            // RENDERIZAÇÃO DAS BOLINHAS (INDICATOR DOTS)
-            const qtdFichas = contagemFichasPorData[dataIso] || 0;
-            if (qtdFichas > 0) {
-                const indicatorContainer = document.createElement("div");
-                indicatorContainer.className = "indicator-dots";
+            // ----- BLOQUEIO E VERIFICAÇÃO DE FINS DE SEMANA (SÁB = 6, DOM = 0) -----
+            const diaSemana = new Date(ano, mes, dia).getDay();
+            const ehFimDeSemana = (diaSemana === 0 || diaSemana === 6);
 
-                const totalBolinhas = Math.min(qtdFichas, 3);
-                for (let b = 0; b < totalBolinhas; b++) {
-                    const dot = document.createElement("span");
-                    dot.className = "dot orange";
-                    indicatorContainer.appendChild(dot);
+            if (ehFimDeSemana) {
+                // Aplica as classes CSS de bloqueio e desativa a célula
+                celula.classList.add("weekend", "bloqueado");
+            } else {
+                // RENDERIZAÇÃO DAS BOLINHAS (INDICATOR DOTS) APENAS PARA DIAS ÚTEIS
+                const qtdFichas = contagemFichasPorData[dataIso] || 0;
+                if (qtdFichas > 0) {
+                    const indicatorContainer = document.createElement("div");
+                    indicatorContainer.className = "indicator-dots";
+
+                    const totalBolinhas = Math.min(qtdFichas, 3);
+                    for (let b = 0; b < totalBolinhas; b++) {
+                        const dot = document.createElement("span");
+                        dot.className = "dot orange";
+                        indicatorContainer.appendChild(dot);
+                    }
+                    celula.appendChild(indicatorContainer);
                 }
-                celula.appendChild(indicatorContainer);
-            }
 
-            if (dia === diaSelecionadoGlobal) {
-                celula.classList.add("active-selected");
-                buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
-            }
+                // Seleção inicial / Ativação do dia útil
+                if (dia === diaSelecionadoGlobal) {
+                    celula.classList.add("active-selected");
+                    buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
+                }
 
-            celula.addEventListener("click", () => {
-                document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
-                celula.classList.add("active-selected");
-                diaSelecionadoGlobal = dia;
-                buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
-            });
+                // Evento de clique para dias úteis
+                celula.addEventListener("click", () => {
+                    document.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
+                    celula.classList.add("active-selected");
+                    diaSelecionadoGlobal = dia;
+                    buscarAgendamentos(dataIso, dia, nomesMeses[mes], ano);
+                });
+            }
 
             grid.appendChild(celula);
         }
     }
 
     /* ======================================================
-       4. PAINEL LATERAL (FICHAS)
+       4. PAINEL LATERAL (FICHAS ALOCADAS / DISPONÍVEIS)
        ====================================================== */
     function buscarAgendamentos(dataIso, dia, nomeMes, ano) {
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
@@ -286,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       5. AÇÕES REST (ALOCAR E DESALOCAR COM PERSISTÊNCIA)
+       5. AÇÕES REST (ALOCAR E DESALOCAR COM RE-RENDER)
        ====================================================== */
     function executarAlocacao(fichaId, turmaId, dataIso, btnElement) {
         btnElement.disabled = true;
@@ -309,7 +315,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return res.json();
             })
             .then(() => {
-                // Atualiza o mapa de bolinhas e redesenha a tela
                 atualizarEExibirCalendario();
             })
             .catch(err => {
@@ -339,7 +344,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return res.json();
             })
             .then(() => {
-                // Atualiza o mapa de bolinhas e redesenha a tela
                 atualizarEExibirCalendario();
             })
             .catch(err => {
@@ -348,7 +352,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    // Modal de confirmação
+    // Modal de Confirmação de Exclusão
     function abrirModalDesalocacao(fichaId, dataIso, btnElement) {
         fichaPendenteDesalocacao = { fichaId, dataIso, btnElement };
         if (dialogConfirmacao) {
@@ -381,7 +385,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Navegação
+    // Navegação entre meses
     if (btnPrev) {
         btnPrev.addEventListener("click", () => {
             dataCalendario.setMonth(dataCalendario.getMonth() - 1);
