@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/agendamentos")
@@ -21,30 +22,14 @@ public class AgendamentoController {
 
     private final AgendamentoService agendamentoService;
     private final SessaoService sessaoService;
+    private final AgendamentoRepository agendamentoRepository;
 
-    public AgendamentoController(AgendamentoService agendamentoService, SessaoService sessaoService) {
+    public AgendamentoController(AgendamentoService agendamentoService,
+                                 SessaoService sessaoService,
+                                 AgendamentoRepository agendamentoRepository) {
         this.agendamentoService = agendamentoService;
         this.sessaoService = sessaoService;
-    }
-
-    @GetMapping("/mes")
-    public ResponseEntity<?> obterResumoAgendamentosDoMes(
-            @RequestParam("ano") int ano,
-            @RequestParam("mes") int mes,
-            @RequestParam("idTurma") Integer turmaId,
-            HttpSession session) {
-
-        if (sessaoService.buscarUsuarioLogado(session) == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        try {
-            // Retorna um Map<String, Long> no formato: {"2026-07-22": 3, "2026-07-25": 1}
-            Map<String, Long> resumoMes = agendamentoService.buscarResumoAgendamentosDoMes(ano, mes, turmaId);
-            return ResponseEntity.ok(resumoMes);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
+        this.agendamentoRepository = agendamentoRepository;
     }
 
     @GetMapping("/turmas")
@@ -59,6 +44,40 @@ public class AgendamentoController {
         return ResponseEntity.ok(turmas);
     }
 
+    /**
+     * Retorna a contagem de fichas agendadas por data no mês/ano e turma especificados.
+     * Alimenta a renderização das bolinhas no calendário visual.
+     * Exemplo de retorno: { "2026-06-16": 2, "2026-06-20": 1 }
+     */
+    @GetMapping("/mes")
+    public ResponseEntity<?> obterContagemAgendamentosMes(
+            @RequestParam("ano") int ano,
+            @RequestParam("mes") int mes,
+            @RequestParam("idTurma") Integer idTurma,
+            HttpSession session) {
+
+        if (sessaoService.buscarUsuarioLogado(session) == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        LocalDate dataInicio = LocalDate.of(ano, mes, 1);
+        LocalDate dataFim = dataInicio.withDayOfMonth(dataInicio.lengthOfMonth());
+
+        // Agrupa os agendamentos da turma no intervalo do mês e conta por data
+        Map<String, Long> contagemPorData = agendamentoRepository.findAll().stream()
+                .filter(a -> a.getTurma() != null && a.getTurma().getId() == idTurma)
+                .filter(a -> a.getData() != null && !a.getData().isBefore(dataInicio) && !a.getData().isAfter(dataFim))
+                .collect(Collectors.groupingBy(
+                        a -> a.getData().toString(),
+                        Collectors.counting()
+                ));
+
+        return ResponseEntity.ok(contagemPorData);
+    }
+
+    /**
+     * Retorna os agendamentos detalhados de um dia específico
+     */
     @GetMapping
     public ResponseEntity<?> listarAgendamentosPorTurmaEData(
             @RequestParam("turmaId") Integer turmaId,
