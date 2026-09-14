@@ -29,7 +29,6 @@ public class AgendamentoService {
         this.agendamentoRepository = agendamentoRepository;
     }
 
-    // Busca de turmas alterada para consultar pelo E-mail do usuário
     @Transactional(readOnly = true)
     public List<Turmas> buscarTurmasPorUsuarioEmail(String email) {
         return turmasRepository.findByUsuarioEmail(email);
@@ -37,43 +36,44 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<Agendamento> buscarAgendamentosPorTurmaEData(Integer turmaId, LocalDate data) {
-        return agendamentoRepository.findByTurmaIdAndData(turmaId, data);
+        return agendamentoRepository.findByFichaIdAndData(turmaId, data)
+                .map(List::of)
+                .orElse(List.of());
     }
 
+    @Transactional(readOnly = true)
     public Map<String, Long> buscarResumoAgendamentosDoMes(int ano, int mes, Integer turmaId) {
-        // Busca todos os agendamentos daquela turma no mês/ano
         List<Agendamento> agendamentos = agendamentoRepository.findByTurmaIdAndMesEAno(turmaId, mes, ano);
 
-        // Agrupa por data formatada (YYYY-MM-DD) e conta quantas fichas existem em cada dia
         return agendamentos.stream()
                 .collect(Collectors.groupingBy(
-                        a -> a.getData().toString(), // Chave: "2026-07-22"
-                        Collectors.counting()        // Valor: Quantidade de fichas no dia
+                        a -> a.getData().toString(),
+                        Collectors.counting()
                 ));
     }
 
     @Transactional
-    public void alocarFichaNaTurma(Integer fichaId, Integer turmaId, LocalDate data) {
-        boolean jaAgendado = agendamentoRepository
-                .findByTurmaIdAndFichaIdAndData(turmaId, fichaId, data)
-                .isPresent();
+    public void alocarFichaNaTurma(Integer fichaId, LocalDate data) {
+        boolean jaAgendado = agendamentoRepository.findByFichaIdAndData(fichaId, data).isPresent();
 
         if (jaAgendado) {
-            throw new IllegalArgumentException("Esta ficha já está agendada para esta turma nesta data.");
+            throw new IllegalArgumentException("Esta ficha já está agendada para esta data.");
         }
 
         Fichas ficha = fichasRepository.findById(fichaId)
                 .orElseThrow(() -> new IllegalArgumentException("Ficha técnica não encontrada. ID: " + fichaId));
 
-        Turmas turma = turmasRepository.findById(turmaId)
-                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada. ID: " + turmaId));
+        Agendamento novoAgendamento = new Agendamento();
+        novoAgendamento.setFicha(ficha);
+        novoAgendamento.setData(data);
+        novoAgendamento.setSituacao("A");
+        novoAgendamento.setConcluido("N");
 
-        Agendamento novoAgendamento = new Agendamento(turma, ficha, data);
         agendamentoRepository.save(novoAgendamento);
     }
 
     @Transactional
-    public void desalocarFichaNaTurma(Integer fichaId, Integer turmaId, LocalDate data) {
-        agendamentoRepository.deleteByTurmaIdAndFichaIdAndData(turmaId, fichaId, data);
+    public void desalocarFicha(Integer fichaId, LocalDate data) {
+        agendamentoRepository.deleteByFichaIdAndData(fichaId, data);
     }
 }

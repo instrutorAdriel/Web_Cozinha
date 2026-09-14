@@ -2,114 +2,54 @@ package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
 import java.util.List;
 
-
 @Entity
-@Table(name = "fichas")
-public class Fichas {
+@Table(name = "ficha")
+public class Fichas implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_ficha")
+    private Integer id;
 
-    @Column(nullable = false, length = 100)
-    private String nome;
+    @Column(name = "nome_ficha", nullable = false, length = 100)
+    private String nomeFicha;
 
     @Column(columnDefinition = "TEXT")
     private String preparo;
 
-    @Column(name = "data")
-    private LocalDate data;
+    @Column(name = "situacao", nullable = false, length = 1)
+    private String situacao = "A";
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "fichas_turmas",
-            joinColumns = @JoinColumn(name = "ficha_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "turma_id", referencedColumnName = "id")
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_turma")
     @JsonIgnoreProperties("fichas")
-    private Set<Turmas> turmas = new HashSet<>();
+    private Turmas turma;
 
-    @ManyToMany
-    @JoinTable(
-            name = "fichas_insumos",
-            joinColumns = @JoinColumn(name= "ficha_id"),
-            inverseJoinColumns = @JoinColumn(name = "insumos_id")
-    )
+    @OneToMany(mappedBy = "ficha", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("ficha")
     private List<Insumos> insumos;
 
-    @ManyToMany
-    @JoinTable(
-            name = "fichas_utensilios",
-            joinColumns = @JoinColumn(name = "ficha_id"),
-            inverseJoinColumns = @JoinColumn(name = "utensilio_id")
-    )
-    private List<Utensilios> utensilios;
+    public Fichas() {}
 
-    public Fichas() {
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public Fichas(String nome, LocalDate data, String preparo) {
-        this.nome = nome;
-        this.data = data;
-        this.preparo = preparo;
-    }
+    public String getNomeFicha() { return nomeFicha; }
+    public void setNomeFicha(String nomeFicha) { this.nomeFicha = nomeFicha; }
 
-    public int getId() {
-        return id;
-    }
+    public String getPreparo() { return preparo; }
+    public void setPreparo(String preparo) { this.preparo = preparo; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getSituacao() { return situacao; }
+    public void setSituacao(String situacao) { this.situacao = situacao; }
 
-    public String getNome() {
-        return nome;
-    }
+    public Turmas getTurma() { return turma; }
+    public void setTurma(Turmas turma) { this.turma = turma; }
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public LocalDate getData() {
-        return data;
-    }
-
-    public void setData(LocalDate data) {
-        this.data = data;
-    }
-
-    public String getPreparo() {
-        return preparo;
-    }
-
-    public void setPreparo(String preparo) {
-        this.preparo = preparo;
-    }
-
-    public List<Insumos> getInsumos() {
-        return insumos;
-    }
-
-    public void setInsumos(List<Insumos> insumos) {
-        this.insumos = insumos;
-    }
-    public List<Utensilios> getUtensilios() {
-        return utensilios;
-    }
-    public void setUtensilios(List<Utensilios> utensilios) {
-        this.utensilios = utensilios;
-    }
-
-    public Set<Turmas> getTurmas() {
-        return turmas;
-    }
-
-    public void setTurmas(Set<Turmas> turmas) {
-        this.turmas = turmas;
-    }
+    public List<Insumos> getInsumos() { return insumos; }
+    public void setInsumos(List<Insumos> insumos) { this.insumos = insumos; }
 }

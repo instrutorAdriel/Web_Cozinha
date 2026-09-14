@@ -13,13 +13,13 @@ import java.util.Optional;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
-    List<Agendamento> findByTurmaIdAndData(Integer turmaId, LocalDate data);
+    List<Agendamento> findByData(LocalDate data);
 
-    Optional<Agendamento> findByTurmaIdAndFichaIdAndData(Integer turmaId, Integer fichaId, LocalDate data);
+    Optional<Agendamento> findByFichaIdAndData(Integer fichaId, LocalDate data);
 
-    void deleteByTurmaIdAndFichaIdAndData(Integer turmaId, Integer fichaId, LocalDate data);
+    void deleteByFichaIdAndData(Integer fichaId, LocalDate data);
 
-    @Query("SELECT a FROM Agendamento a WHERE a.turma.id = :turmaId AND MONTH(a.data) = :mes AND YEAR(a.data) = :ano")
+    @Query("SELECT a FROM Agendamento a JOIN a.ficha f JOIN f.turma t WHERE t.id = :turmaId AND MONTH(a.data) = :mes AND YEAR(a.data) = :ano")
     List<Agendamento> findByTurmaIdAndMesEAno(
             @Param("turmaId") Integer turmaId,
             @Param("mes") int mes,

@@ -1,57 +1,49 @@
 package com.application.WebApplicationSIGEC.model;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "Insumos")
-public class Insumos {
+@Table(name = "insumo")
+public class Insumos implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, length = 100)
-    private String nome;
-    @Column(nullable = false, length = 50)
-    private String tipo;
-    @Column(nullable = false, length = 100)
-    private String unidade_medida;
+    @Column(name = "id_insumo")
+    private Integer id;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "insumos")
-    private List<Fichas> fichas;
+    @Column(nullable = false)
+    private Integer quantidade;
 
-    protected Insumos() {
-    }
+    @Column(nullable = false, length = 1)
+    private String cancelado = "N";
 
-    public Insumos(String nome,String tipo, int quantidade,String unidade_medida, String observação) {
-        this.nome = nome;
-        this.tipo = tipo;
-        this.unidade_medida = unidade_medida;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_produto")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Produto produto;
 
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_ficha")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "insumos"})
+    private Fichas ficha;
 
-    public String getNome() {
-        return nome;
-    }
+    public Insumos() {}
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
 
-    public String getTipo() {
-        return tipo;
-    }
+    public String getCancelado() { return cancelado; }
+    public void setCancelado(String cancelado) { this.cancelado = cancelado; }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-    public String getUnidade_medida() {
-        return unidade_medida;
-    }
-    public void setUnidade_medida(String unidade_medida) {
-        this.unidade_medida = unidade_medida;
-    }
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
 
+    public Fichas getFicha() { return ficha; }
+    public void setFicha(Fichas ficha) { this.ficha = ficha; }
 }

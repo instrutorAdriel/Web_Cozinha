@@ -2,81 +2,60 @@ package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Table(name = "turmas")
-public class Turmas {
+@Table(name = "turma")
+public class Turmas implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @Column(name = "id_turma")
+    private Integer id;
 
-    @Column(name = "nome_turma", nullable = false, unique = true)
+    @Column(name = "nome_turma", nullable = false, length = 55)
     private String nomeTurma;
 
-    @Column(nullable = false)
-    private String laboratorio;
+    @Column(name = "situacao", nullable = false, length = 1)
+    private String situacao = "A";
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_laboratorio")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Laboratorio laboratorio;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-            name = "usuarios_turmas",
-            joinColumns = @JoinColumn(name = "turmas", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "usuarios", referencedColumnName = "id")
+            name = "usuario_turma",
+            joinColumns = @JoinColumn(name = "id_turma"),
+            inverseJoinColumns = @JoinColumn(name = "id_usuario")
     )
-    @JsonIgnoreProperties("turmas") // Evita loop ao serializar a lista de usuários da turma
+    @JsonIgnoreProperties("turmas")
     private List<Usuario> usuarios;
 
-    // Dentro de Turmas.java
-
-    @ManyToMany(mappedBy = "turmas", fetch = FetchType.LAZY)
-    @JsonIgnoreProperties("turmas")
+    @OneToMany(mappedBy = "turma", fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("turma")
     private List<Fichas> fichas;
 
-    public Turmas() {
-    }
+    public Turmas() {}
 
-    public Turmas(String nomeTurma, String laboratorio) {
-        this.nomeTurma = nomeTurma;
-        this.laboratorio = laboratorio;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public int getId() {
-        return id;
-    }
+    public String getNomeTurma() { return nomeTurma; }
+    public void setNomeTurma(String nomeTurma) { this.nomeTurma = nomeTurma; }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+    public String getSituacao() { return situacao; }
+    public void setSituacao(String situacao) { this.situacao = situacao; }
 
-    public String getNomeTurma() {
-        return nomeTurma;
-    }
+    public Laboratorio getLaboratorio() { return laboratorio; }
+    public void setLaboratorio(Laboratorio laboratorio) { this.laboratorio = laboratorio; }
 
-    public void setNomeTurma(String nomeTurma) {
-        this.nomeTurma = nomeTurma;
-    }
+    public List<Usuario> getUsuarios() { return usuarios; }
+    public void setUsuarios(List<Usuario> usuarios) { this.usuarios = usuarios; }
 
-    public String getLaboratorio() {
-        return laboratorio;
-    }
-
-    public void setLaboratorio(String laboratorio) {
-        this.laboratorio = laboratorio;
-    }
-
-    public List<Usuario> getUsuarios() {
-        return usuarios;
-    }
-
-    public void setUsuarios(List<Usuario> usuarios) {
-        this.usuarios = usuarios;
-    }
-
-    public List<Fichas> getFichas() {
-        return fichas;
-    }
-
-    public void setFichas(List<Fichas> fichas) {
-        this.fichas = fichas;
-    }
+    public List<Fichas> getFichas() { return fichas; }
+    public void setFichas(List<Fichas> fichas) { this.fichas = fichas; }
 }

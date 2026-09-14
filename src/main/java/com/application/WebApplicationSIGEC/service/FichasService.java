@@ -4,37 +4,25 @@ import com.application.WebApplicationSIGEC.model.Fichas;
 import com.application.WebApplicationSIGEC.model.Turmas;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
 import com.application.WebApplicationSIGEC.repository.TurmasRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FichasService {
 
-    @Autowired
-    private FichasRepository fichasRepository;
+    private final FichasRepository fichasRepository;
+    private final TurmasRepository turmasRepository;
 
-    @Autowired
-    private TurmasRepository turmasRepository;
-
-    @Transactional(readOnly = true)
-    public Fichas buscarReceitas(String nome) {
-        Optional<Fichas> rs = fichasRepository.findByNome(nome);
-        return rs.orElse(null);
+    public FichasService(FichasRepository fichasRepository, TurmasRepository turmasRepository) {
+        this.fichasRepository = fichasRepository;
+        this.turmasRepository = turmasRepository;
     }
 
     @Transactional(readOnly = true)
-    public List<Fichas> buscarData(LocalDate data) {
-        List<Fichas> rs = fichasRepository.findByData(data);
-        if (!rs.isEmpty()) {
-            return rs;
-        }
-        return Collections.emptyList();
+    public Fichas buscarPorNome(String nomeFicha) {
+        return fichasRepository.findByNomeFicha(nomeFicha).orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -42,33 +30,25 @@ public class FichasService {
         return fichasRepository.findAll();
     }
 
-    @Transactional
-    public void alocarFicha(int idFicha, LocalDate novaData, int idTurma) {
-        Fichas ficha = fichasRepository.findByIdWithTurmas(idFicha)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada com o ID: " + idFicha));
-
-        Turmas turma = turmasRepository.findById(idTurma)
-                .orElseThrow(() -> new RuntimeException("Turma não encontrada com o ID: " + idTurma));
-
-        ficha.setData(novaData);
-        ficha.getTurmas().add(turma); // Adiciona com segurança sem fazer Cast manual!
-
-        fichasRepository.save(ficha);
+    @Transactional(readOnly = true)
+    public List<Fichas> buscarPorTurma(Integer idTurma) {
+        return fichasRepository.findByTurmaId(idTurma);
     }
 
     @Transactional
-    public void desalocarFicha(int idFicha, int idTurma) {
-        Fichas ficha = fichasRepository.findByIdWithTurmas(idFicha)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada com o ID: " + idFicha));
+    public Fichas salvar(Fichas ficha, Integer idTurma) {
+        Turmas turma = turmasRepository.findById(idTurma)
+                .orElseThrow(() -> new RuntimeException("Turma não encontrada com o ID: " + idTurma));
 
-        // Remove a turma específica associada
-        ficha.getTurmas().removeIf(t -> t.getId() == idTurma);
+        ficha.setTurma(turma);
+        return fichasRepository.save(ficha);
+    }
 
-        // Se não restar nenhuma turma vinculada, limpa a data
-        if (ficha.getTurmas().isEmpty()) {
-            ficha.setData(null);
-        }
-
+    @Transactional
+    public void desativar(Integer idFicha) {
+        Fichas ficha = fichasRepository.findById(idFicha)
+                .orElseThrow(() -> new RuntimeException("Ficha técnica não encontrada com ID: " + idFicha));
+        ficha.setSituacao("I");
         fichasRepository.save(ficha);
     }
 }

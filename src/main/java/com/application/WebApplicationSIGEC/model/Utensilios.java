@@ -1,52 +1,59 @@
 package com.application.WebApplicationSIGEC.model;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "utensilios")
-public class Utensilios {
+@Table(name = "utensilio")
+public class Utensilios implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @Column(nullable = false, length = 100)
-    private String nome;
+    @Column(name = "id_utensilio")
+    private Integer id;
+
+    @Column(name = "nome_utensilio", nullable = false, length = 100)
+    private String nomeUtensilio;
+
     @Column(nullable = false)
-    private Integer quantidade;
+    private Integer quantidade = 0;
 
-    @ManyToMany(mappedBy = "utensilios")
-    private List<Fichas> fichas;
+    @Column(name = "numero_patrimonio", nullable = false)
+    private Integer numeroPatrimonio;
 
-    protected Utensilios() {
-    }
+    @Column(length = 255)
+    private String observacao;
 
-    public Utensilios(String nome, Integer quantidade) {
-        this.nome = nome;
-        this.quantidade = quantidade;
-    }
-    public Long getId() {
-        return id;
-    }
-    public String getNome() {
-        return nome;
-    }
+    @Column(nullable = false, length = 1)
+    private String situacao = "A";
 
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categoria_utensilio")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private CategoriaUtensilio categoriaUtensilio;
 
-    public List<Fichas> getFichas() {
-        return fichas;
-    }
-    public void setFichas(List<Fichas> fichas) {
-        this.fichas = fichas;
-    }
+    public Utensilios() {}
 
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getNomeUtensilio() { return nomeUtensilio; }
+    public void setNomeUtensilio(String nomeUtensilio) { this.nomeUtensilio = nomeUtensilio; }
+
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+
+    public Integer getNumeroPatrimonio() { return numeroPatrimonio; }
+    public void setNumeroPatrimonio(Integer numeroPatrimonio) { this.numeroPatrimonio = numeroPatrimonio; }
+
+    public String getObservacao() { return observacao; }
+    public void setObservacao(String observacao) { this.observacao = observacao; }
+
+    public String getSituacao() { return situacao; }
+    public void setSituacao(String situacao) { this.situacao = situacao; }
+
+    public CategoriaUtensilio getCategoriaUtensilio() { return categoriaUtensilio; }
+    public void setCategoriaUtensilio(CategoriaUtensilio categoriaUtensilio) { this.categoriaUtensilio = categoriaUtensilio; }
 }
