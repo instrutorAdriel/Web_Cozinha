@@ -11,31 +11,47 @@
 <body>
 <div class="app-container">
     <div class="overlay" id="overlay"></div>
+
+    <!-- Barra Lateral (Sidebar) conforme a imagem anexada -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
-            <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
+            <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" />
             <div class="brand-text">
                 <h1 class="brand-title">SIGEC</h1>
-                <p class="brand-sub">Painel do Instrutor</p>
+                <p class="brand-sub">PAINEL DO INSTRUTOR</p>
             </div>
         </div>
 
         <nav class="sidebar-nav">
-            <p class="nav-group">Menu</p>
-            <a th:href="@{/home}" class="nav-item"><span class="material-symbols-outlined">home</span><span>Início</span></a>
-            <a th:href="@{/calendario}" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
-            <a href="#" class="nav-item active"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+            <p class="nav-group">MENU</p>
+            <a th:href="@{/home}" class="nav-item">
+                <span class="material-symbols-outlined">home</span>
+                <span>Início</span>
+            </a>
+            <a th:href="@{/calendario}" class="nav-item">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span>Calendário</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Receitas</span>
+            </a>
         </nav>
+
         <div class="sidebar-footer">
-            <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
+            <button class="btn-logout" type="button">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Sair</span>
+            </button>
         </div>
     </aside>
 
+    <!-- Conteúdo Principal -->
     <div class="main-container">
-
+        <!-- Topbar -->
         <header class="topbar">
             <div class="topbar-left">
-                <button class="menu-toggle" id="menu-toggle">
+                <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
                     <span class="material-symbols-outlined">menu</span>
                 </button>
 
@@ -46,28 +62,16 @@
                 </div>
             </div>
 
-            <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
+            <!-- Ações: Seletor de Turma, Notificações e Perfil -->
             <div class="topbar-actions">
-
-                <div class="topbar-actions">
-
-                    <label class="field-label" for="turma-select">Turma / Laboratório</label>
+                <div class="turma-select-group">
+                    <label class="field-label" for="turma-select">TURMA / LABORATÓRIO</label>
                     <div class="select-wrap">
-
-                        <select id="turma-select">
-                            <option value="">-- Selecione uma Turma --</option>
-                            <option value="2024.1.A">Turma 2024.1.A</option>
-                            <option value="2024.1.C">Turma 2024.1.C</option>
-                        </select>
-
+                        <select id="turma-select"></select>
                         <span class="material-symbols-outlined select-arrow">expand_more</span>
-
                     </div>
-
-
                 </div>
 
-                <!-- Central de Notificações (Menu expansível via JS) -->
                 <div class="notif-wrap">
                     <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
                         <span class="material-symbols-outlined">notifications</span>
@@ -82,37 +86,57 @@
                         <div class="notif-list" id="notif-list"></div>
                     </div>
                 </div>
+
                 <div class="user-box">
                     <div class="user-info">
                         <p class="user-name">Chef Ricardo Silva</p>
-                        <p class="user-role">Instrutor Gastronomia</p>
+                        <p class="user-role">INSTRUTOR GASTRONOMIA</p>
                     </div>
+                    <div class="user-avatar" title="Chef Ricardo Silva">RS</div>
                 </div>
             </div>
         </header>
 
-        <div class="filter-toolbar">
-            <div class="toolbar-title">Receitas</div>
-        </div>
-
+        <!-- Workspace de Receitas -->
         <div class="workspace-area">
 
+            <!-- Coluna de Filtros e Lista de Receitas -->
             <aside class="recipes-list-pane">
                 <div class="status-tabs">
-                    <button class="status-tab-btn active" data-status="todas">Todas</button>
+                    <button class="status-tab-btn" data-status="todas">Todas</button>
                     <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
-                    <button class="status-tab-btn" data-status="datadas">Datadas</button>
+                    <button class="status-tab-btn active" data-status="datadas">Datadas</button>
                 </div>
 
-                <div id="listCol" class="scrollable-list">
+
+                <div class="category-filter-section">
+                    <div class="category-header">
+                        <span class="category-title">CATEGORIA PEDAGÓGICA</span>
+                        <span class="category-count" id="recipeCountLabel">0 receitas</span>
+                    </div>
+                    <div class="category-tags" id="categoryTabs">
+                        <button class="cat-pill active" data-cat="todas">Todas</button>
+                        <button class="cat-pill" data-cat="Panificação">Panificação</button>
+                        <button class="cat-pill" data-cat="Confeitaria">Confeitaria</button>
+                        <button class="cat-pill" data-cat="Cozinha Quente">Cozinha Quente</button>
+                        <button class="cat-pill" data-cat="Cozinha Fria">Cozinha Fria</button>
+                    </div>
                 </div>
+
+                <div class="search-input-wrap">
+                    <span class="material-symbols-outlined search-icon">search</span>
+                    <input type="text" id="recipe-search" placeholder="Buscar receita ou ingrediente..." autocomplete="off">
+                </div>
+
+                <div id="listCol" class="scrollable-list"></div>
             </aside>
-            <main id="detailCol" class="recipe-detail-pane">
-            </main>
+
+            <!-- Painel de Detalhes -->
+            <main id="detailCol" class="recipe-detail-pane"></main>
         </div>
     </div>
-
 </div>
+
 <script th:src="@{/scripts/scriptReceitas.js}"></script>
 </body>
 </html>
