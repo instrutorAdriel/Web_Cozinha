@@ -1,20 +1,20 @@
 package com.application.WebApplicationSIGEC.repository;
 
-import com.application.WebApplicationSIGEC.model.Fichas;
+import com.application.WebApplicationSIGEC.model.Ficha;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface FichasRepository extends JpaRepository<Fichas, Integer> {
+public interface FichasRepository extends JpaRepository<Ficha, Long> {
 
-    Optional<Fichas> findByNome(String nome);
+    Optional<Ficha> findByNomeFicha(String nomeFicha);
 
-    boolean existsFichasByNome(String nome);
+    boolean existsByNomeFicha(String nomeFicha);
 
-    List<Fichas> findByData(LocalDate data);
+    List<Ficha> findByData(LocalDate data);
 
-    List<Fichas> findByDataIsNull();
+    List<Ficha> findByDataIsNull();
 
-    List<Fichas> findByDataIsNotNull();
+    List<Ficha> findByDataIsNotNull();
 }
