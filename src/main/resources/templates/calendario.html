@@ -40,9 +40,12 @@
         </nav>
 
         <div class="sidebar-footer">
-            <button class="btn-logout">
-                <span class="material-symbols-outlined">logout</span>Sair
-            </button>
+            <form th:action="@{/logout}" method="get">
+                <button type="submit" class="btn-logout">
+                    <span class="material-symbols-outlined">logout</span>
+                    Sair
+                </button>
+            </form>
         </div>
     </aside>
 
