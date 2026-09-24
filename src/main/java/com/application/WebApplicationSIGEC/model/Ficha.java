@@ -1,5 +1,6 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.List;
@@ -30,9 +31,11 @@ public class Ficha {
     @Column(name = "data")
     private LocalDate data;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Insumo> insumos;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ChecklistUtensilio> checklistUtensilios;
 
