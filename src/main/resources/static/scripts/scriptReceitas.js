@@ -206,10 +206,6 @@ const RECIPES = [
         ]
     },
 
-    // =====================================================
-    // NOVAS RECEITAS
-    // =====================================================
-
     // ===== RECEITA 5 =====
     {
         id: 7,
@@ -741,7 +737,7 @@ function renderDetail() {
                 </div>
 
 
-                <div class="note-box-body">
+                <div class="note-box-body" id="noteViewMode">
 
                     <p id="instructorNoteText">
 
@@ -751,6 +747,37 @@ function renderDetail() {
     }
 
                     </p>
+
+                </div>
+
+                <!-- MODO DE EDIÇÃO IN-LINE -->
+                <div class="note-box-edit" id="noteEditMode" style="display: none;">
+
+                    <textarea
+                        id="noteTextarea"
+                        class="note-textarea-inline"
+                        rows="3"
+                        placeholder="Adicione observações pedagógicas para a aula..."
+                    ></textarea>
+
+                    <div class="note-edit-actions">
+
+                        <button
+                            type="button"
+                            class="btn-note-cancel"
+                            id="btnCancelarNota">
+                            Cancelar
+                        </button>
+
+                        <button
+                            type="button"
+                            class="btn-note-save"
+                            id="btnSalvarNota">
+                            <span class="material-symbols-outlined">save</span>
+                            Salvar Observação
+                        </button>
+
+                    </div>
 
                 </div>
 
@@ -893,30 +920,33 @@ function renderDetail() {
     `;
 
 
-    const btnEditar =
-        document.getElementById('btnEditarNota');
+    // ===== CONTROLES DE EDIÇÃO DA OBSERVAÇÃO (SEM POPUP) =====
+    const btnEditar = document.getElementById('btnEditarNota');
+    const btnCancelar = document.getElementById('btnCancelarNota');
+    const btnSalvar = document.getElementById('btnSalvarNota');
+    const noteViewMode = document.getElementById('noteViewMode');
+    const noteEditMode = document.getElementById('noteEditMode');
+    const noteTextarea = document.getElementById('noteTextarea');
 
-
-    if (btnEditar) {
+    if (btnEditar && noteViewMode && noteEditMode) {
 
         btnEditar.addEventListener('click', () => {
+            noteTextarea.value = r.instructorNote || "";
+            noteViewMode.style.display = 'none';
+            btnEditar.style.display = 'none';
+            noteEditMode.style.display = 'block';
+            noteTextarea.focus();
+        });
 
-            const novoTexto =
-                prompt(
-                    "Atualizar observações do instrutor:",
-                    r.instructorNote || ""
-                );
+        btnCancelar.addEventListener('click', () => {
+            noteEditMode.style.display = 'none';
+            noteViewMode.style.display = 'block';
+            btnEditar.style.display = 'inline-block';
+        });
 
-
-            if (novoTexto !== null) {
-
-                r.instructorNote =
-                    novoTexto.trim();
-
-                renderList();
-
-            }
-
+        btnSalvar.addEventListener('click', () => {
+            r.instructorNote = noteTextarea.value.trim();
+            renderList();
         });
 
     }
