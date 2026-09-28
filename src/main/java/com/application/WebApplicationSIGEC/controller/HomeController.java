@@ -12,16 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.service.SessaoService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/")
@@ -32,6 +29,9 @@ public class HomeController {
 
     @Autowired
     private HomeService homeService;
+
+    @Autowired
+    private com.application.WebApplicationSIGEC.service.FichasService fichasService;
 
 @GetMapping("/home")
 public String exibirHome(Model model, HttpServletRequest request) {
@@ -96,6 +96,61 @@ public String exibirHome(Model model, HttpServletRequest request) {
 
         Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
         return ResponseEntity.ok(detalhes);
+    }
+
+    // Endpoint 3: Busca todas as fichas (receitas) do banco para popular o select do Checklist
+    @GetMapping("/api/fichas")
+    @ResponseBody
+    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Ficha>> getTodasFichas() {
+        List<com.application.WebApplicationSIGEC.model.Ficha> todasFichas = fichasService.buscarTodas();
+        return ResponseEntity.ok(todasFichas);
+    }
+
+    @PostMapping("/api/fichas/confirmar-separacao")
+    @ResponseBody
+    public ResponseEntity<String> confirmarSeparacaoInsumos(
+            @RequestBody Map<String, Object> payload) {
+
+        List<Integer> insumosInt = (List<Integer>) payload.get("insumosMarcados");
+        List<Long> insumoIds = insumosInt.stream().map(Integer::longValue).toList();
+        String observacao = (String) payload.get("observacao");
+
+        homeService.confirmarSeparacaoInsumos(insumoIds, observacao);
+
+        return ResponseEntity.ok("Estoque atualizado com sucesso!");
+    }
+
+    @PostMapping("/api/fichas/confirmar-utensilios")
+    @ResponseBody
+    public ResponseEntity<String> confirmarSaidaUtensilios(@RequestBody Map<String, Object> payload) {
+
+        List<Integer> idsInt = (List<Integer>) payload.get("checklistIds");
+        if (idsInt == null || idsInt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Nenhum utensílio selecionado.");
+        }
+
+        List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
+        homeService.confirmarSaidaUtensilios(checklistIds);
+
+        return ResponseEntity.ok("Saída de utensílios registrada com sucesso!");
+    }
+
+    @PostMapping("/api/fichas/devolver-utensilio")
+    @ResponseBody
+    public ResponseEntity<String> registrarDevolucaoUtensilio(@RequestBody Map<String, Object> payload) {
+        // Agora recebe uma lista de IDs
+        List<Integer> idsInt = (List<Integer>) payload.get("checklistIds");
+        if (idsInt == null || idsInt.isEmpty()) {
+            return ResponseEntity.badRequest().body("Nenhum utensílio selecionado para devolução.");
+        }
+        List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
+
+        String estadoAtual = (String) payload.get("estadoAtual");
+        String observacao = (String) payload.get("observacao");
+
+        homeService.registrarDevolucaoUtensilio(checklistIds, estadoAtual, observacao);
+
+        return ResponseEntity.ok("Devolução registrada com sucesso!");
     }
 
 }

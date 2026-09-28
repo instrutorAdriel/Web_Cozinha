@@ -24,7 +24,7 @@ public class Ficha {
     @Column(nullable = false, length = 1)
     private String situacao = "A";
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_turma")
     private Turma turma;
 
