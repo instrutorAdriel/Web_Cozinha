@@ -59,8 +59,7 @@ const RECIPES = [
             "Colher de pau / Espátula de silicone",
             "Faca chef e tábua de corte verde",
             "Bowls de inox para Mise en Place"
-        ],
-        comments: "Atenção ao ponto de tostagem das especiarias secas na gordura: aquecer sem queimar para não amargar o fundo de panela."
+        ]
     },
 
     // ===== DATADA 2 =====
@@ -87,8 +86,7 @@ const RECIPES = [
             "Panela grande de fundo grosso",
             "Faca chef e tábua vermelha",
             "Escumadeira inox"
-        ],
-        comments: "As carnes devem vir dessalgadas da véspera (trocas sucessivas de água gelada). O tempo de cocção será monitorado em bancada."
+        ]
     },
 
     // ===== DATADA 3 =====
@@ -114,8 +112,7 @@ const RECIPES = [
             "Tábua de corte azul (pescados)",
             "Bowl inox sobre banho de gelo",
             "Espremedor manual de cítricos"
-        ],
-        comments: "Mantenha a cadeia de frio estrita com o bowl sobre pedras de gelo. O peixe deve desidratar no ácido por no máximo 2 minutos antes do serviço."
+        ]
     },
 
     // ===== DATADA 4 =====
@@ -141,8 +138,7 @@ const RECIPES = [
             "Travessa refratária retangular",
             "Colher de silicone",
             "Ralador de queijo"
-        ],
-        comments: "Trabalharemos a proporção clássica do Roux (manteiga e farinha) para o molho bechamel sem criar grumos."
+        ]
     },
 
     // ===== DATADA 5 =====
@@ -168,8 +164,7 @@ const RECIPES = [
             "Tigela grande de inox",
             "Assadeira retangular",
             "Forno convencional"
-        ],
-        comments: "Observe a temperatura de escaldamento do polvilho: o líquido deve atingir fervura antes de ser despejado sobre o amido."
+        ]
     },
 
     // ===== DATADA 6 =====
@@ -196,8 +191,7 @@ const RECIPES = [
             "Faca chef afiada",
             "Tábua de corte verde",
             "Colher grande de serviço"
-        ],
-        comments: "Não misturar com colher durante o cozimento para não desmanchar as postas do peixe."
+        ]
     },
 
     // ===== DATADA 7 =====
@@ -223,8 +217,7 @@ const RECIPES = [
             "Forma de pão inglês retangular",
             "Pincel culinário macio",
             "Grade de resfriamento"
-        ],
-        comments: "A manteiga deve estar pastosa (pomada) e ser adicionada aos poucos após a rede de glúten estar parcialmente formada."
+        ]
     },
 
     // ===== DATADA 8 =====
@@ -251,8 +244,7 @@ const RECIPES = [
             "Filme plástico alimentar",
             "Prato de servir resfriado",
             "Laminador de queijo"
-        ],
-        comments: "Prática focada na técnica de corte uniforme e afiação de facas para laminação milimétrica da carne crua."
+        ]
     },
 
     // ===== DATADA 9 =====
@@ -276,8 +268,7 @@ const RECIPES = [
             "Lâmina de corte para pão (grignette)",
             "Pá de forno para pão",
             "Pedra refratária de assamento"
-        ],
-        comments: "Aula prática focada no golpe de lâmina (pestana) inclinado a 45 graus e injeção de vapor na câmara de assamento."
+        ]
     },
 
     // ===== DATADA 10 =====
@@ -303,8 +294,7 @@ const RECIPES = [
             "Tábua de corte sanitizada",
             "Bowl inox apoiado em banho de gelo",
             "Aro metálico para empratamento"
-        ],
-        comments: "Rigor absoluto nas normas de higiene e sanitização de bancada para corte de proteína bovina servida in natura."
+        ]
     },
 
     // ===== DATADA 11 =====
@@ -329,8 +319,7 @@ const RECIPES = [
             "Frigideira ou chapa de ferro pesada",
             "Assadeira para batatas",
             "Pegador longo inox"
-        ],
-        comments: "Demonstração do ponto correto de maciez dos moluscos cefalópodes sem risco de textura borrachosa."
+        ]
     },
 
     // ===== DATADA 12 =====
@@ -356,8 +345,7 @@ const RECIPES = [
             "Saco de confeitar com bico liso grande",
             "Faca de serra para pão afiada",
             "Fouet de confeitaria"
-        ],
-        comments: "Controle da caramelização da massa folhada prensada no forno para criar impermeabilização contra a umidade do creme."
+        ]
     },
 
     // ===== DATADA 13 =====
@@ -383,8 +371,7 @@ const RECIPES = [
             "Espátula raspadeira de corte (tarocco)",
             "Gnocchiera (tábua estriada de madeira)",
             "Frigideira sauté grande"
-        ],
-        comments: "A batata deve ser assada (não cozida em água) para evitar excesso de umidade e sobrecarga de farinha na massa."
+        ]
     },
 
     // ===== DATADA 14 =====
@@ -409,8 +396,7 @@ const RECIPES = [
             "Tábua de corte sanitizada",
             "Termômetro de espeto culinário",
             "Peso de prensa para resfriamento"
-        ],
-        comments: "Exercício prático de prensa e prensagem pós-cocção para compactação uniforme da charcutaria artesanal."
+        ]
     },
 
     // ===== DATADA 15 =====
@@ -435,8 +421,7 @@ const RECIPES = [
             "Manga de confeitar com bico redondo 8mm",
             "Termômetro digital para calda de açúcar",
             "Processador / Peneira fina"
-        ],
-        comments: "Atenção ao ponto crítico da 'macaronage' (ponto de fita) e ao tempo de descanso para secagem da película antes do forno."
+        ]
     },
 
 
@@ -468,8 +453,7 @@ const RECIPES = [
             "Concha média para caldo",
             "Tigela para hidratação de cogumelos",
             "Ralador de queijo fino"
-        ],
-        comments: "Prática da técnica de mantecatura: adição da manteiga gelada e parmesão fora do fogo para emulsão brilhante."
+        ]
     },
 
     // ===== DISPONÍVEL 2 =====
@@ -495,8 +479,7 @@ const RECIPES = [
             "Raspadeira de padeiro de silicone",
             "Assadeira retangular de borda alta",
             "Pincel culinário"
-        ],
-        comments: "Técnica de dobras pull-and-fold executada a cada 20 minutos para desenvolver a sustentação da massa super hidratada."
+        ]
     },
 
     // ===== DISPONÍVEL 3 =====
@@ -522,8 +505,7 @@ const RECIPES = [
             "Travessa refratária de cerâmica",
             "Papel manteiga vegetal",
             "Faca chef afiada"
-        ],
-        comments: "Uso obrigatório do protetor de mãos na mandolina para padronização milimétrica de todas as rodelas dos vegetais."
+        ]
     },
 
     // ===== DISPONÍVEL 4 =====
@@ -550,8 +532,7 @@ const RECIPES = [
             "Tigela ampla",
             "Forma redonda para bolo",
             "Espátula de silicone"
-        ],
-        comments: "Peneirar farinha e cacau juntos para evitar grumos secos na aeração da massa batida à mão."
+        ]
     },
 
     // ===== DISPONÍVEL 5 =====
@@ -577,8 +558,7 @@ const RECIPES = [
             "Bowl amplo de vidro",
             "Ralador de lâminas largas",
             "Faca chef"
-        ],
-        comments: "Secagem rigorosa das folhas na centrífuga: folhas úmidas impedem a aderência da emulsão do molho."
+        ]
     },
 
     // ===== DISPONÍVEL 6 =====
@@ -603,8 +583,7 @@ const RECIPES = [
             "Maçarico culinário portátil",
             "Assadeira alta para banho-maria",
             "Peneira fina metálica"
-        ],
-        comments: "Uso do maçarico culinário em movimentos circulares para caramelização vítrea sem queimar o açúcar."
+        ]
     },
 
     // ===== DISPONÍVEL 7 =====
@@ -630,8 +609,7 @@ const RECIPES = [
             "Manga de confeitar com bico pitanga",
             "Maçarico culinário",
             "Termômetro de calda"
-        ],
-        comments: "Aqueça claras e açúcar até 65°C para dissolução total dos cristais antes de montar na batedeira em pico firme."
+        ]
     },
 
     // ===== DISPONÍVEL 8 =====
@@ -656,8 +634,7 @@ const RECIPES = [
             "Panela de ferro fundido holandesa com tampa",
             "Lâmina de corte afiada para pão",
             "Termômetro culinário"
-        ],
-        comments: "Monitoramento da acidez e temperatura do levain prévio antes da mistura com a farinha."
+        ]
     },
 
     // ===== DISPONÍVEL 9 =====
@@ -683,8 +660,7 @@ const RECIPES = [
             "Tábua de corte azul sanitizada",
             "Aro metálico de montagem (8cm)",
             "Bowl de vidro sobre cama de gelo"
-        ],
-        comments: "O abacate deve ser regado com gotas de limão imediatamente após o corte para evitar escurecimento enzimático."
+        ]
     },
 
     // ===== DISPONÍVEL 10 =====
@@ -711,8 +687,7 @@ const RECIPES = [
             "Pegador longo de carnes",
             "Peneira cônica para molhos",
             "Faca chef de lâmina larga"
-        ],
-        comments: "Técnica de braseado francês: secar os cubos de carne em papel toalha antes de selar para garantir a Reação de Maillard."
+        ]
     },
 
     // ===== DISPONÍVEL 11 =====
@@ -738,8 +713,7 @@ const RECIPES = [
             "Manga de confeitar com bico francês estriado",
             "Tapete de teflon para assar",
             "Batedeira planetária"
-        ],
-        comments: "Proibido abrir a porta do forno durante os primeiros 20 minutos de assamento para a massa choux não desinflar."
+        ]
     },
 
     // ===== DISPONÍVEL 12 =====
@@ -764,8 +738,7 @@ const RECIPES = [
             "Pá plana para pão enfarinhada",
             "Raspadeira de corte de metal",
             "Pedra refratária de forno"
-        ],
-        comments: "Manipulação extremamente delicada da massa na bancada enfarinhada para não estourar os grandes alvéolos de gás."
+        ]
     },
 
     // ===== DISPONÍVEL 13 =====
@@ -791,8 +764,7 @@ const RECIPES = [
             "Peneira metálica média (chinois)",
             "Jarra de vidro mantida na geladeira",
             "Tábua de corte verde"
-        ],
-        comments: "Emulsione o azeite em fio lentamente no liquidificador ligado para atingir textura aveludada e cremosa natural."
+        ]
     },
 
     // ===== DISPONÍVEL 14 =====
@@ -818,8 +790,7 @@ const RECIPES = [
             "Mandolina para batata palha",
             "Fritadeira ou panela funda para fritura",
             "Garfo grande para envolver ovos"
-        ],
-        comments: "Cocção dos ovos feita em calor residual fora da chama direta para evitar textura de ovo mexido seco."
+        ]
     },
 
     // ===== DISPONÍVEL 15 =====
@@ -845,8 +816,7 @@ const RECIPES = [
             "Rolo de massa / Cilindro manual",
             "Cortador redondo de massa (10cm)",
             "Manga de confeitar com bico liso"
-        ],
-        comments: "Os tubos só devem ser recheados minutos antes do consumo para manter a casquinha frita 100% crocante."
+        ]
     }
 ];
 
@@ -994,7 +964,7 @@ function renderList() {
 }
 
 
-// ===== RENDERIZAR DETALHES COM BLOCO ESTÁTICO DE COMENTÁRIO/ORIENTAÇÃO =====
+// ===== RENDERIZAR DETALHES (APENAS INGREDIENTES E UTENSÍLIOS) =====
 function renderDetail() {
     const detailCol = document.getElementById('detailCol');
     if (!detailCol) return;
@@ -1065,26 +1035,6 @@ function renderDetail() {
                     </div>
                 </section>
             </div>
-
-            <!-- SEÇÃO DE ORIENTAÇÃO PEDAGÓGICA ESTÁTICA (SUBSTITUI MODO DE PREPARO) -->
-            <section class="comments-section">
-                <h3 class="section-title">
-                    <span class="bar-accent"></span>
-                    Orientações Pedagógicas & Comentários Técnicos
-                </h3>
-
-                <div class="comment-pedagogico-card">
-                    <span class="material-symbols-outlined comment-pedagogico-icon">info</span>
-                    <div class="comment-pedagogico-body">
-                        <h4>Instruções do Instrutor em Bancada</h4>
-                        <p>
-                            ${r.comments
-        ? r.comments
-        : "O modo de preparo detalhado desta preparação será conduzido pelo instrutor diretamente na bancada técnica do laboratório. Organize seu Mise en Place prévio conforme a lista de insumos e utensílios."}
-                        </p>
-                    </div>
-                </div>
-            </section>
 
         </div>
     `;

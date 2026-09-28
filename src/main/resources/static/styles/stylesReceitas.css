@@ -774,52 +774,6 @@ body {
     color: var(--secondary);
 }
 
-/* ===== BLOCO ESTÁTICO DE ORIENTAÇÃO PEDAGÓGICA (SUBSTITUI MODO DE PREPARO) ===== */
-.comments-section {
-    display: flex;
-    flex-direction: column;
-    margin-top: 8px;
-}
-
-.comment-pedagogico-card {
-    background-color: var(--surface-low);
-    border: 1px dashed var(--outline-variant);
-    border-left: 4px solid var(--primary-container);
-    border-radius: var(--r-lg);
-    padding: 20px 22px;
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-}
-
-.comment-pedagogico-icon {
-    color: var(--primary-container);
-    font-size: 28px;
-    flex-shrink: 0;
-    user-select: none;
-    margin-top: 2px;
-}
-
-.comment-pedagogico-body {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.comment-pedagogico-body h4 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--primary);
-}
-
-.comment-pedagogico-body p {
-    margin: 0;
-    font-size: 13.5px;
-    line-height: 1.6;
-    color: var(--on-surface);
-}
-
 /* ===== OVERLAY MOBILE ===== */
 .overlay {
     display: none;
