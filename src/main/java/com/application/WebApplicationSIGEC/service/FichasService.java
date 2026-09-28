@@ -1,8 +1,7 @@
 package com.application.WebApplicationSIGEC.service;
 
-import com.application.WebApplicationSIGEC.model.Fichas;
+import com.application.WebApplicationSIGEC.model.Ficha;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,43 +12,44 @@ import java.util.Optional;
 @Service
 public class FichasService {
 
-    @Autowired
-    private FichasRepository fichasRepository;
+    private final FichasRepository fichasRepository;
 
-    public Fichas buscarReceitas(String nome){
-        Optional<Fichas> rs = fichasRepository.findByNome(nome);
+    // Injeção via construtor (resolve o aviso de "Field injection is not recommended")
+    public FichasService(FichasRepository fichasRepository) {
+        this.fichasRepository = fichasRepository;
+    }
+
+    public Ficha buscarReceitas(String nomeFicha) {
+        Optional<Ficha> rs = fichasRepository.findByNomeFicha(nomeFicha);
         return rs.orElse(null);
     }
 
-    // AJUSTE: Mude o retorno de 'Fichas' para 'List<Fichas>'
-    public List<Fichas> buscarData(LocalDate data) {
-        List<Fichas> rs = fichasRepository.findByData(data);
+    public List<Ficha> buscarData(LocalDate data) {
+        List<Ficha> rs = fichasRepository.findByData(data);
 
-        // Verificamos se a lista NÃO está vazia
         if (!rs.isEmpty()) {
-            return rs; // Retorna a lista com todas as fichas encontradas
+            return rs;
         }
 
-        return java.util.Collections.emptyList(); // Retorna uma lista vazia segura em vez de null
+        return java.util.Collections.emptyList();
     }
 
-    // função temporaria
-    public List<Fichas> buscarTodas() {
+    public List<Ficha> buscarTodas() {
         return fichasRepository.findAll();
     }
 
-    // Dentro do teu FichasService.java
-
-    @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
-    public void alocarFicha(int idFicha, LocalDate novaData) {
-        Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+    @Transactional
+    public void alocarFicha(Long idFicha, LocalDate novaData) { // Alterado de int para Long
+        Ficha ficha = fichasRepository.findById(idFicha)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         ficha.setData(novaData);
         fichasRepository.save(ficha);
     }
 
-    @Transactional // <-- Adiciona isto aqui para o Spring gerir o UPDATE de forma segura
-    public void desalocarFicha(int idFicha) {
-        Fichas ficha = fichasRepository.findById(idFicha).orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+    @Transactional
+    public void desalocarFicha(Long idFicha) { // Alterado de int para Long
+        Ficha ficha = fichasRepository.findById(idFicha)
+                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
         ficha.setData(null);
         fichasRepository.save(ficha);
     }

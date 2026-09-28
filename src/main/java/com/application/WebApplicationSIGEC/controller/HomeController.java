@@ -37,7 +37,7 @@ public String exibirHome(Model model, HttpServletRequest request) {
 
     // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
 
-    String primeiroNome = usuarioLogado.getNome().split(" ")[0];
+    String primeiroNome = usuarioLogado.getNomeUsuario().split(" ")[0];
     primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
             + primeiroNome.substring(1).toLowerCase();
 

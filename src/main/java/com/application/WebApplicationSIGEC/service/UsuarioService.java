@@ -3,7 +3,6 @@ package com.application.WebApplicationSIGEC.service;
 import com.application.WebApplicationSIGEC.model.Usuario;
 import com.application.WebApplicationSIGEC.model.UsuarioForm;
 import com.application.WebApplicationSIGEC.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,19 +10,23 @@ import java.util.Optional;
 
 @Service
 public class UsuarioService {
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
+    private final UsuarioRepository usuarioRepository;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    // Injeção via construtor (resolve o alerta do IntelliJ)
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+    }
 
     public String cadastrar(UsuarioForm form){
         if(!form.getSenha().equals(form.getConfirmarSenha())){
             return "As senhas não conferem";
         }
-        String senhaRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
+        /*String senhaRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
         if (!form.getSenha().matches(senhaRegex)) {
             return "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.";
-        }
+        }*/
         if(usuarioRepository.existsByEmail(form.getEmail())){
             return "E-mail já cadastrado no banco";
         }
@@ -34,14 +37,23 @@ public class UsuarioService {
 
         String senhaCriptografada = encoder.encode(form.getSenha());
 
-        Usuario novoUsuario = new Usuario(form.getNome(), form.getEmail(), senhaCriptografada);
+
+        Usuario novoUsuario = new Usuario();
+        novoUsuario.setNomeUsuario(form.getNomeUsuario());
+        novoUsuario.setEmail(form.getEmail());
+        novoUsuario.setSenha(senhaCriptografada);
+
+        // Definido sempre como Ativo ('A') e Comum ('C') automaticamente
+        novoUsuario.setSituacao('A');
+        novoUsuario.setAcesso('C');
+        novoUsuario.setSenhaTemporaria(false);
 
         usuarioRepository.save(novoUsuario);
 
         return null;
     }
 
-    public Usuario autenticar(String email,String senha){
+    public Usuario autenticar(String email, String senha){
         Optional<Usuario> resultado = usuarioRepository.findByEmail(email);
         if(resultado.isEmpty()){
             return null;
@@ -52,7 +64,6 @@ public class UsuarioService {
         if(!encoder.matches(senha, usuario.getSenha())){
             return null;
         }
-
         return usuario;
     }
 
