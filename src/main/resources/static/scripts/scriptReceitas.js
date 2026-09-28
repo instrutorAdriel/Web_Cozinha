@@ -26,6 +26,7 @@ if (turmaSelect) {
 
 popularSeletorTurmas();
 
+
 // ===== BASE DE DADOS DE RECEITAS (15 DATADAS E 15 DISPONÍVEIS) =====
 const RECIPES = [
 
@@ -59,16 +60,7 @@ const RECIPES = [
             "Faca chef e tábua de corte verde",
             "Bowls de inox para Mise en Place"
         ],
-        steps: [
-            {
-                title: "Refogue os aromáticos",
-                text: "Aqueça um fio de óleo na panela média. Adicione a cebola em brunoise e o alho picado fininho, refogando até dourarem levemente."
-            },
-            {
-                title: "Adicione as especiarias e cozinhe",
-                text: "Junte o curry e a páprica na gordura por 1 minuto. Verta o leite de coco e o grão-de-bico, cozinhando por 15 minutos até encorpar."
-            }
-        ]
+        comments: "Atenção ao ponto de tostagem das especiarias secas na gordura: aquecer sem queimar para não amargar o fundo de panela."
     },
 
     // ===== DATADA 2 =====
@@ -96,16 +88,7 @@ const RECIPES = [
             "Faca chef e tábua vermelha",
             "Escumadeira inox"
         ],
-        steps: [
-            {
-                title: "Cozimento do feijão",
-                text: "Cozinhe o feijão com folhas de louro e carnes dessalgadas na pressão até atingir maciez sem desmanchar."
-            },
-            {
-                title: "Dourar carnes e apurar",
-                text: "Doure alho e cebola, incorpore ao feijão e reduza em fogo brando até encorpar o caldo."
-            }
-        ]
+        comments: "As carnes devem vir dessalgadas da véspera (trocas sucessivas de água gelada). O tempo de cocção será monitorado em bancada."
     },
 
     // ===== DATADA 3 =====
@@ -132,16 +115,7 @@ const RECIPES = [
             "Bowl inox sobre banho de gelo",
             "Espremedor manual de cítricos"
         ],
-        steps: [
-            {
-                title: "Mise en place do pescado",
-                text: "Corte os filés em cubos uniformes de 1,5cm mantendo tudo sob refrigeração constante com gelo."
-            },
-            {
-                title: "Cura rápida e serviço",
-                text: "Misture o peixe à marinada cítrica de limão, gengibre, cebola e pimenta por 90 segundos e sirva bem gelado."
-            }
-        ]
+        comments: "Mantenha a cadeia de frio estrita com o bowl sobre pedras de gelo. O peixe deve desidratar no ácido por no máximo 2 minutos antes do serviço."
     },
 
     // ===== DATADA 4 =====
@@ -168,16 +142,7 @@ const RECIPES = [
             "Colher de silicone",
             "Ralador de queijo"
         ],
-        steps: [
-            {
-                title: "Preparo do ragù",
-                text: "Refogue a carne moída, junte o molho de tomate e deixe apurar até obter consistência encorpada."
-            },
-            {
-                title: "Montagem e gratinado",
-                text: "Alterne camadas de massa, bechamel, ragù e queijo. Polvilhe parmesão e gratine a 200°C por 30 minutos."
-            }
-        ]
+        comments: "Trabalharemos a proporção clássica do Roux (manteiga e farinha) para o molho bechamel sem criar grumos."
     },
 
     // ===== DATADA 5 =====
@@ -204,16 +169,7 @@ const RECIPES = [
             "Assadeira retangular",
             "Forno convencional"
         ],
-        steps: [
-            {
-                title: "Escaldamento",
-                text: "Ferva o leite com o óleo e o sal. Despeje sobre o polvilho e misture até esfriar."
-            },
-            {
-                title: "Modelagem e forneamento",
-                text: "Incorpore os ovos e o queijo. Modele bolinhas uniformes e asse a 200°C até dourarem."
-            }
-        ]
+        comments: "Observe a temperatura de escaldamento do polvilho: o líquido deve atingir fervura antes de ser despejado sobre o amido."
     },
 
     // ===== DATADA 6 =====
@@ -241,16 +197,7 @@ const RECIPES = [
             "Tábua de corte verde",
             "Colher grande de serviço"
         ],
-        steps: [
-            {
-                title: "Montagem em camadas",
-                text: "Disponha os vegetais e os filés de peixe temperados em camadas sucessivas na panela fria."
-            },
-            {
-                title: "Cocção lenta",
-                text: "Regue com o leite de coco e o azeite de dendê. Cozinhe em fogo médio semi-tampado por 20 minutos."
-            }
-        ]
+        comments: "Não misturar com colher durante o cozimento para não desmanchar as postas do peixe."
     },
 
     // ===== DATADA 7 =====
@@ -277,16 +224,7 @@ const RECIPES = [
             "Pincel culinário macio",
             "Grade de resfriamento"
         ],
-        steps: [
-            {
-                title: "Desenvolvimento do glúten",
-                text: "Bata farinha, ovos, açúcar e fermento. Incorpore a manteiga em cubos até obter ponto de véu translúcido."
-            },
-            {
-                title: "Modelagem e forno",
-                text: "Modele uma trança de 3 pontas, deixe fermentar até dobrar de volume e asse a 180°C por 35 minutos."
-            }
-        ]
+        comments: "A manteiga deve estar pastosa (pomada) e ser adicionada aos poucos após a rede de glúten estar parcialmente formada."
     },
 
     // ===== DATADA 8 =====
@@ -314,16 +252,7 @@ const RECIPES = [
             "Prato de servir resfriado",
             "Laminador de queijo"
         ],
-        steps: [
-            {
-                title: "Fatiamento técnico",
-                text: "Firme a carne no congelador por 30 minutos e fatie lâminas ultrafinas, dispondo-as no prato gelado."
-            },
-            {
-                title: "Emulsão e serviço",
-                text: "Emulsione mostarda, azeite e limão. Regue a carne e guarneça com rúcula, alcaparras e parmesão."
-            }
-        ]
+        comments: "Prática focada na técnica de corte uniforme e afiação de facas para laminação milimétrica da carne crua."
     },
 
     // ===== DATADA 9 =====
@@ -348,16 +277,7 @@ const RECIPES = [
             "Pá de forno para pão",
             "Pedra refratária de assamento"
         ],
-        steps: [
-            {
-                title: "Autólise e sova",
-                text: "Misture farinha e água por 40 minutos. Adicione o fermento e o sal, executando dobras a cada 30 minutos."
-            },
-            {
-                title: "Modelagem e pestana",
-                text: "Modele cilindros alongados com pontas afiladas, descanse no couche, faça cortes longitudinais e asse a 240°C com vapor."
-            }
-        ]
+        comments: "Aula prática focada no golpe de lâmina (pestana) inclinado a 45 graus e injeção de vapor na câmara de assamento."
     },
 
     // ===== DATADA 10 =====
@@ -384,16 +304,7 @@ const RECIPES = [
             "Bowl inox apoiado em banho de gelo",
             "Aro metálico para empratamento"
         ],
-        steps: [
-            {
-                title: "Corte na ponta da faca",
-                text: "Pique o filé-mignon em brunoise minúscula e uniforme sem triturar a fibra sobre bowl com gelo."
-            },
-            {
-                title: "Tempero e moldagem",
-                text: "Incorpore os aromáticos e molhos delicadamente. Molde no aro redondo e coroe com a gema fresca."
-            }
-        ]
+        comments: "Rigor absoluto nas normas de higiene e sanitização de bancada para corte de proteína bovina servida in natura."
     },
 
     // ===== DATADA 11 =====
@@ -419,16 +330,7 @@ const RECIPES = [
             "Assadeira para batatas",
             "Pegador longo inox"
         ],
-        steps: [
-            {
-                title: "Cozimento do polvo",
-                text: "Cozinhe o polvo na pressão com uma cebola inteira por 20 minutos até ficar macio ao toque de garfo."
-            },
-            {
-                title: "Selagem e finalização",
-                text: "Grelhe os tentáculos na chapa de ferro quente. Sirva sobre batatas ao murro regadas com alho frito no azeite."
-            }
-        ]
+        comments: "Demonstração do ponto correto de maciez dos moluscos cefalópodes sem risco de textura borrachosa."
     },
 
     // ===== DATADA 12 =====
@@ -455,16 +357,7 @@ const RECIPES = [
             "Faca de serra para pão afiada",
             "Fouet de confeitaria"
         ],
-        steps: [
-            {
-                title: "Assar a folhada caramelizada",
-                text: "Asse a massa folhada prensada entre duas assadeiras a 190°C. Polvilhe açúcar e caramelize no final."
-            },
-            {
-                title: "Montagem do mil-folhas",
-                text: "Corte retângulos iguais, aplique o creme diplomata em pontos com a manga e sobreponha 3 camadas."
-            }
-        ]
+        comments: "Controle da caramelização da massa folhada prensada no forno para criar impermeabilização contra a umidade do creme."
     },
 
     // ===== DATADA 13 =====
@@ -491,16 +384,7 @@ const RECIPES = [
             "Gnocchiera (tábua estriada de madeira)",
             "Frigideira sauté grande"
         ],
-        steps: [
-            {
-                title: "Preparo da massa leve",
-                text: "Esprema as batatas ainda quentes, agregue gema e o mínimo de farinha para dar liga sem sovar."
-            },
-            {
-                title: "Cozimento e emulsão",
-                text: "Corte e role na gnocchiera, ferva até boiarem e verta imediatamente sobre o molho gorgonzola fundido."
-            }
-        ]
+        comments: "A batata deve ser assada (não cozida em água) para evitar excesso de umidade e sobrecarga de farinha na massa."
     },
 
     // ===== DATADA 14 =====
@@ -526,16 +410,7 @@ const RECIPES = [
             "Termômetro de espeto culinário",
             "Peso de prensa para resfriamento"
         ],
-        steps: [
-            {
-                title: "Forração e recheio",
-                text: "Forre a terrine com as fatias de toucinho, preencha com a massa de carnes marinada e feche as abas."
-            },
-            {
-                title: "Banho-maria e prensa",
-                text: "Asse em banho-maria a 150°C até o coração atingir 72°C. Prense com peso e resfrie por 24 horas antes de cortar."
-            }
-        ]
+        comments: "Exercício prático de prensa e prensagem pós-cocção para compactação uniforme da charcutaria artesanal."
     },
 
     // ===== DATADA 15 =====
@@ -561,16 +436,7 @@ const RECIPES = [
             "Termômetro digital para calda de açúcar",
             "Processador / Peneira fina"
         ],
-        steps: [
-            {
-                title: "Macaronage controlada",
-                text: "Bata o merengue italiano, incorpore o tant-pour-tant (amêndoas e açúcar) até atingir o ponto de fita contínua."
-            },
-            {
-                title: "Secagem e forneamento",
-                text: "Pingue as conchas, deixe secar até criar película ao toque e asse a 145°C até formar o pezinho característico."
-            }
-        ]
+        comments: "Atenção ao ponto crítico da 'macaronage' (ponto de fita) e ao tempo de descanso para secagem da película antes do forno."
     },
 
 
@@ -603,16 +469,7 @@ const RECIPES = [
             "Tigela para hidratação de cogumelos",
             "Ralador de queijo fino"
         ],
-        steps: [
-            {
-                title: "Hidrate o funghi",
-                text: "Deixe o funghi secchi de molho em água morna por 20 minutos. Escorra e pique reservando a água coada."
-            },
-            {
-                title: "Cocção do arroz",
-                text: "Refogue a cebola na manteiga, toste o arroz arbóreo, adicione o vinho e hidrate aos poucos com caldo quente mexendo sempre."
-            }
-        ]
+        comments: "Prática da técnica de mantecatura: adição da manteiga gelada e parmesão fora do fogo para emulsão brilhante."
     },
 
     // ===== DISPONÍVEL 2 =====
@@ -639,16 +496,7 @@ const RECIPES = [
             "Assadeira retangular de borda alta",
             "Pincel culinário"
         ],
-        steps: [
-            {
-                title: "Autólise e dobras",
-                text: "Misture farinha, água e fermento. Descanse por 30 minutos e execute 3 ciclos de dobras pull-and-fold."
-            },
-            {
-                title: "Modelagem e forno",
-                text: "Abra na assadeira untada com azeite, afunde as pontas dos dedos, espalhe alecrim e flor de sal e asse a 220°C."
-            }
-        ]
+        comments: "Técnica de dobras pull-and-fold executada a cada 20 minutos para desenvolver a sustentação da massa super hidratada."
     },
 
     // ===== DISPONÍVEL 3 =====
@@ -675,16 +523,7 @@ const RECIPES = [
             "Papel manteiga vegetal",
             "Faca chef afiada"
         ],
-        steps: [
-            {
-                title: "Laminar os vegetais",
-                text: "Fatie berinjela, abobrinha e tomates em discos regulares de 2mm com a mandolina."
-            },
-            {
-                title: "Montagem em leque e forno",
-                text: "Disponha os vegetais em espiral sobre a cama de molho, cubra com papel manteiga e asse a 170°C por 45 minutos."
-            }
-        ]
+        comments: "Uso obrigatório do protetor de mãos na mandolina para padronização milimétrica de todas as rodelas dos vegetais."
     },
 
     // ===== DISPONÍVEL 4 =====
@@ -712,16 +551,7 @@ const RECIPES = [
             "Forma redonda para bolo",
             "Espátula de silicone"
         ],
-        steps: [
-            {
-                title: "Emulsione os líquidos",
-                text: "Misture os ovos, o açúcar, o óleo e o leite com batedor até homogeneizar completamente."
-            },
-            {
-                title: "Secos e cozimento",
-                text: "Acrescente farinha e chocolate peneirados, adicione o fermento e leve ao forno preaquecido a 180°C."
-            }
-        ]
+        comments: "Peneirar farinha e cacau juntos para evitar grumos secos na aeração da massa batida à mão."
     },
 
     // ===== DISPONÍVEL 5 =====
@@ -748,16 +578,7 @@ const RECIPES = [
             "Ralador de lâminas largas",
             "Faca chef"
         ],
-        steps: [
-            {
-                title: "Higienização das folhas",
-                text: "Lave e higienize as folhas de alface romana. Seque muito bem na centrífuga antes da montagem."
-            },
-            {
-                title: "Molho e montagem",
-                text: "Misture os ingredientes do molho até emulsionar. Envolva as folhas e finalize com croutons e queijo."
-            }
-        ]
+        comments: "Secagem rigorosa das folhas na centrífuga: folhas úmidas impedem a aderência da emulsão do molho."
     },
 
     // ===== DISPONÍVEL 6 =====
@@ -783,16 +604,7 @@ const RECIPES = [
             "Assadeira alta para banho-maria",
             "Peneira fina metálica"
         ],
-        steps: [
-            {
-                title: "Infusão e temperagem",
-                text: "Aqueça o creme com a fava de baunilha. Verta sobre as gemas batidas com açúcar mexendo suavemente."
-            },
-            {
-                title: "Cocção e acabamento",
-                text: "Asse em banho-maria a 150°C até firmar. Resfrie por 4 horas e caramelize com o maçarico."
-            }
-        ]
+        comments: "Uso do maçarico culinário em movimentos circulares para caramelização vítrea sem queimar o açúcar."
     },
 
     // ===== DISPONÍVEL 7 =====
@@ -819,16 +631,7 @@ const RECIPES = [
             "Maçarico culinário",
             "Termômetro de calda"
         ],
-        steps: [
-            {
-                title: "Base sablée e curd",
-                text: "Prepare a massa sablée e asse às cegas a 170°C. Cozinhe o suco de limão com gemas e açúcar emulsionando na manteiga."
-            },
-            {
-                title: "Merengue e decoração",
-                text: "Bata o merengue suíço em pico firme, preencha a base com o curd frio, decore com o bico e toste com maçarico."
-            }
-        ]
+        comments: "Aqueça claras e açúcar até 65°C para dissolução total dos cristais antes de montar na batedeira em pico firme."
     },
 
     // ===== DISPONÍVEL 8 =====
@@ -854,16 +657,7 @@ const RECIPES = [
             "Lâmina de corte afiada para pão",
             "Termômetro culinário"
         ],
-        steps: [
-            {
-                title: "Autólise e dobras",
-                text: "Misture as farinhas com água por 1 hora. Adicione o levain e o sal, executando 4 ciclos de dobras a cada 30 minutos."
-            },
-            {
-                title: "Forneamento na panela",
-                text: "Modele em bola no banneton, fermente no frio por 14h e asse dentro da panela de ferro tampada a 240°C."
-            }
-        ]
+        comments: "Monitoramento da acidez e temperatura do levain prévio antes da mistura com a farinha."
     },
 
     // ===== DISPONÍVEL 9 =====
@@ -890,16 +684,7 @@ const RECIPES = [
             "Aro metálico de montagem (8cm)",
             "Bowl de vidro sobre cama de gelo"
         ],
-        steps: [
-            {
-                title: "Corte em cubos precisos",
-                text: "Corte o salmão e o abacate em cubos uniformes de 0,5cm sobre tigela mantida resfriada no gelo."
-            },
-            {
-                title: "Tempero e montagem em torre",
-                text: "Envolva com os cítricos e ciboulette. Acomode uma base de abacate no aro e cubra com o salmão temperado."
-            }
-        ]
+        comments: "O abacate deve ser regado com gotas de limão imediatamente após o corte para evitar escurecimento enzimático."
     },
 
     // ===== DISPONÍVEL 10 =====
@@ -927,16 +712,7 @@ const RECIPES = [
             "Peneira cônica para molhos",
             "Faca chef de lâmina larga"
         ],
-        steps: [
-            {
-                title: "Selagem profunda da carne",
-                text: "Doure o bacon e sele a carne em fogo alto na própria gordura até criar crosta caramelizada rica."
-            },
-            {
-                title: "Braseado longo",
-                text: "Acrescente o vinho tinto e os aromáticos. Tampe e asse em fogo brando por 2 horas até a carne desmanchar."
-            }
-        ]
+        comments: "Técnica de braseado francês: secar os cubos de carne em papel toalha antes de selar para garantir a Reação de Maillard."
     },
 
     // ===== DISPONÍVEL 11 =====
@@ -963,16 +739,7 @@ const RECIPES = [
             "Tapete de teflon para assar",
             "Batedeira planetária"
         ],
-        steps: [
-            {
-                title: "Cozimento da massa choux",
-                text: "Ferva líquidos e manteiga, junte a farinha de uma vez e seque a panela até criar crosta no fundo. Incorpore ovos batendo."
-            },
-            {
-                title: "Modelagem e forneamento",
-                text: "Pingue bastões regulares de 12cm e asse a 180°C por 30 minutos sem abrir o forno. Recheie e banhe na ganache."
-            }
-        ]
+        comments: "Proibido abrir a porta do forno durante os primeiros 20 minutos de assamento para a massa choux não desinflar."
     },
 
     // ===== DISPONÍVEL 12 =====
@@ -998,16 +765,7 @@ const RECIPES = [
             "Raspadeira de corte de metal",
             "Pedra refratária de forno"
         ],
-        steps: [
-            {
-                title: "Desenvolvimento sem sova tradicional",
-                text: "Misture a massa líquida e realize dobras coil-fold na caixa a cada 30 minutos até criar estrutura de sustentação."
-            },
-            {
-                title: "Corte rústico e forno",
-                text: "Vire em bancada enfarinhada, corte retângulos sem desgasificar e asse a 230°C com vapor d'água."
-            }
-        ]
+        comments: "Manipulação extremamente delicada da massa na bancada enfarinhada para não estourar os grandes alvéolos de gás."
     },
 
     // ===== DISPONÍVEL 13 =====
@@ -1034,16 +792,7 @@ const RECIPES = [
             "Jarra de vidro mantida na geladeira",
             "Tábua de corte verde"
         ],
-        steps: [
-            {
-                title: "Trituração e emulsão",
-                text: "Bata os vegetais frescos com o pão hidratado. Verta o azeite em fio com o motor ligado para criar textura cremosa."
-            },
-            {
-                title: "Peneira e serviço frio",
-                text: "Passe pelo chinois para retirar cascas e sementes, resfrie por 3 horas e sirva acompanhado de cubos de vegetais crocantes."
-            }
-        ]
+        comments: "Emulsione o azeite em fio lentamente no liquidificador ligado para atingir textura aveludada e cremosa natural."
     },
 
     // ===== DISPONÍVEL 14 =====
@@ -1070,16 +819,7 @@ const RECIPES = [
             "Fritadeira ou panela funda para fritura",
             "Garfo grande para envolver ovos"
         ],
-        steps: [
-            {
-                title: "Batata palha e refogado",
-                text: "Frite a batata palha até ficar crocante. Em paralelo, refogue a cebola no azeite até murchar e adicione o bacalhau desfiado."
-            },
-            {
-                title: "Cremosidade dos ovos",
-                text: "Junte a batata palha, adicione os ovos batidos e mexa em fogo muito baixo até os ovos ficarem cremosos como um veludo."
-            }
-        ]
+        comments: "Cocção dos ovos feita em calor residual fora da chama direta para evitar textura de ovo mexido seco."
     },
 
     // ===== DISPONÍVEL 15 =====
@@ -1106,33 +846,35 @@ const RECIPES = [
             "Cortador redondo de massa (10cm)",
             "Manga de confeitar com bico liso"
         ],
-        steps: [
-            {
-                title: "Massa e fritura das cascas",
-                text: "Abra a massa bem fina, enrole nos tubos metálicos selando com clara e frite a 180°C até formar bolhas crocantes."
-            },
-            {
-                title: "Creme e montagem",
-                text: "Peneire a ricota com açúcar até virar creme sedoso. Recheie os canudos fritos frios e mergulhe as pontas no pistache picado."
-            }
-        ]
+        comments: "Os tubos só devem ser recheados minutos antes do consumo para manter a casquinha frita 100% crocante."
     }
 ];
-// ===== ESTADO GLOBAL =====
-let activeId = 4;
-let activeStatus = "datadas";
+
+
+// ===== ESTADO GLOBAL (Sincronizado com o botão ativo no HTML) =====
+const btnAtivoHtml = document.querySelector('.status-tab-btn.active');
+let activeStatus = btnAtivoHtml ? (btnAtivoHtml.dataset.status || 'datadas') : 'datadas';
 let activeCategory = "todas";
 let searchTerm = "";
+let activeId = 4;
 
 
-// ===== ABAS DE STATUS =====
+// ===== FORMATADOR DE DATA BRASILEIRA =====
+function formatarDataBR(dataString) {
+    if (!dataString) return 'A definir';
+    const partes = dataString.split('-');
+    if (partes.length !== 3) return dataString;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+
+// ===== ABAS DE STATUS (TODAS / DISPONÍVEIS / DATADAS) =====
 document.querySelectorAll('.status-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.status-tab-btn')
             .forEach(b => b.classList.remove('active'));
 
         btn.classList.add('active');
-
         activeStatus = btn.dataset.status || 'todas';
 
         renderList();
@@ -1146,12 +888,10 @@ const categoryTabs = document.getElementById('categoryTabs');
 if (categoryTabs) {
     categoryTabs.querySelectorAll('.cat-pill').forEach(pill => {
         pill.addEventListener('click', () => {
-
             categoryTabs.querySelectorAll('.cat-pill')
                 .forEach(p => p.classList.remove('active'));
 
             pill.classList.add('active');
-
             activeCategory = pill.dataset.cat || 'todas';
 
             renderList();
@@ -1160,21 +900,19 @@ if (categoryTabs) {
 }
 
 
-// ===== BUSCA POR NOME OU INGREDIENTE =====
+// ===== BUSCA EM TEMPO REAL =====
 const searchInput = document.getElementById('recipe-search');
 
 if (searchInput) {
     searchInput.addEventListener('input', e => {
         searchTerm = e.target.value.trim().toLowerCase();
-
         renderList();
     });
 }
 
 
-// ===== RENDERIZAR LISTA (SEM ETIQUETA DE OBSERVAÇÃO) =====
+// ===== RENDERIZAR LISTAGEM DE CARDS =====
 function renderList() {
-
     const listCol = document.getElementById('listCol');
     const countLabel = document.getElementById('recipeCountLabel');
 
@@ -1183,36 +921,26 @@ function renderList() {
     listCol.innerHTML = '';
 
     const filtered = RECIPES
-        .filter(r =>
-            activeStatus === 'todas' ||
-            r.status === activeStatus
-        )
-        .filter(r =>
-            activeCategory === 'todas' ||
-            r.cat === activeCategory
-        )
+        .filter(r => activeStatus === 'todas' || r.status === activeStatus)
+        .filter(r => activeCategory === 'todas' || r.cat === activeCategory)
         .filter(r => {
             if (!searchTerm) return true;
-
-            const matchName =
-                r.name.toLowerCase().includes(searchTerm);
-
-            const matchIngredient =
-                r.ingredients.some(i =>
-                    i.text.toLowerCase().includes(searchTerm)
-                );
-
-            return matchName || matchIngredient;
+            const matchName = r.name.toLowerCase().includes(searchTerm);
+            const matchIng = r.ingredients.some(i => i.text.toLowerCase().includes(searchTerm));
+            return matchName || matchIng;
         });
 
     if (countLabel) {
-        countLabel.textContent =
-            `${filtered.length} receita${filtered.length !== 1 ? 's' : ''}`;
+        countLabel.textContent = `${filtered.length} receita${filtered.length !== 1 ? 's' : ''}`;
     }
 
     if (filtered.length === 0) {
         listCol.innerHTML =
             '<div style="font-size:13px; color:#94a3b8; padding:32px 16px; text-align:center;">Nenhuma receita encontrada para os filtros selecionados.</div>';
+        const detailCol = document.getElementById('detailCol');
+        if (detailCol) {
+            detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Nenhuma receita selecionada.</div>';
+        }
         return;
     }
 
@@ -1222,43 +950,31 @@ function renderList() {
 
     filtered.forEach(r => {
         const card = document.createElement('div');
-        card.className =
-            'recipe-card' +
-            (r.id === activeId ? ' active' : '');
+        card.className = 'recipe-card' + (r.id === activeId ? ' active' : '');
+
+        const dataFormatada = formatarDataBR(r.dataPrevista);
+        const badgeClasse = r.status === 'datadas' ? 'badge-datada' : 'badge-disponivel';
+        const badgeTexto = r.status === 'datadas' ? 'DATADA' : 'DISPONÍVEL';
 
         card.innerHTML = `
             <div class="card-header">
                 <div>
-                    <h4 class="card-title">
-                        ${r.name}
-                    </h4>
+                    <h4 class="card-title">${r.name}</h4>
                     <p class="card-category">
-                        <span class="text-cat-type">
-                            ${r.type}
-                        </span>
+                        <span class="text-cat-type">${r.type}</span>
                         &bull;
                         ${r.cat}
                     </p>
                 </div>
-                <span class="badge-status ${
-            r.status === 'datadas'
-                ? 'badge-datada'
-                : 'badge-disponivel'
-        }">
-                    ${
-            r.status === 'datadas'
-                ? 'DATADA'
-                : 'DISPONÍVEL'
-        }
+                <span class="badge-status ${badgeClasse}">
+                    ${badgeTexto}
                 </span>
             </div>
 
             <div class="card-meta">
                 <span class="meta-item">
-                    <span class="material-symbols-outlined">
-                        calendar_today
-                    </span>
-                    ${r.dataPrevista || 'A definir'}
+                    <span class="material-symbols-outlined">calendar_today</span>
+                    ${dataFormatada}
                 </span>
                 <span class="meta-duration">
                     ${r.duration || '30 min'}
@@ -1278,50 +994,40 @@ function renderList() {
 }
 
 
-// ===== RENDERIZAR DETALHES (SEM BLOCO DE OBSERVAÇÃO) =====
+// ===== RENDERIZAR DETALHES COM BLOCO ESTÁTICO DE COMENTÁRIO/ORIENTAÇÃO =====
 function renderDetail() {
-
     const detailCol = document.getElementById('detailCol');
-
     if (!detailCol) return;
 
     const r = RECIPES.find(x => x.id === activeId);
 
     if (!r) {
-        detailCol.innerHTML =
-            '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Selecione uma receita da lista.</div>';
+        detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Selecione uma receita da lista.</div>';
         return;
     }
 
-    const badgeTexto =
-        r.status === 'datadas'
-            ? `DATADA: ${r.dataPrevista}`
-            : 'DISPONÍVEL EM AULA';
+    const dataFormatada = formatarDataBR(r.dataPrevista);
+    const badgeClasse = r.status === 'datadas' ? 'badge-datada' : 'badge-disponivel';
+    const badgeTexto = r.status === 'datadas' ? `DATADA: ${dataFormatada}` : `DISPONÍVEL: ${dataFormatada}`;
 
     detailCol.innerHTML = `
         <div class="recipe-detail-container">
 
             <div class="detail-header">
                 <div class="detail-title-group">
-                    <span class="recipe-type-label">
-                        ${r.type}
-                    </span>
-                    <h1 class="recipe-main-title">
-                        ${r.name}
-                    </h1>
+                    <span class="recipe-type-label">${r.type}</span>
+                    <h1 class="recipe-main-title">${r.name}</h1>
                 </div>
 
                 <div class="detail-badge-group">
-                    <span class="pill-badge pill-badge-blue">
+                    <span class="pill-badge ${badgeClasse}">
                         ${badgeTexto}
                     </span>
                 </div>
             </div>
 
             <div class="recipe-lead-card">
-                <p>
-                    ${r.description}
-                </p>
+                <p>${r.description}</p>
             </div>
 
             <div class="recipe-resources-grid">
@@ -1334,14 +1040,7 @@ function renderDetail() {
                     <div class="items-two-col">
                         ${r.ingredients.map(ing => `
                             <div class="resource-item">
-                                <span>
-                                    ${ing.text}
-                                </span>
-                                ${ing.tag ? `
-                                    <span class="tag-badge badge-amber">
-                                        ${ing.tag}
-                                    </span>
-                                ` : ''}
+                                <span>${ing.text}</span>${ing.tag ? `<span class="tag-badge badge-amber">${ing.tag}</span>` : ''}
                             </div>
                         `).join('')}
                     </div>
@@ -1356,43 +1055,34 @@ function renderDetail() {
                     <div class="items-two-col">
                         ${r.utensils && r.utensils.length ? r.utensils.map(u => `
                             <div class="resource-item">
-                                <span>
-                                    ${u}
-                                </span>
+                                <span>${u}</span>
                             </div>
                         `).join('') : `
                             <div class="resource-item">
-                                <span>
-                                    Nenhum utensílio listado.
-                                </span>
+                                <span>Nenhum utensílio listado.</span>
                             </div>
                         `}
                     </div>
                 </section>
             </div>
 
-            <section class="steps-section">
+            <!-- SEÇÃO DE ORIENTAÇÃO PEDAGÓGICA ESTÁTICA (SUBSTITUI MODO DE PREPARO) -->
+            <section class="comments-section">
                 <h3 class="section-title">
                     <span class="bar-accent"></span>
-                    Modo de Preparo Passo a Passo
+                    Orientações Pedagógicas & Comentários Técnicos
                 </h3>
 
-                <div class="steps-list">
-                    ${r.steps.map((st, index) => `
-                        <div class="step-card">
-                            <div class="step-number">
-                                ${index + 1}
-                            </div>
-                            <div class="step-content">
-                                <h4 class="step-title">
-                                    ${st.title}
-                                </h4>
-                                <p class="step-description">
-                                    ${st.text}
-                                </p>
-                            </div>
-                        </div>
-                    `).join('')}
+                <div class="comment-pedagogico-card">
+                    <span class="material-symbols-outlined comment-pedagogico-icon">info</span>
+                    <div class="comment-pedagogico-body">
+                        <h4>Instruções do Instrutor em Bancada</h4>
+                        <p>
+                            ${r.comments
+        ? r.comments
+        : "O modo de preparo detalhado desta preparação será conduzido pelo instrutor diretamente na bancada técnica do laboratório. Organize seu Mise en Place prévio conforme a lista de insumos e utensílios."}
+                        </p>
+                    </div>
                 </div>
             </section>
 
@@ -1449,7 +1139,7 @@ function renderDetail() {
                 id: 1,
                 tipo: 'warn',
                 titulo: 'Data Próxima',
-                texto: 'A receita Curry Vegano de Grão-de-bico está agendada para breve.'
+                texto: 'A receita Curry Vegano de Grão-de-bico está programada para aula.'
             }
         ];
 
@@ -1479,12 +1169,8 @@ function renderDetail() {
             notifs.map(n => `
                 <div style="display:flex; gap:10px; padding:10px; border-bottom:1px solid #f1f5f9;">
                     <div>
-                        <p style="margin:0; font-weight:600; font-size:13px;">
-                            ${n.titulo}
-                        </p>
-                        <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">
-                            ${n.texto}
-                        </p>
+                        <p style="margin:0; font-weight:600; font-size:13px;">${n.titulo}</p>
+                        <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">${n.texto}</p>
                     </div>
                 </div>
             `).join('');

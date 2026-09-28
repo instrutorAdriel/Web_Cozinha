@@ -595,6 +595,7 @@ body {
     padding: 3px 8px;
     border-radius: 4px;
     letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
 .badge-datada {
@@ -661,6 +662,12 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 16px;
+}
+
+.detail-title-group {
+    display: flex;
+    flex-direction: column;
 }
 
 .recipe-type-label {
@@ -678,6 +685,7 @@ body {
     font-weight: 700;
     color: var(--primary);
     letter-spacing: -0.5px;
+    margin: 0;
 }
 
 .pill-badge {
@@ -685,12 +693,20 @@ body {
     font-weight: 700;
     padding: 6px 14px;
     border-radius: 20px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
-.pill-badge-blue {
+.pill-badge.badge-datada {
     background-color: #eff6ff;
     color: #1d4ed8;
     border: 1px solid #dbeafe;
+}
+
+.pill-badge.badge-disponivel {
+    background-color: #ecfdf5;
+    color: #047857;
+    border: 1px solid #d1fae5;
 }
 
 .recipe-lead-card {
@@ -758,57 +774,53 @@ body {
     color: var(--secondary);
 }
 
-.steps-section {
+/* ===== BLOCO ESTÁTICO DE ORIENTAÇÃO PEDAGÓGICA (SUBSTITUI MODO DE PREPARO) ===== */
+.comments-section {
     display: flex;
     flex-direction: column;
     margin-top: 8px;
 }
 
-.steps-list {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.step-card {
+.comment-pedagogico-card {
+    background-color: var(--surface-low);
+    border: 1px dashed var(--outline-variant);
+    border-left: 4px solid var(--primary-container);
+    border-radius: var(--r-lg);
+    padding: 20px 22px;
     display: flex;
     align-items: flex-start;
     gap: 16px;
 }
 
-.step-number {
-    width: 28px;
-    height: 28px;
-    background-color: var(--primary);
-    color: #ffffff;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
+.comment-pedagogico-icon {
+    color: var(--primary-container);
+    font-size: 28px;
     flex-shrink: 0;
+    user-select: none;
     margin-top: 2px;
 }
 
-.step-content {
+.comment-pedagogico-body {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
 }
 
-.step-title {
-    font-size: 14px;
+.comment-pedagogico-body h4 {
+    margin: 0;
+    font-size: 15px;
     font-weight: 700;
+    color: var(--primary);
+}
+
+.comment-pedagogico-body p {
+    margin: 0;
+    font-size: 13.5px;
+    line-height: 1.6;
     color: var(--on-surface);
 }
 
-.step-description {
-    font-size: 13px;
-    color: var(--on-surface-variant);
-    line-height: 1.5;
-}
-
+/* ===== OVERLAY MOBILE ===== */
 .overlay {
     display: none;
     position: fixed;
@@ -831,7 +843,7 @@ body {
         transform: translateX(-100%);
     }
 
-    .sidebar.open {
+    .sidebar.show {
         transform: translateX(0);
     }
 
@@ -841,6 +853,10 @@ body {
 
     .main {
         margin-left: 0;
+    }
+
+    .content-receitas {
+        padding: 20px 16px;
     }
 
     .recipe-resources-grid {
@@ -855,5 +871,10 @@ body {
     .recipes-list-pane {
         width: 100%;
         min-width: 100%;
+    }
+
+    .recipe-detail-pane {
+        padding: 24px 20px;
+        max-height: none;
     }
 }
