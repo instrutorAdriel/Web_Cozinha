@@ -30,7 +30,7 @@ public String exibirHome(Model model, HttpServletRequest request) {
 
 
     if (session == null || session.getAttribute("usuarioLogado") == null) {
-        return "redirect:/login"; // Redireciona e PARA a execução
+        return "redirect:/"; // Redireciona e PARA a execução
     }
 
     Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
@@ -58,7 +58,7 @@ public String exibirHome(Model model, HttpServletRequest request) {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         sessaoService.encerrarSessao(session);
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 
