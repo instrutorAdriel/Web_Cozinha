@@ -66,9 +66,7 @@
             <label class="field-label" for="turma-select">Turma / Laboratório</label>
             <div class="select-wrap">
                 <select id="turma-select">
-                    <option value="">-- Selecione uma Turma --</option>
-                    <option value="2024.1.A">Turma 2024.1.A</option>
-                    <option value="2024.1.C">Turma 2024.1.C</option>
+                    <!-- Opções carregadas dinamicamente via JS -->
                 </select>
                 <span class="material-symbols-outlined select-arrow">expand_more</span>
             </div>
@@ -110,7 +108,7 @@
                 <h2 class="hero-title">
                     <span id="mensagem-tempo">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
                 </h2>
-                <p class="hero-sub">Você tem <strong>3 turmas</strong> hoje. A próxima começa às <strong>13:30</strong>.</p>
+                <p class="hero-sub">Você tem <strong id="hero-turmas-count">0 turmas</strong> hoje.</p>
             </div>
         </section>
 
@@ -123,42 +121,6 @@
                         <span class="material-symbols-outlined">today</span>
                         <h2 class="section-title">Receitas de Hoje</h2>
                     </div>
-                </div>
-
-                <!-- Aula 1: Concluída -->
-                <div class="class-card done" data-recipe="confeitaria_bolo" data-turma="2024.1.C">
-                    <div class="class-time"><p class="t-main">08:00</p>
-                        <p class="t-end">12:00</p></div>
-                    <div class="divider"></div>
-                    <div class="class-info">
-                        <p class="class-name">Técnicas Básicas de Confeitaria</p>
-                        <p class="class-meta">Cozinha Pedagógica 02 • Turma 2024.1.C</p>
-                    </div>
-                    <span class="status status-done"><span class="material-symbols-outlined sm">check_circle</span>Concluída</span>
-                </div>
-
-                <!-- Aula 2: Em Andamento -->
-                <div class="class-card running flight-accent" data-recipe="panificacao_pao" data-turma="2024.1.A">
-                    <div class="class-time"><p class="t-main c-secondary">13:30</p><p class="t-end">17:30</p></div>
-                    <div class="divider sec"></div>
-                    <div class="class-info">
-                        <p class="class-name">Panificação Clássica Européia</p>
-                        <p class="class-meta">Padaria Lab 01 • Turma 2024.1.A</p>
-                        <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
-                    </div>
-                    <span class="status status-running"><span class="material-symbols-outlined sm">timer</span>Em Curso</span>
-                </div>
-
-                <!-- Aula 3: Pendente -->
-                <div class="class-card" data-recipe="asia_yakisoba" data-turma="2024.2.N">
-                    <div class="class-time"><p class="t-main">19:00</p><p class="t-end">22:30</p></div>
-                    <div class="divider"></div>
-                    <div class="class-info">
-                        <p class="class-name">Cozinha Internacional: Ásia</p>
-                        <p class="class-meta">Cozinha Pedagógica 04 • Turma 2024.2.N</p>
-                        <button class="recipe-link"><span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita</button>
-                    </div>
-                    <span class="status status-pending">Pendente</span>
                 </div>
 
             </section>
@@ -177,15 +139,11 @@
                         </li>
                     </ol>
 
-                    <!-- Rodapé do Resumo (Exibido via JavaScript ao carregar a receita) -->
+                    <!-- Rodapé do Resumo -->
                     <div class="summary-footer mt-auto" id="summary-footer">
-                        <button class="btn-confirm" id="btn-open-kitchen">
+                        <button class="btn-confirm" id="btn-open-kitchen" style="width: 100%;">
                             Passo a passo
                         </button>
-                        <div class="summary-meta" id="summary-meta-badge">
-                            <span class="material-symbols-outlined sm">timer</span>
-                            <span id="summary-time">--</span>
-                        </div>
                     </div>
                 </div>
             </aside>
@@ -350,9 +308,7 @@
         <p class="hero-sub">Preencha os dados de devolução do equipamento.</p>
 
         <label class="field-label dark">Utensílio Selecionado</label>
-
         <input type="text" id="devolucao-nome-util" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto; background-color: #f1f5f9; color: #64748b; cursor: not-allowed;" readonly>
-        <input type="hidden" id="devolucao-id-util">
 
         <label class="field-label dark" for="devolucao-estado">Estado Atual</label>
         <div class="select-wrap">

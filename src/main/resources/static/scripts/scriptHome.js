@@ -9,8 +9,7 @@ const $ = id => document.getElementById(id);
 // ===== INICIALIZAÇÃO =====
 document.addEventListener("DOMContentLoaded", () => {
   atualizarSaudacao();
-  carregarAulasDoDia();
-  carregarTodasReceitasParaChecklist();
+  carregarDadosIniciais();
 });
 
 function atualizarSaudacao() {
@@ -20,59 +19,108 @@ function atualizarSaudacao() {
   if (el) el.innerText = saudacao;
 }
 
-// ===== 1. BUSCA DE DADOS NA API =====
-function carregarAulasDoDia() {
+// ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
+function carregarDadosIniciais() {
   const containerClasses = document.querySelector('.classes-col');
 
-  // Busca as aulas diretamente para o dia atual sem forçar data de teste
-  fetch('/api/agendamentos/hoje')
-      .then(response => {
-        if (response.status === 204) return [];
-        if (!response.ok) throw new Error('Erro ao buscar agendamentos');
-        return response.json();
-      })
-      .then(agendamentos => {
+  // Executa ambas as buscas simultaneamente
+  Promise.all([
+    fetch('/api/agendamentos/hoje').then(res => res.status === 204 ? [] : res.json()),
+    fetch('/api/fichas').then(res => res.json())
+  ])
+      .then(([agendamentos, fichas]) => {
         agendamentosDoDia = agendamentos;
-        const titulos = containerClasses.querySelector('.section-head.split');
-        containerClasses.innerHTML = '';
-        if (titulos) containerClasses.appendChild(titulos);
+        todasAsFichasDoBanco = fichas;
 
-        if (agendamentos.length > 0) {
-          renderizarCardsDeAulas(agendamentos, containerClasses);
-          selecionarAula(agendamentos[0].ficha.id);
-        } else {
-          containerClasses.innerHTML += '<p class="muted" style="padding:20px;">Nenhuma aula programada para hoje.</p>';
+        popularTurmasDropdown();
+        filtrarPorTurma("todas"); // Inicializa mostrando todas as turmas do dia
+
+        // Listener do Select do Checklist
+        const selectReceita = $('recipe-select');
+        if (selectReceita) {
+          selectReceita.addEventListener('change', (e) => {
+            const fichaIdSelecionada = parseInt(e.target.value);
+            if (fichaIdSelecionada) {
+              const fichaReal = todasAsFichasDoBanco.find(f => f.id === fichaIdSelecionada);
+              carregarDetalhesNoChecklistManual(fichaReal);
+            }
+          });
         }
       })
       .catch(error => {
         console.error("Erro na API:", error);
-        containerClasses.innerHTML += '<p style="color:red; padding:20px;">Erro ao carregar a agenda.</p>';
+        containerClasses.innerHTML += '<p style="color:red; padding:20px;">Erro ao carregar os dados.</p>';
       });
 }
 
-function carregarTodasReceitasParaChecklist() {
-  fetch('/api/fichas')
-      .then(res => res.json())
-      .then(fichas => {
-        todasAsFichasDoBanco = fichas;
-        const select = $('recipe-select');
-        if (!select) return;
+function popularTurmasDropdown() {
+  const turmaSelect = $('turma-select');
+  if (!turmaSelect) return;
 
-        select.innerHTML = '<option value="">-- Selecione uma Receita --</option>';
-        fichas.forEach(f => {
-          const nomeTurma = f.turma ? f.turma.nomeTurma : "Turma Indefinida";
-          select.innerHTML += `<option value="${f.id}">${f.nomeFicha} (${nomeTurma})</option>`;
-        });
+  turmaSelect.innerHTML = '<option value="todas">-- Todas as Turmas --</option>';
+  const turmasUnicas = [];
 
-        select.addEventListener('change', (e) => {
-          const fichaIdSelecionada = parseInt(e.target.value);
-          if (fichaIdSelecionada) {
-            const fichaReal = todasAsFichasDoBanco.find(f => f.id === fichaIdSelecionada);
-            carregarDetalhesNoChecklistManual(fichaReal);
-          }
-        });
-      })
-      .catch(err => console.error("Erro ao carregar lista de receitas:", err));
+  // Extrai as turmas unicamente baseadas nas aulas programadas para hoje
+  agendamentosDoDia.forEach(a => {
+    const turma = a.ficha.turma;
+    if (turma && !turmasUnicas.find(t => t.id === turma.id)) {
+      turmasUnicas.push(turma);
+      const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
+      turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
+    }
+  });
+
+  turmaSelect.addEventListener('change', (e) => {
+    filtrarPorTurma(e.target.value);
+  });
+}
+
+function filtrarPorTurma(turmaId) {
+  const containerClasses = document.querySelector('.classes-col');
+  const titulos = containerClasses.querySelector('.section-head.split');
+  containerClasses.innerHTML = '';
+  if (titulos) containerClasses.appendChild(titulos);
+
+  // 1. Filtrar as "Receitas de Hoje" (Agendamentos)
+  let agendamentosFiltrados = agendamentosDoDia;
+  if (turmaId !== "todas") {
+    agendamentosFiltrados = agendamentosDoDia.filter(a => a.ficha.turma && a.ficha.turma.id == parseInt(turmaId));
+  }
+
+  if (agendamentosFiltrados.length > 0) {
+    renderizarCardsDeAulas(agendamentosFiltrados, containerClasses);
+    selecionarAula(agendamentosFiltrados[0].ficha.id);
+  } else {
+    containerClasses.innerHTML += '<p class="muted" style="padding:20px;">Nenhuma aula programada para esta turma hoje.</p>';
+    limparDetalhesDaTela();
+  }
+
+  // 2. Filtrar o Select do Checklist
+  const selectReceita = $('recipe-select');
+  if(selectReceita) {
+    selectReceita.innerHTML = '<option value="">-- Selecione uma Receita --</option>';
+    let fichasFiltradas = todasAsFichasDoBanco;
+
+    if (turmaId !== "todas") {
+      fichasFiltradas = todasAsFichasDoBanco.filter(f => f.turma && f.turma.id == parseInt(turmaId));
+    }
+
+    fichasFiltradas.forEach(f => {
+      const nomeTurma = f.turma ? f.turma.nomeTurma : "Turma Indefinida";
+      selectReceita.innerHTML += `<option value="${f.id}">${f.nomeFicha} (${nomeTurma})</option>`;
+    });
+  }
+}
+
+function limparDetalhesDaTela() {
+  fichaAtual = null;
+  detalhesReceitaAtual = null;
+  $('summary-recipe-name').textContent = 'Selecione uma aula';$('summary-steps').innerHTML = '<li style="list-style: none;">Nenhuma receita selecionada.</li>';
+  $('checklist-main').innerHTML = '';$('util-checklist').innerHTML = '';
+  $('recipe-name').textContent = '';$('turma-badge').textContent = '';
+  $('util-recipe-name').textContent = '';$('util-turma-badge').textContent = '';
+  atualizarProgresso($('checklist-main'),$('main-progress-text'), $('main-progress-pct'),$('main-progress-bar'));
+  atualizarProgresso($('util-checklist'),$('util-progress-text'), $('util-progress-pct'),$('util-progress-bar'));
 }
 
 // ===== 2. RENDERIZAÇÃO DOS CARDS =====
@@ -186,7 +234,7 @@ function renderChecklistInsumos(insumos, ficha) {
           </label>`;
   }).join('');
 
-  aplicarScrollAdaptativo(lista, insumos.length, 'Checklist de Insumos');
+  aplicarScrollAdaptativo(lista, insumos.length);
   atualizarProgresso(lista, $('main-progress-text'), $('main-progress-pct'),$('main-progress-bar'));
 }
 
@@ -213,7 +261,7 @@ function renderChecklistUtensilios(checklists, ficha) {
           </label>`;
   }).join('');
 
-  aplicarScrollAdaptativo(lista, checklists.length, 'Checklist de Utensílios');
+  aplicarScrollAdaptativo(lista, checklists.length);
   atualizarProgresso(lista, $('util-progress-text'), $('util-progress-pct'),$('util-progress-bar'));
 }
 
@@ -233,7 +281,7 @@ function atualizarProgresso(lista, elText, elPct, elBar) {
   update();
 }
 
-function aplicarScrollAdaptativo(container, qtd, rotulo) {
+function aplicarScrollAdaptativo(container, qtd) {
   const ativar = qtd > LIMITE_SCROLL;
   container.classList.toggle('is-scrollable', ativar);
 }
@@ -343,8 +391,6 @@ if (btnFinishUtensilios) {
 // --- C. REGISTRAR DEVOLUÇÃO (UTENSÍLIOS - ABRE MODAL) ---
 const devolucaoModal = $('devolucao-modal');
 const btnDevolucao = $('btn-devolucao-utensilios');
-
-// Array global temporário para guardar os IDs da devolução
 let checklistIdsSelecionadosParaDevolucao = [];
 
 if (btnDevolucao && devolucaoModal) {
@@ -356,12 +402,9 @@ if (btnDevolucao && devolucaoModal) {
       return;
     }
 
-    // Pega todos os IDs selecionados
     checklistIdsSelecionadosParaDevolucao = Array.from(marcados).map(cb => parseInt(cb.dataset.id));
-
     let nomesUtensilios = [];
 
-    // Busca o nome de todos os selecionados
     if (detalhesReceitaAtual && detalhesReceitaAtual.utensilios) {
       detalhesReceitaAtual.utensilios.forEach(check => {
         if (check.utensilio && checklistIdsSelecionadosParaDevolucao.includes(check.id)) {
@@ -370,7 +413,6 @@ if (btnDevolucao && devolucaoModal) {
       });
     }
 
-    // Exibe os nomes no campo bloqueado (separados por vírgula)
     const inputNome = $('devolucao-nome-util');
     if (inputNome) inputNome.value = nomesUtensilios.join(', ');
 
@@ -403,7 +445,7 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      checklistIds: checklistIdsSelecionadosParaDevolucao, // Envia o Array de IDs
+      checklistIds: checklistIdsSelecionadosParaDevolucao,
       estadoAtual: estadoAtual,
       observacao: obs
     })
@@ -415,7 +457,6 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
       .then(msg => {
         alert("Devolução registrada com sucesso no banco de dados!");
 
-        // Limpa os checkboxes após o sucesso
         document.querySelectorAll('#util-checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
         $('util-checklist').dispatchEvent(new Event('change'));
 
