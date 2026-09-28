@@ -23,35 +23,35 @@ public class HomeController {
     @Autowired
     private SessaoService sessaoService;
 
-@GetMapping("/home")
-public String exibirHome(Model model, HttpServletRequest request) {
+    @GetMapping("/home")
+    public String exibirHome(Model model, HttpServletRequest request) {
 
-    HttpSession session = request.getSession(false);
-
-
-    if (session == null || session.getAttribute("usuarioLogado") == null) {
-        return "redirect:/login"; // Redireciona e PARA a execução
-    }
-
-    Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-    // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
-
-    String primeiroNome = usuarioLogado.getNomeUsuario().split(" ")[0];
-    primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
-            + primeiroNome.substring(1).toLowerCase();
-
-    model.addAttribute("nomeUsuario", primeiroNome);
+        HttpSession session = request.getSession(false);
 
 
-    //Data
-    LocalDate hoje = LocalDate.now();
-    DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
-    String dataAtualFormatada = hoje.format(formatador).toUpperCase();
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            return "redirect:/login"; // Redireciona e PARA a execução
+        }
 
-    // Envia para o HTML com o nome "dataDeHoje"
-    model.addAttribute("dataDeHoje", dataAtualFormatada);
-    return "home";
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        // model.addAttribute("nomeUsuario", usuarioLogado.getNome().split(" ")[0]);
+
+        String primeiroNome = usuarioLogado.getNomeUsuario().split(" ")[0];
+        primeiroNome = primeiroNome.substring(0, 1).toUpperCase()
+                + primeiroNome.substring(1).toLowerCase();
+
+        model.addAttribute("nomeUsuario", primeiroNome);
+
+
+        //Data
+        LocalDate hoje = LocalDate.now();
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
+        String dataAtualFormatada = hoje.format(formatador).toUpperCase();
+
+        // Envia para o HTML com o nome "dataDeHoje"
+        model.addAttribute("dataDeHoje", dataAtualFormatada);
+        return "home";
     }
 
 

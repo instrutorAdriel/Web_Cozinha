@@ -86,13 +86,14 @@ public class UsuarioController {
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
         if(usuario == null){
             model.addAttribute("erro", "E-mail ou senha incorreto!");
+            System.out.println("erro 500");
             return "login";
         }
         HttpSession session = request.getSession(true);
         session.setAttribute("usuarioLogado", usuario);
-        //sessaoService.salvarUsuarioLogado(session,usuario);
+        sessaoService.salvarUsuarioLogado(session,usuario);
 
-
+        System.out.println("andado");
         return "redirect:/home";
 
     }
