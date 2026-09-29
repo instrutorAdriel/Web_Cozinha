@@ -89,8 +89,13 @@ public class HomeService {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
             if (checklist != null) {
+                // Validação de segurança: Impede retirada se estiver quebrado/manutenção
+                if (!"PRONTO".equals(checklist.getEstadoAtual())) {
+                    throw new IllegalArgumentException("O utensílio " + checklist.getUtensilio().getNomeUtensilio() + " está " + checklist.getEstadoAtual() + " e não pode ser retirado.");
+                }
+
                 checklist.setDataHoraSaida(LocalDateTime.now());
-                checklist.setObservacao("Retirado para aula"); // <-- Adiciona a observação
+                checklist.setObservacao("Retirado para aula");
                 checklistUtensilioRepository.save(checklist);
             }
         }

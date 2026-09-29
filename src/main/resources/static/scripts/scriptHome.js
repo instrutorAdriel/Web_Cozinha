@@ -246,11 +246,17 @@ function renderChecklistUtensilios(checklists, ficha) {
     const nomeUtil = util ? util.nomeUtensilio : 'Utensílio não identificado';
     const qtd = util ? util.quantidade : 0;
 
+    // LÓGICA DE VALIDAÇÃO VISUAL ADICIONADA AQUI
+    const estado = check.estadoAtual || 'PRONTO';
+    const isInapto = estado !== 'PRONTO';
+    const classeInapto = isInapto ? 'text-muted' : '';
+    const labelInapto = isInapto ? ` <strong style="color:red; font-size:10px;">(${estado})</strong>` : '';
+
     return `
-          <label class="check-item">
-            <input type="checkbox" data-id="${check.id}">
+          <label class="check-item ${classeInapto}">
+            <input type="checkbox" data-id="${check.id}" data-estado="${estado}">
             <span class="check-box"><span class="material-symbols-outlined">check</span></span>
-            <span class="check-label">${nomeUtil}</span>
+            <span class="check-label">${nomeUtil}${labelInapto}</span>
             <span class="check-qty">${qtd} un</span>
           </label>`;
   }).join('');
@@ -342,6 +348,13 @@ if (btnFinishUtensilios) {
       return;
     }
 
+    // LÓGICA DE VALIDAÇÃO DE TRAVA ADICIONADA AQUI
+    const temItemInapto = Array.from(marcados).some(cb => cb.dataset.estado !== 'PRONTO');
+    if (temItemInapto) {
+      alert("Atenção: Você selecionou utensílios que estão DANIFICADOS ou EM MANUTENÇÃO.\n\nSe eles já foram consertados, selecione-os e clique em 'Registrar Devolução' para atualizar o estado para 'PRONTO' antes de confirmar a saída.");
+      return; // Trava a execução aqui
+    }
+
     if (!confirm("Confirmar a retirada destes utensílios para a aula? A hora de saída será registrada.")) {
       return;
     }
@@ -355,8 +368,12 @@ if (btnFinishUtensilios) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ checklistIds: checklistIds })
     })
-        .then(res => {
-          if (!res.ok) throw new Error("Erro ao confirmar utensílios");
+        .then(async res => {
+          if (!res.ok) {
+            // Se o back-end enviar uma mensagem de erro (da IllegalArgumentException), exibe no alert
+            const erroBackend = await res.text();
+            throw new Error(erroBackend || "Erro ao confirmar utensílios");
+          }
           return res.text();
         })
         .then(msg => {
@@ -366,7 +383,7 @@ if (btnFinishUtensilios) {
         })
         .catch(err => {
           console.error(err);
-          alert("Ocorreu um erro ao confirmar a retirada no banco de dados.");
+          alert(err.message || "Ocorreu um erro ao confirmar a retirada no banco de dados.");
         })
         .finally(() => {
           btnFinishUtensilios.innerText = "Confirmar Utensílios";
@@ -442,7 +459,7 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
         return res.text();
       })
       .then(msg => {
-        alert("Devolução registrada com sucesso no banco de dados!");
+        alert("Status / Devolução registrada com sucesso no banco de dados!");
 
         document.querySelectorAll('#util-checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
         $('util-checklist').dispatchEvent(new Event('change'));

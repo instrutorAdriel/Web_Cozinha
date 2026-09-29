@@ -167,16 +167,18 @@ public String exibirHome(Model model, HttpServletRequest request) {
     @PostMapping("/api/fichas/confirmar-utensilios")
     @ResponseBody
     public ResponseEntity<String> confirmarSaidaUtensilios(@RequestBody Map<String, Object> payload) {
-
         List<Integer> idsInt = (List<Integer>) payload.get("checklistIds");
         if (idsInt == null || idsInt.isEmpty()) {
             return ResponseEntity.badRequest().body("Nenhum utensílio selecionado.");
         }
-
         List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
-        homeService.confirmarSaidaUtensilios(checklistIds);
 
-        return ResponseEntity.ok("Saída de utensílios registrada com sucesso!");
+        try {
+            homeService.confirmarSaidaUtensilios(checklistIds);
+            return ResponseEntity.ok("Saída de utensílios registrada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/api/fichas/devolver-utensilio")
