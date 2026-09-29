@@ -10,7 +10,7 @@
 <body>
 <div class="container">
     <div class="logo">
-        <img th:src="@{/img/senac-logo.png}" alt="Logo Senac">
+        <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
     </div>
     <div class="card">
         <h1 th:text="${tituloPagina}"></h1>
@@ -19,7 +19,7 @@
         <!-- Mensagem de erro -->
         <div class="erro" th:if="${erro}" th:text="${erro}"></div>
 
-        <form th:action="@{/login}" th:object="${usuarioForm}" method="post">
+        <form th:action="@{/}" th:object="${usuarioForm}" method="post">
 
             <label for="email">E-mail</label>
             <input

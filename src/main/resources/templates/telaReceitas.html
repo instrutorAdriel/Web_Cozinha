@@ -10,138 +10,140 @@
 </head>
 <body>
 
-<div class="overlay" id="overlay"></div>
+<div class="app-container">
+    <div class="overlay" id="overlay"></div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-        <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
-        <div class="brand-text">
-            <h1 class="brand-title">SIGEC</h1>
-            <p class="brand-sub">Painel do Instrutor</p>
-        </div>
-    </div>
-
-    <nav class="sidebar-nav">
-        <p class="nav-group">Menu</p>
-        <a th:href="@{/home}" class="nav-item">
-            <span class="material-symbols-outlined">home</span>
-            <span>Início</span>
-        </a>
-        <a th:href="@{/calendario}" class="nav-item">
-            <span class="material-symbols-outlined">calendar_month</span>
-            <span>Calendário</span>
-        </a>
-        <a href="#" class="nav-item active">
-            <span class="material-symbols-outlined">menu_book</span>
-            <span>Receitas</span>
-        </a>
-    </nav>
-
-    <div class="sidebar-footer">
-        <form th:action="@{/logout}" method="get">
-            <button type="submit" class="btn-logout">
-                <span class="material-symbols-outlined">logout</span>
-                Sair
-            </button>
-        </form>
-    </div>
-</aside>
-
-<!-- TOPBAR -->
-<header class="topbar">
-    <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
-
-        <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Receitas</span>
-        </div>
-    </div>
-
-    <div class="topbar-actions">
-        <div class="turma-select-group">
-            <label class="field-label" for="turma-select">Turma / Laboratório</label>
-            <div class="select-wrap">
-                <select id="turma-select">
-                    <option value="">-- Selecione uma Turma --</option>
-                    <option value="2024.1.A">Turma 2024.1.A</option>
-                    <option value="2024.1.C">Turma 2024.1.C</option>
-                </select>
-                <span class="material-symbols-outlined select-arrow">expand_more</span>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="SENAC – Fecomércio Sesc" class="brand-logo-img">
+            <div class="brand-text">
+                <h1 class="brand-title">SIGEC</h1>
+                <p class="brand-sub">Painel do Instrutor</p>
             </div>
         </div>
 
-        <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
-                <span class="material-symbols-outlined">notifications</span>
-                <span class="badge-dot" id="notif-badge" hidden></span>
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a th:href="@{/home}" class="nav-item">
+                <span class="material-symbols-outlined">home</span>
+                <span>Início</span>
+            </a>
+            <a th:href="@{/calendario}" class="nav-item">
+                <span class="material-symbols-outlined">calendar_month</span>
+                <span>Calendário</span>
+            </a>
+            <a href="#" class="nav-item active">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Receitas</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <form th:action="@{/logout}" method="get">
+                <button type="submit" class="btn-logout">
+                    <span class="material-symbols-outlined">logout</span>
+                    Sair
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+                <span class="material-symbols-outlined">menu</span>
             </button>
 
-            <div class="notif-panel" id="notif-panel">
-                <div class="notif-head">
-                    <h3>Notificações</h3>
-                    <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
-                </div>
-                <div class="notif-list" id="notif-list"></div>
+            <div class="breadcrumb">
+                <span class="crumb-muted">SIGEC</span>
+                <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+                <span class="crumb-current">Receitas</span>
             </div>
         </div>
 
-        <div class="user-box">
-            <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
-                <img src="/img/%C3%8Dcone%20de%20Perfil%20(110%20x%20110%20px).png?v=2"
-                     alt="Ícone de Perfil"
-                     class="avatar-header"
-                     onerror="this.src='/img/Logo branca Senac.png';">
+        <div class="topbar-actions">
+            <div class="turma-select-group">
+                <label class="field-label" for="turma-select">Turma / Laboratório</label>
+                <div class="select-wrap">
+                    <select id="turma-select">
+                        <option value="">-- Selecione uma Turma --</option>
+                        <option value="2024.1.A">Turma 2024.1.A</option>
+                        <option value="2024.1.C">Turma 2024.1.C</option>
+                    </select>
+                    <span class="material-symbols-outlined select-arrow">expand_more</span>
+                </div>
+            </div>
+
+            <div class="notif-wrap">
+                <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="badge-dot" id="notif-badge" hidden></span>
+                </button>
+
+                <div class="notif-panel" id="notif-panel">
+                    <div class="notif-head">
+                        <h3>Notificações</h3>
+                        <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+                    </div>
+                    <div class="notif-list" id="notif-list"></div>
+                </div>
+            </div>
+
+            <div class="user-box">
+                <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
+                    <img src="/img/icone-Perfil.png?v=2"
+                         alt="Ícone de Perfil"
+                         class="avatar-header"
+                         onerror="this.src='/img/logo-branca-senac-fecomercio.png';">
+                </div>
             </div>
         </div>
-    </div>
-</header>
+    </header>
 
-<!-- CORPO PRINCIPAL -->
-<main class="main">
-    <div class="content-receitas">
-        <div class="workspace-area">
+    <!-- CORPO PRINCIPAL -->
+    <main class="main">
+        <div class="content-receitas">
+            <div class="workspace-area">
 
-            <!-- Coluna de Filtros e Listagem -->
-            <aside class="recipes-list-pane">
-                <div class="status-tabs">
-                    <button class="status-tab-btn" data-status="todas">Todas</button>
-                    <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
-                    <button class="status-tab-btn active" data-status="datadas">Datadas</button>
-                </div>
-
-                <div class="category-filter-section">
-                    <div class="category-header">
-                        <span class="category-title">CATEGORIA PEDAGÓGICA</span>
-                        <span class="category-count" id="recipeCountLabel">0 receitas</span>
+                <!-- Coluna de Filtros e Listagem -->
+                <aside class="recipes-list-pane">
+                    <div class="status-tabs">
+                        <button class="status-tab-btn" data-status="todas">Todas</button>
+                        <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
+                        <button class="status-tab-btn active" data-status="datadas">Datadas</button>
                     </div>
-                    <div class="category-tags" id="categoryTabs">
-                        <button class="cat-pill active" data-cat="todas">Todas</button>
-                        <button class="cat-pill" data-cat="Panificação">Panificação</button>
-                        <button class="cat-pill" data-cat="Confeitaria">Confeitaria</button>
-                        <button class="cat-pill" data-cat="Cozinha Quente">Cozinha Quente</button>
-                        <button class="cat-pill" data-cat="Cozinha Fria">Cozinha Fria</button>
+
+                    <div class="category-filter-section">
+                        <div class="category-header">
+                            <span class="category-title">CATEGORIA PEDAGÓGICA</span>
+                            <span class="category-count" id="recipeCountLabel">0 receitas</span>
+                        </div>
+                        <div class="category-tags" id="categoryTabs">
+                            <button class="cat-pill active" data-cat="todas">Todas</button>
+                            <button class="cat-pill" data-cat="Panificação">Panificação</button>
+                            <button class="cat-pill" data-cat="Confeitaria">Confeitaria</button>
+                            <button class="cat-pill" data-cat="Cozinha Quente">Cozinha Quente</button>
+                            <button class="cat-pill" data-cat="Cozinha Fria">Cozinha Fria</button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="search-input-wrap">
-                    <span class="material-symbols-outlined search-icon">search</span>
-                    <input type="text" id="recipe-search" placeholder="Buscar receita ou ingrediente..." autocomplete="off">
-                </div>
+                    <div class="search-input-wrap">
+                        <span class="material-symbols-outlined search-icon">search</span>
+                        <input type="text" id="recipe-search" placeholder="Buscar receita ou ingrediente..." autocomplete="off">
+                    </div>
 
-                <div id="listCol" class="scrollable-list"></div>
-            </aside>
+                    <div id="listCol" class="scrollable-list"></div>
+                </aside>
 
-            <!-- Detalhe da Receita Selecionada -->
-            <section id="detailCol" class="recipe-detail-pane"></section>
+                <!-- Detalhe da Receita Selecionada -->
+                <section id="detailCol" class="recipe-detail-pane"></section>
 
+            </div>
         </div>
-    </div>
-</main>
+    </main>
+</div>
 
 <script th:src="@{/scripts/scriptReceitas.js}"></script>
 </body>

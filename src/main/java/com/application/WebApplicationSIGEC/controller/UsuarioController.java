@@ -65,11 +65,11 @@ public class UsuarioController {
             return "cadastro";
         }
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 
-    @GetMapping("/login")
+    @GetMapping("/")
     public String exibirLogin(Model model, HttpSession session) {
 
         encerrarSessaoSeExistir(session);
@@ -81,7 +81,7 @@ public class UsuarioController {
         return "login";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/")
     public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
         if(usuario == null){
@@ -119,7 +119,7 @@ public class UsuarioController {
             return "alterarSenha";
         }
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 }
