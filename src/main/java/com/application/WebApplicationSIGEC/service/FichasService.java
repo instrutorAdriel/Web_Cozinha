@@ -14,7 +14,7 @@ public class FichasService {
 
     private final FichasRepository fichasRepository;
 
-    // Injeção via construtor (resolve o aviso de "Field injection is not recommended")
+
     public FichasService(FichasRepository fichasRepository) {
         this.fichasRepository = fichasRepository;
     }
@@ -36,6 +36,11 @@ public class FichasService {
 
     public List<Ficha> buscarTodas() {
         return fichasRepository.findAll();
+    }
+
+
+    public List<Ficha> buscarFichasPorUsuario(Long idUsuario) {
+        return fichasRepository.findFichasByUsuarioId(idUsuario);
     }
 
     @Transactional

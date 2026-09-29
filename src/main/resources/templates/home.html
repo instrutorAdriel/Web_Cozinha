@@ -106,7 +106,7 @@
             <div class="hero-text">
                 <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
                 <h2 class="hero-title">
-                    <span id="mensagem-tempo">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
+                    <span id="mensagem-tempo" th:text="${saudacao}">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
                 </h2>
                 <p class="hero-sub">Você tem <strong id="hero-turmas-count">0 turmas</strong> hoje.</p>
             </div>

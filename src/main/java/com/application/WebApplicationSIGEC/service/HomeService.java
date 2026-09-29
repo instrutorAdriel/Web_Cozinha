@@ -33,9 +33,9 @@ public class HomeService {
         this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
     }
 
-    // Busca as aulas agendadas para a data informada
-    public List<Agendamento> buscarAulasDoDia(LocalDate data) {
-        return agendamentoRepository.findAgendamentosDoDia(data);
+    // Busca as aulas agendadas para a data informada E para o usuário logado
+    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario) {
+        return agendamentoRepository.findAgendamentosDoUsuarioHoje(data, idUsuario);
     }
 
     // Busca insumos e utensílios referentes a uma ficha técnica

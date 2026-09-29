@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.application.WebApplicationSIGEC.model.Agendamento;
+import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,9 @@ public class HomeController {
 
     @Autowired
     private com.application.WebApplicationSIGEC.service.FichasService fichasService;
+
+    @Autowired
+    private com.application.WebApplicationSIGEC.repository.TurmaRepository turmaRepository;
 
 @GetMapping("/home")
 public String exibirHome(Model model, HttpServletRequest request) {
@@ -59,10 +63,20 @@ public String exibirHome(Model model, HttpServletRequest request) {
     DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
     String dataAtualFormatada = hoje.format(formatador).toUpperCase();
 
-    // Envia para o HTML com o nome "dataDeHoje"
-    model.addAttribute("dataDeHoje", dataAtualFormatada);
-    return "home";
+    //  Lógica para Saudação Dinâmica
+    java.time.LocalTime agora = java.time.LocalTime.now();
+    String saudacao;
+    if (agora.getHour() >= 0 && agora.getHour() < 12) {
+        saudacao = "Bom dia";
+    } else if (agora.getHour() >= 12 && agora.getHour() < 18) {
+        saudacao = "Boa tarde";
+    } else {
+        saudacao = "Boa noite";
     }
+    model.addAttribute("saudacao", saudacao);
+
+    return "home";
+}
 
 
     @GetMapping("/logout")
@@ -72,20 +86,23 @@ public String exibirHome(Model model, HttpServletRequest request) {
     }
 
 
-    // Endpoint 1: Busca as aulas programadas para o dia
+    // Endpoint 1: Busca as aulas programadas para o dia DO USUÁRIO LOGADO
     @GetMapping("/api/agendamentos/hoje")
-    @ResponseBody // Indica que o retorno é JSON e não uma página HTML
-    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia() {
-
+    @ResponseBody
+    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
+        // Recupera o usuário da sessão
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build(); // 401 Unauthorized se não estiver logado
+        }
 
         LocalDate dataBusca = LocalDate.now();
-
-        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca);
+        // Passa a data E o ID do usuário para o service
+        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
 
         if (agendamentos.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-
         return ResponseEntity.ok(agendamentos);
     }
 
@@ -98,12 +115,39 @@ public String exibirHome(Model model, HttpServletRequest request) {
         return ResponseEntity.ok(detalhes);
     }
 
-    // Endpoint 3: Busca todas as fichas (receitas) do banco para popular o select do Checklist
+    // Endpoint 3: Busca as fichas vinculadas às turmas DO USUÁRIO LOGADO
     @GetMapping("/api/fichas")
     @ResponseBody
-    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Ficha>> getTodasFichas() {
-        List<com.application.WebApplicationSIGEC.model.Ficha> todasFichas = fichasService.buscarTodas();
-        return ResponseEntity.ok(todasFichas);
+    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Ficha>> getTodasFichas(HttpSession session) {
+        // Recupera o usuário da sessão
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build(); // 401 Unauthorized se não estiver logado
+        }
+
+        // Usa o novo metodo do service passando o ID do usuário
+        List<com.application.WebApplicationSIGEC.model.Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
+
+        return ResponseEntity.ok(fichasDoUsuario);
+    }
+
+    // Endpoint 4: Busca apenas as turmas VINCULADAS AO USUÁRIO LOGADO
+    @GetMapping("/api/turmas")
+    @ResponseBody
+    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Turma>> getTurmasDoUsuario(HttpSession session) {
+        // 1. Recupera o usuário da sessão
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        // 2. Bloqueia se a sessão for nula ou inválida
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        // 3. Usa o repositório para buscar as turmas passando o ID do usuário
+        List<com.application.WebApplicationSIGEC.model.Turma> turmasDoUsuario = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
+
+        // 4. Retorna a lista em formato JSON
+        return ResponseEntity.ok(turmasDoUsuario);
     }
 
     @PostMapping("/api/fichas/confirmar-separacao")
@@ -153,4 +197,11 @@ public String exibirHome(Model model, HttpServletRequest request) {
         return ResponseEntity.ok("Devolução registrada com sucesso!");
     }
 
+    public TurmaRepository getTurmaRepository() {
+        return turmaRepository;
+    }
+
+    public void setTurmaRepository(TurmaRepository turmaRepository) {
+        this.turmaRepository = turmaRepository;
+    }
 }

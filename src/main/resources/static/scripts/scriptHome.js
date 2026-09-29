@@ -8,31 +8,26 @@ const $ = id => document.getElementById(id);
 
 // ===== INICIALIZAÇÃO =====
 document.addEventListener("DOMContentLoaded", () => {
-  atualizarSaudacao();
   carregarDadosIniciais();
 });
 
-function atualizarSaudacao() {
-  const hora = new Date().getHours();
-  let saudacao = (hora >= 0 && hora < 12) ? "Bom dia" : (hora < 18 ? "Boa tarde" : "Boa noite");
-  const el = document.getElementById("mensagem-tempo");
-  if (el) el.innerText = saudacao;
-}
+
 
 // ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
 function carregarDadosIniciais() {
   const containerClasses = document.querySelector('.classes-col');
 
-  // Executa ambas as buscas simultaneamente
+  // Executa as três buscas simultaneamente
   Promise.all([
-    fetch('/api/agendamentos/hoje').then(res => res.status === 204 ? [] : res.json()),
-    fetch('/api/fichas').then(res => res.json())
+    fetch('/api/turmas').then(res => res.status === 204 ? [] : res.json()), // 1. Busca as turmas do usuário
+    fetch('/api/agendamentos/hoje').then(res => res.status === 204 ? [] : res.json()), // 2. Busca agendamentos de hoje
+    fetch('/api/fichas').then(res => res.json()) // 3. Busca fichas do usuário
   ])
-      .then(([agendamentos, fichas]) => {
+      .then(([turmas, agendamentos, fichas]) => {
         agendamentosDoDia = agendamentos;
         todasAsFichasDoBanco = fichas;
 
-        popularTurmasDropdown();
+        popularTurmasDropdown(turmas); // Agora preenche com as turmas reais do banco
         filtrarPorTurma("todas"); // Inicializa mostrando todas as turmas do dia
 
         // Listener do Select do Checklist
@@ -53,26 +48,25 @@ function carregarDadosIniciais() {
       });
 }
 
-function popularTurmasDropdown() {
+function popularTurmasDropdown(turmas) {
   const turmaSelect = $('turma-select');
   if (!turmaSelect) return;
 
   turmaSelect.innerHTML = '<option value="todas">-- Todas as Turmas --</option>';
-  const turmasUnicas = [];
 
-  // Extrai as turmas unicamente baseadas nas aulas programadas para hoje
-  agendamentosDoDia.forEach(a => {
-    const turma = a.ficha.turma;
-    if (turma && !turmasUnicas.find(t => t.id === turma.id)) {
-      turmasUnicas.push(turma);
-      const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
-      turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
-    }
+  // Itera diretamente sobre a lista de turmas retornada pela nova API
+  turmas.forEach(turma => {
+    const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
+    turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
   });
 
-  turmaSelect.addEventListener('change', (e) => {
-    filtrarPorTurma(e.target.value);
-  });
+  // Garante que o evento só seja adicionado uma vez
+  turmaSelect.removeEventListener('change', onTurmaChange);
+  turmaSelect.addEventListener('change', onTurmaChange);
+}
+
+function onTurmaChange(e) {
+  filtrarPorTurma(e.target.value);
 }
 
 function filtrarPorTurma(turmaId) {
@@ -292,15 +286,8 @@ if ($('main-btn-reset')) {
   });
 }
 
-if ($('util-btn-reset')) {
-  $('util-btn-reset').addEventListener('click', () => {$('util-checklist').querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-    $('util-checklist').dispatchEvent(new Event('change'));
-  });
-}
-
-
 // ====================================================================================
-// ===== 6. LÓGICA DIRETA DE BANCO DE DADOS: INSUMOS E UTENSÍLIOS (SEM MODAL EXTRA) =====
+// ===== 6. LÓGICA DIRETA DE BANCO DE DADOS: INSUMOS E UTENSÍLIOS  =====
 // ====================================================================================
 
 // --- A. CONFIRMAR SEPARAÇÃO (INSUMOS) ---

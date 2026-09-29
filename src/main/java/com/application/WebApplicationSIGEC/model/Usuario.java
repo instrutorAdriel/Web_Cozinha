@@ -1,6 +1,7 @@
 package com.application.WebApplicationSIGEC.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -32,6 +33,15 @@ public class Usuario {
     @Lob
     @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")
     private byte[] fotoPerfil;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuario_turma",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_turma")
+    )
+    private List<Turma> turmas;
 
     public Usuario() {
     }
@@ -109,5 +119,14 @@ public class Usuario {
 
     public void setFotoPerfil(byte[] fotoPerfil) {
         this.fotoPerfil = fotoPerfil;
+    }
+
+    // Getters e Setters da lista de Turmas
+    public List<Turma> getTurmas() {
+        return turmas;
+    }
+
+    public void setTurmas(List<Turma> turmas) {
+        this.turmas = turmas;
     }
 }
