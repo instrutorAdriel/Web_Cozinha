@@ -30,7 +30,7 @@
     <p class="nav-group">Menu</p>
     <a href="#" class="nav-item active"><span class="material-symbols-outlined">home</span><span>Início</span></a>
     <a th:href="@{/calendario}" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
-    <a href="#" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+    <a th:href="@{/receitas}" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
   </nav>
 
   <!-- Rodapé da Sidebar (Botão de Sair) -->
@@ -98,8 +98,8 @@
 
     <!-- Perfil do Usuário Autenticado -->
     <div class="user-box">
-      <div class="user-info">
-        <p class="user-name"  th:text="${nomeUsuario}" >Chef Ricardo Silva</p>
+      <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
+        <img src="img/Ícone de Perfil (110 x 110 px).png?v=2" alt="Ícone de Perfil" class="avatar-header">
       </div>
     </div>
   </div>

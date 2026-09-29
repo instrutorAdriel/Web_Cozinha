@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGEC - Receitas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/stylesReceitas.css}">
+</head>
+<body>
+<div class="app-container">
+    <div class="overlay" id="overlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <img th:src="@{/img/Logo branca Senac.png}" alt="SENAC — Fecomércio Sesc" class="brand-logo-img" /><br>
+            <div class="brand-text">
+                <h1 class="brand-title">SIGEC</h1>
+                <p class="brand-sub">Painel do Instrutor</p>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a th:href="@{/home}" class="nav-item"><span class="material-symbols-outlined">home</span><span>Início</span></a>
+            <a th:href="@{/calendario}" class="nav-item"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
+            <a href="#" class="nav-item active"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+        </nav>
+        <div class="sidebar-footer">
+            <button class="btn-logout"><span class="material-symbols-outlined">logout</span>Sair</button>
+        </div>
+    </aside>
+
+    <div class="main-container">
+
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menu-toggle">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+
+                <div class="breadcrumb">
+                    <span class="crumb-muted">SIGEC</span>
+                    <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+                    <span class="crumb-current">Receitas</span>
+                </div>
+            </div>
+
+            <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
+            <div class="topbar-actions">
+
+                <div class="topbar-actions">
+
+                    <label class="field-label" for="turma-select">Turma / Laboratório</label>
+                    <div class="select-wrap">
+
+                        <select id="turma-select">
+                            <option value="">-- Selecione uma Turma --</option>
+                            <option value="2024.1.A">Turma 2024.1.A</option>
+                            <option value="2024.1.C">Turma 2024.1.C</option>
+                        </select>
+
+                        <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+                    </div>
+
+
+                </div>
+
+                <!-- Central de Notificações (Menu expansível via JS) -->
+                <div class="notif-wrap">
+                    <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="badge-dot" id="notif-badge" hidden></span>
+                    </button>
+
+                    <div class="notif-panel" id="notif-panel">
+                        <div class="notif-head">
+                            <h3>Notificações</h3>
+                            <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+                        </div>
+                        <div class="notif-list" id="notif-list"></div>
+                    </div>
+                </div>
+                <div class="user-box">
+                    <div class="user-info">
+                        <p class="user-name">Chef Ricardo Silva</p>
+                        <p class="user-role">Instrutor Gastronomia</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="filter-toolbar">
+            <div class="toolbar-title">Receitas</div>
+        </div>
+
+        <div class="workspace-area">
+
+            <aside class="recipes-list-pane">
+                <div class="status-tabs">
+                    <button class="status-tab-btn active" data-status="todas">Todas</button>
+                    <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
+                    <button class="status-tab-btn" data-status="datadas">Datadas</button>
+                </div>
+
+                <div id="listCol" class="scrollable-list">
+                </div>
+            </aside>
+            <main id="detailCol" class="recipe-detail-pane">
+            </main>
+        </div>
+    </div>
+
+</div>
+<script th:src="@{/scripts/scriptReceitas.js}"></script>
+</body>
+</html>
