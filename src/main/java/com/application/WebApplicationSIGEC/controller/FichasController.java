@@ -33,7 +33,7 @@ public class FichasController {
     @GetMapping("/calendario")
     public String exibirCalendario(HttpSession session) { // Parâmetro 'model' não utilizado foi removido
         if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/login";
+            return "redirect:/";
         }
         return "calendario";
     }
