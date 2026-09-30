@@ -38,18 +38,30 @@ public class FichasService {
         return fichasRepository.findAll();
     }
 
+    // Busca somente as fichas que ainda não foram alocadas
+    public List<Ficha> buscarDisponiveis() {
+        return fichasRepository.findByDataIsNull();
+    }
+
+    // Busca somente as fichas que já foram alocadas no calendário
+    public List<Ficha> buscarAlocadas() {
+        return fichasRepository.findByDataIsNotNull();
+    }
+
     @Transactional
-    public void alocarFicha(Long idFicha, LocalDate novaData) { // Alterado de int para Long
+    public void alocarFicha(Long idFicha, LocalDate novaData) {
         Ficha ficha = fichasRepository.findById(idFicha)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+
         ficha.setData(novaData);
         fichasRepository.save(ficha);
     }
 
     @Transactional
-    public void desalocarFicha(Long idFicha) { // Alterado de int para Long
+    public void desalocarFicha(Long idFicha) {
         Ficha ficha = fichasRepository.findById(idFicha)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
+
         ficha.setData(null);
         fichasRepository.save(ficha);
     }
