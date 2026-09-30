@@ -6,7 +6,7 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>4.1.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>WebApplicationSIGEC</artifactId>
@@ -30,6 +30,13 @@
 		<java.version>25</java.version>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>dotenv-java</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+ 
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

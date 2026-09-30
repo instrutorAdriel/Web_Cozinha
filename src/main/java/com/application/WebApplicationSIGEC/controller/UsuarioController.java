@@ -65,11 +65,11 @@ public class UsuarioController {
             return "cadastro";
         }
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 
-    @GetMapping("/login")
+    @GetMapping("/")
     public String exibirLogin(Model model, HttpSession session) {
 
         encerrarSessaoSeExistir(session);
@@ -81,18 +81,19 @@ public class UsuarioController {
         return "login";
     }
 
-    @PostMapping("/login")
+    @PostMapping("/")
     public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
         if(usuario == null){
             model.addAttribute("erro", "E-mail ou senha incorreto!");
+            System.out.println("erro 500");
             return "login";
         }
         HttpSession session = request.getSession(true);
         session.setAttribute("usuarioLogado", usuario);
-        //sessaoService.salvarUsuarioLogado(session,usuario);
+        sessaoService.salvarUsuarioLogado(session,usuario);
 
-
+        System.out.println("andado");
         return "redirect:/home";
 
     }
@@ -119,7 +120,7 @@ public class UsuarioController {
             return "alterarSenha";
         }
 
-        return "redirect:/login";
+        return "redirect:/";
     }
 
 }

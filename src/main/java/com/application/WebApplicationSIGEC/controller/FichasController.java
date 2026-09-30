@@ -5,48 +5,54 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.application.WebApplicationSIGEC.model.Fichas;
-import com.application.WebApplicationSIGEC.repository.FichasRepository;
+import com.application.WebApplicationSIGEC.model.Ficha;
 import com.application.WebApplicationSIGEC.service.FichasService;
 
 import jakarta.servlet.http.HttpSession;
-
 
 @Controller
 @RequestMapping("/")
 public class FichasController {
 
-    @Autowired
-    private FichasRepository fichasRepository;
-    @Autowired
-    private FichasService fichasService;
+    private final FichasService fichasService;
+
+    // Injeção via construtor
+    public FichasController(FichasService fichasService) {
+        this.fichasService = fichasService;
+    }
 
     @GetMapping("/calendario")
-    public String exibirCalendario(Model model, HttpSession session){
+    public String exibirCalendario(HttpSession session) {
 
         if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/login"; // Redireciona e PARA a execução
+            return "redirect:/";
         }
 
         return "calendario";
     }
 
     @GetMapping("/calendario/fichas")
-    public ResponseEntity<Map<String, Object>> exibirFichaData (@RequestParam("data") String data){
+    public ResponseEntity<Map<String, Object>> exibirFichaData(
+            @RequestParam("data") String data) {
+
         LocalDate dataSelecionada = LocalDate.parse(data);
-        List<Fichas> rs = fichasRepository.findByData(dataSelecionada);
-        List<Fichas> rsall = fichasRepository.findByDataIsNull();
+
+        // Fichas alocadas no dia selecionado
+        List<Ficha> rs = fichasService.buscarData(dataSelecionada);
+
+        // Somente fichas que ainda NÃO possuem data
+        List<Ficha> rsall = fichasService.buscarDisponiveis();
+
         Map<String, Object> rsFinal = new HashMap<>();
+
         rsFinal.put("alocadas", rs);
         rsFinal.put("Disponiveis", rsall);
 
@@ -54,31 +60,42 @@ public class FichasController {
     }
 
     @GetMapping("/calendario/fichas-alocadas")
-    public ResponseEntity<List<Fichas>> obterTodasFichasAlocadas() {
-        List<Fichas> alocadas = fichasRepository.findByDataIsNotNull();
+    public ResponseEntity<List<Ficha>> obterTodasFichasAlocadas() {
+
+        // Somente fichas que possuem uma data
+        List<Ficha> alocadas = fichasService.buscarAlocadas();
+
         return ResponseEntity.ok(alocadas);
     }
 
     @GetMapping("/calendario/alocar")
     @ResponseBody
-    public ResponseEntity<String> alocarFicha (@RequestParam("id") int id, @RequestParam("data") String dataFinal){
+    public ResponseEntity<String> alocarFicha(
+            @RequestParam("id") Long id,
+            @RequestParam("data") String dataFinal) {
+
         LocalDate novaData = LocalDate.parse(dataFinal);
+
         fichasService.alocarFicha(id, novaData);
+
         return ResponseEntity.ok("Receita atualizada com sucesso!");
     }
 
-        @PostMapping("/calendario/desalocar")
+    @PostMapping("/calendario/desalocar")
     @ResponseBody
-    public ResponseEntity<String> desalocarFicha (@RequestParam("id") int id, HttpSession session){
-        // Validação de segurança no Back-End (Impede requisições de usuários deslogados)
+    public ResponseEntity<String> desalocarFicha(
+            @RequestParam("id") Long id,
+            HttpSession session) {
+
         if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return ResponseEntity.status(401).body("Acesso negado: Usuário não autenticado.");
+
+            return ResponseEntity
+                    .status(401)
+                    .body("Acesso negado: Usuário não autenticado.");
         }
 
-        // Processa a regra de negócio segura via JPA
         fichasService.desalocarFicha(id);
+
         return ResponseEntity.ok("Receita desalocada com sucesso!");
     }
-
 }
-
