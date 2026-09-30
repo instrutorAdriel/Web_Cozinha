@@ -113,11 +113,11 @@
                 </div>
 
                 <div class="cal-header-controls">
-                    <button class="btn-cal-arrow" id="cal-prev" aria-label="Mês anterior">
+                    <button class="btn-cal-arrow" id="cal-prev">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
                     <span class="cal-month-indicator" id="cal-month">Junho 2026</span>
-                    <button class="btn-cal-arrow" id="cal-next" aria-label="Próximo mês">
+                    <button class="btn-cal-arrow" id="cal-next">
                         <span class="material-symbols-outlined">chevron_right</span>
                     </button>
                 </div>
@@ -155,21 +155,12 @@
         </aside>
 
     </div>
-    <dialog id="modal-confirmacao" class="custom-dialog">
-        <div class="dialog-content">
-            <span class="material-symbols-outlined icon-warning">warning</span>
-            <h3>Confirmar Ação</h3>
-            <p>Deseja mesmo retirar a ficha deste dia?</p>
-            <div class="dialog-actions">
-                <button id="btn-cancelar-exclusao" class="btn-secondary">Não, manter</button>
-                <button id="btn-confirmar-exclusao" class="btn-danger">Sim, retirar</button>
-            </div>
-        </div>
-    </dialog>
-
 </main>
 
 <script th:src="@{/scripts/calendario.js}"></script>
+
+
 </body>
+
 
 </html>
