@@ -1,20 +1,20 @@
-// ===== ENTIDADES DE TURMA (igual ao scriptHome.js) =====
+// ===== ENTIDADES DE TURMA =====
 const turmas = {
     "2024.1.A": { nome: "Turma 2024.1.A", cozinha: "Padaria Lab 01" },
     "2024.1.C": { nome: "Turma 2024.1.C", cozinha: "Cozinha Pedagógica 02" },
     "2024.2.N": { nome: "Turma 2024.2.N", cozinha: "Cozinha Pedagógica 04" }
 };
 
-let turmaAtual = "2024.1.A"; // turma selecionada por padrão
-
+let turmaAtual = "2024.1.A";
 const turmaSelect = document.getElementById('turma-select');
 
-// Popula o <select> com o mesmo formato usado na Home: "Nome — Cozinha"
 function popularSeletorTurmas() {
     if (!turmaSelect) return;
+
     turmaSelect.innerHTML = Object.entries(turmas)
         .map(([k, t]) => `<option value="${k}">${t.nome} — ${t.cozinha}</option>`)
         .join('');
+
     turmaSelect.value = turmaAtual;
 }
 
@@ -26,621 +26,1023 @@ if (turmaSelect) {
 
 popularSeletorTurmas();
 
-// ===== ESTILOS INJETADOS (grid Ingredientes + Utensílios lado a lado) =====
-(function injectRecipeDetailStyles() {
-    if (document.getElementById('receitas-extra-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'receitas-extra-styles';
-    style.textContent = `
-        .ingredientes-utensilios-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            align-items: start;
-        }
-        .ingredientes-utensilios-grid .coluna-bloco .block-title {
-            margin-top: 0;
-        }
-        @media (max-width: 768px) {
-            .ingredientes-utensilios-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-})();
 
-// ===== RECEITAS =====
+// ===== BASE DE DADOS DE RECEITAS (15 DATADAS E 15 DISPONÍVEIS) =====
 const RECIPES = [
+
+    // ==========================================
+    //           15 RECEITAS DATADAS
+    // ==========================================
+
+    // ===== DATADA 1 =====
     {
-        id:1, name:"Risoto de Funghi", cat:"Italiana", serves:"4 porções",
-        status:"disponivel",
-        description:"Um risoto cremoso italiano que leva funghi secchi reidratados, caldo de legumes e um toque final de manteiga e queijo parmesão. Ideal para um jantar especial.",
-        ingredients:["1 xícara de arroz arbóreo","30g de funghi secchi","1L de caldo de legumes","1/2 cebola picada","2 colheres de manteiga","1/2 xícara de vinho branco","50g de queijo parmesão ralado","Sal e pimenta a gosto"],
-        utensils:["Panela funda antiaderente","Colher de pau","Concha","Tigela para hidratar o funghi","Ralador de queijo","Faca e tábua de corte"],
-        steps:[
-            {title:"Hidrate o funghi", text:"Deixe o funghi secchi de molho em água morna por 20 minutos. Escorra e pique."},
-            {title:"Refogue a cebola", text:"Em uma panela, derreta 1 colher de manteiga e refogue a cebola até ficar transparente."},
-            {title:"Toste o arroz", text:"Adicione o arroz arbóreo e mexa por 2 minutos até ficar levemente translúcido."},
-            {title:"Deglaceie com vinho", text:"Adicione o vinho branco e mexa até evaporar completamente."},
-            {title:"Cozinhe adicionando caldo aos poucos", text:"Adicione o caldo quente em conchas, mexendo sempre, até o arroz absorver antes de adicionar mais."},
-            {title:"Finalize", text:"Fora do fogo, adicione a manteiga restante e o parmesão. Misture bem e sirva imediatamente."}
+        id: 4,
+        name: "Curry Vegano de Grão-de-bico",
+        type: "VEGANA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-09-28",
+        duration: "35 min",
+        description: "Curry cremoso e reconfortante feito com leite de coco, grão-de-bico e especiarias indianas, perfeito para uma refeição vegana rápida.",
+        ingredients: [
+            { text: "2 latas de grão-de-bico cozido", tag: "Leguminosa" },
+            { text: "1 lata de leite de coco", tag: "Coco" },
+            { text: "1 unidade média de cebola picada" },
+            { text: "2 dentes de alho" },
+            { text: "1 colher de sopa de curry em pó" },
+            { text: "1 colher de sopa de páprica doce/defumada" },
+            { text: "0.5 maço de coentro fresco picado" },
+            { text: "1 a gosto de sal refinado" }
+        ],
+        utensils: [
+            "Panela média de fundo triplo",
+            "Colher de pau / Espátula de silicone",
+            "Faca chef e tábua de corte verde",
+            "Bowls de inox para Mise en Place"
         ]
     },
+
+    // ===== DATADA 2 =====
     {
-        id:2, name:"Feijoada Completa", cat:"Brasileira", serves:"8 porções",
-        status:"disponivel",
-        description:"Prato típico brasileiro à base de feijão preto cozido lentamente com carnes defumadas e salgadas, servido tradicionalmente com arroz, couve e farofa.",
-        ingredients:["500g de feijão preto","300g de carne seca","200g de linguiça calabresa","200g de costelinha de porco","2 folhas de louro","1 cebola picada","4 dentes de alho","Sal e pimenta a gosto"],
-        utensils:["Panela de pressão","Panela grande de fundo grosso","Faca de chef","Tábua de corte","Escumadeira","Tigela grande para dessalgue"],
-        steps:[
-            {title:"Dessalgue as carnes", text:"Deixe a carne seca de molho, trocando a água algumas vezes, por 12 horas.", time:"12h"},
-            {title:"Cozinhe o feijão", text:"Cozinhe o feijão preto na panela de pressão até ficar macio.", time:"40 min"},
-            {title:"Doure as carnes", text:"Em uma panela grande, doure a linguiça e a costelinha.", time:"15 min"},
-            {title:"Junte tudo", text:"Adicione o feijão cozido, a carne seca desfiada, louro, cebola e alho. Cozinhe em fogo baixo.", time:"1h30"},
-            {title:"Finalize e sirva", text:"Ajuste o sal, retire o excesso de gordura e sirva com arroz branco, couve refogada e farofa.", time:"10 min"}
+        id: 2,
+        name: "Feijoada Completa Tradicional",
+        type: "BRASILEIRA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-10-05",
+        duration: "160 min",
+        description: "Prato típico brasileiro à base de feijão preto cozido lentamente com carnes defumadas e salgadas.",
+        ingredients: [
+            { text: "500g de feijão preto", tag: "Leguminosa" },
+            { text: "300g de carne seca dessalgada", tag: "Carne" },
+            { text: "200g de linguiça calabresa defumada" },
+            { text: "200g de costelinha de porco defumada" },
+            { text: "2 folhas de louro seco" },
+            { text: "1 unidade de cebola picada" },
+            { text: "4 dentes de alho esmagados" }
+        ],
+        utensils: [
+            "Panela de pressão de 7 litros",
+            "Panela grande de fundo grosso",
+            "Faca chef e tábua vermelha",
+            "Escumadeira inox"
         ]
     },
+
+    // ===== DATADA 3 =====
     {
-        id:3, name:"Sushi de Salmão", cat:"Japonesa", serves:"2 porções",
-        status:"datadas",
-        description:"Sushi tradicional japonês com arroz temperado, salmão fresco e alga nori, enrolado e cortado em peças elegantes.",
-        ingredients:["2 xícaras de arroz para sushi","3 colheres de vinagre de arroz","200g de salmão fresco","4 folhas de alga nori","Molho shoyu","Gengibre em conserva","Wasabi"],
-        utensils:["Esteira de bambu (makisu)","Faca afiada tipo santoku","Tigela grande para o arroz (hangiri)","Pano de prato umedecido","Tábua de corte"],
-        steps:[
-            {title:"Prepare o arroz", text:"Cozinhe o arroz e tempere com vinagre de arroz, açúcar e sal ainda quente.", time:"20 min"},
-            {title:"Corte o salmão", text:"Corte o salmão fresco em tiras finas e uniformes.", time:"5 min"},
-            {title:"Monte os rolinhos", text:"Espalhe o arroz sobre a alga nori, adicione o salmão e enrole com a esteira de bambu.", time:"15 min"},
-            {title:"Corte e sirva", text:"Corte os rolinhos em peças iguais e sirva com shoyu, gengibre e wasabi.", time:"5 min"}
+        id: 13,
+        name: "Ceviche Clássico Peruano",
+        type: "LATINO-AMERICANA",
+        cat: "Cozinha Fria",
+        status: "datadas",
+        dataPrevista: "2026-10-12",
+        duration: "25 min",
+        description: "Peixe branco fresco curado no 'leche de tigre' à base de limão, coentro, alho, gengibre e pimenta dedo-de-moça.",
+        ingredients: [
+            { text: "500g de filé de tilápia ou robalo fresco", tag: "Pescado" },
+            { text: "6 unidades de limão tahiti espremidos" },
+            { text: "1 unidade de cebola roxa em julienne" },
+            { text: "1 unidade de pimenta dedo-de-moça" },
+            { text: "1 pedaço pequeno de gengibre fresco ralado" },
+            { text: "Folhas de coentro fresco e gelo" }
+        ],
+        utensils: [
+            "Faca de corte fino para peixe",
+            "Tábua de corte azul (pescados)",
+            "Bowl inox sobre banho de gelo",
+            "Espremedor manual de cítricos"
         ]
     },
+
+    // ===== DATADA 4 =====
     {
-        id:4, name:"Curry Vegano de Grão-de-bico", cat:"Vegana", serves:"4 porções",
-        status:"disponivel",
-        description:"Curry cremoso e reconfortante feito com leite de coco, grão-de-bico e especiarias indianas, perfeito para uma refeição vegana rápida.",
-        ingredients:["2 latas de grão-de-bico cozido","1 lata de leite de coco","1 cebola picada","2 dentes de alho","1 colher de curry em pó","1 colher de páprica","Coentro fresco","Sal a gosto"],
-        utensils:["Panela média","Colher de pau","Faca e tábua de corte","Abridor de latas","Colher de medida"],
-        steps:[
-            {title:"Refogue os aromáticos", text:"Refogue a cebola e o alho até dourarem levemente.", time:"5 min"},
-            {title:"Adicione as especiarias", text:"Junte o curry em pó e a páprica, mexendo por 1 minuto para liberar o aroma.", time:"2 min"},
-            {title:"Adicione o grão-de-bico e o leite de coco", text:"Misture bem e deixe cozinhar em fogo médio-baixo.", time:"20 min"},
-            {title:"Finalize", text:"Ajuste o sal, finalize com coentro fresco picado e sirva com arroz basmati.", time:"8 min"}
+        id: 7,
+        name: "Lasanha à Bolonhesa",
+        type: "ITALIANA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-10-19",
+        duration: "90 min",
+        description: "Clássica lasanha italiana preparada com massa artesanal, ragù à bolonhesa, presunto, queijo e bechamel.",
+        ingredients: [
+            { text: "500g de massa para lasanha", tag: "Massa" },
+            { text: "500g de carne moída", tag: "Carne" },
+            { text: "300g de molho de tomate concassé", tag: "Molho" },
+            { text: "300g de queijo muçarela", tag: "Queijo" },
+            { text: "500ml de molho bechamel" },
+            { text: "50g de queijo parmesão ralado" }
+        ],
+        utensils: [
+            "Panela grande para ragù",
+            "Travessa refratária retangular",
+            "Colher de silicone",
+            "Ralador de queijo"
         ]
     },
+
+    // ===== DATADA 5 =====
     {
-        id:5, name:"Tacos de Carnitas", cat:"Mexicana", serves:"4 porções",
-        status:"disponivel",
-        description:"Tacos mexicanos com carne de porco desfiada e levemente crocante, servidos em tortilhas quentes com pico de gallo e limão.",
-        ingredients:["600g de carne de porco","1 laranja (suco)","2 dentes de alho","1 colher de cominho","Tortillas de milho","Cebola roxa picada","Coentro fresco","Limão"],
-        utensils:["Panela grande com tampa","Frigideira","Faca de chef","Tábua de corte","Espremedor de citrinos","Dois garfos (para desfiar)"],
-        steps:[
-            {title:"Tempere a carne", text:"Tempere a carne de porco com sal, cominho e alho amassado.", time:"10 min"},
-            {title:"Cozinhe lentamente", text:"Cozinhe a carne com suco de laranja em fogo baixo até ficar bem macia.", time:"40 min"},
-            {title:"Desfie e doure", text:"Desfie a carne e leve à frigideira quente para dourar as bordas.", time:"8 min"},
-            {title:"Monte os tacos", text:"Sirva a carne em tortillas quentes com cebola roxa, coentro e limão.", time:"5 min"}
+        id: 9,
+        name: "Pão de Queijo Mineiro",
+        type: "BRASILEIRA",
+        cat: "Panificação",
+        status: "datadas",
+        dataPrevista: "2026-10-26",
+        duration: "40 min",
+        description: "Preparação tradicional brasileira feita com polvilho escaldado e queijo meia-cura, crocante por fora e macio por dentro.",
+        ingredients: [
+            { text: "500g de polvilho doce", tag: "Polvilho" },
+            { text: "250ml de leite integral" },
+            { text: "100ml de óleo vegetal" },
+            { text: "2 unidades de ovos", tag: "Ovos" },
+            { text: "250g de queijo meia-cura ralado", tag: "Queijo" },
+            { text: "1 colher de chá de sal refinado" }
+        ],
+        utensils: [
+            "Canecão para ferver líquidos",
+            "Tigela grande de inox",
+            "Assadeira retangular",
+            "Forno convencional"
         ]
     },
+
+    // ===== DATADA 6 =====
     {
-        id:6, name:"Ratatouille", cat:"Francesa", serves:"4 porções",
-        status:"datadas",
-        description:"Ensopado clássico francês de vegetais como abobrinha, berinjela e tomate, cozidos lentamente com ervas provençais.",
-        ingredients:["1 berinjela","2 abobrinhas","2 tomates","1 pimentão","1 cebola","2 dentes de alho","Ervas de Provence","Azeite de oliva"],
-        utensils:["Faca de chef","Tábua de corte","Mandolina (opcional, para fatias uniformes)","Assadeira ou travessa refratária","Papel alumínio"],
-        steps:[
-            {title:"Corte os vegetais", text:"Corte todos os vegetais em fatias finas e uniformes.", time:"15 min"},
-            {title:"Refogue a base", text:"Refogue cebola e alho no azeite até perfumar.", time:"5 min"},
-            {title:"Monte em camadas", text:"Disponha as fatias de vegetais alternadas sobre a base de tomate.", time:"10 min"},
-            {title:"Asse lentamente", text:"Leve ao forno coberto com papel alumínio até os vegetais ficarem macios.", time:"25 min"}
+        id: 11,
+        name: "Moqueca Baiana de Peixe",
+        type: "BRASILEIRA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-11-02",
+        duration: "60 min",
+        description: "Peixe cozido em panela de barro com tomates, pimentões, leite de coco e azeite de dendê aromático.",
+        ingredients: [
+            { text: "800g de filé ou posta de peixe branco", tag: "Pescado" },
+            { text: "2 tomates maduros em rodelas", tag: "Hortaliça" },
+            { text: "1 cebola grande em rodelas" },
+            { text: "1 pimentão vermelho fatiado" },
+            { text: "200ml de leite de coco", tag: "Coco" },
+            { text: "2 colheres de sopa de azeite de dendê" },
+            { text: "Coentro fresco picado a gosto" }
+        ],
+        utensils: [
+            "Panela de barro tradicional",
+            "Faca chef afiada",
+            "Tábua de corte verde",
+            "Colher grande de serviço"
         ]
     },
+
+    // ===== DATADA 7 =====
     {
-        id:7, name:"Lasanha à Bolonhesa", cat:"Italiana", serves:"6 porções",
-        status:"disponivel",
-        description:"Camadas de massa fresca, molho bolonhesa encorpado e um generoso creme de queijo, gratinados até dourar por cima.",
-        ingredients:["500g de massa de lasanha","500g de carne moída","400g de molho de tomate","1 cebola picada","2 dentes de alho","500ml de molho branco (bechamel)","200g de queijo mussarela ralado","50g de queijo parmesão","Sal e orégano a gosto"],
-        utensils:["Panela para o molho","Frigideira grande","Assadeira retangular","Colher de pau","Ralador de queijo","Papel alumínio"],
-        steps:[
-            {title:"Prepare o molho bolonhesa", text:"Refogue cebola e alho, adicione a carne moída e doure. Junte o molho de tomate e cozinhe em fogo baixo.", time:"25 min"},
-            {title:"Prepare o bechamel", text:"Derreta manteiga, adicione farinha e leite aos poucos, mexendo até engrossar.", time:"15 min"},
-            {title:"Monte as camadas", text:"Alterne camadas de massa, molho bolonhesa e bechamel na assadeira, finalizando com queijo.", time:"15 min"},
-            {title:"Asse", text:"Cubra com papel alumínio e leve ao forno preaquecido; retire o papel nos últimos minutos para gratinar.", time:"40 min"},
-            {title:"Finalize", text:"Deixe descansar antes de cortar e servir.", time:"10 min"}
+        id: 15,
+        name: "Brioche Trançado de Manteiga",
+        type: "FRANCESA",
+        cat: "Panificação",
+        status: "datadas",
+        dataPrevista: "2026-11-09",
+        duration: "150 min",
+        description: "Massa nobre enriquecida com alta proporção de manteiga e ovos, miolo desfiante e crosta dourada brilhante.",
+        ingredients: [
+            { text: "500g de farinha de trigo especial (W300)", tag: "Farinha" },
+            { text: "5 unidades de ovos médios frios", tag: "Ovos" },
+            { text: "250g de manteiga sem sal em ponto pomada", tag: "Laticínio" },
+            { text: "60g de açúcar refinado" },
+            { text: "10g de fermento biológico seco", tag: "Fermento" },
+            { text: "10g de sal fino" }
+        ],
+        utensils: [
+            "Batedeira planetária com gancho",
+            "Forma de pão inglês retangular",
+            "Pincel culinário macio",
+            "Grade de resfriamento"
         ]
     },
+
+    // ===== DATADA 8 =====
     {
-        id:8, name:"Moqueca de Peixe", cat:"Brasileira", serves:"4 porções",
-        status:"disponivel",
-        description:"Ensopado baiano de peixe cozido em leite de coco, dendê e pimentões coloridos, com aroma marcante de coentro.",
-        ingredients:["600g de filé de peixe branco","2 tomates picados","1 pimentão vermelho","1 pimentão amarelo","1 cebola em rodelas","200ml de leite de coco","2 colheres de azeite de dendê","Coentro fresco","Suco de limão","Sal a gosto"],
-        utensils:["Panela de barro ou panela larga","Faca de chef","Tábua de corte","Colher de pau","Espremedor de limão"],
-        steps:[
-            {title:"Tempere o peixe", text:"Tempere os filés com sal e limão e deixe marinar.", time:"15 min"},
-            {title:"Monte as camadas", text:"Em uma panela, disponha camadas de cebola, tomate, pimentões e o peixe.", time:"10 min"},
-            {title:"Cozinhe com leite de coco", text:"Adicione o leite de coco e o azeite de dendê, cozinhando em fogo médio sem mexer muito para não desmanchar o peixe.", time:"20 min"},
-            {title:"Finalize", text:"Salpique coentro fresco picado e sirva com arroz branco e pirão.", time:"5 min"}
+        id: 16,
+        name: "Carpaccio Clássico com Molho de Alcaparras",
+        type: "ITALIANA",
+        cat: "Cozinha Fria",
+        status: "datadas",
+        dataPrevista: "2026-11-16",
+        duration: "20 min",
+        description: "Lâminas quase transparentes de carne crua fresca servidas com emulsão de mostarda Dijon, alcaparras e queijo parmesão.",
+        ingredients: [
+            { text: "300g de filé-mignon bovino limpo", tag: "Carne" },
+            { text: "2 colheres de sopa de alcaparras dessalgadas" },
+            { text: "1 colher de sopa de mostarda de Dijon" },
+            { text: "50ml de azeite de oliva extravirgem" },
+            { text: "Suco de 1/2 limão siciliano" },
+            { text: "50g de queijo parmesão em lascas", tag: "Queijo" },
+            { text: "Folhas de rúcula fresca baby" }
+        ],
+        utensils: [
+            "Faca lisa longa e hiper afiada",
+            "Filme plástico alimentar",
+            "Prato de servir resfriado",
+            "Laminador de queijo"
         ]
     },
+
+    // ===== DATADA 9 =====
     {
-        id:9, name:"Pad Thai de Camarão", cat:"Tailandesa", serves:"3 porções",
-        status:"disponivel",
-        description:"Macarrão de arroz salteado no wok com camarões, ovos, broto de feijão e um molho agridoce típico da culinária tailandesa.",
-        ingredients:["200g de macarrão de arroz (pad thai)","250g de camarão limpo","2 ovos","2 colheres de molho de peixe","2 colheres de molho tamarindo","1 colher de açúcar mascavo","Broto de feijão","Cebolinha picada","Amendoim torrado picado","Limão"],
-        utensils:["Wok","Escumadeira","Tigela para hidratar o macarrão","Faca e tábua de corte","Pilão (para o amendoim)"],
-        steps:[
-            {title:"Hidrate o macarrão", text:"Deixe o macarrão de arroz de molho em água morna até ficar maleável.", time:"15 min"},
-            {title:"Prepare o molho", text:"Misture molho de peixe, molho tamarindo e açúcar mascavo em uma tigela.", time:"5 min"},
-            {title:"Salteie no wok", text:"No wok bem quente, salteie o camarão até dourar, adicione o ovo mexido e depois o macarrão.", time:"10 min"},
-            {title:"Finalize", text:"Junte o molho, o broto de feijão e a cebolinha. Sirva com amendoim picado e limão.", time:"5 min"}
+        id: 18,
+        name: "Baguete Tradicional Francesa",
+        type: "FRANCESA",
+        cat: "Panificação",
+        status: "datadas",
+        dataPrevista: "2026-11-23",
+        duration: "180 min",
+        description: "Pão de casca hiper crocante, miolo com grandes alvéolos irregulares e fermentação com método de pré-fermento poolish.",
+        ingredients: [
+            { text: "500g de farinha de trigo de força T65", tag: "Farinha" },
+            { text: "350ml de água mineral gelada" },
+            { text: "5g de fermento biológico seco", tag: "Fermento" },
+            { text: "10g de sal refinado" }
+        ],
+        utensils: [
+            "Pano de linho para fermentação (couche)",
+            "Lâmina de corte para pão (grignette)",
+            "Pá de forno para pão",
+            "Pedra refratária de assamento"
         ]
     },
+
+    // ===== DATADA 10 =====
     {
-        id:10, name:"Paella de Frutos do Mar", cat:"Espanhola", serves:"6 porções",
-        status:"disponivel",
-        description:"Clássico prato espanhol de arroz socarrat cozido em caldo de frutos do mar, açafrão e pimentões, coberto com camarões, mexilhões e lulas.",
-        ingredients:["2 xícaras de arroz para paella","300g de camarão","200g de mexilhões","200g de lula em anéis","1 pimentão vermelho","1 tomate ralado","1 cebola picada","Açafrão em pó","1L de caldo de peixe","Azeite de oliva"],
-        utensils:["Paellera (ou frigideira larga e rasa)","Colher de pau","Faca e tábua de corte","Concha"],
-        steps:[
-            {title:"Refogue a base", text:"Refogue cebola, pimentão e tomate ralado no azeite até formar um sofrito.", time:"10 min"},
-            {title:"Doure os frutos do mar", text:"Doure rapidamente o camarão e a lula, reserve.", time:"8 min"},
-            {title:"Cozinhe o arroz", text:"Adicione o arroz e o açafrão ao sofrito, regue com o caldo quente aos poucos sem mexer.", time:"20 min"},
-            {title:"Finalize", text:"Distribua os frutos do mar reservados e os mexilhões sobre o arroz, cozinhando até formar o socarrat no fundo.", time:"10 min"}
+        id: 19,
+        name: "Steak Tartare Clássico",
+        type: "FRANCESA",
+        cat: "Cozinha Fria",
+        status: "datadas",
+        dataPrevista: "2026-11-30",
+        duration: "25 min",
+        description: "Carne bovina crua cortada na ponta da faca em cubos milimétricos, temperada com cebola roxa, alcaparras, mostarda e gema de ovo crua.",
+        ingredients: [
+            { text: "400g de filé-mignon bovino fresco", tag: "Carne" },
+            { text: "1 gema de ovo fresco pasteurizada", tag: "Ovos" },
+            { text: "1 colher de sopa de alcaparras picadas" },
+            { text: "1 colher de sopa de picles picadinho" },
+            { text: "1 colher de chá de molho inglês e tabasco" },
+            { text: "1 colher de sopa de mostarda Dijon" }
+        ],
+        utensils: [
+            "Faca chef hiper afiada",
+            "Tábua de corte sanitizada",
+            "Bowl inox apoiado em banho de gelo",
+            "Aro metálico para empratamento"
         ]
     },
-    // ===== NOVAS RECEITAS ADICIONADAS (11 a 35) =====
+
+    // ===== DATADA 11 =====
     {
-        id:11, name:"Strogonoff de Frango", cat:"Brasileira", serves:"4 porções",
-        status:"disponivel",
-        description:"Típico prato do dia a dia brasileiro, feito com peito de frango em tiras, molho cremoso de creme de leite, catchup, mostarda e cogumelos.",
-        ingredients:["1kg de peito de frango em cubos","1 caixa de creme de leite","2 colheres de catchup","1 colher de mostarda","100g de cogumelo champignon","1 cebola picada","2 dentes de alho","Sal, pimenta e azeite"],
-        utensils:["Frigideira grande ou panela funda","Tábua de corte","Faca de chef","Colher de pau"],
-        steps:[
-            {title:"Dourar o frango", text:"Tempere o frango com sal e pimenta e doure na frigideira com azeite."},
-            {title:"Refogar aromáticos", text:"Adicione a cebola, o alho e os cogumelos fatiados e refogue até amolecer."},
-            {title:"Adicionar molhos", text:"Incorpore o catchup, a mostarda e mexa bem."},
-            {title:"Finalizar com creme de leite", text:"Desligue o fogo e misture o creme de leite suavemente. Sirva com arroz e batata palha."}
+        id: 20,
+        name: "Polvo Grelhado à Lagareiro",
+        type: "PORTUGUESA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-12-04",
+        duration: "75 min",
+        description: "Tentáculos de polvo tenros cozidos em aromáticos e finalizados na chapa bem quente com azeite fervente, alho dourado e batatas ao murro.",
+        ingredients: [
+            { text: "1kg de polvo limpo inteiro", tag: "Pescado" },
+            { text: "500g de batatas pequenas bolinha", tag: "Tubérculo" },
+            { text: "1 cabeça inteira de alho laminado" },
+            { text: "150ml de azeite extravirgem de baixa acidez" },
+            { text: "Folhas de louro e salsa picada" }
+        ],
+        utensils: [
+            "Panela de pressão para cozimento do polvo",
+            "Frigideira ou chapa de ferro pesada",
+            "Assadeira para batatas",
+            "Pegador longo inox"
         ]
     },
+
+    // ===== DATADA 12 =====
     {
-        id:12, name:"Gnocchi ao Molho Pesto", cat:"Italiana", serves:"3 porções",
-        status:"disponivel",
-        description:"Nhoque de batata artesanal servido com molho pesto tradicional de manjericão, nozes, alho e azeite extravirgem.",
-        ingredients:["500g de nhoque de batata","1 xícara de manjericão fresco","1/2 xícara de azeite extravirgem","1/2 xícara de parmesão ralado","1/4 xícara de nozes ou pinoli","1 dente de alho","Sal a gosto"],
-        utensils:["Processador ou liquidificador","Panela grande para cozimento","Escumadeira","Tigela para servir"],
-        steps:[
-            {title:"Preparo do Pesto", text:"Bata o manjericão, nozes, alho, azeite e parmesão no processador até virar uma pasta."},
-            {title:"Cozimento da massa", text:"Ferva bastante água salgada e jogue o nhoque."},
-            {title:"Retirar ao subir", text:"Quando os nhoques boiarem, retire-os imediatamente com uma escumadeira."},
-            {title:"Misturar", text:"Envolva os nhoques delicadamente no molho pesto e sirva."}
+        id: 21,
+        name: "Mil-Folhas com Creme Diplomata",
+        type: "FRANCESA",
+        cat: "Confeitaria",
+        status: "datadas",
+        dataPrevista: "2026-12-07",
+        duration: "110 min",
+        description: "Camadas crocantes e caramelizadas de massa folhada invertida recheadas com creme diplomata aerado de baunilha.",
+        ingredients: [
+            { text: "400g de massa folhada laminada pronta", tag: "Massa" },
+            { text: "500ml de leite integral para confeiteiro" },
+            { text: "4 unidades de gemas de ovos", tag: "Ovos" },
+            { text: "100g de açúcar refinado" },
+            { text: "40g de amido de milho" },
+            { text: "200ml de creme de leite batido em chantilly", tag: "Laticínio" }
+        ],
+        utensils: [
+            "Assadeira rasa com grelha de peso para folhada",
+            "Saco de confeitar com bico liso grande",
+            "Faca de serra para pão afiada",
+            "Fouet de confeitaria"
         ]
     },
+
+    // ===== DATADA 13 =====
     {
-        id:13, name:"Ceviche Tradicional", cat:"Peruana", serves:"2 porções",
-        status:"disponivel",
-        description:"Prato leve de peixe fresco marinando no suco de limão (leche de tigre) com cebola roxa, pimenta dedo-de-moça e coentro.",
-        ingredients:["400g de peixe branco fresco (pargo ou tilápia)","Suco de 6 limões","1 cebola roxa fatiada bem fina","1 pimenta dedo-de-moça picada","Coentro picado","1 milho cozido","Coentro e sal a gosto"],
-        utensils:["Tigela de vidro ou inox","Faca afiada","Tábua de corte","Espremedor de limão"],
-        steps:[
-            {title:"Corte do peixe", text:"Corte o peixe em cubos médios uniformes."},
-            {title:"Marinada", text:"Em uma tigela fria, junte o peixe, o sal, a pimenta e cubra com o suco de limão recém-espremido."},
-            {title:"Incorporar cebola", text:"Misture a cebola roxa e o coentro picado, deixando marinar por 5 minutos."},
-            {title:"Servir", text:"Sirva imediatamente acompanhado de rodelas de milho ou batata-doce cozida."}
+        id: 22,
+        name: "Gnocchi de Batata ao Molho Gorgonzola",
+        type: "ITALIANA",
+        cat: "Cozinha Quente",
+        status: "datadas",
+        dataPrevista: "2026-12-11",
+        duration: "60 min",
+        description: "Nhoques levíssimos de batata asterix assada, moldados à mão e envolvidos em molho cremoso de queijo gorgonzola e nozes tostadas.",
+        ingredients: [
+            { text: "800g de batata asterix assada no sal grosso", tag: "Tubérculo" },
+            { text: "150g de farinha de trigo fina", tag: "Farinha" },
+            { text: "1 gema de ovo", tag: "Ovos" },
+            { text: "200g de queijo gorgonzola dolce", tag: "Queijo" },
+            { text: "200ml de creme de leite fresco", tag: "Laticínio" },
+            { text: "50g de nozes picadas tostadas" }
+        ],
+        utensils: [
+            "Espremedor manual de batatas",
+            "Espátula raspadeira de corte (tarocco)",
+            "Gnocchiera (tábua estriada de madeira)",
+            "Frigideira sauté grande"
         ]
     },
+
+    // ===== DATADA 14 =====
     {
-        id:14, name:"Hambúrguer Artesanal", cat:"Americana", serves:"2 porções",
-        status:"disponivel",
-        description:"Sculpted burger juicy de fraldinha e acém no pão brioche com queijo cheddar derretido e molho especial.",
-        ingredients:["300g de fraldinha moída com 20% de gordura","2 fatias de queijo cheddar","2 pães de hambúrguer tipo brioche","Manteiga para selar o pão","Sal e pimenta-do-reino"],
-        utensils:["Frigideira de ferro ou chapa","Espátula de metal","Pincel culinário"],
-        steps:[
-            {title:"Modelagem", text:"Divida a carne em 2 bolotas de 150g e molde no formato de hambúrguer sem apertar muito."},
-            {title:"Selar o pão", text:"Passe manteiga no pão e doure na frigideira bem quente."},
-            {title:"Grelhar a carne", text:"Tempere a carne com sal e pimenta logo antes de colocar na frigideira fumegante. Deixe 3 min de cada lado."},
-            {title:"Derreter queijo", text:"Coloque o queijo cheddar por cima, abafe por 1 min e monte no pão."}
+        id: 23,
+        name: "Terrine Campagnarde de Carnes",
+        type: "FRANCESA",
+        cat: "Cozinha Fria",
+        status: "datadas",
+        dataPrevista: "2026-12-14",
+        duration: "120 min",
+        description: "Embutido rústico de charcutaria francesa composto por carnes suínas marinadas em conhaque e ervas, servido frio em fatias.",
+        ingredients: [
+            { text: "400g de pernil suíno moído grosso", tag: "Carne" },
+            { text: "200g de toucinho curado fatiado" },
+            { text: "100g de fígado de frango limpo" },
+            { text: "50ml de conhaque ou conhaque francês" },
+            { text: "Noz-moscada, tomilho e pimenta branca moída" }
+        ],
+        utensils: [
+            "Forma de terrine de ferro fundido ou cerâmica",
+            "Tábua de corte sanitizada",
+            "Termômetro de espeto culinário",
+            "Peso de prensa para resfriamento"
         ]
     },
+
+    // ===== DATADA 15 =====
     {
-        id:15, name:"Falafel com Molho Tarator", cat:"Árabe", serves:"4 porções",
-        status:"disponivel",
-        description:"Bolinhos crocantes de grão-de-bico frito com ervas e especiarias, acompanhados de molho leve de tahine.",
-        ingredients:["250g de grão-de-bico cru (de molho por 12h)","1/2 xícara de salsinha e coentro","1 cebola pequena","3 dentes de alho","1 colher de cominho em pó","1 colher de fermento químico","Óleo para fritar"],
-        utensils:["Processador de alimentos","Colher ou moldador de falafel","Escumadeira","Panela funda para fritura"],
-        steps:[
-            {title:"Processar ingredientes", text:"Bata o grão-de-bico cru drenado com alho, cebola, ervas e cominho no processador até virar uma pasta granulada."},
-            {title:"Moldar", text:"Adicione o fermento, misture e molde pequenos discos ou bolinhas."},
-            {title:"Fritura", text:"Frite em óleo bem quente até que fiquem bem dourados e crocantes."},
-            {title:"Servir", text:"Escorra em papel absorvente e sirva com molho de tahine e pão sírio."}
+        id: 24,
+        name: "Macarons Clássicos de Framboesa",
+        type: "FRANCESA",
+        cat: "Confeitaria",
+        status: "datadas",
+        dataPrevista: "2026-12-18",
+        duration: "90 min",
+        description: "Casquinhas lisas com saia perfeita à base de merengue italiano e farinha de amêndoas, recheadas com ganache de framboesa.",
+        ingredients: [
+            { text: "150g de farinha de amêndoas fina", tag: "Amêndoa" },
+            { text: "150g de açúcar impalpável de confeiteiro" },
+            { text: "110g de claras de ovos envelhecidas", tag: "Ovos" },
+            { text: "150g de açúcar refinado para a calda" },
+            { text: "150g de chocolate branco com polpa de framboesa" }
+        ],
+        utensils: [
+            "Tapete de silicone com gabarito para macarons",
+            "Manga de confeitar com bico redondo 8mm",
+            "Termômetro digital para calda de açúcar",
+            "Processador / Peneira fina"
         ]
     },
+
+
+    // ==========================================
+    //          15 RECEITAS DISPONÍVEIS
+    // ==========================================
+
+    // ===== DISPONÍVEL 1 =====
     {
-        id:16, name:"Shakshuka", cat:"Árabe", serves:"2 porções",
-        status:"disponivel",
-        description:"Ovos cozidos lentamente em um rico molho de tomate pimentão e pimenta, aromatizado com cominho e páprica.",
-        ingredients:["4 ovos","1 lata de tomate pelado","1 pimentão vermelho picado","1 cebola picada","2 dentes de alho","1 colher de páprica defumada","Azeite, sal e coentro"],
-        utensils:["Frigideira grande de ferro com tampa","Colher de pau","Faca de chef"],
-        steps:[
-            {title:"Base do molho", text:"Refogue a cebola, o alho e o pimentão no azeite até dourarem."},
-            {title:"Cozinhar molho", text:"Adicione a páprica e o tomate pelado, esmagando-os. Deixe encorpar por 10 minutos."},
-            {title:"Adicionar ovos", text:"Abra pequenas cavidades no molho e quebre os ovos dentro delas."},
-            {title:"Abafar", text:"Abafe com a tampa até que as claras estejam cozidas e as gemas moles. Polvilhe coentro."}
+        id: 1,
+        name: "Risoto de Funghi Secchi",
+        type: "ITALIANA",
+        cat: "Cozinha Quente",
+        status: "disponivel",
+        dataPrevista: "2026-10-02",
+        duration: "45 min",
+        description: "Um risoto cremoso italiano que leva funghi secchi reidratados, caldo de legumes e um toque final de manteiga e queijo parmesão.",
+        ingredients: [
+            { text: "1 xícara de arroz arbóreo", tag: "Grão" },
+            { text: "30g de funghi secchi", tag: "Cogumelo" },
+            { text: "1L de caldo de legumes quente" },
+            { text: "1/2 unidade de cebola picada" },
+            { text: "2 colheres de sopa de manteiga", tag: "Laticínio" },
+            { text: "1/2 xícara de vinho branco seco" },
+            { text: "50g de queijo parmesão ralado", tag: "Queijo" }
+        ],
+        utensils: [
+            "Panela funda antiaderente",
+            "Concha média para caldo",
+            "Tigela para hidratação de cogumelos",
+            "Ralador de queijo fino"
         ]
     },
+
+    // ===== DISPONÍVEL 2 =====
     {
-        id:17, name:"Sopa Onion Gratinée", cat:"Francesa", serves:"4 porções",
-        status:"datadas",
-        description:"Sopa de cebola caramelizada em caldo saboroso, coberta com fatia de pão francês e queijo gruyère gratinado.",
-        ingredients:["4 cebolas grandes fatiadas","50ml de vinho branco","1L de caldo de carne","50g de manteiga","Fatias de pão baguete","200g de queijo gruyère ou suíço ralado"],
-        utensils:["Panela funda de fundo grosso","Cumbucas/Ramekins que vão ao forno","Ralador"],
-        steps:[
-            {title:"Caramelizar cebolas", text:"Cozinhe as cebolas na manteiga em fogo baixo por cerca de 30-40 min até ficarem bem escuras e doces."},
-            {title:"Deglacê e caldo", text:"Adicione o vinho branco para soltar o fundo da panela, junte o caldo de carne e ferva por 20 min."},
-            {title:"Montagem", text:"Coloque a sopa nas cumbucas, ponha uma fatia de pão por cima e cubra generosamente com queijo."},
-            {title:"Gratinar", text:"Leve ao forno em temperatura máxima até o queijo borbulhar e dourar."}
+        id: 12,
+        name: "Focaccia Tradicional de Alecrim e Flor de Sal",
+        type: "ITALIANA",
+        cat: "Panificação",
+        status: "disponivel",
+        dataPrevista: "2026-10-16",
+        duration: "90 min",
+        description: "Pão de fermentação lenta com alta hidratação, crosta dourada e azeite extravirgem prensado com os dedos formando covinhas.",
+        ingredients: [
+            { text: "500g de farinha de trigo tipo 1 / 00", tag: "Farinha" },
+            { text: "400ml de água morna" },
+            { text: "7g de fermento biológico seco", tag: "Fermento" },
+            { text: "50ml de azeite de oliva extravirgem" },
+            { text: "10g de sal refinado" },
+            { text: "Ramos de alecrim fresco e flor de sal" }
+        ],
+        utensils: [
+            "Tigela grande de inox",
+            "Raspadeira de padeiro de silicone",
+            "Assadeira retangular de borda alta",
+            "Pincel culinário"
         ]
     },
+
+    // ===== DISPONÍVEL 3 =====
     {
-        id:18, name:"Guacamole Clássico", cat:"Mexicana", serves:"4 porções",
-        status:"disponivel",
-        description:"Entrada mexicana refrescante de abacate amassado temperado com limão, tomate, cebola roxa, coentro e pimenta.",
-        ingredients:["2 abacates maduros (ou avocados)","1 tomate sem semente picado","1/2 cebola roxa bem picada","Suco de 1 limão","Coentro fresco picado","Sal a gosto"],
-        utensils:["Garfo ou pilão (molcajete)","Tigela","Faca de chef"],
-        steps:[
-            {title:"Amasse o abacate", text:"Abra os abacates, retire o caroço e amasse a polpa com um garfo deixando alguns pedaços."},
-            {title:"Temperar", text:"Misture imediatamente o suco de limão para evitar a oxidação."},
-            {title:"Incorporar ingredientes", text:"Adicione o tomate, a cebola roxa, o coentro e o sal."},
-            {title:"Servir", text:"Misture delicadamente e sirva acompanhado de nachos de milho."}
+        id: 6,
+        name: "Ratatouille Tradicional",
+        type: "FRANCESA",
+        cat: "Cozinha Fria",
+        status: "disponivel",
+        dataPrevista: "2026-10-30",
+        duration: "70 min",
+        description: "Ensopado clássico francês de vegetais laminados finamente com azeite de oliva e ervas de Provence.",
+        ingredients: [
+            { text: "1 unidade de berinjela média", tag: "Hortaliça" },
+            { text: "2 unidades de abobrinha italiana" },
+            { text: "3 tomates italianos maduros" },
+            { text: "1 pimentão vermelho sem pele" },
+            { text: "2 dentes de alho picados" },
+            { text: "1 colher de sopa de ervas finas de Provence" }
+        ],
+        utensils: [
+            "Mandolina fatiadora profissional",
+            "Travessa refratária de cerâmica",
+            "Papel manteiga vegetal",
+            "Faca chef afiada"
         ]
     },
+
+    // ===== DISPONÍVEL 4 =====
     {
-        id:19, name:"Tiramisù Clássico", cat:"Italiana", serves:"6 porções",
-        status:"disponivel",
-        description:"Sobremesa italiana refrescante feita com camadas de biscoito champagne embebido em café e creme leve de mascarpone.",
-        ingredients:["300g de queijo mascarpone","3 gemas","1/2 xícara de açúcar","1 xícara de café forte sem açúcar","1 pacote de biscoito champagne","Cau em pó para polvilhar"],
-        utensils:["Batedeira","Travessa retangular","Peneira fina"],
-        steps:[
-            {title:"Bater o creme", text:"Bata as gemas com o açúcar até formar um creme claro, depois adicione o mascarpone até incorporar."},
-            {title:"Camada de biscoitos", text:"Passe os biscoitos rapidamente pelo café frio e faça uma camada no fundo da travessa."},
-            {title:"Montagem", text:"Cubra com metade do creme de mascarpone. Repita a camada de biscoito e finalize com o creme."},
-            {title:"Refrigerar", text:"Leve à geladeira por 4 horas e polvilhe cacau em pó antes de servir."}
+        id: 8,
+        name: "Bolo de Chocolate",
+        type: "CONFEITARIA",
+        cat: "Confeitaria",
+        status: "disponivel",
+        dataPrevista: "2026-11-12",
+        duration: "50 min",
+        description: "Bolo de chocolate macio e saboroso, ideal para trabalhar técnicas básicas de confeitaria.",
+        ingredients: [
+            { text: "3 ovos", tag: "Ovos" },
+            { text: "2 xícaras de farinha de trigo", tag: "Farinha" },
+            { text: "1 xícara de açúcar refinado" },
+            { text: "1 xícara de cacau ou chocolate em pó" },
+            { text: "1 xícara de leite integral" },
+            { text: "1/2 xícara de óleo vegetal" },
+            { text: "1 colher de sopa de fermento químico" }
+        ],
+        utensils: [
+            "Fouet de confeitaria",
+            "Tigela ampla",
+            "Forma redonda para bolo",
+            "Espátula de silicone"
         ]
     },
+
+    // ===== DISPONÍVEL 5 =====
     {
-        id:20, name:"Yakisoba de Carne e Legumes", cat:"Japonesa", serves:"4 porções",
-        status:"disponivel",
-        description:"Macarrão frito salteado com tiras de carne, acelga, brócolis, cenoura e molho denso à base de shoyu.",
-        ingredients:["300g de macarrão para yakisoba","300g de alcatra em tiras","1 cenoura fatiada","1/2 maço de brócolis","2 xícaras de acelga picada","1/2 xícara de molho shoyu","1 colher de óleo de gergelim"],
-        utensils:["Wok ou frigideira bem grande","Panela para cozinhar o macarrão","Colher de pau"],
-        steps:[
-            {title:"Cozinhar o macarrão", text:"Cozinhe o macarrão até ficar al dente e escorra."},
-            {title:"Saltear a carne", text:"Doure a carne na wok quente e reserve."},
-            {title:"Cozinhar legumes", text:"Na mesma wok, salteie a cenoura, o brócolis e a acelga até ficarem 'al dente'."},
-            {title:"Misturar", text:"Volte a carne, junte o macarrão, regue com shoyu e óleo de gergelim e misture vigorosamente."}
+        id: 10,
+        name: "Salada Caesar Clássica",
+        type: "INTERNACIONAL",
+        cat: "Cozinha Fria",
+        status: "disponivel",
+        dataPrevista: "2026-11-25",
+        duration: "30 min",
+        description: "Salada clássica preparada com folhas frescas de alface romana, croutons, queijo parmesão e molho Caesar.",
+        ingredients: [
+            { text: "1 pé de alface romana fresca", tag: "Hortaliça" },
+            { text: "100g de queijo parmesão", tag: "Queijo" },
+            { text: "100g de croutons dourados", tag: "Panificação" },
+            { text: "2 colheres de sopa de maionese" },
+            { text: "1 dente de alho ralado" },
+            { text: "Suco de 1 limão tahiti" }
+        ],
+        utensils: [
+            "Centrífuga secadora de saladas",
+            "Bowl amplo de vidro",
+            "Ralador de lâminas largas",
+            "Faca chef"
         ]
     },
+
+    // ===== DISPONÍVEL 6 =====
     {
-        id:21, name:"Coxinha de Frango com Catupiry", cat:"Brasileira", serves:"10 porções",
-        status:"disponivel",
-        description:"O salgado mais amado do Brasil: massa leve de caldo de galinha recheada com frango desfiado temperado e requeijão cremoso.",
-        ingredients:["2 xícaras de caldo de galinha","2 xícaras de farinha de trigo","1 colher de manteiga","300g de frango desfiado temperado","100g de requeijão tipo catupiry","Farinha de rosca e ovo para empanar"],
-        utensils:["Panela média","Tábua para sovar","Prato funda para empanar","Panela para fritura"],
-        steps:[
-            {title:"Fazer a massa", text:"Ferva o caldo com a manteiga. Adicione a farinha de uma vez e mexa até soltar do fundo da panela."},
-            {title:"Sovar", text:"Deixe a massa mornar e sove até ficar lisa."},
-            {title:"Modelar", text:"Abra porções da massa na mão, recheie com frango e catupiry e feche no formato de gota."},
-            {title:"Empanar e fritar", text:"Passe no ovo, na farinha de rosca e frite em óleo bem quente."}
+        id: 14,
+        name: "Crème Brûlée de Baunilha",
+        type: "FRANCESA",
+        cat: "Confeitaria",
+        status: "disponivel",
+        dataPrevista: "2026-12-08",
+        duration: "60 min",
+        description: "Sobremesa francesa sedosa composta por creme de gemas assado em banho-maria e finalizado com açúcar maçaricado.",
+        ingredients: [
+            { text: "500ml de creme de leite fresco (35% gordura)", tag: "Laticínio" },
+            { text: "5 unidades de gemas de ovos", tag: "Ovos" },
+            { text: "90g de açúcar refinado" },
+            { text: "1 fava de baunilha aberta" },
+            { text: "Açúcar cristal para maçaricar" }
+        ],
+        utensils: [
+            "Ramequins individuais rasos",
+            "Maçarico culinário portátil",
+            "Assadeira alta para banho-maria",
+            "Peneira fina metálica"
         ]
     },
+
+    // ===== DISPONÍVEL 7 =====
     {
-        id:22, name:"Salada Caprese", cat:"Italiana", serves:"2 porções",
-        status:"disponivel",
-        description:"Salada fresca e rápida com as cores da bandeira da Itália: tomate, muçarela de búfala e manjericão.",
-        ingredients:["2 tomates maduros mas firmes","200g de muçarela de búfala em rodelas","Folhas de manjericão fresco","Azeite extravirgem","Redução de vinagre balsâmico (opcional)","Sal e pimenta moída"],
-        utensils:["Faca de serra para tomate","Prato raso para apresentação"],
-        steps:[
-            {title:"Fatiar", text:"Corte os tomates e a muçarela de búfala em fatias de espessura similar."},
-            {title:"Dispor", text:"Alterne fatias de tomate, muçarela e folhas de manjericão em um prato raso."},
-            {title:"Temperar", text:"Regue generosamente com azeite extravirgem, sal, pimenta e aceto balsâmico."}
+        id: 17,
+        name: "Tartalete de Limão Siciliano com Merengue",
+        type: "CONFEITARIA",
+        cat: "Confeitaria",
+        status: "disponivel",
+        dataPrevista: "2026-12-18",
+        duration: "75 min",
+        description: "Base crocante de massa sablée amanteigada, curd de limão siciliano aveludado e merengue suíço flambado.",
+        ingredients: [
+            { text: "200g de farinha de trigo especial", tag: "Farinha" },
+            { text: "100g de manteiga gelada em cubos", tag: "Laticínio" },
+            { text: "70g de açúcar de confeiteiro" },
+            { text: "120ml de suco de limão siciliano coado" },
+            { text: "4 ovos (gemas e claras separadas)", tag: "Ovos" },
+            { text: "120g de açúcar refinado para o merengue" }
+        ],
+        utensils: [
+            "Aro de torta canelado de fundo falso",
+            "Manga de confeitar com bico pitanga",
+            "Maçarico culinário",
+            "Termômetro de calda"
         ]
     },
+
+    // ===== DISPONÍVEL 8 =====
     {
-        id:23, name:"Quiche Lorraine", cat:"Francesa", serves:"6 porções",
-        status:"datadas",
-        description:"Torta aberta clássica da culinária francesa feita com massa podre crocante e recheio de bacon, queijo e creme de leite.",
-        ingredients:["200g de farinha de trigo","100g de manteiga gelada","150g de bacon em cubos","3 ovos","200ml de creme de leite fresco","100g de queijo gruyère ralado","Noz-moscada"],
-        utensils:["Forma de fundo removível","Frigideira","Tigela para bater os ovos","Rolo de massa"],
-        steps:[
-            {title:"Massa podre", text:"Misture a farinha e a manteiga com a ponta dos dedos até virar uma farofa, junte um pouco de água fria e molde. Asse a base por 10 min."},
-            {title:"Fritar bacon", text:"Frite o bacon até ficar crocante e escorra a gordura."},
-            {title:"Creme royale", text:"Bata os ovos com creme de leite, noz-moscada, sal e o queijo."},
-            {title:"Asse", text:"Espalhe o bacon na massa pré-assada, despeje o creme por cima e asse a 180°C por 30 minutos."}
+        id: 25,
+        name: "Pão Rústico de Fermentação Natural (Sourdough)",
+        type: "INTERNACIONAL",
+        cat: "Panificação",
+        status: "disponivel",
+        dataPrevista: "2026-12-22",
+        duration: "240 min",
+        description: "Pão de casca grossa caramelizada e miolo aerado, feito exclusivamente com levain vivo e longa fermentação a frio.",
+        ingredients: [
+            { text: "450g de farinha de trigo especial de força", tag: "Farinha" },
+            { text: "50g de farinha integral de centeio", tag: "Farinha" },
+            { text: "360ml de água mineral sem cloro" },
+            { text: "100g de levain ativo no pico", tag: "Fermento" },
+            { text: "10g de sal marinho fino" }
+        ],
+        utensils: [
+            "Cesto de fermentação em vime (banneton)",
+            "Panela de ferro fundido holandesa com tampa",
+            "Lâmina de corte afiada para pão",
+            "Termômetro culinário"
         ]
     },
+
+    // ===== DISPONÍVEL 9 =====
     {
-        id:24, name:"Ceviche de Banana-da-Terra", cat:"Vegana", serves:"3 porções",
-        status:"disponivel",
-        description:"Uma versão vegana e inovadora do ceviche, utilizando banana-da-terra cozida com o mesmo toque cítrico e refrescante.",
-        ingredients:["2 bananas-da-terra firmes","Suco de 3 limões","1/2 pimentão vermelho picadinho","1/2 cebola roxa em tiras","Coentro fresco picado","Azeite de oliva e sal"],
-        utensils:["Panela para cozinhar a banana","Tigela de vidro","Faca e tábua de corte"],
-        steps:[
-            {title:"Cozinhar a banana", text:"Cozinhe as bananas com casca em água por 10 minutos. Deixe esfriar, descasque e corte em rodelas ou cubos."},
-            {title:"Misturar temperos", text:"Junte a cebola roxa, o pimentão, o coentro e regue com o suco de limão."},
-            {title:"Marinar", text:"Deixe na geladeira por 20 minutos para pegar o sabor e sirva gelado."}
+        id: 26,
+        name: "Tartar de Salmão com Abacate e Azeite Cítrico",
+        type: "CONTEMPORÂNEA",
+        cat: "Cozinha Fria",
+        status: "disponivel",
+        dataPrevista: "2026-12-26",
+        duration: "20 min",
+        description: "Cubos delicados de salmão fresco combinados com abacate maduro em cubos, ciboulette picada e emulsão de limão siciliano.",
+        ingredients: [
+            { text: "350g de lombo fresco de salmão limpo", tag: "Pescado" },
+            { text: "1 unidade de abacate maduro firme", tag: "Fruta" },
+            { text: "1 colher de sopa de cebolinha francesa (ciboulette)" },
+            { text: "1 colher de chá de azeite de gergelim tostado" },
+            { text: "Raspas e suco de 1 limão siciliano" },
+            { text: "Flor de sal e pimenta-do-reino moída" }
+        ],
+        utensils: [
+            "Faca de corte fino para sushiman",
+            "Tábua de corte azul sanitizada",
+            "Aro metálico de montagem (8cm)",
+            "Bowl de vidro sobre cama de gelo"
         ]
     },
+
+    // ===== DISPONÍVEL 10 =====
     {
-        id:25, name:"Bruschetta de Tomate e Manjericão", cat:"Italiana", serves:"4 porções",
-        status:"disponivel",
-        description:"Entrada simples e deliciosa feita com pão italiano torrado, alho fresco, tomate picado, azeite e manjericão.",
-        ingredients:["1 pão italiano fatiado","3 tomates maduros sem sementes picados","2 dentes de alho","1/2 xícara de azeite extravirgem","Folhas de manjericão fresco","Sal e pimenta-do-reino"],
-        utensils:["Assadeira ou frigideira grelhada","Tigela pequena","Faca de pão"],
-        steps:[
-            {title:"Tostar o pão", text:"Grelhe as fatias de pão no forno ou frigideira até ficarem crocantes por fora."},
-            {title:"Perfumar com alho", text:"Esfregue um dente de alho descascado sobre a superfície quente de cada fatia de pão."},
-            {title:"Preparo do tomate", text:"Misture o tomate picado com azeite, manjericão, sal e pimenta."},
-            {title:"Montagem", text:"Coloque uma porção generosa do tomate sobre as fatias de pão e sirva imediatamente."}
+        id: 27,
+        name: "Bife Bourguignon Clássico",
+        type: "FRANCESA",
+        cat: "Cozinha Quente",
+        status: "disponivel",
+        dataPrevista: "2026-12-29",
+        duration: "150 min",
+        description: "Cubos de carne bovina braseados lentamente em vinho tinto encorpado com cenouras, cebolinhas pérola, bacon e cogumelos frescos.",
+        ingredients: [
+            { text: "800g de acém ou músculo bovino em cubos grandes", tag: "Carne" },
+            { text: "150g de bacon defumado em tiras grossas" },
+            { text: "500ml de vinho tinto seco encorpado", tag: "Bebida" },
+            { text: "200g de cogumelos paris frescos", tag: "Cogumelo" },
+            { text: "150g de cebolinhas pérola descascadas" },
+            { text: "2 cenouras médias em rodelas grossas" },
+            { text: "1 bouquet garni (tomilho, louro e salsa)" }
+        ],
+        utensils: [
+            "Cocotte de ferro esmaltada pesada",
+            "Pegador longo de carnes",
+            "Peneira cônica para molhos",
+            "Faca chef de lâmina larga"
         ]
     },
+
+    // ===== DISPONÍVEL 11 =====
     {
-        id:26, name:"Escondidinho de Carne Seca", cat:"Brasileira", serves:"6 porções",
-        status:"disponivel",
-        description:"Camadas de pure macio de mandioca recheadas com carne seca bem temperada e gratinadas com queijo coalho.",
-        ingredients:["500g de carne seca dessalgada e desfiada","1kg de mandioca cozida","2 colheres de manteiga","1/2 xícara de leite","1 cebola fatiada","150g de queijo coalho ralado"],
-        utensils:["Espremedor de batatas ou mandioca","Panela média","Refratário para forno"],
-        steps:[
-            {title:"Fazer o purê", text:"Esprema a mandioca quente e leve ao fogo com a manteiga e o leite até formar um purê cremoso."},
-            {title:"Refogar a carne", text:"Refogue a cebola e junte a carne seca desfiada até ficar bem saborosa."},
-            {title:"Montagem", text:"Em um refratário, faça uma camada de purê, a carne seca e cubra com o restante do purê."},
-            {title:"Gratinar", text:"Polvilhe queijo coalho e leve ao forno até dourar a superfície."}
+        id: 28,
+        name: "Éclair Tradicional de Chocolate (Bomba)",
+        type: "FRANCESA",
+        cat: "Confeitaria",
+        status: "disponivel",
+        dataPrevista: "2027-01-05",
+        duration: "80 min",
+        description: "Massa choux oca e sequinha recheada com creme de confeiteiro aveludado e coberta com fondant brilhante de chocolate belga.",
+        ingredients: [
+            { text: "125ml de água e 125ml de leite integral" },
+            { text: "100g de manteiga sem sal em cubos", tag: "Laticínio" },
+            { text: "150g de farinha de trigo especial", tag: "Farinha" },
+            { text: "4 unidades de ovos médios", tag: "Ovos" },
+            { text: "500ml de creme de confeiteiro de chocolate" },
+            { text: "150g de chocolate meio amargo para a glaçagem" }
+        ],
+        utensils: [
+            "Panela funda de fundo grosso",
+            "Manga de confeitar com bico francês estriado",
+            "Tapete de teflon para assar",
+            "Batedeira planetária"
         ]
     },
+
+    // ===== DISPONÍVEL 12 =====
     {
-        id:27, name:"Polenta Mole com Ragu de Linguiça", cat:"Italiana", serves:"4 porções",
-        status:"disponivel",
-        description:"Polenta cremosa e quente servida com um encorpado molho ragu de linguiça artesanal e tomate.",
-        ingredients:["1 xícara de fubá pré-cozido","4 xícaras de água ou caldo de legumes","400g de linguiça toscana sem pele","1 lata de tomate pelado","1/2 cebola picada","2 colheres de manteiga","Queijo parmesão"],
-        utensils:["Panela funda para polenta","Batedor de arame (fouet)","Frigideira para o ragu"],
-        steps:[
-            {title:"Preparo do ragu", text:"Desfaça a linguiça na frigideira, doure bem, adicione a cebola e o tomate pelado. Deixe cozinhar em fogo baixo."},
-            {title:"Cozinhar a polenta", text:"Ferva a água com sal e adicione o fubá em fio constante, mexendo sempre com o fouet para não empelotar."},
-            {title:"Finalizar polenta", text:"Cozinhe até encorpar e misture a manteiga e o parmesão."},
-            {title:"Servir", text:"Coloque a polenta quente no prato e cubra com o ragu de linguiça."}
+        id: 29,
+        name: "Ciabatta Rústica de Alta Hidratação",
+        type: "ITALIANA",
+        cat: "Panificação",
+        status: "disponivel",
+        dataPrevista: "2027-01-09",
+        duration: "130 min",
+        description: "Pão tradicional italiano achatado com 82% de hidratação, casca fina super crocante e miolo repleto de bolhas de ar.",
+        ingredients: [
+            { text: "500g de farinha de trigo forte para panificação", tag: "Farinha" },
+            { text: "410ml de água mineral gelada" },
+            { text: "5g de fermento biológico seco instantâneo", tag: "Fermento" },
+            { text: "15ml de azeite de oliva extravirgem" },
+            { text: "10g de sal refinado" }
+        ],
+        utensils: [
+            "Caixa fermentadora retangular plástica untada",
+            "Pá plana para pão enfarinhada",
+            "Raspadeira de corte de metal",
+            "Pedra refratária de forno"
         ]
     },
+
+    // ===== DISPONÍVEL 13 =====
     {
-        id:28, name:"Chilli com Carne", cat:"Mexicana", serves:"4 porções",
-        status:"disponivel",
-        description:"Prato forte e levemente apimentado feito com carne moída, feijão vermelho, tomate e especiarias mexicanas.",
-        ingredients:["500g de carne moída","1 lata de feijão vermelho cozido","1 pimentão picado","1 cebola picada","1 colher de chilli em pó","1 colher de cominho","400g de molho de tomate"],
-        utensils:["Panela grande","Colher de pau","Faca de chef"],
-        steps:[
-            {title:"Dourar a carne", text:"Refogue a carne moída na panela até perder a cor rosada."},
-            {title:"Aromáticos e temperos", text:"Adicione a cebola, o pimentão, o chilli em pó e o cominho."},
-            {title:"Incorporar feijão", text:"Adicione o molho de tomate e o feijão vermelho drenado."},
-            {title:"Cozimento lento", text:"Cozinhe em fogo baixo por 20 minutos até encorpar. Sirva com sour cream ou nachos."}
+        id: 30,
+        name: "Gaspacho Andaluz Tradicional",
+        type: "ESPANHOLA",
+        cat: "Cozinha Fria",
+        status: "disponivel",
+        dataPrevista: "2027-01-13",
+        duration: "20 min",
+        description: "Sopa fria refrescante típica do sul da Espanha elaborada à base de tomates maduros, pepino, pimentão e azeite extravirgem batidos.",
+        ingredients: [
+            { text: "1kg de tomates maduros tipo pera", tag: "Hortaliça" },
+            { text: "1 pepino japonês médio sem sementes" },
+            { text: "1 pimentão verde italiano" },
+            { text: "1 dente de alho pequeno sem o gérmen" },
+            { text: "50g de pão amanhecido hidratado em vinagre de jerez" },
+            { text: "100ml de azeite extravirgem espanhol" }
+        ],
+        utensils: [
+            "Liquidificador de alta potência",
+            "Peneira metálica média (chinois)",
+            "Jarra de vidro mantida na geladeira",
+            "Tábua de corte verde"
         ]
     },
+
+    // ===== DISPONÍVEL 14 =====
     {
-        id:29, name:"Torta Holandesa", cat:"Holandesa", serves:"8 porções",
-        status:"disponivel",
-        description:"Sobremesa refinada com base de biscoitos, creme aveludado de leite condensado e cobertura ganache de chocolate.",
-        ingredients:["1 pacote de biscoito maizena","1 pacote de biscoito calipso para as laterais","200g de manteiga","1 lata de leite condensado","1 lata de creme de leite","200g de chocolate meio amargo"],
-        utensils:["Forma de aro removível","Processador de alimentos","Batedeira"],
-        steps:[
-            {title:"Base da torta", text:"Triture o biscoito maizena, misture com metade da manteiga e forre o fundo da forma. Organize os biscoitos calipso nas laterais."},
-            {title:"Preparo do creme", text:"Bata o restante da manteiga com o leite condensado até ficar cremoso e incorpore metade do creme de leite."},
-            {title:"Montagem", text:"Despeje o creme sobre a base e leve ao freezer por 2 horas."},
-            {title:"Ganache", text:"Derreta o chocolate com o resto do creme de leite e cubra a torta antes de servir."}
+        id: 31,
+        name: "Bacalhau à Brás Clássico",
+        type: "PORTUGUESA",
+        cat: "Cozinha Quente",
+        status: "disponivel",
+        dataPrevista: "2027-01-17",
+        duration: "40 min",
+        description: "Desfiado de bacalhau nobre refogado em cebolas e alho, envolvido em ovos batidos cremosos e batata palha artesanal fininha.",
+        ingredients: [
+            { text: "400g de lombo de bacalhau dessalgado desfiado", tag: "Pescado" },
+            { text: "300g de batata asterix cortada em palha fininha", tag: "Tubérculo" },
+            { text: "5 ovos inteiros frescos batidos levemente", tag: "Ovos" },
+            { text: "2 cebolas médias cortadas em meia-lua fina" },
+            { text: "Azeitonas pretas portuguesas e salsa picada" },
+            { text: "50ml de azeite de oliva virgem" }
+        ],
+        utensils: [
+            "Frigideira grande de ferro ou inox",
+            "Mandolina para batata palha",
+            "Fritadeira ou panela funda para fritura",
+            "Garfo grande para envolver ovos"
         ]
     },
+
+    // ===== DISPONÍVEL 15 =====
     {
-        id:30, name:"Lamen de Porco (Chashu)", cat:"Japonesa", serves:"2 porções",
-        status:"datadas",
-        description:"Sopa de macarrão reconfortante em caldo encorpado de porco, servida com ovo fatiado, broto de bambu e cebolinha.",
-        ingredients:["2 porções de macarrão para lamen","1L de caldo de porco temperado com missô","2 fatias de barriga de porco assada (chashu)","1 ovo cozido com gema mole","Cebolinha e alga nori"],
-        utensils:["Panela profunda para o caldo","Panela para o macarrão","Tigelas fundas tipo Donburi"],
-        steps:[
-            {title:"Aquecer o caldo", text:"Deixe o caldo de porco ferver brandamente."},
-            {title:"Cozinhar macarrão", text:"Cozinhe o macarrão de lamen rapidamente por 2 minutos e escorra bem."},
-            {title:"Montar a tigela", text:"Coloque o macarrão no fundo da tigela e cubra com o caldo fumegante."},
-            {title:"Garni", text:"Decore por cima com as fatias de porco, o ovo partido ao meio, a cebolinha e a alga nori."}
-        ]
-    },
-    {
-        id:31, name:"Hummus Tradicional", cat:"Árabe", serves:"4 porções",
-        status:"disponivel",
-        description:"Pasta aveludada de grão-de-bico com tahine, alho e suco de limão, regada com azeite e páprica.",
-        ingredients:["1 lata de grão-de-bico cozido (sem pele)","3 colheres de pasta Tahine","Suco de 1 limão","1 dente de alho","Azeite de oliva, sal e páprica para decorar"],
-        utensils:["Processador de alimentos ou liquidificador","Spatula de silicone","Prato raso"],
-        steps:[
-            {title:"Processar", text:"Bata o grão-de-bico, o alho, o tahine e o suco de limão no processador."},
-            {title:"Ajustar consistência", text:"Adicione pedras de gelo ou água gelada aos poucos enquanto bate para criar uma textura ultracremosa."},
-            {title:"Servir", text:"Espalhe o hummus em um prato raso fazendo sulcos com a colher, regue com azeite e polvilhe páprica."}
-        ]
-    },
-    {
-        id:32, name:"Bobó de Camarão", cat:"Brasileira", serves:"4 porções",
-        status:"disponivel",
-        description:"Prato cremoso baiano feito com purê de mandioca, leite de coco, azeite de dendê e camarões salteados.",
-        ingredients:["500g de camarão médio limpo","500g de mandioca cozida","200ml de leite de coco","2 colheres de azeite de dendê","1 pimentão amarelo picado","Coentro, cebola e alho"],
-        utensils:["Liquidificador","Panela de barro ou funda","Frigideira"],
-        steps:[
-            {title:"Creme de mandioca", text:"Bata a mandioca cozida com o leite de coco no liquidificador até obter um creme liso."},
-            {title:"Saltear camarões", text:"Doure os camarões rapidamente no azeite com sal e limão. Reserve."},
-            {title:"Cozinhar o bobó", text:"Refogue a cebola, o alho e o pimentão no azeite de dendê. Adicione o creme de mandioca e deixe ferver."},
-            {title:"Finalizar", text:"Junte os camarões, acerte o sal e misture o coentro fresco picado."}
-        ]
-    },
-    {
-        id:33, name:"Crème Brûlée", cat:"Francesa", serves:"4 porções",
-        status:"disponivel",
-        description:"Sobremesa francesa clássica constituída por um creme de baunilha rico coberto por uma crosta crocante de açúcar queimado.",
-        ingredients:["500ml de creme de leite fresco","5 gemas","1/2 xícara de açúcar","1 colher de extrato de baunilha","Açúcar refinado para polvilhar"],
-        utensils:["Maçarico culinário","Ramekins individuais","Assadeira para banho-maria","Batedor manual"],
-        steps:[
-            {title:"Misturar ingredientes", text:"Bata suavemente as gemas com o açúcar até dissolver. Aqueça o creme de leite com a baunilha e despeje sobre as gemas mexendo sempre."},
-            {title:"Assar em banho-maria", text:"Distribua nos ramekins e asse em banho-maria a 160°C por cerca de 40 minutos."},
-            {title:"Gelar", text:"Deixe esfriar e leve à geladeira por no mínimo 6 horas."},
-            {title:"Caramelizar", text:"Na hora de servir, polvilhe uma camada fina de açúcar sobre o creme e queime com o maçarico."}
-        ]
-    },
-    {
-        id:34, name:"Ceviche de Caju", cat:"Vegana", serves:"2 porções",
-        status:"disponivel",
-        description:"Opção tropical e refrescante utilizando a fibra suculenta do caju marinado em temperos cítricos e pimenta.",
-        ingredients:["4 cajus frescos e firmes","Suco de 2 limões","1/2 cebola roxa picada em tiras","1/2 pimenta dedo-de-moça sem sementes","Coentro fresco","Sal e azeite"],
-        utensils:["Pano limpo para espremer o caju","Tigela de vidro","Faca afiada"],
-        steps:[
-            {title:"Preparo do caju", text:"Retire a castanha do caju, corte o pedúnculo em cubos e esprema suavemente em um pano para tirar o excesso de suco."},
-            {title:"Marinar", text:"Misture o caju com o suco de limão, a cebola roxa e a pimenta."},
-            {title:"Temperar e servir", text:"Ajuste o sal, regue com azeite e incorpore o coentro picado antes de servir gelado."}
-        ]
-    },
-    {
-        id:35, name:"Spaghetti alla Carbonara", cat:"Italiana", serves:"2 porções",
-        status:"disponivel",
-        description:"Receita autêntica romana feita com guanciale crocante, gemas de ovo, queijo pecorino e pimenta-do-reino sem creme de leite.",
-        ingredients:["200g de spaghetti","150g de guanciale ou pancetta em cubos","3 gemas e 1 ovo inteiro","50g de queijo pecorino romano ralado","Pimenta-do-reino moída na hora"],
-        utensils:["Frigideira grande","Tigela para os ovos","Panela funda para a massa","Pinça culinária"],
-        steps:[
-            {title:"Fritar o guanciale", text:"Frite o guanciale na frigideira até ficar crocante e soltar a gordura. Desligue o fogo."},
-            {title:"Mistura de ovos", text:"Na tigela, misture as gemas, o ovo inteiro, o queijo pecorino e bastante pimenta-do-reino."},
-            {title:"Cozinhar a massa", text:"Cozinhe o spaghetti em água salgada até ficar al dente."},
-            {title:"Emulsionar fora do fogo", text:"Junte a massa à frigideira fora do fogo, adicione o creme de ovos e um pouco da água do cozimento, mexendo rápido para criar um molho cremoso sem empelotar os ovos."}
+        id: 32,
+        name: "Cannoli Siciliani com Ricota e Pistache",
+        type: "ITALIANA",
+        cat: "Confeitaria",
+        status: "disponivel",
+        dataPrevista: "2027-01-21",
+        duration: "60 min",
+        description: "Canudos crocantes e borbulhantes de massa frita aromatizada com vinho Marsala, recheados na hora com creme de ricota de ovelha e pistaches.",
+        ingredients: [
+            { text: "200g de farinha de trigo especial", tag: "Farinha" },
+            { text: "20g de banha ou manteiga", tag: "Gordura" },
+            { text: "30ml de vinho Marsala doce", tag: "Bebida" },
+            { text: "400g de ricota fresca drenada de soro", tag: "Queijo" },
+            { text: "120g de açúcar de confeiteiro" },
+            { text: "50g de pistache cru picado para decorar", tag: "Oleaginosa" }
+        ],
+        utensils: [
+            "Canudos cilíndricos metálicos para fritura de cannoli",
+            "Rolo de massa / Cilindro manual",
+            "Cortador redondo de massa (10cm)",
+            "Manga de confeitar com bico liso"
         ]
     }
 ];
 
-let activeId = RECIPES[0].id;
-let searchTerm = "";
-let activeStatus = "todas";
 
-// Abas de Status (Filtro Interno)
+// ===== ESTADO GLOBAL (Sincronizado com o botão ativo no HTML) =====
+const btnAtivoHtml = document.querySelector('.status-tab-btn.active');
+let activeStatus = btnAtivoHtml ? (btnAtivoHtml.dataset.status || 'datadas') : 'datadas';
+let activeCategory = "todas";
+let searchTerm = "";
+let activeId = 4;
+
+
+// ===== FORMATADOR DE DATA BRASILEIRA =====
+function formatarDataBR(dataString) {
+    if (!dataString) return 'A definir';
+    const partes = dataString.split('-');
+    if (partes.length !== 3) return dataString;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+
+// ===== ABAS DE STATUS (TODAS / DISPONÍVEIS / DATADAS) =====
 document.querySelectorAll('.status-tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.status-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.status-tab-btn')
+            .forEach(b => b.classList.remove('active'));
+
         btn.classList.add('active');
         activeStatus = btn.dataset.status || 'todas';
+
         renderList();
     });
 });
 
-// Filtro de Busca Integrado no Topo (Input da Barra Branca)
-const searchInputEl = document.getElementById('searchInput');
-if (searchInputEl) {
-    searchInputEl.addEventListener('input', e => {
+
+// ===== CATEGORIAS PEDAGÓGICAS =====
+const categoryTabs = document.getElementById('categoryTabs');
+
+if (categoryTabs) {
+    categoryTabs.querySelectorAll('.cat-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            categoryTabs.querySelectorAll('.cat-pill')
+                .forEach(p => p.classList.remove('active'));
+
+            pill.classList.add('active');
+            activeCategory = pill.dataset.cat || 'todas';
+
+            renderList();
+        });
+    });
+}
+
+
+// ===== BUSCA EM TEMPO REAL =====
+const searchInput = document.getElementById('recipe-search');
+
+if (searchInput) {
+    searchInput.addEventListener('input', e => {
         searchTerm = e.target.value.trim().toLowerCase();
         renderList();
     });
 }
 
-// Renderização da Lista de Cards (Sub-coluna Esquerda)
+
+// ===== RENDERIZAR LISTAGEM DE CARDS =====
 function renderList() {
     const listCol = document.getElementById('listCol');
+    const countLabel = document.getElementById('recipeCountLabel');
+
     if (!listCol) return;
 
     listCol.innerHTML = '';
 
     const filtered = RECIPES
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
-        .filter(r => r.name.toLowerCase().includes(searchTerm));
+        .filter(r => activeCategory === 'todas' || r.cat === activeCategory)
+        .filter(r => {
+            if (!searchTerm) return true;
+            const matchName = r.name.toLowerCase().includes(searchTerm);
+            const matchIng = r.ingredients.some(i => i.text.toLowerCase().includes(searchTerm));
+            return matchName || matchIng;
+        });
+
+    if (countLabel) {
+        countLabel.textContent = `${filtered.length} receita${filtered.length !== 1 ? 's' : ''}`;
+    }
 
     if (filtered.length === 0) {
-        listCol.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:12px; text-align:center;">Nenhuma receita encontrada.</div>';
+        listCol.innerHTML =
+            '<div style="font-size:13px; color:#94a3b8; padding:32px 16px; text-align:center;">Nenhuma receita encontrada para os filtros selecionados.</div>';
+        const detailCol = document.getElementById('detailCol');
+        if (detailCol) {
+            detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Nenhuma receita selecionada.</div>';
+        }
         return;
+    }
+
+    if (!filtered.some(x => x.id === activeId)) {
+        activeId = filtered[0].id;
     }
 
     filtered.forEach(r => {
         const card = document.createElement('div');
         card.className = 'recipe-card' + (r.id === activeId ? ' active' : '');
+
+        const dataFormatada = formatarDataBR(r.dataPrevista);
+        const badgeClasse = r.status === 'datadas' ? 'badge-datada' : 'badge-disponivel';
+        const badgeTexto = r.status === 'datadas' ? 'DATADA' : 'DISPONÍVEL';
+
         card.innerHTML = `
-<div class="rc-header">
-<div class="rc-title">${r.name}</div>
-<div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-datadas'}">
-                    ${r.status === 'disponivel' ? 'Disponível' : 'datadas'}
-</div>
-</div>
-<div class="rc-category">${r.cat}</div>
+            <div class="card-header">
+                <div>
+                    <h4 class="card-title">${r.name}</h4>
+                    <p class="card-category">
+                        <span class="text-cat-type">${r.type}</span>
+                        &bull;
+                        ${r.cat}
+                    </p>
+                </div>
+                <span class="badge-status ${badgeClasse}">
+                    ${badgeTexto}
+                </span>
+            </div>
+
+            <div class="card-meta">
+                <span class="meta-item">
+                    <span class="material-symbols-outlined">calendar_today</span>
+                    ${dataFormatada}
+                </span>
+                <span class="meta-duration">
+                    ${r.duration || '30 min'}
+                </span>
+            </div>
         `;
+
         card.addEventListener('click', () => {
             activeId = r.id;
             renderList();
-            renderDetail();
-
-            if (window.innerWidth <= 768) {
-                document.body.classList.add('show-detail');
-            }
         });
+
         listCol.appendChild(card);
     });
 
-    if (filtered.length > 0 && !filtered.some(x => x.id === activeId)) {
-        activeId = filtered[0].id;
-        renderDetail();
-    }
+    renderDetail();
 }
 
-// Renderização dos Detalhes da Receita (Lado Direito)
+
+// ===== RENDERIZAR DETALHES (APENAS INGREDIENTES E UTENSÍLIOS) =====
 function renderDetail() {
     const detailCol = document.getElementById('detailCol');
     if (!detailCol) return;
 
     const r = RECIPES.find(x => x.id === activeId);
+
     if (!r) {
-        detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:40px;">Selecione uma receita da lista.</div>';
+        detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Selecione uma receita da lista.</div>';
         return;
     }
 
-    const utensils = r.utensils || [];
+    const dataFormatada = formatarDataBR(r.dataPrevista);
+    const badgeClasse = r.status === 'datadas' ? 'badge-datada' : 'badge-disponivel';
+    const badgeTexto = r.status === 'datadas' ? `DATADA: ${dataFormatada}` : `DISPONÍVEL: ${dataFormatada}`;
 
     detailCol.innerHTML = `
-<div class="detail-main-header">
-<div>
-<div class="rc-category">${r.cat}</div>
-<h2 class="detail-main-title">${r.name}</h2>
-</div>
-<div class="status-badge ${r.status === 'disponivel' ? 'status-disponivel' : 'status-datadas'}" style="font-size:11px; padding:6px 14px;">
-                ${r.status === 'disponivel' ? 'Disponível' : 'Datadas'}
-</div>
-</div>
- 
-        <div class="meta-info-grid">
-</div>
- 
-        <div class="recipe-intro">${r.description}</div>
- 
-        <div class="ingredientes-utensilios-grid">
-<div class="coluna-bloco">
-<div class="block-title">Ingredientes Necessários</div>
-<ul class="ingredients-layout">
-                    ${r.ingredients.map(i => `<li>${i}</li>`).join('')}
-</ul>
-</div>
-<div class="coluna-bloco">
-<div class="block-title">Utensílios Utilizados</div>
-<ul class="ingredients-layout">
-                    ${utensils.length ? utensils.map(u => `<li>${u}</li>`).join('') : '<li>Nenhum utensílio cadastrado.</li>'}
-</ul>
-</div>
-</div>
- 
-        <div class="block-title">Modo de Preparo Passo a Passo</div>
-<ol class="steps-layout">
-            ${r.steps.map(s => `
-<li class="step-card">
-<div class="step-circle"></div>
-<div class="step-content">
-<h4>${s.title}</h4>
-<p>${s.text}</p>
-</div>
-</li>
-            `).join('')}
-</ol>
+        <div class="recipe-detail-container">
+
+            <div class="detail-header">
+                <div class="detail-title-group">
+                    <span class="recipe-type-label">${r.type}</span>
+                    <h1 class="recipe-main-title">${r.name}</h1>
+                </div>
+
+                <div class="detail-badge-group">
+                    <span class="pill-badge ${badgeClasse}">
+                        ${badgeTexto}
+                    </span>
+                </div>
+            </div>
+
+            <div class="recipe-lead-card">
+                <p>${r.description}</p>
+            </div>
+
+            <div class="recipe-resources-grid">
+                <section class="resource-block">
+                    <h3 class="section-title">
+                        <span class="bar-accent"></span>
+                        Ingredientes Necessários
+                    </h3>
+
+                    <div class="items-two-col">
+                        ${r.ingredients.map(ing => `
+                            <div class="resource-item">
+                                <span>${ing.text}</span>${ing.tag ? `<span class="tag-badge badge-amber">${ing.tag}</span>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>
+
+                <section class="resource-block">
+                    <h3 class="section-title">
+                        <span class="bar-accent"></span>
+                        Utensílios Utilizados
+                    </h3>
+
+                    <div class="items-two-col">
+                        ${r.utensils && r.utensils.length ? r.utensils.map(u => `
+                            <div class="resource-item">
+                                <span>${u}</span>
+                            </div>
+                        `).join('') : `
+                            <div class="resource-item">
+                                <span>Nenhum utensílio listado.</span>
+                            </div>
+                        `}
+                    </div>
+                </section>
+            </div>
+
+        </div>
     `;
 }
 
-// Responsividade — Toggle da Sidebar
-(function initSidebarToggle() {
+
+// ===== CONTROLE DA BARRA LATERAL RESPONSIVA =====
+(function initSidebar() {
     const sidebar = document.getElementById('sidebar');
     const menuToggle = document.getElementById('menu-toggle');
     const overlay = document.getElementById('overlay');
@@ -668,6 +1070,90 @@ function renderDetail() {
     });
 })();
 
-// Inicialização segura das views
+
+// ===== NOTIFICAÇÕES =====
+(function initNotifications() {
+    const btn = document.getElementById('notif-btn');
+    const panel = document.getElementById('notif-panel');
+    const list = document.getElementById('notif-list');
+    const badge = document.getElementById('notif-badge');
+    const clear = document.getElementById('notif-clear');
+
+    if (!btn || !panel) return;
+
+    const STORAGE_KEY = 'sigec-notif-lidas-receitas';
+
+    function gerarNotificacoes() {
+        const notifs = [
+            {
+                id: 1,
+                tipo: 'warn',
+                titulo: 'Data Próxima',
+                texto: 'A receita Curry Vegano de Grão-de-bico está programada para aula.'
+            }
+        ];
+
+        const lidas = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+        return notifs.map(n => ({
+            ...n,
+            lida: lidas.includes(n.id)
+        }));
+    }
+
+    function render() {
+        const notifs = gerarNotificacoes();
+        const naoLidas = notifs.filter(n => !n.lida).length;
+
+        badge.hidden = naoLidas === 0;
+
+        if (!notifs.length) {
+            list.innerHTML =
+                `<p style="padding:16px; color:#94a3b8; font-size:13px; text-align:center;">
+                    Nenhuma notificação nova.
+                </p>`;
+            return;
+        }
+
+        list.innerHTML =
+            notifs.map(n => `
+                <div style="display:flex; gap:10px; padding:10px; border-bottom:1px solid #f1f5f9;">
+                    <div>
+                        <p style="margin:0; font-weight:600; font-size:13px;">${n.titulo}</p>
+                        <p style="margin:2px 0 0 0; color:#64748b; font-size:12px;">${n.texto}</p>
+                    </div>
+                </div>
+            `).join('');
+    }
+
+    function toggle(open) {
+        const abrir = open ?? !panel.classList.contains('show');
+        panel.classList.toggle('show', abrir);
+        btn.setAttribute('aria-expanded', abrir);
+        if (abrir) render();
+    }
+
+    btn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggle();
+    });
+
+    if (clear) {
+        clear.addEventListener('click', () => {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify([1]));
+            render();
+        });
+    }
+
+    document.addEventListener('click', e => {
+        if (!panel.contains(e.target) && !btn.contains(e.target)) {
+            toggle(false);
+        }
+    });
+
+    render();
+})();
+
+
+// ===== INICIALIZAR LISTA =====
 renderList();
-renderDetail();

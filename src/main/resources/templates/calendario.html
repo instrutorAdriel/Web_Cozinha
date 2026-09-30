@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -9,6 +8,7 @@
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/styles/stylesHome.css}">
     <link rel="stylesheet" th:href="@{/styles/calendario.css}">
 </head>
 
@@ -33,22 +33,27 @@
             <span class="material-symbols-outlined">calendar_month</span>
             <span>Calendário</span>
         </a>
-        <a th:href="@{/receitas}" class="nav-item">
+        <a th:href="@{/receitas}" class="nav-item ">
             <span class="material-symbols-outlined">menu_book</span>
             <span>Receitas</span>
         </a>
     </nav>
 
     <div class="sidebar-footer">
-        <button class="btn-logout">
-            <span class="material-symbols-outlined">logout</span>Sair
-        </button>
+        <form th:action="@{/logout}" method="get">
+            <button type="submit" class="btn-logout">
+                <span class="material-symbols-outlined">logout</span>Sair
+            </button>
+        </form>
     </div>
 </aside>
 
+<!-- ==========================================================================
+     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR) - CORRIGIDA E PADRONIZADA
+     ========================================================================== -->
 <header class="topbar">
     <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Alternar menu">
+        <button class="menu-toggle" id="menu-toggle">
             <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="breadcrumb">
@@ -59,9 +64,14 @@
     </div>
 
     <div class="topbar-actions">
-        <div class="search-box">
-            <span class="material-symbols-outlined">search</span>
-            <input type="text" placeholder="Buscar receita, turma..." aria-label="Buscar receita ou turma">
+        <label class="field-label" for="turma-select">Turma / Laboratório</label>
+        <div class="select-wrap">
+            <select id="turma-select">
+                <option value="">-- Selecione uma Turma --</option>
+                <option value="2024.1.A">Turma 2024.1.A</option>
+                <option value="2024.1.C">Turma 2024.1.C</option>
+            </select>
+            <span class="material-symbols-outlined select-arrow">expand_more</span>
         </div>
 
         <div class="notif-wrap">
@@ -69,6 +79,7 @@
                 <span class="material-symbols-outlined">notifications</span>
                 <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
             </button>
+
             <div class="notif-panel" id="notif-panel">
                 <div class="notif-head">
                     <h3>Notificações</h3>
@@ -87,11 +98,8 @@
 
         <div class="user-box">
             <div class="user-info">
-                <p class="user-name" th:text="${usuarioLogado != null ? usuarioLogado.nome : 'Chef Ricardo Silva'}">
-                    Chef Ricardo Silva</p>
-                <p class="user-role"
-                   th:text="${usuarioLogado != null ? usuarioLogado.cargo : 'Instrutor Gastronomia'}">Instrutor
-                    Gastronomia</p>
+                <p class="user-name" th:text="${nomeUsuario != null ? nomeUsuario : 'Chef Ricardo Silva'}">Chef Ricardo
+                    Silva</p>
             </div>
         </div>
     </div>
@@ -108,11 +116,11 @@
                 </div>
 
                 <div class="cal-header-controls">
-                    <button class="btn-cal-arrow" id="cal-prev" aria-label="Mês anterior">
+                    <button class="btn-cal-arrow" id="cal-prev">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
                     <span class="cal-month-indicator" id="cal-month">Junho 2026</span>
-                    <button class="btn-cal-arrow" id="cal-next" aria-label="Próximo mês">
+                    <button class="btn-cal-arrow" id="cal-next">
                         <span class="material-symbols-outlined">chevron_right</span>
                     </button>
                 </div>
@@ -150,21 +158,12 @@
         </aside>
 
     </div>
-    <dialog id="modal-confirmacao" class="custom-dialog">
-        <div class="dialog-content">
-            <span class="material-symbols-outlined icon-warning">warning</span>
-            <h3>Confirmar Ação</h3>
-            <p>Deseja mesmo retirar a ficha deste dia?</p>
-            <div class="dialog-actions">
-                <button id="btn-cancelar-exclusao" class="btn-secondary">Não, manter</button>
-                <button id="btn-confirmar-exclusao" class="btn-danger">Sim, retirar</button>
-            </div>
-        </div>
-    </dialog>
-
 </main>
 
 <script th:src="@{/scripts/calendario.js}"></script>
+
+
 </body>
+
 
 </html>

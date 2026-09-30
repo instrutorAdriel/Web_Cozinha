@@ -315,20 +315,10 @@ body {
 }
 
 .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     text-align: right
-}
-
-.user-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--primary)
-}
-
-.user-role {
-    font-size: 11px;
-    color: var(--on-surface-variant);
-    text-transform: uppercase;
-    letter-spacing: .05em
 }
 
 /* ===== Foto do Perfil no Cabeçalho ===== */
@@ -344,8 +334,19 @@ body {
        (sem filtros forçados) é o que gera o melhor redimensionamento sem serrilhados */
     image-rendering: auto;
 }
-.user-name{font-size:14px;font-weight:700;color:var(--primary)}
-.user-role{font-size:11px;color:var(--on-surface-variant);text-transform:uppercase;letter-spacing:.05em}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary)
+}
+
+.user-role {
+    font-size: 11px;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: .05em
+}
 
 /* ===== MAIN ===== */
 .main {
@@ -893,10 +894,11 @@ body {
     opacity: 1
 }
 
-#util-btn-reset{
+#util-btn-reset {
     padding: 11px 60px;
 
 }
+
 #btn-finish-utensilios {
 
     padding: 11px 60px;
