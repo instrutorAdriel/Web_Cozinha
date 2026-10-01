@@ -471,6 +471,7 @@ body {
 
 .day-cell.weekend {
     background-color: #f8fafc;
+    border: 0px;
 }
 
 .day-cell.active-selected {

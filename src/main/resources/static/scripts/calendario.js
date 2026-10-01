@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Quantidade de fichas alocadas por data
     let alocacoesPorData = {};
 
+
     const nomesMeses = [
         "Janeiro",
         "Fevereiro",
@@ -22,26 +23,88 @@ document.addEventListener("DOMContentLoaded", () => {
         "Dezembro"
     ];
 
+
+    // =========================================================
+    // VERIFICA SE A DATA É SÁBADO OU DOMINGO
+    // =========================================================
+
+    function isFimDeSemana(dataIso) {
+
+        // Garante que a data esteja realmente no formato YYYY-MM-DD
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dataIso)) {
+            return false;
+        }
+
+        const [ano, mes, dia] =
+            dataIso.split("-").map(Number);
+
+        /*
+         * Usa UTC para evitar problemas de fuso horário.
+         *
+         * getUTCDay():
+         * 0 = Domingo
+         * 1 = Segunda
+         * 2 = Terça
+         * 3 = Quarta
+         * 4 = Quinta
+         * 5 = Sexta
+         * 6 = Sábado
+         */
+        const data = new Date(
+            Date.UTC(ano, mes - 1, dia)
+        );
+
+        const diaSemana =
+            data.getUTCDay();
+
+        return (
+            diaSemana === 0 ||
+            diaSemana === 6
+        );
+    }
+
+
     // =========================================================
     // ELEMENTOS DO HTML
     // =========================================================
 
-    const grid = document.getElementById("cal-grid");
-    const indicadorMes = document.getElementById("cal-month");
-    const labelDataPainel = document.getElementById("cal-panel-date");
-    const containerAlocadas = document.getElementById("cal-allocated");
-    const containerDisponiveis = document.getElementById("cal-available");
-    const btnPrev = document.getElementById("cal-prev");
-    const btnNext = document.getElementById("cal-next");
+    const grid =
+        document.getElementById("cal-grid");
+
+    const indicadorMes =
+        document.getElementById("cal-month");
+
+    const labelDataPainel =
+        document.getElementById("cal-panel-date");
+
+    const containerAlocadas =
+        document.getElementById("cal-allocated");
+
+    const containerDisponiveis =
+        document.getElementById("cal-available");
+
+    const btnPrev =
+        document.getElementById("cal-prev");
+
+    const btnNext =
+        document.getElementById("cal-next");
+
 
     const dialogConfirmacao =
         document.getElementById("modal-confirmacao");
 
+
     const btnConfirmarExclusao =
-        document.getElementById("btn-confirmar-exclusao");
+        document.getElementById(
+            "btn-confirmar-exclusao"
+        );
+
 
     const btnCancelarExclusao =
-        document.getElementById("btn-cancelar-exclusao");
+        document.getElementById(
+            "btn-cancelar-exclusao"
+        );
+
 
     let fichaIdParaDesalocar = null;
 
@@ -52,57 +115,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (btnCancelarExclusao) {
 
-        btnCancelarExclusao.addEventListener("click", () => {
+        btnCancelarExclusao.addEventListener(
+            "click",
+            () => {
 
-            if (dialogConfirmacao) {
-                dialogConfirmacao.close();
+                if (dialogConfirmacao) {
+                    dialogConfirmacao.close();
+                }
+
+                fichaIdParaDesalocar = null;
             }
-
-            fichaIdParaDesalocar = null;
-        });
+        );
     }
 
 
     if (btnConfirmarExclusao) {
 
-        btnConfirmarExclusao.addEventListener("click", () => {
+        btnConfirmarExclusao.addEventListener(
+            "click",
+            () => {
 
-            if (fichaIdParaDesalocar === null) {
-                return;
-            }
-
-            fetch(
-                `/calendario/desalocar?id=${fichaIdParaDesalocar}`,
-                {
-                    method: "POST"
+                if (fichaIdParaDesalocar === null) {
+                    return;
                 }
-            )
-                .then(response => {
 
-                    if (!response.ok) {
-                        throw new Error("Erro ao desalocar a ficha");
+
+                fetch(
+                    `/calendario/desalocar?id=${fichaIdParaDesalocar}`,
+                    {
+                        method: "POST"
                     }
+                )
 
-                    if (dialogConfirmacao) {
-                        dialogConfirmacao.close();
-                    }
+                    .then(response => {
 
-                    fichaIdParaDesalocar = null;
+                        if (!response.ok) {
 
-                    carregarAlocacoesERenderizarGrid();
-                })
-                .catch(erro => {
+                            throw new Error(
+                                "Erro ao desalocar a ficha"
+                            );
+                        }
 
-                    console.error(
-                        "Erro ao remover ficha:",
-                        erro
-                    );
 
-                    alert(
-                        "Ocorreu um erro ao tentar retirar a ficha do calendário."
-                    );
-                });
-        });
+                        if (dialogConfirmacao) {
+                            dialogConfirmacao.close();
+                        }
+
+
+                        fichaIdParaDesalocar = null;
+
+
+                        carregarAlocacoesERenderizarGrid();
+                    })
+
+
+                    .catch(erro => {
+
+                        console.error(
+                            "Erro ao remover ficha:",
+                            erro
+                        );
+
+
+                        alert(
+                            "Ocorreu um erro ao tentar retirar a ficha do calendário."
+                        );
+                    });
+            }
+        );
     }
 
 
@@ -112,34 +192,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function carregarAlocacoesERenderizarGrid() {
 
-        fetch("/calendario/fichas-alocadas")
+        fetch(
+            "/calendario/fichas-alocadas"
+        )
 
             .then(response => {
 
                 if (!response.ok) {
+
                     throw new Error(
                         `Erro ao buscar fichas alocadas. HTTP ${response.status}`
                     );
                 }
 
+
                 return response.json();
             })
+
 
             .then(fichas => {
 
                 alocacoesPorData = {};
+
 
                 fichas.forEach(ficha => {
 
                     if (ficha.data) {
 
                         alocacoesPorData[ficha.data] =
-                            (alocacoesPorData[ficha.data] || 0) + 1;
+                            (
+                                alocacoesPorData[ficha.data] ||
+                                0
+                            ) + 1;
                     }
                 });
 
+
                 renderizarGrid();
             })
+
 
             .catch(erro => {
 
@@ -147,6 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Erro ao carregar fichas alocadas:",
                     erro
                 );
+
 
                 renderizarGrid();
             });
@@ -163,28 +255,55 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+
         grid.innerHTML = "";
 
-        const ano = dataCalendario.getFullYear();
-        const mes = dataCalendario.getMonth();
 
-        // Atualiza nome do mês
+        const ano =
+            dataCalendario.getFullYear();
+
+        const mes =
+            dataCalendario.getMonth();
+
+
+        // =====================================================
+        // ATUALIZA NOME DO MÊS
+        // =====================================================
+
         if (indicadorMes) {
 
             indicadorMes.textContent =
                 `${nomesMeses[mes]} ${ano}`;
         }
 
+
         const primeiroDiaSemana =
-            new Date(ano, mes, 1).getDay();
+            new Date(
+                ano,
+                mes,
+                1
+            ).getDay();
+
 
         const totalDiasNoMes =
-            new Date(ano, mes + 1, 0).getDate();
+            new Date(
+                ano,
+                mes + 1,
+                0
+            ).getDate();
 
 
-        // Evita selecionar dia inexistente
-        if (diaSelecionadoGlobal > totalDiasNoMes) {
-            diaSelecionadoGlobal = totalDiasNoMes;
+        // =====================================================
+        // EVITA SELECIONAR DIA INEXISTENTE
+        // =====================================================
+
+        if (
+            diaSelecionadoGlobal >
+            totalDiasNoMes
+        ) {
+
+            diaSelecionadoGlobal =
+                totalDiasNoMes;
         }
 
 
@@ -192,13 +311,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // ESPAÇOS ANTES DO PRIMEIRO DIA
         // =====================================================
 
-        for (let i = 0; i < primeiroDiaSemana; i++) {
+        for (
+            let i = 0;
+            i < primeiroDiaSemana;
+            i++
+        ) {
 
             const espaco =
                 document.createElement("div");
 
+
             espaco.className =
                 "day-cell space";
+
 
             grid.appendChild(espaco);
         }
@@ -208,55 +333,50 @@ document.addEventListener("DOMContentLoaded", () => {
         // CRIA OS DIAS DO MÊS
         // =====================================================
 
-        for (let dia = 1; dia <= totalDiasNoMes; dia++) {
+        for (
+            let dia = 1;
+            dia <= totalDiasNoMes;
+            dia++
+        ) {
 
             const celula =
                 document.createElement("div");
 
-            celula.className = "day-cell";
+
+            celula.className =
+                "day-cell";
 
 
             const spanNumero =
                 document.createElement("span");
 
-            spanNumero.textContent = dia;
 
-            celula.appendChild(spanNumero);
+            spanNumero.textContent =
+                dia;
 
 
-            // =================================================
-            // FIM DE SEMANA
-            // =================================================
-
-            const diaSemana =
-                new Date(
-                    ano,
-                    mes,
-                    dia
-                ).getDay();
-
-            if (diaSemana === 0 || diaSemana === 6) {
-
-                celula.classList.add(
-                    "weekend"
-                );
-            }
+            celula.appendChild(
+                spanNumero
+            );
 
 
             // =================================================
-            // DATA NO FORMATO YYYY-MM-DD
+            // DATA NO FORMATO ISO YYYY-MM-DD
             // =================================================
 
             const strMes =
                 String(mes + 1)
                     .padStart(2, "0");
 
+
             const strDia =
                 String(dia)
                     .padStart(2, "0");
 
+
             const dataIso =
                 `${ano}-${strMes}-${strDia}`;
+
 
             celula.setAttribute(
                 "data-date",
@@ -265,25 +385,48 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             // =================================================
+            // VERIFICA SE É FIM DE SEMANA
+            // =================================================
+
+            const fimDeSemana =
+                isFimDeSemana(dataIso);
+
+
+            if (fimDeSemana) {
+
+                celula.classList.add(
+                    "weekend"
+                );
+            }
+
+
+            // =================================================
             // BOLINHAS DAS FICHAS ALOCADAS
             // =================================================
 
-            if (alocacoesPorData[dataIso]) {
+            if (
+                alocacoesPorData[dataIso]
+            ) {
 
                 const quantidadeFichas =
                     alocacoesPorData[dataIso];
 
+
                 const containerBolinhas =
                     document.createElement("div");
+
 
                 containerBolinhas.className =
                     "indicator-dots";
 
+
                 containerBolinhas.style.justifyContent =
                     "flex-end";
 
+
                 containerBolinhas.style.marginLeft =
                     "auto";
+
 
                 containerBolinhas.style.marginTop =
                     "auto";
@@ -298,13 +441,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     const bolinha =
                         document.createElement("div");
 
+
                     bolinha.className =
                         "dot orange";
+
 
                     containerBolinhas.appendChild(
                         bolinha
                     );
                 }
+
 
                 celula.appendChild(
                     containerBolinhas
@@ -316,11 +462,21 @@ document.addEventListener("DOMContentLoaded", () => {
             // DIA SELECIONADO
             // =================================================
 
-            if (dia === diaSelecionadoGlobal) {
+            /*
+             * Importante:
+             * sábado e domingo nunca podem ser
+             * selecionados automaticamente.
+             */
+
+            if (
+                dia === diaSelecionadoGlobal &&
+                !fimDeSemana
+            ) {
 
                 celula.classList.add(
                     "active-selected"
                 );
+
 
                 buscarFichasViaHibernate(
                     dataIso,
@@ -339,8 +495,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 "click",
                 () => {
 
+                    // =================================================
+                    // TRAVA DE SEGURANÇA
+                    // =================================================
+                    // Se for sábado ou domingo,
+                    // simplesmente ignora o clique.
+                    // Não seleciona e não abre o painel.
+
+                    if (
+                        isFimDeSemana(dataIso)
+                    ) {
+
+                        return;
+                    }
+
+
+                    // Remove seleção anterior
                     document
-                        .querySelectorAll(".day-cell")
+                        .querySelectorAll(
+                            ".day-cell"
+                        )
                         .forEach(c => {
 
                             c.classList.remove(
@@ -349,13 +523,18 @@ document.addEventListener("DOMContentLoaded", () => {
                         });
 
 
+                    // Seleciona o novo dia
                     celula.classList.add(
                         "active-selected"
                     );
 
-                    diaSelecionadoGlobal = dia;
+
+                    diaSelecionadoGlobal =
+                        dia;
 
 
+                    // Abre o painel somente
+                    // para segunda a sexta
                     buscarFichasViaHibernate(
                         dataIso,
                         dia,
@@ -366,7 +545,9 @@ document.addEventListener("DOMContentLoaded", () => {
             );
 
 
-            grid.appendChild(celula);
+            grid.appendChild(
+                celula
+            );
         }
     }
 
@@ -416,8 +597,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     );
                 }
 
+
                 return response.json();
             })
+
 
             .then(dados => {
 
@@ -428,6 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
                 containerAlocadas.innerHTML = "";
+
                 containerDisponiveis.innerHTML = "";
 
 
@@ -445,25 +629,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 } else {
 
-                    dados.alocadas.forEach(ficha => {
+                    dados.alocadas.forEach(
+                        ficha => {
 
-                        console.log(
-                            "Ficha alocada:",
-                            ficha
-                        );
+                            console.log(
+                                "Ficha alocada:",
+                                ficha
+                            );
 
-                        containerAlocadas.appendChild(
-                            criarCardFicha(
-                                ficha.id,
 
-                                // NOME CORRETO DA ENTIDADE FICHA
-                                ficha.nomeFicha,
+                            containerAlocadas.appendChild(
+                                criarCardFicha(
+                                    ficha.id,
 
-                                "success",
-                                "delete"
-                            )
-                        );
-                    });
+                                    // NOME CORRETO DA ENTIDADE FICHA
+                                    ficha.nomeFicha,
+
+                                    "success",
+
+                                    "delete"
+                                )
+                            );
+                        }
+                    );
                 }
 
 
@@ -481,27 +669,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 } else {
 
-                    dados.Disponiveis.forEach(ficha => {
+                    dados.Disponiveis.forEach(
+                        ficha => {
 
-                        console.log(
-                            "Ficha disponível:",
-                            ficha
-                        );
+                            console.log(
+                                "Ficha disponível:",
+                                ficha
+                            );
 
-                        containerDisponiveis.appendChild(
-                            criarCardFicha(
-                                ficha.id,
 
-                                // NOME CORRETO DA ENTIDADE FICHA
-                                ficha.nomeFicha,
+                            containerDisponiveis.appendChild(
+                                criarCardFicha(
+                                    ficha.id,
 
-                                "warning",
-                                "append"
-                            )
-                        );
-                    });
+                                    // NOME CORRETO DA ENTIDADE FICHA
+                                    ficha.nomeFicha,
+
+                                    "warning",
+
+                                    "append"
+                                )
+                            );
+                        }
+                    );
                 }
             })
+
 
             .catch(erro => {
 
@@ -510,8 +703,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     erro
                 );
 
+
                 containerAlocadas.innerHTML =
                     '<p style="color: red;">Erro ao carregar dados.</p>';
+
 
                 containerDisponiveis.innerHTML =
                     '<p style="color: red;">Erro ao carregar dados.</p>';
@@ -532,6 +727,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const card =
             document.createElement("div");
+
 
         card.className =
             "fiche-card";
@@ -572,9 +768,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 <span class="material-symbols-outlined">
 
-                    ${acao === "delete"
-            ? "close"
-            : "add"}
+                    ${
+            acao === "delete"
+                ? "close"
+                : "add"
+        }
 
                 </span>
 
@@ -586,7 +784,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // BOTÃO +
         // =====================================================
 
-        if (acao === "append") {
+        if (
+            acao === "append"
+        ) {
 
             const botaoAdicionar =
                 card.querySelector(
@@ -604,6 +804,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         );
 
 
+                    // Se não existe dia selecionado
                     if (!celulaAtiva) {
                         return;
                     }
@@ -614,6 +815,33 @@ document.addEventListener("DOMContentLoaded", () => {
                             "data-date"
                         );
 
+
+                    // =================================================
+                    // TRAVA EXTRA DE SEGURANÇA
+                    // =================================================
+                    /*
+                     * Mesmo que alguém tente burlar o bloqueio
+                     * alterando o DOM manualmente, essa verificação
+                     * impede que a requisição de alocação seja enviada.
+                     */
+
+                    if (
+                        !dataIso ||
+                        isFimDeSemana(dataIso)
+                    ) {
+
+                        alert(
+                            "Não é possível alocar receitas aos sábados e domingos."
+                        );
+
+
+                        return;
+                    }
+
+
+                    // =================================================
+                    // ALLOCAÇÃO
+                    // =================================================
 
                     fetch(
                         `/calendario/alocar?id=${id}&data=${dataIso}`,
@@ -635,6 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             carregarAlocacoesERenderizarGrid();
                         })
 
+
                         .catch(erro => {
 
                             console.error(
@@ -651,7 +880,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // BOTÃO X
         // =====================================================
 
-        if (acao === "delete") {
+        if (
+            acao === "delete"
+        ) {
 
             const botaoRemover =
                 card.querySelector(
@@ -663,11 +894,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 "click",
                 () => {
 
-                    fichaIdParaDesalocar = id;
+                    fichaIdParaDesalocar =
+                        id;
 
 
                     // Se existir modal
-                    if (dialogConfirmacao) {
+                    if (
+                        dialogConfirmacao
+                    ) {
 
                         dialogConfirmacao.showModal();
 
@@ -693,6 +927,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                                 carregarAlocacoesERenderizarGrid();
                             })
+
 
                             .catch(erro => {
 
@@ -725,6 +960,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     dataCalendario.getMonth() - 1
                 );
 
+
                 carregarAlocacoesERenderizarGrid();
             }
         );
@@ -744,6 +980,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 dataCalendario.setMonth(
                     dataCalendario.getMonth() + 1
                 );
+
 
                 carregarAlocacoesERenderizarGrid();
             }

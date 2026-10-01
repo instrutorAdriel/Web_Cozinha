@@ -15,7 +15,7 @@ public class Utensilio {
     private String nomeUtensilio;
 
     @Column(nullable = false)
-    private Integer quantidade;
+    private Integer quantidade = 0;
 
     @Column(name = "numero_patrimonio", nullable = false)
     private Integer numeroPatrimonio;
@@ -23,64 +23,28 @@ public class Utensilio {
     @Column(length = 255)
     private String observacao;
 
-    @Column(name = "situacao", nullable = false, length = 1)
-    private char situacao = 'A';
+    @Column(nullable = false, length = 1)
+    private String situacao = "A";
 
-    public Utensilio() {
-    }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_categoria_utensilio")
+    private CategoriaUtensilio categoriaUtensilio;
 
-    public Utensilio(String nomeUtensilio, Integer quantidade, Integer numeroPatrimonio, String observacao) {
-        this.nomeUtensilio = nomeUtensilio;
-        this.quantidade = quantidade;
-        this.numeroPatrimonio = numeroPatrimonio;
-        this.observacao = observacao;
-    }
+    public Utensilio() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNomeUtensilio() {
-        return nomeUtensilio;
-    }
-
-    public void setNomeUtensilio(String nomeUtensilio) {
-        this.nomeUtensilio = nomeUtensilio;
-    }
-
-    public Integer getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(Integer quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public Integer getNumeroPatrimonio() {
-        return numeroPatrimonio;
-    }
-
-    public void setNumeroPatrimonio(Integer numeroPatrimonio) {
-        this.numeroPatrimonio = numeroPatrimonio;
-    }
-
-    public String getObservacao() {
-        return observacao;
-    }
-
-    public void setObservacao(String observacao) {
-        this.observacao = observacao;
-    }
-
-    public char getSituacao() {
-        return situacao;
-    }
-
-    public void setSituacao(char situacao) {
-        this.situacao = situacao;
-    }
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNomeUtensilio() { return nomeUtensilio; }
+    public void setNomeUtensilio(String nomeUtensilio) { this.nomeUtensilio = nomeUtensilio; }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public Integer getNumeroPatrimonio() { return numeroPatrimonio; }
+    public void setNumeroPatrimonio(Integer numeroPatrimonio) { this.numeroPatrimonio = numeroPatrimonio; }
+    public String getObservacao() { return observacao; }
+    public void setObservacao(String observacao) { this.observacao = observacao; }
+    public String getSituacao() { return situacao; }
+    public void setSituacao(String situacao) { this.situacao = situacao; }
+    public CategoriaUtensilio getCategoriaUtensilio() { return categoriaUtensilio; }
+    public void setCategoriaUtensilio(CategoriaUtensilio categoriaUtensilio) { this.categoriaUtensilio = categoriaUtensilio; }
 }
