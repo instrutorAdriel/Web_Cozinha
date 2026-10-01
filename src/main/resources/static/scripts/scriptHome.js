@@ -11,9 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarDadosIniciais();
 });
 
-
-
-
 // ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
 function carregarDadosIniciais() {
   const containerClasses = document.querySelector('.classes-col');
@@ -28,8 +25,26 @@ function carregarDadosIniciais() {
         agendamentosDoDia = agendamentos;
         todasAsFichasDoBanco = fichas;
 
-        popularTurmasDropdown(turmas); // Agora preenche com as turmas reais do banco
-        filtrarPorTurma("todas"); // Inicializa mostrando todas as turmas do dia
+        popularTurmasDropdown(turmas);
+
+        // Define a primeira turma da lista como a seleção padrão (ou "todas" se estiver vazio)
+        const primeiraTurmaId = turmas.length > 0 ? turmas[0].id.toString() : "todas";
+        filtrarPorTurma(primeiraTurmaId);
+
+        // === ATUALIZA O CONTADOR DE TURMAS DE HOJE ===
+        const contadorTurmas = document.getElementById('hero-turmas-count');
+        if (contadorTurmas) {
+          // Conta turmas únicas que possuem aula no dia de hoje
+          const turmasUnicasHoje = new Set();
+          agendamentos.forEach(a => {
+            if (a.ficha && a.ficha.turma) {
+              turmasUnicasHoje.add(a.ficha.turma.id);
+            }
+          });
+          const qtdHoje = turmasUnicasHoje.size;
+          contadorTurmas.textContent = `${qtdHoje} turma${qtdHoje !== 1 ? 's' : ''}`;
+        }
+        // =============================================
 
         // Listener do Select do Checklist
         const selectReceita = $('recipe-select');
@@ -53,13 +68,16 @@ function popularTurmasDropdown(turmas) {
   const turmaSelect = $('turma-select');
   if (!turmaSelect) return;
 
-  turmaSelect.innerHTML = '<option value="todas">-- Todas as Turmas --</option>';
+  turmaSelect.innerHTML = ''; // Limpa as opções (removendo "Todas as Turmas")
 
-  // Itera diretamente sobre a lista de turmas retornada pela nova API
-  turmas.forEach(turma => {
-    const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
-    turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
-  });
+  if (turmas.length === 0) {
+    turmaSelect.innerHTML = '<option value="">-- Nenhuma Turma Vinculada --</option>';
+  } else {
+    turmas.forEach(turma => {
+      const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
+      turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
+    });
+  }
 
   // Garante que o evento só seja adicionado uma vez
   turmaSelect.removeEventListener('change', onTurmaChange);
@@ -247,7 +265,7 @@ function renderChecklistUtensilios(checklists, ficha) {
     const nomeUtil = util ? util.nomeUtensilio : 'Utensílio não identificado';
     const qtd = util ? util.quantidade : 0;
 
-    // LÓGICA DE VALIDAÇÃO VISUAL ADICIONADA AQUI
+    // LÓGICA DE VALIDAÇÃO VISUAL
     const estado = check.estadoAtual || 'PRONTO';
     const isInapto = estado !== 'PRONTO';
     const classeInapto = isInapto ? 'text-muted' : '';
@@ -371,7 +389,6 @@ if (btnFinishUtensilios) {
     })
         .then(async res => {
           if (!res.ok) {
-            // Se o back-end enviar uma mensagem de erro (da IllegalArgumentException), exibe no alert
             const erroBackend = await res.text();
             throw new Error(erroBackend || "Erro ao confirmar utensílios");
           }
@@ -479,7 +496,6 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
       });
 });
 }
-
 
 // ===== 7. MENU E MODO COZINHA =====
 const menuBtn = $('menu-toggle');
