@@ -37,8 +37,8 @@ public class Insumo {
     public void setId(Long id) { this.id = id; }
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
-    public String getCancelado() { return cancelado; }
-    public void setCancelado(String cancelado) { this.cancelado = cancelado; }
+    public char getCancelado() { return cancelado; }
+    public void setCancelado(char cancelado) { this.cancelado = cancelado; }
     public String getExtra() { return extra; }
     public void setExtra(String extra) { this.extra = extra; }
     public Ficha getFicha() { return ficha; }
