@@ -3,8 +3,8 @@ package com.application.WebApplicationSIGEC.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "usuario_turmas")
-public class UsuarioTurmas {
+@Table(name = "usuario_turma")
+public class UsuarioTurma {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,68 +1,70 @@
 package com.application.WebApplicationSIGEC.service;
 
+import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Ficha;
+import com.application.WebApplicationSIGEC.repository.AgendamentoRepository;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FichasService {
 
     private final FichasRepository fichasRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
-    // Injeção via construtor (resolve o aviso de "Field injection is not recommended")
-    public FichasService(FichasRepository fichasRepository) {
+    public FichasService(FichasRepository fichasRepository, AgendamentoRepository agendamentoRepository) {
         this.fichasRepository = fichasRepository;
+        this.agendamentoRepository = agendamentoRepository;
     }
 
-    public Ficha buscarReceitas(String nomeFicha) {
-        Optional<Ficha> rs = fichasRepository.findByNomeFicha(nomeFicha);
-        return rs.orElse(null);
-    }
-
-    public List<Ficha> buscarData(LocalDate data) {
-        List<Ficha> rs = fichasRepository.findByData(data);
-
-        if (!rs.isEmpty()) {
-            return rs;
+    // =========================================================
+    // MÉTODO SOLICITADO: Busca todos os agendamentos da turma/usuário
+    // =========================================================
+    public List<Agendamento> buscarTodosAgendamentosDaTurma(Long idUsuario, Integer idTurma) {
+        if (idUsuario == null) {
+            return Collections.emptyList();
         }
-
-        return java.util.Collections.emptyList();
+        return agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma);
     }
 
-    public List<Ficha> buscarTodas() {
-        return fichasRepository.findAll();
+    // Busca agendamentos de uma data específica
+    public List<Agendamento> buscarAgendamentosDoDia(Long idUsuario, Integer idTurma, LocalDate data) {
+        if (idUsuario == null || idTurma == null) {
+            return Collections.emptyList();
+        }
+        return agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data);
     }
 
-    // Busca somente as fichas que ainda não foram alocadas
-    public List<Ficha> buscarDisponiveis() {
-        return fichasRepository.findByDataIsNull();
+    // Busca todas as fichas associadas a uma turma para preencher o acervo/disponíveis
+    public List<Ficha> buscarFichasPorTurma(Integer idTurma) {
+        if (idTurma == null) {
+            return Collections.emptyList();
+        }
+        return fichasRepository.findByIdTurma(idTurma);
     }
 
-    // Busca somente as fichas que já foram alocadas no calendário
-    public List<Ficha> buscarAlocadas() {
-        return fichasRepository.findByDataIsNotNull();
-    }
-
+    // Aloca uma ficha (cria novo registro na tabela agendamento)
     @Transactional
     public void alocarFicha(Long idFicha, LocalDate novaData) {
-        Ficha ficha = fichasRepository.findById(idFicha)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
-
-        ficha.setData(novaData);
-        fichasRepository.save(ficha);
+        Agendamento agendamento = new Agendamento();
+        agendamento.setIdFicha(idFicha.intValue());
+        agendamento.setData(novaData);
+        agendamento.setSituacao('A');
+        agendamento.setConcluido('N');
+        agendamentoRepository.save(agendamento);
     }
 
+    // Desaloca uma ficha
     @Transactional
     public void desalocarFicha(Long idFicha) {
-        Ficha ficha = fichasRepository.findById(idFicha)
-                .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
-
-        ficha.setData(null);
-        fichasRepository.save(ficha);
+        List<Agendamento> agendamentos = agendamentoRepository.findByIdFicha(idFicha.intValue());
+        if (!agendamentos.isEmpty()) {
+            agendamentoRepository.deleteAll(agendamentos);
+        }
     }
 }

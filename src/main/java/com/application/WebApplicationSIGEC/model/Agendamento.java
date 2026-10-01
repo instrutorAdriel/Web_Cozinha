@@ -2,13 +2,14 @@ package com.application.WebApplicationSIGEC.model;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "agendamentos")
-public class Agendamentos {
+@Table(name = "agendamento")
+public class Agendamento {
 
     @Id
     private Integer idAgendamento;
@@ -16,6 +17,8 @@ public class Agendamentos {
     private LocalDate data;
     private Character situacao;
     private Character concluido;
+
+    @Column(name = "id_ficha")
     private Integer idFicha;
 
     public Integer getIdAgendamento() {
