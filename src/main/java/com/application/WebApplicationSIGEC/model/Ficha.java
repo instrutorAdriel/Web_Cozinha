@@ -17,7 +17,7 @@ public class Ficha {
     private String nomeFicha;
 
     @Column(name = "data")
-    private LocalDate data; // <-- Campo adicionado para suportar a alocação no calendário
+    private LocalDate data;
 
     @Lob
     @Column(columnDefinition = "TEXT")
@@ -25,6 +25,9 @@ public class Ficha {
 
     @Column(name = "situacao", nullable = false, length = 1)
     private char situacao = 'A';
+
+    @Column(name = "id_turma")
+    private Integer idTurma;
 
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL)
     private List<Insumo> insumos;
@@ -76,6 +79,14 @@ public class Ficha {
 
     public void setSituacao(char situacao) {
         this.situacao = situacao;
+    }
+
+    public Integer getIdTurma() {
+        return idTurma;
+    }
+
+    public void setIdTurma(Integer idTurma) {
+        this.idTurma = idTurma;
     }
 
     public List<Insumo> getInsumos() {
