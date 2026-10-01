@@ -13,10 +13,10 @@ public class Insumo {
     private Long id;
 
     @Column(nullable = false)
-    private Integer quantidade;
+    private int quantidade;
 
     @Column(nullable = false, length = 1)
-    private String cancelado = "N";
+    private char cancelado = 'N';
 
     @Column(nullable = false, length = 1)
     private String extra = "N";
