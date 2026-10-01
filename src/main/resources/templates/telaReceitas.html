@@ -112,7 +112,7 @@
                     <div class="status-tabs">
                         <button class="status-tab-btn active" data-status="todas">Todas</button>
                         <button class="status-tab-btn" data-status="disponivel">Disponíveis</button>
-                        <button class="status-tab-btn " data-status="datadas">Datadas</button>
+                        <button class="status-tab-btn" data-status="datadas">Datadas</button>
                     </div>
 
                     <div class="category-filter-section">
@@ -120,18 +120,21 @@
                             <span class="category-title">CATEGORIA PEDAGÓGICA</span>
                             <span class="category-count" id="recipeCountLabel">0 receitas</span>
                         </div>
+
                         <div class="category-tags" id="categoryTabs">
                             <button class="cat-pill active" data-cat="todas">Todas</button>
                             <button class="cat-pill" data-cat="Panificação">Panificação</button>
                             <button class="cat-pill" data-cat="Confeitaria">Confeitaria</button>
-                            <button class="cat-pill" data-cat="Cozinha Quente">Cozinha Quente</button>
-                            <button class="cat-pill" data-cat="Cozinha Fria">Cozinha Fria</button>
                         </div>
                     </div>
 
                     <div class="search-input-wrap">
                         <span class="material-symbols-outlined search-icon">search</span>
-                        <input type="text" id="recipe-search" placeholder="Buscar receita ou ingrediente..." autocomplete="off">
+                        <input
+                                type="text"
+                                id="recipe-search"
+                                placeholder="Buscar receita ou ingrediente..."
+                                autocomplete="off">
                     </div>
 
                     <div id="listCol" class="scrollable-list"></div>
@@ -139,7 +142,6 @@
 
                 <!-- Detalhe da Receita Selecionada -->
                 <section id="detailCol" class="recipe-detail-pane"></section>
-
             </div>
         </div>
     </main>
