@@ -57,23 +57,37 @@ document.querySelectorAll('.status-tab-btn').forEach(btn => {
     });
 });
 
-
-// ===== CATEGORIAS PEDAGÓGICAS =====
+// ===== FILTRO POR TIPO DE RECEITA =====
 const categoryTabs = document.getElementById('categoryTabs');
 
 if (categoryTabs) {
-    categoryTabs.querySelectorAll('.cat-pill').forEach(pill => {
-        pill.addEventListener('click', () => {
-            categoryTabs.querySelectorAll('.cat-pill')
-                .forEach(p => p.classList.remove('active'));
+    const tipos = [...new Set(
+        RECIPES.map(r => r.type).filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-            pill.classList.add('active');
-            activeCategory = pill.dataset.cat || 'todas';
+    categoryTabs.innerHTML = [
+        '<button class="cat-pill active" data-cat="todas">Todas</button>',
+        ...tipos.map(tipo => `
+            <button class="cat-pill" data-cat="${tipo}">
+                ${tipo.charAt(0) + tipo.slice(1).toLowerCase()}
+            </button>
+        `)
+    ].join('');
 
-            renderList();
-        });
+    categoryTabs.addEventListener('click', event => {
+        const pill = event.target.closest('.cat-pill');
+        if (!pill) return;
+
+        categoryTabs.querySelectorAll('.cat-pill')
+            .forEach(p => p.classList.remove('active'));
+
+        pill.classList.add('active');
+        activeCategory = pill.dataset.cat || 'todas';
+
+        renderList();
     });
 }
+
 
 
 // ===== BUSCA EM TEMPO REAL =====
@@ -98,7 +112,7 @@ function renderList() {
 
     const filtered = RECIPES
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
-        .filter(r => activeCategory === 'todas' || r.cat === activeCategory)
+        .filter(r => activeCategory === 'todas' || r.type === activeCategory)
         .filter(r => {
             if (!searchTerm) return true;
             const matchName = r.name ? r.name.toLowerCase().includes(searchTerm) : false;
