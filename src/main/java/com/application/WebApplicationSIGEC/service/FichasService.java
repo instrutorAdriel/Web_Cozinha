@@ -38,6 +38,10 @@ public class FichasService {
         return fichasRepository.findAll();
     }
 
+    public Optional<Ficha> buscarPorId(Long id) {
+        return fichasRepository.findById(id);
+    }
+
     // Busca somente as fichas que ainda não foram alocadas
     public List<Ficha> buscarDisponiveis() {
         return fichasRepository.findByDataIsNull();

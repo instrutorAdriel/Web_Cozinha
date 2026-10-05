@@ -28,21 +28,19 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    //metodo encerrar sessao
+    // metodo encerrar sessao
     private void encerrarSessaoSeExistir(HttpSession session) {
         if (session != null && session.getAttribute("usuarioLogado") != null) {
             sessaoService.encerrarSessao(session);
         }
     }
 
-
-
     @GetMapping("/cadastro")
-    public String exibirCadastro(Model model, HttpSession session){
+    public String exibirCadastro(Model model, HttpSession session) {
 
         encerrarSessaoSeExistir(session);
 
-        //Criando formulário vazio
+        // Criando formulário vazio
         model.addAttribute("usuarioForm", new UsuarioForm());
 
         model.addAttribute("tituloPagina", "Cadastro");
@@ -50,15 +48,16 @@ public class UsuarioController {
 
         return "cadastro";
     }
+
     @PostMapping("/cadastro")
-    public String processarCadastro(@ModelAttribute UsuarioForm form, Model model){
+    public String processarCadastro(@ModelAttribute UsuarioForm form, Model model) {
         String erro = usuarioService.cadastrar(form);
 
-        if(erro!=null){
-            if(erro.equals("A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.")){
+        if (erro != null) {
+            if (erro.equals(
+                    "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.")) {
                 model.addAttribute("erro1", erro);
-            }
-            else{
+            } else {
                 model.addAttribute("erro", erro);
             }
             model.addAttribute("usuarioForm", form);
@@ -67,7 +66,6 @@ public class UsuarioController {
 
         return "redirect:/";
     }
-
 
     @GetMapping("/")
     public String exibirLogin(Model model, HttpSession session) {
@@ -82,28 +80,26 @@ public class UsuarioController {
     }
 
     @PostMapping("/")
-    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
+    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request) {
         Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
-        if(usuario == null){
+        if (usuario == null) {
             model.addAttribute("erro", "E-mail ou senha incorreto!");
-            System.out.println("erro 500");
             return "login";
         }
         HttpSession session = request.getSession(true);
         session.setAttribute("usuarioLogado", usuario);
-        sessaoService.salvarUsuarioLogado(session,usuario);
+        // sessaoService.salvarUsuarioLogado(session,usuario);
 
-        System.out.println("andado");
-        return "redirect:/home";
+        return "/home";
 
     }
 
     @GetMapping("/alterar-senha")
-    public String exibirAlterarSenha(Model model, HttpSession session){
+    public String exibirAlterarSenha(Model model, HttpSession session) {
 
         encerrarSessaoSeExistir(session);
 
-        //Criando formulário vazio
+        // Criando formulário vazio
         model.addAttribute("usuarioForm", new UsuarioForm());
 
         model.addAttribute("tituloPagina", "Alterar Senha");
@@ -111,11 +107,12 @@ public class UsuarioController {
 
         return "alterarSenha";
     }
+
     @PostMapping("/alterar-senha")
-    public String processarAlterarSenha(@ModelAttribute UsuarioForm form, Model model){
+    public String processarAlterarSenha(@ModelAttribute UsuarioForm form, Model model) {
         String erro = usuarioService.alterarSenha(form);
 
-        if(erro!=null){
+        if (erro != null) {
             model.addAttribute("erro", erro);
             return "alterarSenha";
         }
@@ -125,12 +122,14 @@ public class UsuarioController {
 
 }
 
-/*@GetMapping("/login")
-public String exibirLogin(HttpSession session) {
-
-    if (session != null) {
-        sessaoService.encerrarSessao(session);
-    }
-
-    return "login";
-}**/
+/*
+ * @GetMapping("/login")
+ * public String exibirLogin(HttpSession session) {
+ * 
+ * if (session != null) {
+ * sessaoService.encerrarSessao(session);
+ * }
+ * 
+ * return "login";
+ * }
+ **/
