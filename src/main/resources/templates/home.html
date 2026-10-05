@@ -47,10 +47,15 @@
 <!-- ==========================================================================
      BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
      ========================================================================== -->
+<!-- ==========================================================================
+     BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
+     ========================================================================== -->
 <header class="topbar">
-    <!-- Lado Esquerdo: Menu sanduíche e Localização Atual (Breadcrumb) -->
     <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle"><span class="material-symbols-outlined">menu</span></button>
+        <button class="menu-toggle" id="menu-toggle" aria-label="Abrir menu">
+            <span class="material-symbols-outlined">menu</span>
+        </button>
+
         <div class="breadcrumb">
             <span class="crumb-muted">SIGEC</span>
             <span class="material-symbols-outlined crumb-sep">chevron_right</span>
@@ -58,28 +63,19 @@
         </div>
     </div>
 
-    <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
-    <div class="topbar-actions">
-
-        <div class="topbar-actions">
-
-            <label class="field-label" for="turma-select">Turma / Laboratório</label>
-            <div class="select-wrap">
-
-                <select id="turma-select">
+    <div class="topbar-actions" style="display: flex; align-items: center; gap: 16px; margin: 0; padding: 0;">
+        <div class="turma-select-group" style="display: flex; align-items: center; gap: 12px; margin: 0; padding: 0;">
+            <label class="field-label" for="turma-select" style="display: inline-block; margin: 0; padding: 0; white-space: nowrap; font-size: 11px; font-weight: 700; color: #002747; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1;">TURMA / LABORATÓRIO</label>
+            <div class="select-wrap" style="position: relative; display: inline-flex; align-items: center; margin: 0; padding: 0;">
+                <select id="turma-select" style="appearance: none; -webkit-appearance: none; background: #fff; color: #002747; border: 1px solid #c2c7d0; border-radius: 4px; padding: 8px 36px 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; outline: none; margin: 0; line-height: normal;">
                     <option value="">-- Selecione uma Turma --</option>
-                    <option value="2024.1.A">Turma 2024.1.A</option>
-                    <option value="2024.1.C">Turma 2024.1.C</option>
+                    <option value="2024.1.A">Turma 2024.1.A — Padaria Lab 01</option>
+                    <option value="2024.1.C">Turma 2024.1.C — Cozinha Pedagógica 02</option>
                 </select>
-
-                <span class="material-symbols-outlined select-arrow">expand_more</span>
-
+                <span class="material-symbols-outlined select-arrow" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #002747; pointer-events: none; font-size: 20px;">expand_more</span>
             </div>
-
-
         </div>
 
-        <!-- Central de Notificações (Menu expansível via JS) -->
         <div class="notif-wrap">
             <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
                 <span class="material-symbols-outlined">notifications</span>
@@ -94,14 +90,7 @@
                 <div class="notif-list" id="notif-list"></div>
             </div>
         </div>
-
-    <!-- Perfil do Usuário Autenticado -->
-    <div class="user-box">
-      <div class="user-info" style="display: flex; align-items: center; gap: 15px; text-align: left;">
-          <img th:src="@{/img/icone-perfil.png}" alt="Ícone de Perfil" class="avatar-header">
-      </div>
     </div>
-  </div>
 </header>
 
 <!-- ==========================================================================
