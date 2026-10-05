@@ -829,3 +829,74 @@ body {
 .btn-danger:hover {
     background-color: #dc2626;
 }
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+
+/* =========================================================
+   FIM DE SEMANA
+   ========================================================= */
+
+.day-cell.weekend {
+    cursor: not-allowed;
+}

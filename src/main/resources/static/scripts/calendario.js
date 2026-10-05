@@ -142,6 +142,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+
+
     // =========================================================
     // ELEMENTOS DO HTML
     // =========================================================
@@ -583,29 +585,8 @@ document.addEventListener("DOMContentLoaded", () => {
             // MARCA FERIADO VISUALMENTE
             // =================================================
 
-            if (
-                feriado
-            ) {
-
-                celula.classList.add(
-                    "feriado"
-                );
-
-
-                // Cria o pontinho vermelho
-                const indicadorFeriado =
-                    document.createElement(
-                        "div"
-                    );
-
-
-                indicadorFeriado.className =
-                    "indicador-feriado";
-
-
-                celula.appendChild(
-                    indicadorFeriado
-                );
+            if (feriado) {
+                celula.classList.add("feriado");
             }
 
 
