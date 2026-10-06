@@ -76,7 +76,10 @@ public class UsuarioController {
 
         model.addAttribute("usuarioForm", new UsuarioForm());
         model.addAttribute("tituloPagina", "Bem-Vindo");
-        model.addAttribute("subTituloPagina", "Sistema de Gerenciamento de Estoque da Cozinha");
+        model.addAttribute(
+                "subTituloPagina",
+                "Sistema de Gerenciamento de Estoque da Cozinha"
+        );
 
         return "login";
     }
@@ -104,11 +107,12 @@ public class UsuarioController {
             return "login";
         }
 
-        
-
         HttpSession session = request.getSession(true);
 
         sessaoService.salvarUsuarioLogado(session, usuario);
+
+        System.out.println("USUARIO LOGADO: " + usuario);
+        System.out.println("SESSAO: " + session.getAttribute("usuarioLogado"));
 
         return "redirect:/home";
     }
