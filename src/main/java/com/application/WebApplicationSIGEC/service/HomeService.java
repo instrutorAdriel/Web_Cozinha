@@ -88,16 +88,15 @@ public class HomeService {
     public void confirmarSaidaUtensilios(List<Long> checklistIds) {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
-            if (checklist != null) {
-                // Validação de segurança: Impede retirada se estiver quebrado/manutenção
-                if (!"PRONTO".equals(checklist.getEstadoAtual())) {
-                    throw new IllegalArgumentException("O utensílio " + checklist.getUtensilio().getNomeUtensilio() + " está " + checklist.getEstadoAtual() + " e não pode ser retirado.");
-                }
-
-                checklist.setDataHoraSaida(LocalDateTime.now());
-                checklist.setObservacao("Retirado para aula");
-                checklistUtensilioRepository.save(checklist);
+            // Trava backend: impede que retirem o que já está na cozinha
+            if (checklist.getDataHoraSaida() != null && checklist.getDataHoraEntrada() == null) {
+                throw new IllegalArgumentException("O utensílio já está em uso.");
             }
+
+            checklist.setDataHoraSaida(LocalDateTime.now());
+            checklist.setDataHoraEntrada(null);
+            checklist.setObservacao("Retirado para aula");
+            checklistUtensilioRepository.save(checklist);
         }
     }
 

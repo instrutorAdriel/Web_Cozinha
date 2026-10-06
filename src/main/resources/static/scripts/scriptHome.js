@@ -97,7 +97,7 @@ function filtrarPorTurma(turmaId) {
   // 1. Filtrar as "Receitas de Hoje" (Agendamentos)
   let agendamentosFiltrados = agendamentosDoDia;
   if (turmaId !== "todas") {
-    agendamentosFiltrados = agendamentosDoDia.filter(a => a.ficha.turma && a.ficha.turma.id == parseInt(turmaId));
+    agendamentosFiltrados = agendamentosDoDia.filter(a => a.ficha && a.ficha.turma && a.ficha.turma.id == parseInt(turmaId));
   }
 
   if (agendamentosFiltrados.length > 0) {
@@ -140,6 +140,9 @@ function limparDetalhesDaTela() {
 function renderizarCardsDeAulas(agendamentos, container) {
   agendamentos.forEach((agendamento) => {
     const ficha = agendamento.ficha;
+    // Prevenção de erro caso a ficha venha nula do banco
+    if(!ficha) return;
+
     const turma = ficha.turma;
     const lab = turma && turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
     const nomeTurma = turma ? turma.nomeTurma : 'Turma Indefinida';
@@ -150,13 +153,14 @@ function renderizarCardsDeAulas(agendamentos, container) {
     card.className = `class-card ${statusClass}`;
     card.setAttribute('data-recipe', ficha.id);
 
+    // Adicionado clique diretamente no card inteiro em vez do botão
+    card.addEventListener('click', () => selecionarAula(ficha.id));
+
+    // Removido o botão "Ver receita" daqui de baixo
     card.innerHTML = `
             <div class="class-info">
                 <p class="class-name">${ficha.nomeFicha}</p>
                 <p class="class-meta">${lab} • ${nomeTurma}</p>
-                <button class="recipe-link" onclick="selecionarAula(${ficha.id})">
-                    <span class="material-symbols-outlined sm">restaurant_menu</span>Ver receita
-                </button>
             </div>
         `;
     container.appendChild(card);
@@ -169,7 +173,7 @@ function selecionarAula(fichaId) {
     c.classList.toggle('selected', parseInt(c.dataset.recipe) === fichaId);
   });
 
-  const agendamento = agendamentosDoDia.find(a => a.ficha.id === fichaId);
+  const agendamento = agendamentosDoDia.find(a => a.ficha && a.ficha.id === fichaId);
   if (!agendamento) return;
   fichaAtual = agendamento.ficha;
 
@@ -237,12 +241,15 @@ function renderChecklistInsumos(insumos, ficha) {
     const nomeProduto = produto ? produto.nomeProduto : 'Produto não identificado';
     const uni = produto ? produto.unidade : '';
 
+    // Lógica nova: Só gera o HTML da tag se o status NÃO for "ok"
+    const tagEstoque = st === 'ok' ? '' : `<span class="estoque-tag ${st}">${label}</span>`;
+
     return `
           <label class="check-item ${clsEstoque}">
             <input type="checkbox" data-id="${insumo.id}">
             <span class="check-box"><span class="material-symbols-outlined">check</span></span>
             <span class="check-label">${nomeProduto}</span>
-            <span class="estoque-tag ${st}">${label}</span>
+            ${tagEstoque}
             <span class="check-qty">${qtdEstoque}/${qtdNecessaria}${uni}</span>
           </label>`;
   }).join('');
@@ -265,17 +272,24 @@ function renderChecklistUtensilios(checklists, ficha) {
     const nomeUtil = util ? util.nomeUtensilio : 'Utensílio não identificado';
     const qtd = util ? util.quantidade : 0;
 
-    // LÓGICA DE VALIDAÇÃO VISUAL
+    // LÓGICA DE VALIDAÇÃO VISUAL (Manutenção/Danificado)
     const estado = check.estadoAtual || 'PRONTO';
     const isInapto = estado !== 'PRONTO';
     const classeInapto = isInapto ? 'text-muted' : '';
     const labelInapto = isInapto ? ` <strong style="color:red; font-size:10px;">(${estado})</strong>` : '';
 
+    // NOVA LÓGICA: Verifica se saiu e ainda não voltou
+    const taEmUso = check.dataHoraSaida != null && check.dataHoraEntrada == null;
+    const tagEmUso = taEmUso
+        ? `<span class="estoque-tag" style="background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd;">Em Uso</span>`
+        : '';
+
     return `
           <label class="check-item ${classeInapto}">
-            <input type="checkbox" data-id="${check.id}" data-estado="${estado}">
+            <input type="checkbox" data-id="${check.id}" data-estado="${estado}" data-em-uso="${taEmUso}">
             <span class="check-box"><span class="material-symbols-outlined">check</span></span>
             <span class="check-label">${nomeUtil}${labelInapto}</span>
+            ${tagEmUso}
             <span class="check-qty">${qtd} un</span>
           </label>`;
   }).join('');
@@ -344,6 +358,7 @@ if (btnFinishInsumos) {
         })
         .then(msg => {
           alert("Separação confirmada! O estoque foi deduzido com sucesso.");
+          // Mantido: Ao finalizar insumos, pode recarregar tudo, se desejado.
           if (fichaAtual) selecionarAula(fichaAtual.id);
         })
         .catch(err => {
@@ -367,10 +382,17 @@ if (btnFinishUtensilios) {
       return;
     }
 
-    // LÓGICA DE VALIDAÇÃO DE TRAVA ADICIONADA AQUI
+    // LÓGICA DE VALIDAÇÃO DE TRAVA ESTADO (Inapto)
     const temItemInapto = Array.from(marcados).some(cb => cb.dataset.estado !== 'PRONTO');
     if (temItemInapto) {
       alert("Atenção: Você selecionou utensílios que estão DANIFICADOS ou EM MANUTENÇÃO.\n\nSe eles já foram consertados, selecione-os e clique em 'Registrar Devolução' para atualizar o estado para 'PRONTO' antes de confirmar a saída.");
+      return; // Trava a execução aqui
+    }
+
+    // NOVA TRAVA FRONTEND: Impede de prosseguir se houver item "Em Uso" selecionado
+    const temEmUso = Array.from(marcados).some(cb => cb.dataset.emUso === 'true');
+    if (temEmUso) {
+      alert("Atenção: Você selecionou utensílios que já estão EM USO.\n\nEles não podem ser retirados 2 vezes. Desmarque-os para retirar novos itens ou utilize o botão 'Registrar Devolução'.");
       return; // Trava a execução aqui
     }
 
@@ -396,8 +418,19 @@ if (btnFinishUtensilios) {
         })
         .then(msg => {
           alert("Retirada de utensílios registrada com sucesso!");
+
           document.querySelectorAll('#util-checklist input[type="checkbox"]').forEach(cb => cb.checked = false);
           $('util-checklist').dispatchEvent(new Event('change'));
+
+          // Atualização pontual SÓ da lista de utensílios (não afeta os insumos)
+          if (fichaAtual) {
+            fetch(`/api/fichas/${fichaAtual.id}/detalhes`)
+                .then(res => res.json())
+                .then(detalhes => {
+                  detalhesReceitaAtual = detalhes;
+                  renderChecklistUtensilios(detalhes.utensilios, fichaAtual);
+                });
+          }
         })
         .catch(err => {
           console.error(err);
@@ -484,7 +517,15 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
 
         fecharModalDevolucao();
 
-        if (fichaAtual) selecionarAula(fichaAtual.id);
+        // Atualização pontual SÓ da lista de utensílios (não afeta os insumos)
+        if (fichaAtual) {
+          fetch(`/api/fichas/${fichaAtual.id}/detalhes`)
+              .then(res => res.json())
+              .then(detalhes => {
+                detalhesReceitaAtual = detalhes;
+                renderChecklistUtensilios(detalhes.utensilios, fichaAtual);
+              });
+        }
       })
       .catch(err => {
         console.error(err);
