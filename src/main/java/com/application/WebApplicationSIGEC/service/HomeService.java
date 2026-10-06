@@ -44,9 +44,11 @@ public class HomeService {
 
         List<Insumo> insumos = insumoRepository.findByFichaId(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
+        List<Long> insumosSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
 
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
+        detalhes.put("insumosSeparados", insumosSeparados); // Envia para o Javascript
 
         return detalhes;
     }
@@ -55,8 +57,13 @@ public class HomeService {
     public void confirmarSeparacaoInsumos(List<Long> insumoIds, String observacaoGeral) {
         for (Long id : insumoIds) {
             Insumo insumo = insumoRepository.findById(id).orElse(null);
-
             if (insumo != null && insumo.getProduto() != null) {
+
+                List<Long> jaSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(insumo.getFicha().getId());
+                if (jaSeparados.contains(id)) {
+                    continue; // Pula este item e vai para o próximo
+                }
+
                 Produto produto = insumo.getProduto();
                 BigDecimal qtdNecessaria = new BigDecimal(insumo.getQuantidade());
 
@@ -71,7 +78,6 @@ public class HomeService {
                 mov.setDataMovimentacao(LocalDateTime.now());
                 mov.setProduto(produto);
                 mov.setInsumo(insumo);
-
                 String obs = (observacaoGeral != null && !observacaoGeral.trim().isEmpty())
                         ? observacaoGeral
                         : "Baixa confirmada pelo instrutor via Web";

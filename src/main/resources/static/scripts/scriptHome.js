@@ -182,7 +182,7 @@ function selecionarAula(fichaId) {
       .then(detalhes => {
         detalhesReceitaAtual = detalhes;
         atualizarResumoReceita(fichaAtual);
-        renderChecklistInsumos(detalhes.insumos, fichaAtual);
+        renderChecklistInsumos(detalhes.insumos, fichaAtual, detalhes.insumosSeparados);
         renderChecklistUtensilios(detalhes.utensilios, fichaAtual);
       })
       .catch(err => console.error("Erro ao carregar detalhes:", err));
@@ -194,7 +194,10 @@ function carregarDetalhesNoChecklistManual(fichaReal) {
       .then(detalhes => {
         detalhesReceitaAtual = detalhes;
         fichaAtual = fichaReal;
-        renderChecklistInsumos(detalhes.insumos, fichaReal);
+
+        // CORREÇÃO: Adicionado o terceiro parâmetro 'detalhes.insumosSeparados'
+        renderChecklistInsumos(detalhes.insumos, fichaReal, detalhes.insumosSeparados);
+
         renderChecklistUtensilios(detalhes.utensilios, fichaReal);
       })
       .catch(err => console.error("Erro ao carregar detalhes:", err));
@@ -216,7 +219,7 @@ function atualizarResumoReceita(ficha) {
 }
 
 // ===== 4. RENDERIZAÇÃO DOS CHECKLISTS =====
-function renderChecklistInsumos(insumos, ficha) {
+function renderChecklistInsumos(insumos, ficha, separados = []) {
   const lista = $('checklist-main');
   const nome = $('recipe-name');
   const badge = $('turma-badge');
@@ -230,6 +233,9 @@ function renderChecklistInsumos(insumos, ficha) {
     const qtdNecessaria = insumo.quantidade;
     const qtdEstoque = produto && produto.quantidade ? parseFloat(produto.quantidade) : 0;
 
+    // Valida se foi separado
+    const isSeparado = separados.includes(insumo.id);
+
     let st = 'ok'; let label = 'OK';
     if (qtdEstoque === 0) {
       st = 'falta'; label = 'Falta';
@@ -241,7 +247,17 @@ function renderChecklistInsumos(insumos, ficha) {
     const nomeProduto = produto ? produto.nomeProduto : 'Produto não identificado';
     const uni = produto ? produto.unidade : '';
 
-    // Lógica nova: Só gera o HTML da tag se o status NÃO for "ok"
+    if (isSeparado) {
+      return `
+          <label class="check-item" style="pointer-events: none; opacity: 0.5; background-color: #f8fafc;">
+            <input type="checkbox" data-id="${insumo.id}" checked disabled>
+            <span class="check-box" style="background: #10b981; border-color: #10b981;"><span class="material-symbols-outlined" style="opacity: 1;">check</span></span>
+            <span class="check-label" style="text-decoration: line-through;">${nomeProduto}</span>
+            <span class="estoque-tag" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">Separado</span>
+            <span class="check-qty">${qtdEstoque}/${qtdNecessaria}${uni}</span>
+          </label>`;
+    }
+
     const tagEstoque = st === 'ok' ? '' : `<span class="estoque-tag ${st}">${label}</span>`;
 
     return `
@@ -333,9 +349,10 @@ if ($('main-btn-reset')) {
 const btnFinishInsumos = $('btn-finish-insumos');
 if (btnFinishInsumos) {
   btnFinishInsumos.addEventListener('click', () => {
-    const marcados = document.querySelectorAll('#checklist-main input[type="checkbox"]:checked');
+    // FILTRA apenas os selecionados que NÃO estão desativados (disabled)
+    const marcados = document.querySelectorAll('#checklist-main input[type="checkbox"]:checked:not(:disabled)');
     if (marcados.length === 0) {
-      alert("Selecione pelo menos um insumo para confirmar a separação.");
+      alert("Selecione pelo menos um insumo NOVO para confirmar a separação.");
       return;
     }
 
@@ -352,18 +369,28 @@ if (btnFinishInsumos) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ insumosMarcados: insumoIds, observacao: "Separação de Aula confirmada via Painel." })
     })
-        .then(res => {
-          if (!res.ok) throw new Error("Erro ao atualizar o estoque");
+        .then(async res => {
+          if (!res.ok) {
+            const erroBackend = await res.text();
+            throw new Error(erroBackend || "Erro ao atualizar o estoque");
+          }
           return res.text();
         })
         .then(msg => {
           alert("Separação confirmada! O estoque foi deduzido com sucesso.");
-          // Mantido: Ao finalizar insumos, pode recarregar tudo, se desejado.
-          if (fichaAtual) selecionarAula(fichaAtual.id);
+          // Refresh instantâneo SÓ da lista de insumos
+          if (fichaAtual) {
+            fetch(`/api/fichas/${fichaAtual.id}/detalhes`)
+                .then(res => res.json())
+                .then(detalhes => {
+                  detalhesReceitaAtual = detalhes;
+                  renderChecklistInsumos(detalhes.insumos, fichaAtual, detalhes.insumosSeparados);
+                });
+          }
         })
         .catch(err => {
           console.error(err);
-          alert("Ocorreu um erro ao confirmar a separação no banco de dados.");
+          alert(err.message || "Ocorreu um erro ao confirmar a separação no banco de dados.");
         })
         .finally(() => {
           btnFinishInsumos.innerText = "Confirmar Separação";
@@ -389,7 +416,7 @@ if (btnFinishUtensilios) {
       return; // Trava a execução aqui
     }
 
-    // NOVA TRAVA FRONTEND: Impede de prosseguir se houver item "Em Uso" selecionado
+    // Impede de prosseguir se houver item "Em Uso" selecionado
     const temEmUso = Array.from(marcados).some(cb => cb.dataset.emUso === 'true');
     if (temEmUso) {
       alert("Atenção: Você selecionou utensílios que já estão EM USO.\n\nEles não podem ser retirados 2 vezes. Desmarque-os para retirar novos itens ou utilize o botão 'Registrar Devolução'.");
@@ -517,7 +544,7 @@ if($('devolucao-save')) {$('devolucao-save').addEventListener('click', () => {
 
         fecharModalDevolucao();
 
-        // Atualização pontual SÓ da lista de utensílios (não afeta os insumos)
+        // Atualização pontual SÓ da lista de utensílios
         if (fichaAtual) {
           fetch(`/api/fichas/${fichaAtual.id}/detalhes`)
               .then(res => res.json())
