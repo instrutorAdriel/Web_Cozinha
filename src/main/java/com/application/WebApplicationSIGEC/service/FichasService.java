@@ -56,10 +56,10 @@ public class FichasService {
     }
 
     // =========================================================
-    // BUSCA ALOCADAS E FILTRA DISPONÍVEIS DA DATA
+    // BUSCA ALOCADAS DO DIA E FILTRA DISPONÍVEIS GLOBAIS
     // =========================================================
     public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Integer idTurma, LocalDate data) {
-        // 1. Fichas alocadas na data selecionada
+        // 1. Fichas alocadas ESPECIFICAMENTE na data selecionada (para exibir no painel de alocadas do dia)
         List<Agendamento> alocadas = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
@@ -69,14 +69,20 @@ public class FichasService {
                 ? fichasRepository.findByIdTurma(idTurma)
                 : Collections.emptyList();
 
-        // 3. Pega os IDs (Long) das fichas que já foram agendadas nesta data
-        List<Long> idsAlocados = alocadas.stream()
+        // 3. Busca TODOS os agendamentos da turma (de QUALQUER data) para saber quais fichas já estão ocupadas
+        List<Agendamento> todosAgendamentosDaTurma = (idUsuario != null)
+                ? agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma)
+                : Collections.emptyList();
+
+        // 4. Extrai os IDs de TODAS as fichas que já possuem algum agendamento no sistema
+        List<Long> idsOcupadosGlobalmente = todosAgendamentosDaTurma.stream()
                 .map(Agendamento::getIdFicha)
+                .distinct()
                 .toList();
 
-        // 4. Remove dos disponíveis as fichas que já estão alocadas no dia
+        // 5. Remove dos disponíveis QUALQUER ficha que já esteja agendada em qualquer dia
         List<Ficha> disponiveis = todasDaTurma.stream()
-                .filter(ficha -> !idsAlocados.contains(ficha.getIdFicha()))
+                .filter(ficha -> !idsOcupadosGlobalmente.contains(ficha.getIdFicha()))
                 .toList();
 
         Map<String, Object> response = new HashMap<>();
