@@ -11,7 +11,7 @@ public class Ficha {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ficha")
-    private Long id;
+    private Long idFicha;
 
     @Column(name = "nome_ficha", nullable = false, length = 100)
     private String nomeFicha;
@@ -41,12 +41,12 @@ public class Ficha {
         this.preparo = preparo;
     }
 
-    public Long getId() {
-        return id;
+    public Long getIdFicha() {
+        return idFicha;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdFicha(Long id) {
+        this.idFicha = id;
     }
 
     public String getNomeFicha() {
@@ -93,7 +93,7 @@ public class Ficha {
         return insumos;
     }
 
-    public void setInsumos(List<Insumo> insumos) {
-        this.insumos = insumos;
-    }
+        public void setInsumos(List<Insumo> insumos) {
+            this.insumos = insumos;
+        }
 }

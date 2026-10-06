@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FichasService {
@@ -22,9 +24,22 @@ public class FichasService {
         this.agendamentoRepository = agendamentoRepository;
     }
 
-    // =========================================================
-    // MÉTODO SOLICITADO: Busca todos os agendamentos da turma/usuário
-    // =========================================================
+    @Transactional
+    public void alocarFicha(Long idFicha, LocalDate novaData) {
+        if (idFicha == null || novaData == null) {
+            return;
+        }
+
+        Agendamento agendamento = new Agendamento();
+        agendamento.setIdFicha(idFicha); // Direto como Long, sem intValue()
+        agendamento.setData(novaData);
+        agendamento.setSituacao('A'); // Ativo / Agendado
+        agendamento.setConcluido('N'); // Não concluído
+
+        agendamentoRepository.save(agendamento);
+    }
+
+    // Busca todos os agendamentos da turma/usuário para desenhar as bolinhas na grid do calendário
     public List<Agendamento> buscarTodosAgendamentosDaTurma(Long idUsuario, Integer idTurma) {
         if (idUsuario == null) {
             return Collections.emptyList();
@@ -40,6 +55,37 @@ public class FichasService {
         return agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data);
     }
 
+    // =========================================================
+    // BUSCA ALOCADAS E FILTRA DISPONÍVEIS DA DATA
+    // =========================================================
+    public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Integer idTurma, LocalDate data) {
+        // 1. Fichas alocadas na data selecionada
+        List<Agendamento> alocadas = (idUsuario != null && idTurma != null)
+                ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
+                : Collections.emptyList();
+
+        // 2. Fichas cadastradas na turma
+        List<Ficha> todasDaTurma = (idTurma != null)
+                ? fichasRepository.findByIdTurma(idTurma)
+                : Collections.emptyList();
+
+        // 3. Pega os IDs (Long) das fichas que já foram agendadas nesta data
+        List<Long> idsAlocados = alocadas.stream()
+                .map(Agendamento::getIdFicha)
+                .toList();
+
+        // 4. Remove dos disponíveis as fichas que já estão alocadas no dia
+        List<Ficha> disponiveis = todasDaTurma.stream()
+                .filter(ficha -> !idsAlocados.contains(ficha.getIdFicha()))
+                .toList();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("alocadas", alocadas);
+        response.put("disponiveis", disponiveis);
+
+        return response;
+    }
+
     // Busca todas as fichas associadas a uma turma para preencher o acervo/disponíveis
     public List<Ficha> buscarFichasPorTurma(Integer idTurma) {
         if (idTurma == null) {
@@ -48,23 +94,11 @@ public class FichasService {
         return fichasRepository.findByIdTurma(idTurma);
     }
 
-    // Aloca uma ficha (cria novo registro na tabela agendamento)
     @Transactional
-    public void alocarFicha(Long idFicha, LocalDate novaData) {
-        Agendamento agendamento = new Agendamento();
-        agendamento.setIdFicha(idFicha.intValue());
-        agendamento.setData(novaData);
-        agendamento.setSituacao('A');
-        agendamento.setConcluido('N');
-        agendamentoRepository.save(agendamento);
-    }
-
-    // Desaloca uma ficha
-    @Transactional
-    public void desalocarFicha(Long idFicha) {
-        List<Agendamento> agendamentos = agendamentoRepository.findByIdFicha(idFicha.intValue());
-        if (!agendamentos.isEmpty()) {
-            agendamentoRepository.deleteAll(agendamentos);
+    public void desalocarFicha(Long id) {
+        if (id != null) {
+            // Deleta o registro pelo ID do agendamento
+            agendamentoRepository.desalocarPorId(id.intValue());
         }
     }
 }

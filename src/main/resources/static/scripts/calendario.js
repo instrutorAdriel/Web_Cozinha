@@ -101,7 +101,6 @@ const CalendarioSIGEC = {
             console.error("Erro no carregamento das turmas:", erro);
             this.elements.selectTurma.innerHTML = '<option value="">Erro ao carregar turmas</option>';
         } finally {
-            // Sincronização garantida: desenha a grid independente do resultado da API
             this.carregarAlocacoes();
         }
     },
@@ -129,6 +128,9 @@ const CalendarioSIGEC = {
         }
     },
 
+    // =========================================================
+    // BUSCAR FICHAS DO DIA (ATUALIZADO PARA MAPEAR NOME E OBJETO)
+    // =========================================================
     async buscarFichasDoDia(dataIso, dia, nomeMes, ano) {
         const { labelDataPainel, containerAlocadas, containerDisponiveis } = this.elements;
 
@@ -151,16 +153,35 @@ const CalendarioSIGEC = {
             const alocadas = dados.alocadas || [];
             const disponiveis = dados.disponiveis || dados.Disponiveis || [];
 
+            // Renderiza Fichas Alocadas
             if (alocadas.length === 0 && containerAlocadas) {
                 containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
             } else {
-                alocadas.forEach(ficha => containerAlocadas.appendChild(this.criarCardFicha(ficha, "success", "delete")));
+                alocadas.forEach(agendamento => {
+                    const nomeFicha = agendamento.ficha
+                        ? (agendamento.ficha.nome || agendamento.ficha.titulo)
+                        : (agendamento.nomeFicha || agendamento.nome || agendamento.titulo || "Ficha sem título");
+
+                    const idParaDesalocar = agendamento.idAgendamento || agendamento.id || agendamento.idFicha;
+
+                    containerAlocadas.appendChild(
+                        this.criarCardFicha({ id: idParaDesalocar, nome: nomeFicha }, "success", "delete")
+                    );
+                });
             }
 
+            // Renderiza Fichas Disponíveis
             if (disponiveis.length === 0 && containerDisponiveis) {
                 containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
             } else {
-                disponiveis.forEach(ficha => containerDisponiveis.appendChild(this.criarCardFicha(ficha, "warning", "append")));
+                disponiveis.forEach(ficha => {
+                    const nomeFicha = ficha.nome || ficha.titulo || ficha.nomeFicha || "Ficha sem título";
+                    const idFicha = ficha.idFicha || ficha.id;
+
+                    containerDisponiveis.appendChild(
+                        this.criarCardFicha({ id: idFicha, nome: nomeFicha }, "warning", "append")
+                    );
+                });
             }
         } catch (erro) {
             console.error("Erro ao carregar fichas:", erro);
@@ -172,7 +193,6 @@ const CalendarioSIGEC = {
     async alocarFicha(id, dataIso) {
         const idTurma = this.getTurmaId();
 
-        // Monta os parâmetros que serão enviados no corpo do POST
         const bodyData = new URLSearchParams();
         bodyData.append("id", id);
         bodyData.append("data", dataIso);
@@ -191,7 +211,6 @@ const CalendarioSIGEC = {
 
             if (!response.ok) throw new Error("Erro ao alocar ficha.");
 
-            // Recarrega as alocações para desenhar a bolinha na grid e atualizar o painel
             this.carregarAlocacoes();
         } catch (erro) {
             console.error("Erro na alocação:", erro);
@@ -245,19 +264,16 @@ const CalendarioSIGEC = {
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
         const totalDiasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-        // Evita selecionar dia superior ao limite do mês (ex: dia 31 em fevereiro)
         if (this.state.diaSelecionado > totalDiasNoMes) {
             this.state.diaSelecionado = totalDiasNoMes;
         }
 
-        // Espaços em branco antes do dia 1
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
             espaco.className = "day-cell space";
             grid.appendChild(espaco);
         }
 
-        // Constrói os dias do mês
         for (let dia = 1; dia <= totalDiasNoMes; dia++) {
             const celula = document.createElement("div");
             celula.className = "day-cell";
@@ -274,7 +290,6 @@ const CalendarioSIGEC = {
             const dataIso = `${ano}-${strMes}-${strDia}`;
             celula.setAttribute("data-date", dataIso);
 
-            // Adiciona as bolinhas indicadoras
             const qtdFichas = this.state.alocacoesPorData[dataIso];
             if (qtdFichas) {
                 const dotsContainer = document.createElement("div");
@@ -289,7 +304,6 @@ const CalendarioSIGEC = {
                 celula.appendChild(dotsContainer);
             }
 
-            // Seleção de dia ativo
             if (dia === this.state.diaSelecionado) {
                 celula.classList.add("active-selected");
                 this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano);
@@ -306,10 +320,12 @@ const CalendarioSIGEC = {
         }
     },
 
-    // Criação dos Cards com Material Symbols
+    // =========================================================
+    // CRIAR CARD DE FICHA (ATUALIZADO)
+    // =========================================================
     criarCardFicha(ficha, status, acao) {
         const id = ficha.id || ficha.idFicha;
-        const nome = ficha.nomeFicha || ficha.titulo || ficha.nome || "Ficha sem título";
+        const nome = ficha.nome || ficha.nomeFicha || ficha.titulo || "Ficha sem título";
         const icone = status === "success" ? "check_circle" : "warning";
         const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
 

@@ -25,4 +25,6 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
     List<Ficha> findByDataIsNull();
 
     List<Ficha> findByDataIsNotNull();
+
+
 }

@@ -69,18 +69,8 @@ public class FichasController {
 
         LocalDate dataSelecionada = LocalDate.parse(data);
 
-        // 1. Fichas alocadas na data selecionada para a turma do usuário
-        List<Agendamento> alocadas = fichasService.buscarAgendamentosDoDia(
+        Map<String, Object> response = fichasService.buscarFichasEDisponiveisDoDia(
                 usuarioLogado.getId(), idTurma, dataSelecionada);
-
-        // 2. Fichas disponíveis no acervo daquela turma
-        List<Ficha> disponiveis = (idTurma != null)
-                ? fichasService.buscarFichasPorTurma(idTurma)
-                : List.of();
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("alocadas", alocadas);
-        response.put("disponiveis", disponiveis);
 
         return ResponseEntity.ok(response);
     }
@@ -88,16 +78,20 @@ public class FichasController {
     @PostMapping("/calendario/alocar")
     @ResponseBody
     public ResponseEntity<String> alocarFicha(
-            @RequestParam("id") Long id,
+            @RequestParam("id") Long idFicha,
             @RequestParam("data") String dataFinal,
+            @RequestParam(value = "idTurma", required = false) Integer idTurma,
             HttpSession session) {
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
             return ResponseEntity.status(401).body("Acesso negado.");
         }
 
         LocalDate novaData = LocalDate.parse(dataFinal);
-        fichasService.alocarFicha(id, novaData);
+
+        // Dispara o serviço para salvar
+        fichasService.alocarFicha(idFicha, novaData);
 
         return ResponseEntity.ok("Ficha agendada com sucesso!");
     }
@@ -108,7 +102,8 @@ public class FichasController {
             @RequestParam("id") Long id,
             HttpSession session) {
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
             return ResponseEntity.status(401).body("Acesso negado.");
         }
 
