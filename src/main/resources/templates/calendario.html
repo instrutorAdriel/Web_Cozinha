@@ -16,22 +16,54 @@
 
 <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-        <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="SENAC – Fecomércio Sesc" class="brand-logo-img">
+
+        <img
+                th:src="@{/img/logo-branca-senac-fecomercio.png}"
+                alt="SENAC – Fecomércio Sesc"
+                class="brand-logo-img"
+        >
+
         <div class="brand-text">
-            <h1 class="brand-title">SIGEC</h1>
-            <p class="brand-sub">Painel do Instrutor</p>
+
+            <h1 class="brand-title">
+                SIGEC
+            </h1>
+
+            <p class="brand-sub">
+                Painel do Instrutor
+            </p>
+
         </div>
     </div>
 
     <nav class="sidebar-nav">
-        <p class="nav-group">Menu</p>
+
+        <p class="nav-group">
+            Menu
+        </p>
+
+
         <a th:href="@{/home}" class="nav-item">
-            <span class="material-symbols-outlined">home</span>
-            <span>Início</span>
+
+            <span class="material-symbols-outlined">
+                home
+            </span>
+
+            <span>
+                Início
+            </span>
+
         </a>
         <a th:href="@{/calendario}" class="nav-item active">
-            <span class="material-symbols-outlined">calendar_month</span>
-            <span>Calendário</span>
+
+            <span class="material-symbols-outlined">
+                calendar_month
+            </span>
+
+            <span>
+                Calendário
+            </span>
+
         </a>
         <a th:href="@{/receitas}" class="nav-item ">
             <span class="material-symbols-outlined">menu_book</span>
@@ -42,7 +74,13 @@
     <div class="sidebar-footer">
         <form th:action="@{/logout}" method="get">
             <button type="submit" class="btn-logout">
-                <span class="material-symbols-outlined">logout</span>Sair
+
+                <span class="material-symbols-outlined">
+                    logout
+                </span>
+
+                Sair
+
             </button>
         </form>
     </div>
@@ -57,9 +95,19 @@
             <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="breadcrumb">
-            <span class="crumb-muted">SIGEC</span>
-            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
-            <span class="crumb-current">Calendário</span>
+
+            <span class="crumb-muted">
+                SIGEC
+            </span>
+
+            <span class="material-symbols-outlined crumb-sep">
+                chevron_right
+            </span>
+
+            <span class="crumb-current">
+                Calendário
+            </span>
+
         </div>
     </div>
 
@@ -85,11 +133,33 @@
                     <h3>Notificações</h3>
                 </div>
                 <div class="notif-list">
-                    <div th:each="notif : ${notificacoes}" class="notif-item unread">
-                        <div class="notif-icon"><span class="material-symbols-outlined">info</span></div>
+
+                    <div
+                            th:each="notif : ${notificacoes}"
+                            class="notif-item unread"
+                    >
+
+                        <div class="notif-icon">
+
+                            <span class="material-symbols-outlined">
+                                info
+                            </span>
+
+                        </div>
+
+
                         <div class="notif-body">
-                            <p class="notif-title" th:text="${notif.titulo}"></p>
-                            <p class="notif-text" th:text="${notif.mensagem}"></p>
+
+                            <p
+                                    class="notif-title"
+                                    th:text="${notif.titulo}"
+                            ></p>
+
+                            <p
+                                    class="notif-text"
+                                    th:text="${notif.mensagem}"
+                            ></p>
+
                         </div>
                     </div>
                 </div>
@@ -111,38 +181,138 @@
         <section class="cal-calendar-section">
             <div class="cal-card-header">
                 <div class="cal-header-title">
-                    <span class="material-symbols-outlined">calendar_month</span>
-                    <h2>Planejamento de Aulas</h2>
+
+                    <span class="material-symbols-outlined">
+                        calendar_month
+                    </span>
+
+                    <h2>
+                        Planejamento de Aulas
+                    </h2>
+
                 </div>
 
                 <div class="cal-header-controls">
-                    <button class="btn-cal-arrow" id="cal-prev">
-                        <span class="material-symbols-outlined">chevron_left</span>
+
+
+                    <button
+                            class="btn-cal-arrow"
+                            id="cal-prev"
+                    >
+
+                        <span class="material-symbols-outlined">
+                            chevron_left
+                        </span>
+
                     </button>
-                    <span class="cal-month-indicator" id="cal-month">Junho 2026</span>
-                    <button class="btn-cal-arrow" id="cal-next">
-                        <span class="material-symbols-outlined">chevron_right</span>
+
+
+                    <span
+                            class="cal-month-indicator"
+                            id="cal-month"
+                    >
+                        Junho 2026
+                    </span>
+
+
+                    <button
+                            class="btn-cal-arrow"
+                            id="cal-next"
+                    >
+
+                        <span class="material-symbols-outlined">
+                            chevron_right
+                        </span>
+
                     </button>
                 </div>
             </div>
 
             <div class="cal-grid-container">
                 <div class="cal-weekdays-grid">
-                    <span>DOM</span><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
+
+                    <span>DOM</span>
+
+                    <span>SEG</span>
+
+                    <span>TER</span>
+
+                    <span>QUA</span>
+
+                    <span>QUI</span>
+
+                    <span>SEX</span>
+
+                    <span>SÁB</span>
+
                 </div>
 
-                <div class="cal-days-grid" id="cal-grid"></div>
+
+                <!-- DIAS GERADOS PELO JAVASCRIPT -->
+
+                <div
+                        class="cal-days-grid"
+                        id="cal-grid"
+                ></div>
+
+
+
+                <!-- LEGENDA -->
 
                 <div class="cal-legend-footer">
-                    <span class="legend-item"><i class="badge orange"></i>Com aula agendada</span>
-                    <span class="legend-item"><i class="badge red"></i>Feriado / Recesso institucional</span>
-                    <span class="legend-item"><i class="badge gray"></i>Fim de semana</span>
+
+
+                    <span class="legend-item">
+
+                        <i class="badge orange"></i>
+
+                        Com aula agendada
+
+                    </span>
+
+
+                    <span class="legend-item">
+
+                        <i class="badge red"></i>
+
+                        Feriado / Recesso institucional
+
+                    </span>
+
+
+                    <span class="legend-item">
+
+                        <i class="badge gray"></i>
+
+                        Fim de semana
+
+                    </span>
+
+
                 </div>
             </div>
         </section>
 
-        <aside class="cal-side-panel" id="cal-day-panel">
-            <h2 class="panel-date-title" id="cal-panel-date">16 De Junho, 2026</h2>
+
+
+        <!-- =====================================================
+             PAINEL LATERAL
+             ===================================================== -->
+
+        <aside
+                class="cal-side-panel"
+                id="cal-day-panel"
+        >
+
+
+            <h2
+                    class="panel-date-title"
+                    id="cal-panel-date"
+            >
+                16 De Junho, 2026
+            </h2>
+
+
 
             <div class="panel-section">
                 <h3 class="panel-section-title">FICHAS ALOCADAS (AGENDA DO DIA)</h3>

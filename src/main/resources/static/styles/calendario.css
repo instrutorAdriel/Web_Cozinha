@@ -4,17 +4,22 @@
     --primary-container: #003d6b;
     --on-primary-container: #7ea9dd;
     --primary-fixed-dim: #9fcaff;
+
     --secondary: #964900;
     --secondary-container: #ff8928;
     --secondary-fixed: #ffdcc6;
+
     --error: #ba1a1a;
     --error-container: #ffdad6;
 
     --on-surface: #1a1b22;
     --on-surface-variant: #42474f;
+
     --outline: #727780;
     --outline-variant: #c2c7d0;
+
     --background: #fbf8ff;
+
     --surface-lowest: #ffffff;
     --surface-low: #f4f2fd;
     --surface: #eeedf7;
@@ -23,6 +28,7 @@
 
     --bg-primary: #002244;
     --brand-accent: #f2911b;
+
     --ui-background: #f4f6f9;
     --ui-surface: #ffffff;
     --ui-border: #e2e8f0;
@@ -34,103 +40,175 @@
     --status-warning: #f59e0b;
     --status-danger: #ef4444;
 
-    --sidebar-width: 260px;
-    --topbar-height: 70px;
+    --sidebar-width: 264px;
+    --topbar-height: 68px;
     --radius-md: 8px;
     --radius-sm: 4px;
+
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
 
     --r-sm: .125rem;
     --r: .25rem;
     --r-lg: .5rem;
     --r-full: 9999px;
+
     --shadow-2: 0 4px 20px rgba(0, 61, 107, .08);
-    --clip-tr: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+
+    --clip-tr: polygon(
+            0 0,
+            calc(100% - 12px) 0,
+            100% 12px,
+            100% 100%,
+            0 100%
+    );
+
     --text-dark: #1a202c;
 }
 
 /* ===== CONFIGURAÇÕES GERAIS ===== */
+
 body {
+
     background: var(--background);
+
     color: var(--on-surface);
+
     font-weight: 300;
-    background-image: linear-gradient(165deg, transparent 45%, rgba(0, 61, 107, .015) 45%, rgba(0, 61, 107, .015) 55%, transparent 55%);
+
+    background-image:
+            linear-gradient(
+                    165deg,
+                    transparent 45%,
+                    rgba(0, 61, 107, .015) 45%,
+                    rgba(0, 61, 107, .015) 55%,
+                    transparent 55%
+            );
+
     background-size: 120px 120px;
+    background-attachment: fixed;
+    min-height: 100vh;
 }
 
 
+
 /* ===== SIDEBAR STRUCTURAL ===== */
+
 .sidebar {
+
     position: fixed;
+
     left: 0;
+
     top: 0;
     width: 264px;
     height: 100vh;
+
     background: var(--primary);
+
     display: flex;
+
     flex-direction: column;
+
     padding: 24px 0;
+
     z-index: 40;
     transition: transform .3s ease
 }
 
+
 .sidebar-brand {
+
     display: flex;
+
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 14px;
+
     padding: 0 24px;
     margin-bottom: 32px
 }
 
+
 .brand-logo-img {
+
     width: 150px;
+
     height: auto;
     display: block
 }
 
+
 .brand-text {
+
     display: flex;
+
     flex-direction: column;
     gap: 2px
 }
 
+
 .brand-title {
+
     color: #fff;
+
     font-size: 22px;
+
     font-weight: 700;
     line-height: 1.1
 }
 
+
 .brand-sub {
+
     color: var(--secondary-container);
+
     font-size: 12px;
+
     font-weight: 600;
+
     text-transform: uppercase;
     letter-spacing: .06em
 }
 
+
 .sidebar-nav {
+
     flex: 1;
+
     display: flex;
+
     flex-direction: column;
+
     gap: 2px;
+
     padding: 0 12px;
     overflow-y: auto
 }
 
+
 .nav-group {
+
     font-size: 11px;
+
     font-weight: 700;
+
     text-transform: uppercase;
+
     letter-spacing: .08em;
+
     color: var(--on-primary-container);
+
     padding: 16px 12px 6px;
     opacity: .7
 }
 
+
 .nav-item {
+
     display: flex;
+
     align-items: center;
     gap: 14px;
     padding: 12px 16px;
@@ -362,9 +440,20 @@ body {
     align-items: center;
     background-color: #0b2545;
     padding: 16px 24px;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+
+    border-radius:
+            var(--radius-md)
+            var(--radius-md)
+            0
+            0;
+
     color: var(--text-light);
-    margin: -24px -24px 24px -24px;
+
+    margin:
+            -24px
+            -24px
+            24px
+            -24px;
 }
 
 .cal-header-title {
@@ -424,7 +513,10 @@ body {
 /* ===== GRIDS DO MÊS ===== */
 .cal-weekdays-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
     text-align: center;
     font-weight: 700;
     font-size: 11px;
@@ -435,7 +527,10 @@ body {
 
 .cal-days-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
     gap: 8px;
 }
 
@@ -471,6 +566,7 @@ body {
 
 .day-cell.weekend {
     background-color: #f8fafc;
+    border: 0px;
 }
 
 .day-cell.active-selected {
@@ -585,7 +681,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+
+    box-shadow:
+            0 2px 4px
+            rgba(0, 0, 0, 0.01);
 }
 
 .fiche-info {
@@ -729,4 +828,75 @@ body {
 
 .btn-danger:hover {
     background-color: #dc2626;
+}
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+
+/* =========================================================
+   FIM DE SEMANA
+   ========================================================= */
+
+.day-cell.weekend {
+    cursor: not-allowed;
 }
