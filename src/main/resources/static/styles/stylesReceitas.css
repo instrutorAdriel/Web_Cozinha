@@ -467,12 +467,19 @@ body {
     font-size: 12px;
     color: var(--on-surface-variant);
 }
-
-.category-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+.multi-select {
+    position: relative;
+    width: 100%;
 }
+
+.multi-select-options {
+    display: none;
+}
+
+.multi-select-options.show {
+    display: block;
+}
+
 
 .cat-pill {
     border: 1px solid var(--outline-variant);

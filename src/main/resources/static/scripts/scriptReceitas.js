@@ -824,7 +824,7 @@ const RECIPES = [
 // ===== ESTADO GLOBAL (Sincronizado com o botão ativo no HTML) =====
 const btnAtivoHtml = document.querySelector('.status-tab-btn.active');
 let activeStatus = btnAtivoHtml ? (btnAtivoHtml.dataset.status || 'datadas') : 'datadas';
-let activeCategory = "todas";
+let activeCategories = [];
 let searchTerm = "";
 let activeId = 4;
 
@@ -854,35 +854,46 @@ document.querySelectorAll('.status-tab-btn').forEach(btn => {
 // ===== FILTRO POR TIPO DE RECEITA =====
 const categoryTabs = document.getElementById('categoryTabs');
 
+
 if (categoryTabs) {
     const tipos = [...new Set(
         RECIPES.map(r => r.type).filter(Boolean)
     )].sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-    categoryTabs.innerHTML = [
-        '<button class="cat-pill active" data-cat="todas">Todas</button>',
-        ...tipos.map(tipo => `
-            <button class="cat-pill" data-cat="${tipo}">
-                ${tipo.charAt(0) + tipo.slice(1).toLowerCase()}
-            </button>
-        `)
-    ].join('');
+    categoryTabs.innerHTML = `
+    <div class="multi-select">
+        <div class="multi-select-box" id="categoryMultiSelect">
+            <span class="multi-select-placeholder">Selecione as categorias</span>
+            <span class="multi-select-arrow">▼</span>
+        </div>
 
-    categoryTabs.addEventListener('click', event => {
-        const pill = event.target.closest('.cat-pill');
-        if (!pill) return;
+        <div class="multi-select-options" id="categoryOptions">
+            ${tipos.map(tipo => `
+                <label class="multi-select-option">
+                    <input type="checkbox" value="${tipo}">
+                    <span>${tipo.charAt(0) + tipo.slice(1).toLowerCase()}</span>
+                </label>
+            `).join('')}
+        </div>
+    </div>
+`;
+    const multiSelect = document.getElementById('categoryMultiSelect');
+    const categoryOptions = document.getElementById('categoryOptions');
 
-        categoryTabs.querySelectorAll('.cat-pill')
-            .forEach(p => p.classList.remove('active'));
-
-        pill.classList.add('active');
-        activeCategory = pill.dataset.cat || 'todas';
-
-        renderList();
+    multiSelect.addEventListener('click', () => {
+        categoryOptions.classList.toggle('show');
     });
+
+    categoryOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            activeCategories = [...categoryOptions.querySelectorAll('input:checked')]
+                .map(input => input.value);
+
+            renderList();
+        });
+    });
+
 }
-
-
 
 // ===== BUSCA EM TEMPO REAL =====
 const searchInput = document.getElementById('recipe-search');
@@ -906,7 +917,7 @@ function renderList() {
 
     const filtered = RECIPES
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
-        .filter(r => activeCategory === 'todas' || r.type === activeCategory)
+        .filter(r => activeCategories.length === 0 || activeCategories.includes(r.type))
         .filter(r => {
             if (!searchTerm) return true;
             const matchName = r.name.toLowerCase().includes(searchTerm);
