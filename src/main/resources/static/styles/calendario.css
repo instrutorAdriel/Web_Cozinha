@@ -710,3 +710,39 @@ body {
         width: 100%;
     }
 }
+
+
+/* ============================================================
+   NOVO VISUAL FORÇADO E ARREDONDADO PARA O BOTÃO DE ADICIONAR (+)
+   ============================================================ */
+
+button.btn-fiche-action.append,
+.btn-fiche-action.append {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 50% !important; /* Torna o botão perfeitamente redondo */
+    background-color: #004582 !important; /* Cor azul do SENAC */
+    color: #ffffff !important; /* Ícone branco */
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 2px 6px rgba(0, 69, 130, 0.25) !important;
+    transition: all 0.2s ease-in-out !important;
+}
+
+/* Efeito ao passar o mouse por cima */
+button.btn-fiche-action.append:hover,
+.btn-fiche-action.append:hover {
+    background-color: #002e57 !important;
+    transform: scale(1.1) !important; /* Leve expansão ao passar o mouse */
+    box-shadow: 0 4px 10px rgba(0, 69, 130, 0.4) !important;
+}
+
+/* Tamanho do ícone do sinal de + */
+button.btn-fiche-action.append .material-symbols-outlined,
+.btn-fiche-action.append .material-symbols-outlined {
+    font-size: 22px !important;
+    font-weight: bold !important;
+}
