@@ -13,40 +13,39 @@ import java.util.List;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
-    List<Agendamento> findByIdFicha(Integer idFicha);
+    List<Agendamento> findByIdFicha(Long idFicha);
 
-    // Busca agendamentos vinculados às fichas de uma turma específica e usuário específico
-    @Query(value = """
-        SELECT a.* FROM agendamento a
-        INNER JOIN ficha f ON a.id_ficha = f.id_ficha
-        INNER JOIN turma t ON f.id_turma = t.id_turma
-        INNER JOIN usuario_turma ut ON t.id_turma = ut.id_turma
-        WHERE ut.id_usuario = :idUsuario
-          AND (:idTurma IS NULL OR t.id_turma = :idTurma)
+    // 1. Busca os agendamentos do dia CARREGANDO A FICHA JUNTO (JOIN FETCH)
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN Turma t ON f.idTurma = t.idTurma
+        JOIN UsuarioTurma ut ON t.idTurma = ut.idTurma
+        WHERE ut.idUsuario = :idUsuario
+          AND (:idTurma IS NULL OR t.idTurma = :idTurma)
           AND a.data = :data
-    """, nativeQuery = true)
+    """)
     List<Agendamento> buscarAgendamentosPorUsuarioTurmaEData(
             @Param("idUsuario") Long idUsuario,
             @Param("idTurma") Integer idTurma,
             @Param("data") LocalDate data
     );
 
-    @Query(value = """
-        SELECT a.* FROM agendamento a
-        INNER JOIN ficha f          ON a.id_ficha = f.id_ficha
-        INNER JOIN turma t          ON f.id_turma = t.id_turma
-        INNER JOIN usuario_turma ut ON t.id_turma = ut.id_turma
-        WHERE ut.id_usuario = :idUsuario
-          AND (:idTurma IS NULL OR t.id_turma = :idTurma)
-    """, nativeQuery = true)
+    // 2. Busca todos os agendamentos para desenhar as bolinhas no calendário
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN Turma t ON f.idTurma = t.idTurma
+        JOIN UsuarioTurma ut ON t.idTurma = ut.idTurma
+        WHERE ut.idUsuario = :idUsuario
+          AND (:idTurma IS NULL OR t.idTurma = :idTurma)
+    """)
     List<Agendamento> buscarTodosPorUsuarioETurma(
             @Param("idUsuario") Long idUsuario,
             @Param("idTurma") Integer idTurma
     );
 
-    // 2. Método de desalocar por ID de agendamento ou por ID de ficha
-    void deleteByIdAgendamento(Integer idAgendamento);
-
+    // 3. Método para deletar agendamento pelo ID
     @Modifying
     @Query(value = "DELETE FROM agendamento WHERE id_agendamento = :id", nativeQuery = true)
     void desalocarPorId(@Param("id") Integer id);

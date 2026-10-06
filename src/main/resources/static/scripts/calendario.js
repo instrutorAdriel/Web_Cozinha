@@ -153,13 +153,14 @@ const CalendarioSIGEC = {
             const alocadas = dados.alocadas || [];
             const disponiveis = dados.disponiveis || dados.Disponiveis || [];
 
-            // Renderiza Fichas Alocadas
+            // 1. Renderiza Fichas Alocadas procurando o nomeFicha no objeto ficha
             if (alocadas.length === 0 && containerAlocadas) {
                 containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
             } else {
                 alocadas.forEach(agendamento => {
+                    // Puxa o título/nome da ficha mapeado no relacionamento
                     const nomeFicha = agendamento.ficha
-                        ? (agendamento.ficha.nome || agendamento.ficha.titulo)
+                        ? (agendamento.ficha.nomeFicha || agendamento.ficha.nome || agendamento.ficha.titulo)
                         : (agendamento.nomeFicha || agendamento.nome || agendamento.titulo || "Ficha sem título");
 
                     const idParaDesalocar = agendamento.idAgendamento || agendamento.id || agendamento.idFicha;
@@ -170,12 +171,12 @@ const CalendarioSIGEC = {
                 });
             }
 
-            // Renderiza Fichas Disponíveis
+            // 2. Renderiza Fichas Disponíveis
             if (disponiveis.length === 0 && containerDisponiveis) {
                 containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
             } else {
                 disponiveis.forEach(ficha => {
-                    const nomeFicha = ficha.nome || ficha.titulo || ficha.nomeFicha || "Ficha sem título";
+                    const nomeFicha = ficha.nomeFicha || ficha.nome || ficha.titulo || "Ficha sem título";
                     const idFicha = ficha.idFicha || ficha.id;
 
                     containerDisponiveis.appendChild(
