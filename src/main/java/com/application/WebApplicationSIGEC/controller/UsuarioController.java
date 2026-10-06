@@ -82,20 +82,35 @@ public class UsuarioController {
     }
 
     @PostMapping("/")
-    public String processarLogin(@ModelAttribute UsuarioForm form, Model model, HttpServletRequest request){
-        Usuario usuario = usuarioService.autenticar(form.getEmail(), form.getSenha());
-        if(usuario == null){
+    public String processarLogin(
+            @ModelAttribute UsuarioForm form,
+            Model model,
+            HttpServletRequest request) {
+
+        Usuario usuario = usuarioService.autenticar(
+                form.getEmail(),
+                form.getSenha()
+        );
+
+        if (usuario == null) {
             model.addAttribute("erro", "E-mail ou senha incorreto!");
-            System.out.println("erro 500");
+            model.addAttribute("tituloPagina", "Bem-Vindo");
+            model.addAttribute(
+                    "subTituloPagina",
+                    "Sistema de Gerenciamento de Estoque da Cozinha"
+            );
+            model.addAttribute("usuarioForm", form);
+
             return "login";
         }
+
+        
+
         HttpSession session = request.getSession(true);
-        session.setAttribute("usuarioLogado", usuario);
-        sessaoService.salvarUsuarioLogado(session,usuario);
 
-        System.out.println("andado");
+        sessaoService.salvarUsuarioLogado(session, usuario);
+
         return "redirect:/home";
-
     }
 
     @GetMapping("/alterar-senha")
