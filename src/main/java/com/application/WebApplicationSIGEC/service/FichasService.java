@@ -24,65 +24,58 @@ public class FichasService {
         this.agendamentoRepository = agendamentoRepository;
     }
 
+    // =========================================================
+    // ALOCAR FICHA (COM VALIDAÇÃO CONTRA DUPLICIDADE NO MESMO DIA)
+    // =========================================================
     @Transactional
-    public void alocarFicha(Long idFicha, LocalDate novaData) {
+    public void alocarFicha(Integer idFicha, LocalDate novaData) {
         if (idFicha == null || novaData == null) {
             return;
         }
 
+        // 1. Envia "A" como String para bater com a assinatura do Repository
+        boolean jaExiste = agendamentoRepository.existsByFichaIdFichaAndDataAndSituacao(idFicha, novaData, "A");
+        if (jaExiste) {
+            throw new IllegalArgumentException("Esta ficha já está alocada para este dia!");
+        }
+
+        Ficha ficha = fichasRepository.findById(idFicha)
+                .orElseThrow(() -> new RuntimeException("Ficha técnica não encontrada."));
+
         Agendamento agendamento = new Agendamento();
-        agendamento.setIdFicha(idFicha); // Direto como Long, sem intValue()
+        agendamento.setFicha(ficha);
         agendamento.setData(novaData);
-        agendamento.setSituacao('A'); // Ativo / Agendado
-        agendamento.setConcluido('N'); // Não concluído
+
+        // 2. Define como String se a entidade Agendamento usa String para situacao e concluido
+        agendamento.setSituacao("A"); // "A" como String
+        agendamento.setConcluido("N"); // "N" como String
 
         agendamentoRepository.save(agendamento);
     }
 
-    // Busca todos os agendamentos da turma/usuário para desenhar as bolinhas na grid do calendário
-    public List<Agendamento> buscarTodosAgendamentosDaTurma(Long idUsuario, Integer idTurma) {
-        if (idUsuario == null) {
-            return Collections.emptyList();
-        }
-        return agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma);
-    }
-
-    // Busca agendamentos de uma data específica
-    public List<Agendamento> buscarAgendamentosDoDia(Long idUsuario, Integer idTurma, LocalDate data) {
-        if (idUsuario == null || idTurma == null) {
-            return Collections.emptyList();
-        }
-        return agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data);
-    }
-
     // =========================================================
-    // BUSCA ALOCADAS DO DIA E FILTRA DISPONÍVEIS GLOBAIS
+    // BUSCA ALOCADAS E FILTRA DISPONÍVEIS ESPECÍFICOS DA DATA
     // =========================================================
-    public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Integer idTurma, LocalDate data) {
-        // 1. Fichas alocadas ESPECIFICAMENTE na data selecionada (para exibir no painel de alocadas do dia)
+    public Map<String, Object> buscarFichasEDisponiveisDoDia(Integer idUsuario, Integer idTurma, LocalDate data) {
+        // 1. Busca fichas agendadas na data selecionada
         List<Agendamento> alocadas = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
 
-        // 2. Fichas cadastradas na turma
+        // 2. Busca todas as fichas associadas à turma
         List<Ficha> todasDaTurma = (idTurma != null)
                 ? fichasRepository.findByIdTurma(idTurma)
                 : Collections.emptyList();
 
-        // 3. Busca TODOS os agendamentos da turma (de QUALQUER data) para saber quais fichas já estão ocupadas
-        List<Agendamento> todosAgendamentosDaTurma = (idUsuario != null)
-                ? agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma)
-                : Collections.emptyList();
-
-        // 4. Extrai os IDs de TODAS as fichas que já possuem algum agendamento no sistema
-        List<Long> idsOcupadosGlobalmente = todosAgendamentosDaTurma.stream()
-                .map(Agendamento::getIdFicha)
-                .distinct()
+        // 3. Extrai os IDs das fichas que JÁ possuem agendamento NESTE DIA ESPECÍFICO
+        List<Integer> idsAlocadosNoDia = alocadas.stream()
+                .filter(a -> a.getFicha() != null)
+                .map(a -> a.getFicha().getIdFicha())
                 .toList();
 
-        // 5. Remove dos disponíveis QUALQUER ficha que já esteja agendada em qualquer dia
+        // 4. Filtra o acervo: só exibe como disponível o que NÃO está agendado NESTE DIA
         List<Ficha> disponiveis = todasDaTurma.stream()
-                .filter(ficha -> !idsOcupadosGlobalmente.contains(ficha.getIdFicha()))
+                .filter(f -> f.getIdFicha() != null && !idsAlocadosNoDia.contains(f.getIdFicha()))
                 .toList();
 
         Map<String, Object> response = new HashMap<>();
@@ -92,19 +85,19 @@ public class FichasService {
         return response;
     }
 
-    // Busca todas as fichas associadas a uma turma para preencher o acervo/disponíveis
-    public List<Ficha> buscarFichasPorTurma(Integer idTurma) {
-        if (idTurma == null) {
+    // Busca todos os agendamentos da turma para desenhar os marcadores no calendário
+    public List<Agendamento> buscarTodosAgendamentosDaTurma(Integer idUsuario, Integer idTurma) {
+        if (idUsuario == null) {
             return Collections.emptyList();
         }
-        return fichasRepository.findByIdTurma(idTurma);
+        return agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma);
     }
 
+    // Desaloca a ficha através do ID do Agendamento
     @Transactional
-    public void desalocarFicha(Long id) {
-        if (id != null) {
-            // Deleta o registro pelo ID do agendamento
-            agendamentoRepository.desalocarPorId(id.intValue());
+    public void desalocarFicha(Integer idAgendamento) {
+        if (idAgendamento != null) {
+            agendamentoRepository.desalocarPorId(idAgendamento);
         }
     }
 }

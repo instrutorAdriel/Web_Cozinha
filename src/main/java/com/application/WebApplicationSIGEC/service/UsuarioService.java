@@ -44,8 +44,8 @@ public class UsuarioService {
         novoUsuario.setSenha(senhaCriptografada);
 
         // Definido sempre como Ativo ('A') e Comum ('C') automaticamente
-        novoUsuario.setSituacao('A');
-        novoUsuario.setAcesso('C');
+        novoUsuario.setSituacao("A");
+        novoUsuario.setAcesso("C");
         novoUsuario.setSenhaTemporaria(false);
 
         usuarioRepository.save(novoUsuario);

@@ -16,5 +16,5 @@ public interface TurmaRepository extends JpaRepository<Turma, Integer> {
         INNER JOIN usuario_turma ut ON t.id_turma = ut.id_turma
         WHERE ut.id_usuario = :idUsuario
     """, nativeQuery = true)
-    List<Turma> buscarTurmasPorUsuario(@Param("idUsuario") Long idUsuario);
+    List<Turma> buscarTurmasPorUsuario(@Param("idUsuario") Integer idUsuario);
 }

@@ -52,7 +52,7 @@ public class FichasController {
         }
 
         // Você precisará de um método no serviço que retorne todos os agendamentos da turma para o mês
-        List<Agendamento> alocadas = fichasService.buscarTodosAgendamentosDaTurma(usuarioLogado.getId(), idTurma);
+        List<Agendamento> alocadas = fichasService.buscarTodosAgendamentosDaTurma(usuarioLogado.getIdUsuario(), idTurma);
         return ResponseEntity.ok(alocadas);
     }
 
@@ -70,7 +70,7 @@ public class FichasController {
         LocalDate dataSelecionada = LocalDate.parse(data);
 
         Map<String, Object> response = fichasService.buscarFichasEDisponiveisDoDia(
-                usuarioLogado.getId(), idTurma, dataSelecionada);
+                usuarioLogado.getIdUsuario(), idTurma, dataSelecionada);
 
         return ResponseEntity.ok(response);
     }
@@ -78,7 +78,7 @@ public class FichasController {
     @PostMapping("/calendario/alocar")
     @ResponseBody
     public ResponseEntity<String> alocarFicha(
-            @RequestParam("id") Long idFicha,
+            @RequestParam("id") Integer idFicha,
             @RequestParam("data") String dataFinal,
             @RequestParam(value = "idTurma", required = false) Integer idTurma,
             HttpSession session) {
@@ -99,7 +99,7 @@ public class FichasController {
     @PostMapping("/calendario/desalocar")
     @ResponseBody
     public ResponseEntity<String> desalocarFicha(
-            @RequestParam("id") Long id,
+            @RequestParam("id") Integer id,
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
@@ -126,7 +126,7 @@ public class FichasController {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
         // Busca as turmas diretamente pelo repository
-        List<Turma> turmas = turmaRepository.buscarTurmasPorUsuario(usuarioLogado.getId());
+        List<Turma> turmas = turmaRepository.buscarTurmasPorUsuario(usuarioLogado.getIdUsuario());
 
         return ResponseEntity.ok(turmas);
     }

@@ -10,7 +10,7 @@ public class Insumo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_insumo")
-    private Long id;
+    private Integer idInsumo;
 
     @Column(nullable = false)
     private int quantidade;
@@ -18,61 +18,32 @@ public class Insumo {
     @Column(nullable = false, length = 1)
     private char cancelado = 'N';
 
+    @Column(nullable = false, length = 1)
+    private String extra = "N";
+
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ficha")
     private Ficha ficha;
 
-    @Column(name = "id_produto")
-    private Long idProduto;
+    public Insumo() {}
 
-    public Insumo() {
+    // Getters e Setters
+
+    public Integer getIdInsumo() {
+        return idInsumo;
     }
 
-    public Insumo(int quantidade, char cancelado, Ficha ficha, Long idProduto) {
-        this.quantidade = quantidade;
-        this.cancelado = cancelado;
-        this.ficha = ficha;
-        this.idProduto = idProduto;
+    public void setIdInsumo(Integer idInsumo) {
+        this.idInsumo = idInsumo;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public char getCancelado() {
-        return cancelado;
-    }
-
-    public void setCancelado(char cancelado) {
-        this.cancelado = cancelado;
-    }
-
-    public Ficha getFicha() {
-        return ficha;
-    }
-
-    public void setFicha(Ficha ficha) {
-        this.ficha = ficha;
-    }
-
-    public Long getIdProduto() {
-        return idProduto;
-    }
-
-    public void setIdProduto(Long idProduto) {
-        this.idProduto = idProduto;
-    }
+    public Integer getQuantidade() { return quantidade; }
+    public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public char getCancelado() { return cancelado; }
+    public void setCancelado(char cancelado) { this.cancelado = cancelado; }
+    public String getExtra() { return extra; }
+    public void setExtra(String extra) { this.extra = extra; }
+    public Ficha getFicha() { return ficha; }
+    public void setFicha(Ficha ficha) { this.ficha = ficha; }
 }

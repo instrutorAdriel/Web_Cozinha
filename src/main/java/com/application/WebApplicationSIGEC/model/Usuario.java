@@ -1,6 +1,7 @@
 package com.application.WebApplicationSIGEC.model;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
@@ -9,7 +10,7 @@ public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_usuario")
-    private Long id;
+    private Integer idUsuario;
 
     @Column(name = "nome_usuario", nullable = false, length = 100)
     private String nomeUsuario;
@@ -20,33 +21,49 @@ public class Usuario {
     @Column(nullable = false, length = 255)
     private String senha;
 
-    @Column(name = "situacao", nullable = false) // ou name = "situação" se no seu banco tiver acento
-    private char situacao;
+    @Column(nullable = false, length = 1)
+    private String acesso = "P";
 
-    @Column(name = "acesso", nullable = false)
-    private char acesso;
+    @Column(nullable = false, length = 1)
+    private String situacao = "A";
 
     @Column(name = "senha_temporaria")
-    private boolean senhaTemporaria = true;
+    private Boolean senhaTemporaria = true;
+
+    @Lob
+    @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")
+    private byte[] fotoPerfil;
+
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "usuario_turma",
+            joinColumns = @JoinColumn(name = "id_usuario"),
+            inverseJoinColumns = @JoinColumn(name = "id_turma")
+    )
+    private List<Turma> turmas;
 
     public Usuario() {
     }
 
-    // Adicione este construtor na sua classe Usuario.java
     public Usuario(String nomeUsuario, String email, String senha) {
         this.nomeUsuario = nomeUsuario;
         this.email = email;
         this.senha = senha;
-        this.acesso = 'P'; // Valor padrão do banco de dados
-        this.situacao = 'A'; // Valor padrão do banco de dados
+        this.acesso = "P";
+        this.situacao = "A";
+        this.senhaTemporaria = true;
     }
 
-    public Long getId() {
-        return id;
+    // --- GETTERS E SETTERS ---
+
+
+    public Integer getIdUsuario() {
+        return idUsuario;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdUsuario(Integer idUsuario) {
+        this.idUsuario = idUsuario;
     }
 
     public String getNomeUsuario() {
@@ -73,27 +90,44 @@ public class Usuario {
         this.senha = senha;
     }
 
-    public char getAcesso() {
+    public String getAcesso() {
         return acesso;
     }
 
-    public void setAcesso(char acesso) {
+    public void setAcesso(String acesso) {
         this.acesso = acesso;
     }
 
-    public char getSituacao() {
+    public String getSituacao() {
         return situacao;
     }
 
-    public void setSituacao(char situacao) {
+    public void setSituacao(String situacao) {
         this.situacao = situacao;
     }
 
-    public boolean isSenhaTemporaria() {
+    public Boolean getSenhaTemporaria() {
         return senhaTemporaria;
     }
 
-    public void setSenhaTemporaria(boolean senhaTemporaria) {
+    public void setSenhaTemporaria(Boolean senhaTemporaria) {
         this.senhaTemporaria = senhaTemporaria;
+    }
+
+    public byte[] getFotoPerfil() {
+        return fotoPerfil;
+    }
+
+    public void setFotoPerfil(byte[] fotoPerfil) {
+        this.fotoPerfil = fotoPerfil;
+    }
+
+    // Getters e Setters da lista de Turmas
+    public List<Turma> getTurmas() {
+        return turmas;
+    }
+
+    public void setTurmas(List<Turma> turmas) {
+        this.turmas = turmas;
     }
 }

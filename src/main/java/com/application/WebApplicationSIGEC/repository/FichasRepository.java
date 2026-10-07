@@ -9,12 +9,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface FichasRepository extends JpaRepository<Ficha, Long> {
+public interface FichasRepository extends JpaRepository<Ficha, Integer> {
 
-    @Query("SELECT f FROM Ficha f WHERE f.idTurma = :idTurma")
+    @Query("SELECT f FROM Ficha f WHERE f.idFicha = :idTurma")
     List<Ficha> buscarPorTurma(@Param("idTurma") Integer idTurma);
-    // Busca todas as fichas associadas diretamente ao ID da turma
-    List<Ficha> findByIdTurma(Integer idTurma);
+
+    @Query("SELECT f FROM Ficha f WHERE f.turma.idTurma = :idTurma")
+    List<Ficha> findByIdTurma(@Param("idTurma") Integer idTurma);
 
     Optional<Ficha> findByNomeFicha(String nomeFicha);
 
