@@ -17,7 +17,7 @@
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-    <!-- Logotipo e Identificação do Sistema (CORRIGIDO: Removido o <br> que desalinhava o bloco) -->
+    <!-- Logotipo e Identificação do Sistema (Sem o <br> que desalinhava o cabeçalho) -->
     <div class="sidebar-brand">
         <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="SENAC - Fecomércio Sesc" class="brand-logo-img"/>
         <div class="brand-text">
@@ -62,8 +62,8 @@
     <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
     <div class="topbar-actions">
 
-        <div class="topbar-actions">
-            <label class="field-label" for="turma-select">Turma / Laboratório</label>
+        <div class="turma-select-group">
+            <label class="field-label" for="turma-select">TURMA / LABORATÓRIO</label>
             <div class="select-wrap">
                 <select id="turma-select">
                     <option value="">-- Nenhuma Turma Vinculada --</option>
