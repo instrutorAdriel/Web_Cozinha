@@ -154,14 +154,16 @@ public String exibirHome(Model model, HttpServletRequest request) {
     @ResponseBody
     public ResponseEntity<String> confirmarSeparacaoInsumos(
             @RequestBody Map<String, Object> payload) {
-
         List<Integer> insumosInt = (List<Integer>) payload.get("insumosMarcados");
         List<Long> insumoIds = insumosInt.stream().map(Integer::longValue).toList();
         String observacao = (String) payload.get("observacao");
 
-        homeService.confirmarSeparacaoInsumos(insumoIds, observacao);
-
-        return ResponseEntity.ok("Estoque atualizado com sucesso!");
+        try {
+            homeService.confirmarSeparacaoInsumos(insumoIds, observacao);
+            return ResponseEntity.ok("Estoque atualizado com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/api/fichas/confirmar-utensilios")
