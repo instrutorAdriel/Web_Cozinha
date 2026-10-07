@@ -1,11 +1,14 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+
 
 @Entity
 @Table(name = "agendamento")
 public class Agendamento {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

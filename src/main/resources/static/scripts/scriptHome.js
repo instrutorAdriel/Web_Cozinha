@@ -28,7 +28,7 @@ function carregarDadosIniciais() {
         popularTurmasDropdown(turmas);
 
         // Define a primeira turma da lista como a seleção padrão (ou "todas" se estiver vazio)
-        const primeiraTurmaId = turmas.length > 0 ? turmas[0].id.toString() : "todas";
+        const primeiraTurmaId = turmas.length > 0 ? turmas[0].idTurma.toString() : "todas";
         filtrarPorTurma(primeiraTurmaId);
 
         // === ATUALIZA O CONTADOR DE TURMAS DE HOJE ===
@@ -38,7 +38,7 @@ function carregarDadosIniciais() {
           const turmasUnicasHoje = new Set();
           agendamentos.forEach(a => {
             if (a.ficha && a.ficha.turma) {
-              turmasUnicasHoje.add(a.ficha.turma.id);
+              turmasUnicasHoje.add(a.ficha.turma.idTurma);
             }
           });
           const qtdHoje = turmasUnicasHoje.size;
@@ -75,7 +75,7 @@ function popularTurmasDropdown(turmas) {
   } else {
     turmas.forEach(turma => {
       const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
-      turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
+      turmaSelect.innerHTML += `<option value="${turma.idTurma}">${turma.nomeTurma} - ${labNome}</option>`;
     });
   }
 
@@ -97,12 +97,12 @@ function filtrarPorTurma(turmaId) {
   // 1. Filtrar as "Receitas de Hoje" (Agendamentos)
   let agendamentosFiltrados = agendamentosDoDia;
   if (turmaId !== "todas") {
-    agendamentosFiltrados = agendamentosDoDia.filter(a => a.ficha && a.ficha.turma && a.ficha.turma.id == parseInt(turmaId));
+    agendamentosFiltrados = agendamentosDoDia.filter(a => a.ficha && a.ficha.turma && a.ficha.turma.idTurma == parseInt(turmaId));
   }
 
   if (agendamentosFiltrados.length > 0) {
     renderizarCardsDeAulas(agendamentosFiltrados, containerClasses);
-    selecionarAula(agendamentosFiltrados[0].ficha.id);
+    selecionarAula(agendamentosFiltrados[0].ficha.idFicha);
   } else {
     containerClasses.innerHTML += '<p class="muted" style="padding:20px;">Nenhuma aula programada para esta turma hoje.</p>';
     limparDetalhesDaTela();
@@ -115,12 +115,12 @@ function filtrarPorTurma(turmaId) {
     let fichasFiltradas = todasAsFichasDoBanco;
 
     if (turmaId !== "todas") {
-      fichasFiltradas = todasAsFichasDoBanco.filter(f => f.turma && f.turma.id == parseInt(turmaId));
+      fichasFiltradas = todasAsFichasDoBanco.filter(f => f.turma && f.turma.idTurma == parseInt(turmaId));
     }
 
     fichasFiltradas.forEach(f => {
       const nomeTurma = f.turma ? f.turma.nomeTurma : "Turma Indefinida";
-      selectReceita.innerHTML += `<option value="${f.id}">${f.nomeFicha} (${nomeTurma})</option>`;
+      selectReceita.innerHTML += `<option value="${f.idFicha}">${f.nomeFicha} (${nomeTurma})</option>`;
     });
   }
 }
@@ -151,10 +151,10 @@ function renderizarCardsDeAulas(agendamentos, container) {
 
     const card = document.createElement('div');
     card.className = `class-card ${statusClass}`;
-    card.setAttribute('data-recipe', ficha.id);
+    card.setAttribute('data-recipe', ficha.idFicha);
 
     // Adicionado clique diretamente no card inteiro em vez do botão
-    card.addEventListener('click', () => selecionarAula(ficha.id));
+    card.addEventListener('click', () => selecionarAula(ficha.idFicha));
 
     // Removido o botão "Ver receita" daqui de baixo
     card.innerHTML = `
@@ -173,7 +173,7 @@ function selecionarAula(fichaId) {
     c.classList.toggle('selected', parseInt(c.dataset.recipe) === fichaId);
   });
 
-  const agendamento = agendamentosDoDia.find(a => a.ficha && a.ficha.id === fichaId);
+  const agendamento = agendamentosDoDia.find(a => a.ficha && a.ficha.idFicha === fichaId);
   if (!agendamento) return;
   fichaAtual = agendamento.ficha;
 
@@ -189,7 +189,7 @@ function selecionarAula(fichaId) {
 }
 
 function carregarDetalhesNoChecklistManual(fichaReal) {
-  fetch(`/api/fichas/${fichaReal.id}/detalhes`)
+  fetch(`/api/fichas/${fichaReal.idFicha}/detalhes`)
       .then(res => res.json())
       .then(detalhes => {
         detalhesReceitaAtual = detalhes;
@@ -234,7 +234,7 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
     const qtdEstoque = produto && produto.quantidade ? parseFloat(produto.quantidade) : 0;
 
     // Valida se foi separado
-    const isSeparado = separados.includes(insumo.id);
+    const isSeparado = separados.includes(insumo.idInsumo);
 
     let st = 'ok'; let label = 'OK';
     if (qtdEstoque === 0) {
@@ -250,7 +250,7 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
     if (isSeparado) {
       return `
           <label class="check-item" style="pointer-events: none; opacity: 0.5; background-color: #f8fafc;">
-            <input type="checkbox" data-id="${insumo.id}" checked disabled>
+            <input type="checkbox" data-id="${insumo.idInsumo}" checked disabled>
             <span class="check-box" style="background: #10b981; border-color: #10b981;"><span class="material-symbols-outlined" style="opacity: 1;">check</span></span>
             <span class="check-label" style="text-decoration: line-through;">${nomeProduto}</span>
             <span class="estoque-tag" style="background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0;">Separado</span>
@@ -262,7 +262,7 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
 
     return `
           <label class="check-item ${clsEstoque}">
-            <input type="checkbox" data-id="${insumo.id}">
+            <input type="checkbox" data-id="${insumo.idInsumo}">
             <span class="check-box"><span class="material-symbols-outlined">check</span></span>
             <span class="check-label">${nomeProduto}</span>
             ${tagEstoque}
@@ -302,7 +302,7 @@ function renderChecklistUtensilios(checklists, ficha) {
 
     return `
           <label class="check-item ${classeInapto}">
-            <input type="checkbox" data-id="${check.id}" data-estado="${estado}" data-em-uso="${taEmUso}">
+            <input type="checkbox" data-id="${check.idChecklistUtensilho}" data-estado="${estado}" data-em-uso="${taEmUso}">
             <span class="check-box"><span class="material-symbols-outlined">check</span></span>
             <span class="check-label">${nomeUtil}${labelInapto}</span>
             ${tagEmUso}
@@ -489,7 +489,7 @@ if (btnDevolucao && devolucaoModal) {
 
     if (detalhesReceitaAtual && detalhesReceitaAtual.utensilios) {
       detalhesReceitaAtual.utensilios.forEach(check => {
-        if (check.utensilio && checklistIdsSelecionadosParaDevolucao.includes(check.id)) {
+        if (check.utensilio && checklistIdsSelecionadosParaDevolucao.includes(check.idChecklistUtensilho)) {
           nomesUtensilios.push(check.utensilio.nomeUtensilio);
         }
       });

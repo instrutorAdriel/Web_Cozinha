@@ -1,7 +1,9 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "produto")
