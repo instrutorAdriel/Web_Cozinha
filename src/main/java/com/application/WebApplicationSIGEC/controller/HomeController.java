@@ -43,14 +43,13 @@ public class HomeController {
 
         HttpSession session = request.getSession(false);
 
-        // Se não houver sessão ativa ou usuário logado, redireciona para o login
         if (session == null || session.getAttribute("usuarioLogado") == null) {
             return "redirect:/";
         }
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-        // TRATAMENTO SEGURO DO NOME DO USUÁRIO
+        // Tratamento seguro do primeiro nome
         String primeiroNome = "Instrutor";
         if (usuarioLogado != null && usuarioLogado.getNomeUsuario() != null && !usuarioLogado.getNomeUsuario().trim().isEmpty()) {
             String nomeLimpo = usuarioLogado.getNomeUsuario().trim();
@@ -61,7 +60,7 @@ public class HomeController {
         }
         model.addAttribute("nomeUsuario", primeiroNome);
 
-        // TRATAMENTO SEGURO DA DATA ATUAL
+        // Data formatada e vinculada ao modelo
         try {
             LocalDate hoje = LocalDate.now();
             DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
@@ -72,7 +71,7 @@ public class HomeController {
             model.addAttribute("dataDeHoje", "");
         }
 
-        // SAUDAÇÃO DINÂMICA
+        // Saudação Dinâmica
         java.time.LocalTime agora = java.time.LocalTime.now();
         String saudacao = "Bom dia";
         if (agora.getHour() >= 12 && agora.getHour() < 18) {
@@ -91,7 +90,6 @@ public class HomeController {
         return "redirect:/";
     }
 
-    // Endpoint 1: Busca as aulas programadas para o dia DO USUÁRIO LOGADO
     @GetMapping("/api/agendamentos/hoje")
     @ResponseBody
     public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
@@ -109,7 +107,6 @@ public class HomeController {
         return ResponseEntity.ok(agendamentos);
     }
 
-    // Endpoint 2: Busca os insumos e utensílios exatos da Ficha selecionada
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> getDetalhesFicha(@PathVariable Long fichaId) {
@@ -117,7 +114,6 @@ public class HomeController {
         return ResponseEntity.ok(detalhes);
     }
 
-    // Endpoint 3: Busca as fichas vinculadas às turmas DO USUÁRIO LOGADO
     @GetMapping("/api/fichas")
     @ResponseBody
     public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Ficha>> getTodasFichas(HttpSession session) {
@@ -130,7 +126,6 @@ public class HomeController {
         return ResponseEntity.ok(fichasDoUsuario);
     }
 
-    // Endpoint 4: Busca apenas as turmas VINCULADAS AO USUÁRIO LOGADO
     @GetMapping("/api/turmas")
     @ResponseBody
     public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Turma>> getTurmasDoUsuario(HttpSession session) {
@@ -146,8 +141,7 @@ public class HomeController {
 
     @PostMapping("/api/fichas/confirmar-separacao")
     @ResponseBody
-    public ResponseEntity<String> confirmarSeparacaoInsumos(
-            @RequestBody Map<String, Object> payload) {
+    public ResponseEntity<String> confirmarSeparacaoInsumos(@RequestBody Map<String, Object> payload) {
         List<Integer> insumosInt = (List<Integer>) payload.get("insumosMarcados");
         List<Long> insumoIds = insumosInt.stream().map(Integer::longValue).toList();
         String observacao = (String) payload.get("observacao");
