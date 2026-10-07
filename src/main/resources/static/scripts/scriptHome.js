@@ -189,7 +189,7 @@ function selecionarAula(fichaId) {
 }
 
 function carregarDetalhesNoChecklistManual(fichaReal) {
-  fetch(`/api/fichas/${fichaReal.idFicha}/detalhes`)
+  fetch(`/api/fichas/${fichaReal.id}/detalhes`)
       .then(res => res.json())
       .then(detalhes => {
         detalhesReceitaAtual = detalhes;
