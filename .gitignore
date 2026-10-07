@@ -34,7 +34,7 @@ build/
 
 ### Variáveis de Ambiente e Credenciais ###
 .env
-.env.*
+.env
 !.env.example
 !.env.template
 
@@ -57,4 +57,4 @@ replay_pid*
 .DS_Store
 Thumbs.db
 Desktop.ini
-ehthumbs.db
+ehthumbs.db
