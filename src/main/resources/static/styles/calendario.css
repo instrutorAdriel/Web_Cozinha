@@ -1,20 +1,25 @@
 /* ===== ARQUITETURA DE TOKENS E DESIGN SYSTEM ===== */
 :root {
-    --primary: #002747;
+    /* === Tokens oficiais (DESIGN.md) === */
     --primary-container: #003d6b;
     --on-primary-container: #7ea9dd;
     --primary-fixed-dim: #9fcaff;
+
     --secondary: #964900;
     --secondary-container: #ff8928;
     --secondary-fixed: #ffdcc6;
+
     --error: #ba1a1a;
     --error-container: #ffdad6;
 
     --on-surface: #1a1b22;
     --on-surface-variant: #42474f;
+
     --outline: #727780;
     --outline-variant: #c2c7d0;
+
     --background: #fbf8ff;
+
     --surface-lowest: #ffffff;
     --surface-low: #f4f2fd;
     --surface: #eeedf7;
@@ -23,6 +28,7 @@
 
     --bg-primary: #002244;
     --brand-accent: #f2911b;
+
     --ui-background: #f4f6f9;
     --ui-surface: #ffffff;
     --ui-border: #e2e8f0;
@@ -38,113 +44,171 @@
     --topbar-height: 68px;
     --radius-md: 8px;
     --radius-sm: 4px;
+
     --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
 
     --r-sm: .125rem;
     --r: .25rem;
     --r-lg: .5rem;
     --r-full: 9999px;
+
     --shadow-2: 0 4px 20px rgba(0, 61, 107, .08);
-    --clip-tr: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+
+    --clip-tr: polygon(
+            0 0,
+            calc(100% - 12px) 0,
+            100% 12px,
+            100% 100%,
+            0 100%
+    );
+
     --text-dark: #1a202c;
 }
 
-/* Evita salto lateral e padroniza modelo de caixa */
-html {
-    scrollbar-gutter: stable;
-    box-sizing: border-box;
-}
-
-*, *::before, *::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Hanken Grotesk', sans-serif;
-}
-
 /* ===== CONFIGURAÇÕES GERAIS ===== */
+
 body {
+
     background: var(--background);
+
     color: var(--on-surface);
+
     font-weight: 300;
-    background-image: linear-gradient(165deg, transparent 45%, rgba(0, 61, 107, .015) 45%, rgba(0, 61, 107, .015) 55%, transparent 55%);
+
+    background-image:
+            linear-gradient(
+                    165deg,
+                    transparent 45%,
+                    rgba(0, 61, 107, .015) 45%,
+                    rgba(0, 61, 107, .015) 55%,
+                    transparent 55%
+            );
+
     background-size: 120px 120px;
     background-attachment: fixed;
     min-height: 100vh;
 }
 
+
+
 /* ===== SIDEBAR STRUCTURAL ===== */
+
 .sidebar {
+
     position: fixed;
+
     left: 0;
+
     top: 0;
-    width: var(--sidebar-width);
+    width: 264px;
     height: 100vh;
+
     background: var(--primary);
+
     display: flex;
+
     flex-direction: column;
+
     padding: 24px 0;
+
     z-index: 40;
-    transition: transform .3s ease;
+    transition: transform .3s ease
 }
+
 
 .sidebar-brand {
+
     display: flex;
+
     flex-direction: column;
+
     align-items: flex-start;
+
     gap: 14px;
+
     padding: 0 24px;
-    margin-bottom: 32px;
+    margin-bottom: 32px
 }
+
 
 .brand-logo-img {
+
     width: 150px;
+
     height: auto;
-    display: block;
+    display: block
 }
+
 
 .brand-text {
+
     display: flex;
+
     flex-direction: column;
-    gap: 2px;
+    gap: 2px
 }
+
 
 .brand-title {
+
     color: #fff;
+
     font-size: 22px;
+
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.1
 }
+
 
 .brand-sub {
+
     color: var(--secondary-container);
+
     font-size: 12px;
+
     font-weight: 600;
+
     text-transform: uppercase;
-    letter-spacing: .06em;
+    letter-spacing: .06em
 }
+
 
 .sidebar-nav {
+
     flex: 1;
+
     display: flex;
+
     flex-direction: column;
+
     gap: 2px;
+
     padding: 0 12px;
-    overflow-y: auto;
+    overflow-y: auto
 }
+
 
 .nav-group {
+
     font-size: 11px;
+
     font-weight: 700;
+
     text-transform: uppercase;
+
     letter-spacing: .08em;
+
     color: var(--on-primary-container);
+
     padding: 16px 12px 6px;
-    opacity: .7;
+    opacity: .7
 }
 
+
 .nav-item {
+
     display: flex;
+
     align-items: center;
     gap: 14px;
     padding: 12px 16px;
@@ -154,27 +218,27 @@ body {
     font-size: 14px;
     color: var(--primary-fixed-dim);
     border-left: 3px solid transparent;
-    transition: .2s;
+    transition: .2s
 }
 
-.nav-item .material-symbols-outlined {
-    font-size: 22px;
+.nav-item.material-symbols-outlined {
+    font-size: 22px
 }
 
 .nav-item:hover {
     background: rgba(255, 255, 255, .06);
-    color: #fff;
+    color: #fff
 }
 
 .nav-item.active {
     background: var(--primary-container);
     color: #fff;
-    border-left: 3px solid var(--secondary-container);
+    border-left: 3px solid var(--secondary-container)
 }
 
 .sidebar-footer {
     padding: 16px 24px 0;
-    margin-top: auto;
+    margin-top: auto
 }
 
 .btn-logout {
@@ -191,20 +255,20 @@ body {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    transition: .2s;
+    transition: .2s
 }
 
 .btn-logout:hover {
-    background: var(--error);
+    background: var(--error)
 }
 
-/* ===== TOPBAR SYSTEM PADRONIZADA COM RECEITAS/INÍCIO ===== */
+/* ===== TOPBAR SYSTEM ===== */
 .topbar {
     position: fixed;
     top: 0;
-    left: var(--sidebar-width);
+    left: 264px;
     right: 0;
-    height: var(--topbar-height);
+    height: 68px;
     z-index: 30;
     background: rgba(251, 248, 255, .85);
     backdrop-filter: blur(8px);
@@ -213,7 +277,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 24px;
-    transition: left .3s;
+    transition: left .3s
 }
 
 .topbar-left {
@@ -231,17 +295,17 @@ body {
 
 .crumb-muted {
     color: var(--on-surface-variant);
-    font-weight: 600;
+    font-weight: 600
 }
 
 .crumb-sep {
     font-size: 18px;
-    color: var(--outline);
+    color: var(--outline)
 }
 
 .crumb-current {
     color: var(--primary);
-    font-weight: 700;
+    font-weight: 700
 }
 
 .menu-toggle {
@@ -249,8 +313,6 @@ body {
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--primary);
-    padding: 6px;
 }
 
 .topbar-actions {
@@ -259,54 +321,47 @@ body {
     gap: 16px;
 }
 
-/* COMPONENTE TURMA SELECT ALINHADO */
-.turma-select-group {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.turma-select-group .field-label {
+/* COMPONENTE CHOICEBOX (TURMA SELECT) */
+.field-label {
+    display: block;
     font-size: 11px;
-    color: var(--primary);
+    color: #002747;
     text-transform: uppercase;
     letter-spacing: .06em;
+    margin-bottom: 6px;
     font-weight: bold;
-    margin-bottom: 0;
 }
 
-.turma-select-group .select-wrap {
+.select-wrap {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 0;
 }
 
-.turma-select-group .select-wrap select {
+#turma-select {
+    width: 100%;
     appearance: none;
     background: #fff;
     color: var(--primary);
     border: 1px solid var(--outline-variant);
     border-radius: var(--r);
-    padding: 8px 36px 8px 12px;
-    font-size: 13px;
+    padding: 11px 36px 11px 12px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     outline: none;
-    transition: .2s;
+    transition: .2s
 }
 
-.turma-select-group .select-wrap select:focus {
-    border-bottom: 2px solid var(--secondary-container);
+#turma-select:focus {
+    border-bottom: 2px solid #ff8928;
 }
 
-.turma-select-group .select-arrow {
+.select-arrow {
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--primary);
-    pointer-events: none;
+    pointer-events: none
 }
 
 .icon-btn {
@@ -317,14 +372,11 @@ body {
     border-radius: var(--r-full);
     cursor: pointer;
     color: var(--on-surface-variant);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: .2s;
+    transition: .2s
 }
 
 .icon-btn:hover {
-    background: var(--surface-high);
+    background: #e8e7f1;
 }
 
 .badge-dot {
@@ -335,77 +387,33 @@ body {
     height: 8px;
     background: var(--secondary-container);
     border-radius: 50%;
-    border: 1.5px solid var(--background);
+    border: 1.5px solid var(--background)
 }
 
-.badge-dot[hidden] {
-    display: none;
-}
-
-.notif-wrap {
-    position: relative;
-}
-
-.notif-panel {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 340px;
-    max-height: 420px;
-    background: var(--surface-lowest);
-    border: 1px solid var(--outline-variant);
-    border-radius: var(--r-lg);
-    box-shadow: var(--shadow-2);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    z-index: 45;
-    opacity: 0;
-    transform: translateY(-8px);
-    pointer-events: none;
-    transition: .2s;
-}
-
-.notif-panel.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-.notif-head {
+.user-box {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    background: var(--primary);
-    color: #fff;
-    border-bottom: 3px solid var(--secondary-container);
+    gap: 12px;
+    padding-left: 16px;
+    border-left: 1px solid var(--outline-variant)
 }
 
-.notif-head h3 {
-    font-size: 15px;
-    font-weight: 600;
+.user-info {
+    text-align: right;
 }
 
-.notif-clear {
-    background: none;
-    border: none;
-    color: var(--secondary-fixed);
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    text-transform: uppercase;
-}
-
-.notif-clear:hover {
-    text-decoration: underline;
+.user-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary)
 }
 
 /* ===== MAIN WORKSPACE DESIGN ===== */
 .main-container {
-    margin-left: var(--sidebar-width);
-    padding-top: var(--topbar-height);
-    min-height: 100vh;
+    margin-left: 400px;
+    padding-top: 68px;
+    min-height: 100vh
+
 }
 
 .cal-dashboard-layout {
@@ -432,9 +440,20 @@ body {
     align-items: center;
     background-color: #0b2545;
     padding: 16px 24px;
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
+
+    border-radius:
+            var(--radius-md)
+            var(--radius-md)
+            0
+            0;
+
     color: var(--text-light);
-    margin: -24px -24px 24px -24px;
+
+    margin:
+            -24px
+            -24px
+            24px
+            -24px;
 }
 
 .cal-header-title {
@@ -480,10 +499,24 @@ body {
     text-align: center;
 }
 
+.filter-dropdown select {
+    background-color: var(--ui-surface);
+    border: none;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    color: var(--text-dark);
+    font-family: inherit;
+    outline: none;
+}
+
 /* ===== GRIDS DO MÊS ===== */
 .cal-weekdays-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
     text-align: center;
     font-weight: 700;
     font-size: 11px;
@@ -494,7 +527,10 @@ body {
 
 .cal-days-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(7, 1fr);
+
     gap: 8px;
 }
 
@@ -645,7 +681,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+
+    box-shadow:
+            0 2px 4px
+            rgba(0, 0, 0, 0.01);
 }
 
 .fiche-info {
@@ -679,70 +718,185 @@ body {
     color: var(--brand-accent);
 }
 
-/* RESPONSIVIDADE */
-@media (max-width: 1024px) {
-    .menu-toggle {
-        display: block;
-    }
-
-    .sidebar {
-        transform: translateX(-100%);
-    }
-
-    .sidebar.show {
-        transform: translateX(0);
-    }
-
-    .topbar {
-        left: 0;
-    }
-
-    .main-container {
-        margin-left: 0;
-    }
-
-    .cal-dashboard-layout {
-        flex-direction: column;
-        margin: 16px;
-    }
-
-    .cal-side-panel {
-        width: 100%;
-    }
+.stock-status .material-symbols-outlined {
+    font-size: 15px;
 }
 
+.btn-fiche-action {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
 
-/* ============================================================
-   NOVO VISUAL FORÇADO E ARREDONDADO PARA O BOTÃO DE ADICIONAR (+)
-   ============================================================ */
+.btn-fiche-action.delete {
+    color: var(--status-danger);
+}
 
-button.btn-fiche-action.append,
 .btn-fiche-action.append {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 38px !important;
-    height: 38px !important;
-    border-radius: 50% !important; /* Torna o botão perfeitamente redondo */
-    background-color: #004582 !important; /* Cor azul do SENAC */
-    color: #ffffff !important; /* Ícone branco */
-    border: none !important;
-    cursor: pointer !important;
-    box-shadow: 0 2px 6px rgba(0, 69, 130, 0.25) !important;
-    transition: all 0.2s ease-in-out !important;
+    color: #0b2545;
+    background-color: #eef5fc;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
 }
 
-/* Efeito ao passar o mouse por cima */
-button.btn-fiche-action.append:hover,
 .btn-fiche-action.append:hover {
-    background-color: #002e57 !important;
-    transform: scale(1.1) !important; /* Leve expansão ao passar o mouse */
-    box-shadow: 0 4px 10px rgba(0, 69, 130, 0.4) !important;
+    background-color: #0b2545;
+    color: var(--text-light);
 }
 
-/* Tamanho do ícone do sinal de + */
-button.btn-fiche-action.append .material-symbols-outlined,
-.btn-fiche-action.append .material-symbols-outlined {
-    font-size: 22px !important;
-    font-weight: bold !important;
+/* ===== DIALOG / MODAL CUSTOMIZADO ===== */
+.custom-dialog {
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    background-color: var(--ui-surface);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+.custom-dialog::backdrop {
+    background-color: rgba(0, 34, 68, 0.4);
+    /* Usa a cor primaria como overlay translúcido */
+    backdrop-filter: blur(4px);
+    /* Desfoque moderno */
+}
+
+.dialog-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+}
+
+.dialog-content h3 {
+    margin: 0;
+    color: var(--text-dark);
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.dialog-content p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.icon-warning {
+    color: var(--status-danger);
+    font-size: 3rem !important;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+.dialog-actions button {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary {
+    background-color: var(--ui-border);
+    color: var(--text-dark);
+}
+
+.btn-secondary:hover {
+    background-color: #cbd5e1;
+}
+
+.btn-danger {
+    background-color: var(--status-danger);
+    color: var(--text-light);
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+/* =========================================================
+   FERIADOS / RECESSOS
+   ========================================================= */
+
+.day-cell.feriado {
+    position: relative;
+    cursor: not-allowed;
+}
+
+
+/* Bolinha vermelha do feriado */
+
+.day-cell.feriado::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+
+    background-color: #ef5350;
+
+    border-radius: 50%;
+
+    left: 10px;
+    bottom: 10px;
+
+    display: block;
+}
+
+
+/* =========================================================
+   FIM DE SEMANA
+   ========================================================= */
+
+.day-cell.weekend {
+    cursor: not-allowed;
 }
