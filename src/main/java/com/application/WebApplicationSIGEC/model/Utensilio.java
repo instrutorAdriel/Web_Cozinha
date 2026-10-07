@@ -9,7 +9,7 @@ public class Utensilio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_utensilio")
-    private Long id;
+    private Integer idUtensilio;
 
     @Column(name = "nome_utensilio", nullable = false, length = 100)
     private String nomeUtensilio;
@@ -33,8 +33,15 @@ public class Utensilio {
     public Utensilio() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdUtensilio() {
+        return idUtensilio;
+    }
+
+    public void setIdUtensilio(Integer idUtensilio) {
+        this.idUtensilio = idUtensilio;
+    }
+
     public String getNomeUtensilio() { return nomeUtensilio; }
     public void setNomeUtensilio(String nomeUtensilio) { this.nomeUtensilio = nomeUtensilio; }
     public Integer getQuantidade() { return quantidade; }

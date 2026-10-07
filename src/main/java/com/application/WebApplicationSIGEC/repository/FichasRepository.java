@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface FichasRepository extends JpaRepository<Ficha, Long> {
+public interface FichasRepository extends JpaRepository<Ficha, Integer> {
 
     Optional<Ficha> findByNomeFicha(String nomeFicha);
 
@@ -21,6 +21,6 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
 
     List<Ficha> findByDataIsNotNull();
 
-    @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario)")
-    List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Long idUsuario);
+    @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.idTurma IN (SELECT tu.idTurma FROM Usuario u JOIN u.turmas tu WHERE u.idUsuario = :idUsuario)")
+    List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Integer idUsuario);
 }

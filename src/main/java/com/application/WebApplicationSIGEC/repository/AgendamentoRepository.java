@@ -10,14 +10,14 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
+public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
     @Query("SELECT a FROM Agendamento a " +
             "JOIN FETCH a.ficha f " +
             "JOIN FETCH f.turma t " +
             "WHERE a.data = :data AND a.situacao = 'A' " +
-            "AND t.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario) " +
+            "AND t.idTurma IN (SELECT tu.idTurma FROM Usuario u JOIN u.turmas tu WHERE u.idUsuario = :idUsuario) " +
             "ORDER BY a.data ASC")
-    List<Agendamento> findAgendamentosDoUsuarioHoje(@Param("data") LocalDate data, @Param("idUsuario") Long idUsuario);
+    List<Agendamento> findAgendamentosDoUsuarioHoje(@Param("data") LocalDate data, @Param("idUsuario") Integer idUsuario);
 
 }

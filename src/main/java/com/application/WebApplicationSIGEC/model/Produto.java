@@ -10,7 +10,7 @@ public class Produto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_produto")
-    private Long id;
+    private Integer idProduto;
 
     @Column(name = "nome_produto", nullable = false, length = 55)
     private String nomeProduto;
@@ -31,8 +31,15 @@ public class Produto {
     public Produto() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdProduto() {
+        return idProduto;
+    }
+
+    public void setIdProduto(Integer idProduto) {
+        this.idProduto = idProduto;
+    }
+
     public String getNomeProduto() { return nomeProduto; }
     public void setNomeProduto(String nomeProduto) { this.nomeProduto = nomeProduto; }
     public String getUnidade() { return unidade; }

@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface TurmaRepository extends JpaRepository<Turma, Long> {
+public interface TurmaRepository extends JpaRepository<Turma, Integer> {
 
     // Busca as turmas cruzando a partir do usuário logado
-    @Query("SELECT t FROM Usuario u JOIN u.turmas t WHERE u.id = :idUsuario")
-    List<Turma> findTurmasByUsuarioId(@Param("idUsuario") Long idUsuario);
+    @Query("SELECT t FROM Usuario u JOIN u.turmas t WHERE u.idUsuario = :idUsuario")
+    List<Turma> findTurmasByUsuarioId(@Param("idUsuario") Integer idUsuario);
 }

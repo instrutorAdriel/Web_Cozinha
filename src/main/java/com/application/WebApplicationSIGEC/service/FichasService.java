@@ -39,7 +39,7 @@ public class FichasService {
     }
 
 
-    public List<Ficha> buscarFichasPorUsuario(Long idUsuario) {
+    public List<Ficha> buscarFichasPorUsuario(Integer idUsuario) {
         return fichasRepository.findFichasByUsuarioId(idUsuario);
     }
 
@@ -54,7 +54,7 @@ public class FichasService {
     }
 
     @Transactional
-    public void alocarFicha(Long idFicha, LocalDate novaData) {
+    public void alocarFicha(Integer idFicha, LocalDate novaData) {
         Ficha ficha = fichasRepository.findById(idFicha)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
 
@@ -63,7 +63,7 @@ public class FichasService {
     }
 
     @Transactional
-    public void desalocarFicha(Long idFicha) {
+    public void desalocarFicha(Integer idFicha) {
         Ficha ficha = fichasRepository.findById(idFicha)
                 .orElseThrow(() -> new RuntimeException("Receita não encontrada"));
 

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ChecklistUtensilioRepository extends JpaRepository<ChecklistUtensilio, Long> {
+public interface ChecklistUtensilioRepository extends JpaRepository<ChecklistUtensilio, Integer> {
 
-    @Query("SELECT c FROM ChecklistUtensilio c JOIN FETCH c.utensilio WHERE c.ficha.id = :fichaId AND c.situacao = 'A'")
-    List<ChecklistUtensilio> findByFichaId(@Param("fichaId") Long fichaId);
+    @Query("SELECT c FROM ChecklistUtensilio c JOIN FETCH c.utensilio WHERE c.ficha.idFicha = :fichaId AND c.situacao = 'A'")
+    List<ChecklistUtensilio> findByFichaId(@Param("fichaId") Integer fichaId);
 }

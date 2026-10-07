@@ -34,17 +34,17 @@ public class HomeService {
     }
 
     // Busca as aulas agendadas para a data informada E para o usuário logado
-    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario) {
+    public List<Agendamento> buscarAulasDoDia(LocalDate data, Integer idUsuario) {
         return agendamentoRepository.findAgendamentosDoUsuarioHoje(data, idUsuario);
     }
 
     // Busca insumos e utensílios referentes a uma ficha técnica
-    public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
+    public Map<String, Object> buscarDetalhesDaReceita(Integer fichaId) {
         Map<String, Object> detalhes = new HashMap<>();
 
         List<Insumo> insumos = insumoRepository.findByFichaId(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
-        List<Long> insumosSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
+        List<Integer> insumosSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
 
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
@@ -54,12 +54,12 @@ public class HomeService {
     }
 
     @Transactional
-    public void confirmarSeparacaoInsumos(List<Long> insumoIds, String observacaoGeral) {
-        for (Long id : insumoIds) {
+    public void confirmarSeparacaoInsumos(List<Integer> insumoIds, String observacaoGeral) {
+        for (Integer id : insumoIds) {
             Insumo insumo = insumoRepository.findById(id).orElse(null);
             if (insumo != null && insumo.getProduto() != null) {
 
-                List<Long> jaSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(insumo.getFicha().getId());
+                List<Integer> jaSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(insumo.getFicha().getIdFicha());
                 if (jaSeparados.contains(id)) {
                     continue; // Pula este item e vai para o próximo
                 }
@@ -91,8 +91,8 @@ public class HomeService {
     // Registra a SAÍDA dos utensílios para a aula
 
     @Transactional
-    public void confirmarSaidaUtensilios(List<Long> checklistIds) {
-        for (Long id : checklistIds) {
+    public void confirmarSaidaUtensilios(List<Integer> checklistIds) {
+        for (Integer id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
             // Trava backend: impede que retirem o que já está na cozinha
             if (checklist.getDataHoraSaida() != null && checklist.getDataHoraEntrada() == null) {
@@ -108,8 +108,8 @@ public class HomeService {
 
     // Registra a DEVOLUÇÃO (Entrada) dos utensílios em lote (múltiplos)
     @Transactional
-    public void registrarDevolucaoUtensilio(List<Long> checklistIds, String estadoAtual, String observacao) {
-        for (Long id : checklistIds) {
+    public void registrarDevolucaoUtensilio(List<Integer> checklistIds, String estadoAtual, String observacao) {
+        for (Integer id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
             if (checklist != null) {
                 // Salva o estado atual antigo como anterior, e atualiza o novo

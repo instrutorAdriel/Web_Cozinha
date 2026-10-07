@@ -8,7 +8,7 @@ public class Unidade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_unidade")
-    private Long id;
+    private Integer idUnidade;
 
     @Column(name = "nome_unidade", nullable = false, length = 100)
     private String nomeUnidade;

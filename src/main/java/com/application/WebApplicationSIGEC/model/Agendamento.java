@@ -10,12 +10,12 @@ public class Agendamento {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_agendamento")
-    private Long id;
+    private Integer idAgendamento;
 
     @Column(nullable = false)
     private LocalDate data;
 
-    @Column(nullable = false, length = 1)
+    @Column(name =  "situacao", nullable = false, length = 1)
     private String situacao = "A";
 
     @Column(nullable = false, length = 1)
@@ -28,8 +28,15 @@ public class Agendamento {
     public Agendamento() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdAgendamento() {
+        return idAgendamento;
+    }
+
+    public void setIdAgendamento(Integer idAgendamento) {
+        this.idAgendamento = idAgendamento;
+    }
+
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
     public String getSituacao() { return situacao; }

@@ -9,7 +9,7 @@ public class CategoriaUtensilio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria_utensilio")
-    private Long id;
+    private Integer idCategariaUtensilio;
 
     @Column(name = "nome_categoria", nullable = false, length = 55)
     private String nomeCategoria;
@@ -20,12 +20,14 @@ public class CategoriaUtensilio {
     public CategoriaUtensilio() {}
 
     // Getters e Setters
-    public Long getId() {
-        return id;
+
+
+    public Integer getIdCategariaUtensilio() {
+        return idCategariaUtensilio;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdCategariaUtensilio(Integer idCategariaUtensilio) {
+        this.idCategariaUtensilio = idCategariaUtensilio;
     }
 
     public String getNomeCategoria() {

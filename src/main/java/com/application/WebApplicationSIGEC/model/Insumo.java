@@ -10,7 +10,7 @@ public class Insumo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_insumo")
-    private Long id;
+    private Integer idInsumo;
 
     @Column(nullable = false)
     private int quantidade;
@@ -33,8 +33,15 @@ public class Insumo {
     public Insumo() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdInsumo() {
+        return idInsumo;
+    }
+
+    public void setIdInsumo(Integer idInsumo) {
+        this.idInsumo = idInsumo;
+    }
+
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
     public char getCancelado() { return cancelado; }

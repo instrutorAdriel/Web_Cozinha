@@ -71,7 +71,7 @@ public class FichasController {
     @GetMapping("/calendario/alocar")
     @ResponseBody
     public ResponseEntity<String> alocarFicha(
-            @RequestParam("id") Long id,
+            @RequestParam("id") Integer id,
             @RequestParam("data") String dataFinal) {
 
         LocalDate novaData = LocalDate.parse(dataFinal);
@@ -84,7 +84,7 @@ public class FichasController {
     @PostMapping("/calendario/desalocar")
     @ResponseBody
     public ResponseEntity<String> desalocarFicha(
-            @RequestParam("id") Long id,
+            @RequestParam("id") Integer id,
             HttpSession session) {
 
         if (session == null || session.getAttribute("usuarioLogado") == null) {

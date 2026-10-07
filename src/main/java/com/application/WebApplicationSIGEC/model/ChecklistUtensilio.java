@@ -11,7 +11,7 @@ public class ChecklistUtensilio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_checklist_utensilho")
-    private Long id;
+    private Integer idChecklistUtensilho;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -45,8 +45,15 @@ public class ChecklistUtensilio {
     public ChecklistUtensilio() {}
 
     // --- Getters e Setters ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+
+    public Integer getIdChecklistUtensilho() {
+        return idChecklistUtensilho;
+    }
+
+    public void setIdChecklistUtensilho(Integer idChecklistUtensilho) {
+        this.idChecklistUtensilho = idChecklistUtensilho;
+    }
 
     public Ficha getFicha() { return ficha; }
     public void setFicha(Ficha ficha) { this.ficha = ficha; }

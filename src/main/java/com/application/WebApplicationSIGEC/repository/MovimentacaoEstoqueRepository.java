@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Long> {
+public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Integer> {
 
-    @Query("SELECT m.insumo.id FROM MovimentacaoEstoque m WHERE m.insumo.ficha.id = :fichaId AND DATE(m.dataMovimentacao) = CURRENT_DATE AND m.tipoMovimentacao = 'SAIDA'")
-    List<Long> findInsumosSeparadosHoje(@Param("fichaId") Long fichaId);
+    @Query("SELECT m.insumo.idInsumo FROM MovimentacaoEstoque m WHERE m.insumo.ficha.idFicha = :fichaId AND DATE(m.dataMovimentacao) = CURRENT_DATE AND m.tipoMovimentacao = 'SAIDA'")
+    List<Integer> findInsumosSeparadosHoje(@Param("fichaId") Integer fichaId);
 }

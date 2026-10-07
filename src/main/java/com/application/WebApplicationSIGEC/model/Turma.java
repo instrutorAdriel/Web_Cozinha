@@ -9,7 +9,7 @@ public class Turma {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_turma")
-    private Long id;
+    private int idTurma;
 
     @Column(name = "nome_turma", nullable = false, length = 55)
     private String nomeTurma;
@@ -24,8 +24,15 @@ public class Turma {
     public Turma() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public int getIdTurma() {
+        return idTurma;
+    }
+
+    public void setIdTurma(int idTurma) {
+        this.idTurma = idTurma;
+    }
+
     public String getNomeTurma() { return nomeTurma; }
     public void setNomeTurma(String nomeTurma) { this.nomeTurma = nomeTurma; }
     public String getSituacao() { return situacao; }

@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface InsumoRepository extends JpaRepository<Insumo, Long> {
+public interface InsumoRepository extends JpaRepository<Insumo, Integer> {
 
-    @Query("SELECT i FROM Insumo i JOIN FETCH i.produto WHERE i.ficha.id = :fichaId AND i.cancelado = 'N'")
-    List<Insumo> findByFichaId(@Param("fichaId") Long fichaId);
+    @Query("SELECT i FROM Insumo i JOIN FETCH i.produto WHERE i.ficha.idFicha = :fichaId AND i.cancelado = 'N'")
+    List<Insumo> findByFichaId(@Param("fichaId") Integer fichaId);
 }

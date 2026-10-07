@@ -9,7 +9,7 @@ public class Laboratorio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_laboratorio")
-    private Long id;
+    private Integer idLaboratorio;
 
     @Column(name = "nome_laboratorio", nullable = false, length = 55)
     private String nomeLaboratorio;
@@ -27,8 +27,15 @@ public class Laboratorio {
     public Laboratorio() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdLaboratorio() {
+        return idLaboratorio;
+    }
+
+    public void setIdLaboratorio(Integer idLaboratorio) {
+        this.idLaboratorio = idLaboratorio;
+    }
+
     public String getNomeLaboratorio() { return nomeLaboratorio; }
     public void setNomeLaboratorio(String nomeLaboratorio) { this.nomeLaboratorio = nomeLaboratorio; }
     public Integer getCapacidade() { return capacidade; }

@@ -12,7 +12,7 @@ public class Ficha {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_ficha")
-    private Long id;
+    private Integer idFicha;
 
     @Column(name = "nome_ficha", nullable = false, length = 100)
     private String nomeFicha;
@@ -42,8 +42,15 @@ public class Ficha {
     public Ficha() {}
 
     // Getters e Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+
+    public Integer getIdFicha() {
+        return idFicha;
+    }
+
+    public void setIdFicha(Integer idFicha) {
+        this.idFicha = idFicha;
+    }
+
     public String getNomeFicha() { return nomeFicha; }
     public void setNomeFicha(String nomeFicha) { this.nomeFicha = nomeFicha; }
     public String getPreparo() { return preparo; }

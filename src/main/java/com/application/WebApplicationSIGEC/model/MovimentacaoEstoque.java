@@ -11,7 +11,7 @@ public class MovimentacaoEstoque {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_movimentacao_estoque")
-    private Long id;
+    private Integer idMovimentacaoEstoque;
 
     @Column(name = "tipo_movimentacao", nullable = false)
     private String tipoMovimentacao;
@@ -37,12 +37,13 @@ public class MovimentacaoEstoque {
 
     // --- Getters e Setters ---
 
-    public Long getId() {
-        return id;
+
+    public Integer getIdMovimentacaoEstoque() {
+        return idMovimentacaoEstoque;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setIdMovimentacaoEstoque(Integer idMovimentacaoEstoque) {
+        this.idMovimentacaoEstoque = idMovimentacaoEstoque;
     }
 
     public String getTipoMovimentacao() {
