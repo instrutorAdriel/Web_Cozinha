@@ -647,10 +647,10 @@ main,
     transition: margin-left 0.3s ease;
 }
 .main-container-receita {
-    box-sizing: border-box;
-    min-height: 100vh;
-    transition: margin-left 0.3s ease;
-}
+     box-sizing: border-box;
+     min-height: 100vh;
+     transition: margin-left 0.3s ease;
+ }
 
 /* Conteúdo Padrão e de Receitas */
 .content,
