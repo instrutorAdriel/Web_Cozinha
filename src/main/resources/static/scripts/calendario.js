@@ -95,7 +95,6 @@ const CalendarioSIGEC = {
                     const id = turma.idTurma || turma.id;
                     const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
 
-                    // Extração flexível do laboratório
                     let labNome = '';
                     if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
                         labNome = turma.laboratorio.nomeLaboratorio || '';
@@ -106,6 +105,14 @@ const CalendarioSIGEC = {
                     const textoOpcao = labNome ? `${nomeTurma} - ${labNome}` : nomeTurma;
                     select.appendChild(new Option(textoOpcao, id));
                 });
+
+                // Recupera a turma gravada na sessão
+                const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
+                const existeTurma = turmas.some(t => (t.idTurma || t.id).toString() === turmaSalva);
+
+                if (turmaSalva && existeTurma) {
+                    select.value = turmaSalva;
+                }
             }
         } catch (erro) {
             console.error("Erro no carregamento das turmas:", erro);
@@ -114,6 +121,82 @@ const CalendarioSIGEC = {
             }
         } finally {
             this.carregarAlocacoes();
+        }
+    },
+
+    bindEvents() {
+        const { selectTurma, btnPrev, btnNext, btnCancelarExclusao, btnConfirmarExclusao } = this.elements;
+
+        if (selectTurma) {
+            selectTurma.addEventListener("change", () => {
+                if (selectTurma.value) {
+                    sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
+                }
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnPrev) {
+            btnPrev.addEventListener("click", () => {
+                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnNext) {
+            btnNext.addEventListener("click", () => {
+                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnCancelarExclusao) {
+            btnCancelarExclusao.addEventListener("click", () => {
+                if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
+                this.state.fichaIdDesalocar = null;
+            });
+        }
+
+        if (btnConfirmarExclusao) {
+            btnConfirmarExclusao.addEventListener("click", () => this.confirmarDesalocacao());
+        }
+    },
+
+    bindEvents() {
+        const { selectTurma, btnPrev, btnNext, btnCancelarExclusao, btnConfirmarExclusao } = this.elements;
+
+        if (selectTurma) {
+            selectTurma.addEventListener("change", () => {
+                if (selectTurma.value) {
+                    sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
+                }
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnPrev) {
+            btnPrev.addEventListener("click", () => {
+                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnNext) {
+            btnNext.addEventListener("click", () => {
+                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
+                this.carregarAlocacoes();
+            });
+        }
+
+        if (btnCancelarExclusao) {
+            btnCancelarExclusao.addEventListener("click", () => {
+                if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
+                this.state.fichaIdDesalocar = null;
+            });
+        }
+
+        if (btnConfirmarExclusao) {
+            btnConfirmarExclusao.addEventListener("click", () => this.confirmarDesalocacao());
         }
     },
 

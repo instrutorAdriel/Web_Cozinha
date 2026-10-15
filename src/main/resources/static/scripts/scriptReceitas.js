@@ -48,18 +48,38 @@ function popularSeletorTurmas() {
     turmas.forEach(t => {
         const id = t.idTurma || t.id;
         const nomeTurma = t.nomeTurma || t.nome || 'Turma Indefinida';
-        const lab = t.laboratorio
-            ? (t.laboratorio.nomeLaboratorio || t.laboratorio)
-            : 'Lab Indefinido';
+
+        let labNome = 'Lab Indefinido';
+        if (typeof t.laboratorio === 'object' && t.laboratorio !== null) {
+            labNome = t.laboratorio.nomeLaboratorio || 'Lab Indefinido';
+        } else if (typeof t.laboratorio === 'string' && t.laboratorio.trim() !== '') {
+            labNome = t.laboratorio;
+        }
 
         const option = document.createElement('option');
         option.value = id;
-        option.textContent = `${nomeTurma} - ${lab}`;
+        // Padronizado com ' - ' (hífen simples em vez de travessão)
+        option.textContent = `${nomeTurma} - ${labNome}`;
 
         turmaSelect.appendChild(option);
     });
 
+    // Recupera e aplica a turma da sessão
+    const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
+    const existeTurma = turmas.some(t => (t.idTurma || t.id).toString() === turmaSalva);
+
+    if (turmaSalva && existeTurma) {
+        turmaSelect.value = turmaSalva;
+    }
+
+    if (turmas.length > 0) {
+        carregarReceitasPorTurma();
+    }
+
     turmaSelect.addEventListener('change', () => {
+        if (turmaSelect.value) {
+            sessionStorage.setItem("turmaSelecionadaId", turmaSelect.value);
+        }
         activeId = null;
         carregarReceitasPorTurma();
     });
