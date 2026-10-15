@@ -36,28 +36,40 @@
                     required
             >
 
-            <label for="senha">Nova Senha</label>
+            <label for="senha">Nova senha </label>
             <div class="input-container">
                 <input
                         type="password"
                         id="senha"
                         th:field="*{senha}"
-                        placeholder="Digite a nova senha"
+                        placeholder="Digite sua senha"
                         required
                 >
-                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)"></button>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path class="eye-slash" d="M3 3l18 18"></path>
+                    </svg>
+                </button>
             </div>
 
-            <label for="confirmarSenha">Confirmar Nova Senha</label>
+            <label for="senha">Confirma senha </label>
             <div class="input-container">
                 <input
                         type="password"
-                        id="confirmarSenha"
+                        id="confirmaSenha"
                         th:field="*{confirmarSenha}"
-                        placeholder="Confirme a nova senha"
+                        placeholder="Digite sua senha"
                         required
                 >
-                <button type="button" class="fa-solid fa-eye-slash toggle-password" aria-label="Mostrar confirmação de senha" onclick="mostrarOcultarSenha(this)"></button>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path class="eye-slash" d="M3 3l18 18"></path>
+                    </svg>
+                </button>
             </div>
 
             <button type="submit">Alterar Senha</button>
