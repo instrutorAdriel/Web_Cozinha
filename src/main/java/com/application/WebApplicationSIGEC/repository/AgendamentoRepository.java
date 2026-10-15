@@ -21,6 +21,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             "ORDER BY a.data ASC")
     List<Agendamento> findAgendamentosDoUsuarioHoje(@Param("data") LocalDate data, @Param("idUsuario") Long idUsuario);
 
+
     // 1. Validação de alocação duplicada mapeando o ID da entidade Ficha
     boolean existsByFicha_IdAndDataAndSituacao(Long idFicha, LocalDate data, String situacao);
 
