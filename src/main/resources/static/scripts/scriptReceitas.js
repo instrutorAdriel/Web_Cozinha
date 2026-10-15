@@ -1,3 +1,4 @@
+
 // ===== ESTADO GLOBAL DINÂMICO =====
 let turmas = [];
 let RECIPES = [];
@@ -16,28 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 // ===== 1. BUSCA DE DADOS NA API =====
 async function carregarDadosIniciais() {
     try {
-        const [resTurmas, resFichas] = await Promise.all([
-            fetch('/api/turmas').then(res => res.status === 204 ? [] : res.json()),
-            fetch('/api/fichas').then(res => res.json())
-        ]);
+        const resTurmas = await fetch('/api/turmas');
 
-        turmas = resTurmas;
+        if (!resTurmas.ok) {
+            throw new Error("Erro ao carregar turmas");
+        }
 
-        // Mapeia os dados do banco para o formato que a tela de receitas espera
-        RECIPES = resFichas.map(f => ({
-            id: f.id,
-            name: f.nomeFicha,
-            type: "Geral", // Pode ser adaptado se a API retornar categoria
-            cat: f.turma ? f.turma.nomeTurma : "Cozinha",
-            status: f.data ? "datadas" : "disponivel",
-            dataPrevista: f.data,
-            duration: "45 min", // Pode ser substituído se houver duração no banco
-            description: f.preparo || "Sem modo de preparo cadastrado.",
-            turma: f.turma
-        }));
+        turmas = resTurmas.status === 204 ? [] : await resTurmas.json();
 
         popularSeletorTurmas();
-        renderList();
+        await carregarReceitasPorTurma();
+
     } catch (error) {
         console.error("Erro ao carregar dados da API:", error);
         const listCol = document.getElementById('listCol');
@@ -53,17 +43,87 @@ const turmaSelect = document.getElementById('turma-select');
 function popularSeletorTurmas() {
     if (!turmaSelect) return;
 
-    turmaSelect.innerHTML = '<option value="todas">Todas as Turmas</option>';
+    turmaSelect.innerHTML = '';
 
     turmas.forEach(t => {
         const lab = t.laboratorio ? t.laboratorio.nomeLaboratorio : 'Lab Indefinido';
-        turmaSelect.innerHTML += `<option value="${t.id}">${t.nomeTurma} — ${lab}</option>`;
+
+        const option = document.createElement('option');
+        option.value = t.id;
+        option.textContent = `${t.nomeTurma} — ${lab}`;
+
+        turmaSelect.appendChild(option);
     });
 
-    turmaSelect.addEventListener('change', e => {
-        // Se quiser filtrar a lista de receitas por turma, a lógica entra aqui
-        renderList();
+    turmaSelect.addEventListener('change', () => {
+        activeId = null;
+        carregarReceitasPorTurma();
     });
+}
+
+// ===== 2.1 BUSCAR RECEITAS DA TURMA SELECIONADA =====
+let requisicaoReceitas = 0;
+
+async function carregarReceitasPorTurma() {
+    const idTurma = turmaSelect?.value;
+    const requisicaoAtual = ++requisicaoReceitas;
+
+    if (!idTurma) {
+        RECIPES = [];
+        activeId = null;
+        renderList();
+        return;
+    }
+
+    try {
+        const resposta = await fetch(
+            `/api/fichas?idTurma=${encodeURIComponent(idTurma)}`
+        );
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar receitas da turma");
+        }
+
+        const fichas = await resposta.json();
+
+        // Ignora respostas antigas quando a turma muda rapidamente
+        if (requisicaoAtual !== requisicaoReceitas) return;
+
+        RECIPES = fichas.map(f => ({
+            id: f.id,
+            name: f.nomeFicha,
+            type: "Geral", // Pode ser adaptado se a API retornar categoria
+            cat: f.turma ? f.turma.nomeTurma : "Cozinha",
+            status: f.data ? "datadas" : "disponivel",
+            dataPrevista: f.data,
+            duration: "45 min", // Pode ser substituído se houver duração no banco
+            description: f.preparo || "Sem modo de preparo cadastrado.",
+            turma: f.turma,
+            idTurma: f.idTurma ?? f.turma?.id ?? f.turma?.idTurma
+        }));
+
+        activeId = null;
+        renderList();
+
+    } catch (error) {
+        if (requisicaoAtual !== requisicaoReceitas) return;
+
+        console.error("Erro ao carregar receitas por turma:", error);
+
+        RECIPES = [];
+        activeId = null;
+
+        const listCol = document.getElementById('listCol');
+        const detailCol = document.getElementById('detailCol');
+        const countLabel = document.getElementById('recipeCountLabel');
+
+        if (listCol) {
+            listCol.innerHTML = '<p style="color:red; text-align:center; padding:20px;">Erro ao carregar as receitas do servidor.</p>';
+        }
+
+        if (detailCol) detailCol.innerHTML = '';
+        if (countLabel) countLabel.textContent = '0 receitas';
+    }
 }
 
 // ===== 3. FORMATADOR DE DATA BRASILEIRA =====
@@ -113,7 +173,18 @@ function renderList() {
     if (!listCol) return;
     listCol.innerHTML = '';
 
+    const turmaSelecionada = turmaSelect?.value;
+
     const filtered = RECIPES
+        .filter(r => {
+            if (!turmaSelecionada) return false;
+
+            // O backend já retorna somente as fichas da turma
+            // Mantém uma verificação adicional quando o vínculo vem na resposta
+            if (r.idTurma == null) return true;
+
+            return String(r.idTurma) === String(turmaSelecionada);
+        })
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
         .filter(r => activeCategory === 'todas' || r.type === activeCategory)
         .filter(r => {
@@ -126,7 +197,10 @@ function renderList() {
     }
 
     if (filtered.length === 0) {
-        listCol.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:32px 16px; text-align:center;">Nenhuma receita encontrada.</div>';
+        activeId = null;
+
+        listCol.innerHTML = '<div style="font-size:13px; color:#94a3b8; padding:32px 16px; text-align:center;">Nenhuma receita encontrada para esta turma.</div>';
+
         const detailCol = document.getElementById('detailCol');
         if (detailCol) detailCol.innerHTML = '<div style="color:#94a3b8; text-align:center; padding-top:60px;">Nenhuma receita selecionada.</div>';
         return;
@@ -177,17 +251,23 @@ async function carregarEExibirDetalhes() {
     const r = RECIPES.find(x => x.id === activeId);
     if (!r) return;
 
+    const idDetalhe = activeId;
     detailCol.innerHTML = '<div style="text-align:center; padding-top:60px; color:#94a3b8;">Carregando detalhes...</div>';
 
     try {
         // Verifica se já buscou os detalhes antes para não chamar a API à toa
-        if (!detalhesCache[activeId]) {
-            const res = await fetch(`/api/fichas/${activeId}/detalhes`);
-            detalhesCache[activeId] = await res.json();
+        if (!detalhesCache[idDetalhe]) {
+            const res = await fetch(`/api/fichas/${idDetalhe}/detalhes`);
+            detalhesCache[idDetalhe] = await res.json();
         }
 
-        renderDetail(r, detalhesCache[activeId]);
+        // Evita mostrar detalhes de uma turma anterior
+        if (activeId !== idDetalhe) return;
+
+        renderDetail(r, detalhesCache[idDetalhe]);
     } catch (err) {
+        if (activeId !== idDetalhe) return;
+
         console.error("Erro ao carregar insumos e utensílios:", err);
         detailCol.innerHTML = '<div style="color:red; text-align:center; padding-top:60px;">Erro ao carregar detalhes desta receita.</div>';
     }

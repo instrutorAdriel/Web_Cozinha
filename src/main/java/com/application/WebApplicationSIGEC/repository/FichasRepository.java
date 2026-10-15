@@ -23,4 +23,8 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
 
     @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario)")
     List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Long idUsuario);
+
+    // Busca somente as receitas vinculadas à turma selecionada
+    @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id = :idTurma")
+    List<Ficha> findFichasByTurmaId(@Param("idTurma") Long idTurma);
 }

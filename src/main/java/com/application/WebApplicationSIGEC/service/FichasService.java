@@ -1,3 +1,4 @@
+
 package com.application.WebApplicationSIGEC.service;
 
 import com.application.WebApplicationSIGEC.model.Ficha;
@@ -13,7 +14,6 @@ import java.util.Optional;
 public class FichasService {
 
     private final FichasRepository fichasRepository;
-
 
     public FichasService(FichasRepository fichasRepository) {
         this.fichasRepository = fichasRepository;
@@ -38,9 +38,13 @@ public class FichasService {
         return fichasRepository.findAll();
     }
 
-
     public List<Ficha> buscarFichasPorUsuario(Long idUsuario) {
         return fichasRepository.findFichasByUsuarioId(idUsuario);
+    }
+
+    // Busca somente as receitas da turma selecionada
+    public List<Ficha> buscarPorTurma(Long idTurma) {
+        return fichasRepository.findFichasByTurmaId(idTurma);
     }
 
     // Busca somente as fichas que ainda não foram alocadas

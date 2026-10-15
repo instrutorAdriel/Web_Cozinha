@@ -1,3 +1,4 @@
+
 package com.application.WebApplicationSIGEC.controller;
 
 import java.time.LocalDate;
@@ -7,6 +8,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.application.WebApplicationSIGEC.model.Agendamento;
+import com.application.WebApplicationSIGEC.model.Ficha;
 import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
@@ -114,16 +116,41 @@ public class HomeController {
         return ResponseEntity.ok(detalhes);
     }
 
+    // Endpoint atualizado para permitir filtro por turma
     @GetMapping("/api/fichas")
     @ResponseBody
-    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Ficha>> getTodasFichas(HttpSession session) {
+    public ResponseEntity<List<Ficha>> getTodasFichas(
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
+
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
         }
 
-        List<com.application.WebApplicationSIGEC.model.Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
-        return ResponseEntity.ok(fichasDoUsuario);
+        // Mantém o comportamento anterior para chamadas sem turma
+        if (idTurma == null) {
+            List<Ficha> fichasDoUsuario =
+                    fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
+
+            return ResponseEntity.ok(fichasDoUsuario);
+        }
+
+        // Verifica se a turma está vinculada ao usuário
+        boolean turmaPermitida = turmaRepository
+                .findTurmasByUsuarioId(usuarioLogado.getId())
+                .stream()
+                .anyMatch(t -> String.valueOf(t.getId()).equals(String.valueOf(idTurma)));
+
+        if (!turmaPermitida) {
+            return ResponseEntity.status(403).build();
+        }
+
+        // Busca somente as receitas da turma selecionada
+        List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
+
+        return ResponseEntity.ok(fichasDaTurma);
     }
 
     @GetMapping("/api/turmas")
