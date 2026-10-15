@@ -70,25 +70,34 @@ public class FichasService {
     }
 
     public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Long idTurma, LocalDate data) {
-        List<Agendamento> alocadas = (idUsuario != null && idTurma != null)
+        // 1. Agendamentos específicos para a DATA SELECIONADA (para exibir no painel lateral do dia)
+        List<Agendamento> alocadasNoDia = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
 
+        // 2. Busca TODAS as fichas pertencentes a esta turma
         List<Ficha> todasDaTurma = (idTurma != null)
                 ? fichasRepository.findByIdTurma(idTurma)
                 : Collections.emptyList();
 
-        List<Long> idsAlocados = alocadas.stream()
+        // 3. Busca TODOS os agendamentos ativos desta turma (EM QUALQUER DATA DO CALENDÁRIO)
+        List<Agendamento> todosAgendamentosDaTurma = (idUsuario != null && idTurma != null)
+                ? agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma)
+                : Collections.emptyList();
+
+        // 4. Extrai os IDs de TODAS as fichas que já foram agendadas em QUALQUER dia
+        List<Long> idsAlocadosEmQualquerData = todosAgendamentosDaTurma.stream()
                 .filter(a -> a.getFicha() != null)
                 .map(a -> a.getFicha().getId())
                 .toList();
 
+        // 5. FILTRO GLOBAL: Mantém em "disponíveis" APENAS as fichas que NUNCA foram alocadas em dia nenhum
         List<Ficha> disponiveis = todasDaTurma.stream()
-                .filter(f -> f.getId() != null && !idsAlocados.contains(f.getId()))
+                .filter(ficha -> ficha.getId() != null && !idsAlocadosEmQualquerData.contains(ficha.getId()))
                 .toList();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("alocadas", alocadas);
+        response.put("alocadas", alocadasNoDia);
         response.put("disponiveis", disponiveis);
 
         return response;
@@ -98,13 +107,14 @@ public class FichasService {
     public void alocarFicha(Long idFicha, LocalDate novaData) {
         if (idFicha == null || novaData == null) return;
 
+        // Evita duplicados na mesma data
         boolean jaExiste = agendamentoRepository.existsByFicha_IdAndDataAndSituacao(idFicha, novaData, "A");
         if (jaExiste) {
-            throw new IllegalArgumentException("Esta ficha já está alocada para este dia!");
+            throw new IllegalArgumentException("Esta ficha já se encontra agendada para este dia!");
         }
 
         Ficha ficha = fichasRepository.findById(idFicha)
-                .orElseThrow(() -> new RuntimeException("Ficha técnica não encontrada."));
+                .orElseThrow(() -> new RuntimeException("Ficha não encontrada."));
 
         Agendamento agendamento = new Agendamento();
         agendamento.setFicha(ficha);
