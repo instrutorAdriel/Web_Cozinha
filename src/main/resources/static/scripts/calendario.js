@@ -9,7 +9,7 @@ const CalendarioSIGEC = {
 
     // 2. Mapeamento dos Elementos DOM
     elements: {
-        selectTurma: document.getElementById("turma-select"),
+        selectTurma: document.getElementById("turma-select") || document.getElementById("select-turma"),
         grid: document.getElementById("cal-grid"),
         indicadorMes: document.getElementById("cal-month"),
         labelDataPainel: document.getElementById("cal-panel-date"),
@@ -93,13 +93,25 @@ const CalendarioSIGEC = {
             } else {
                 turmas.forEach(turma => {
                     const id = turma.idTurma || turma.id;
-                    const nome = turma.nome || turma.nomeTurma;
-                    select.appendChild(new Option(nome, id));
+                    const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
+
+                    // Extração flexível do laboratório
+                    let labNome = '';
+                    if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
+                        labNome = turma.laboratorio.nomeLaboratorio || '';
+                    } else if (typeof turma.laboratorio === 'string') {
+                        labNome = turma.laboratorio;
+                    }
+
+                    const textoOpcao = labNome ? `${nomeTurma} - ${labNome}` : nomeTurma;
+                    select.appendChild(new Option(textoOpcao, id));
                 });
             }
         } catch (erro) {
             console.error("Erro no carregamento das turmas:", erro);
-            this.elements.selectTurma.innerHTML = '<option value="">Erro ao carregar turmas</option>';
+            if (this.elements.selectTurma) {
+                this.elements.selectTurma.innerHTML = '<option value="">Erro ao carregar turmas</option>';
+            }
         } finally {
             this.carregarAlocacoes();
         }
@@ -128,9 +140,6 @@ const CalendarioSIGEC = {
         }
     },
 
-    // =========================================================
-    // BUSCAR FICHAS DO DIA (ATUALIZADO PARA MAPEAR NOME E OBJETO)
-    // =========================================================
     async buscarFichasDoDia(dataIso, dia, nomeMes, ano) {
         const { labelDataPainel, containerAlocadas, containerDisponiveis } = this.elements;
 
@@ -153,21 +162,16 @@ const CalendarioSIGEC = {
             const alocadas = dados.alocadas || [];
             const disponiveis = dados.disponiveis || dados.Disponiveis || [];
 
-            // 1. Renderiza Fichas Alocadas procurando o nomeFicha no objeto ficha
+            // 1. Renderiza Fichas Alocadas
             if (alocadas.length === 0 && containerAlocadas) {
                 containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
             } else {
                 alocadas.forEach(agendamento => {
-                    // Puxa o título/nome da ficha mapeado no relacionamento
-                    const nomeFicha = agendamento.ficha
-                        ? (agendamento.ficha.nomeFicha || agendamento.ficha.nome || agendamento.ficha.titulo)
-                        : (agendamento.nomeFicha || agendamento.nome || agendamento.titulo || "Ficha sem título");
+                    const fichaObj = agendamento.ficha || agendamento;
+                    const idAgendamento = agendamento.idAgendamento || agendamento.id || agendamento.idFicha;
+                    const nome = fichaObj.nomeFicha || fichaObj.nome || fichaObj.titulo || "Ficha sem título";
 
-                    const idParaDesalocar = agendamento.idAgendamento || agendamento.id || agendamento.idFicha;
-
-                    containerAlocadas.appendChild(
-                        this.criarCardFicha({ id: idParaDesalocar, nome: nomeFicha }, "success", "delete")
-                    );
+                    containerAlocadas.appendChild(this.criarCardFicha({ id: idAgendamento, nome }, "success", "delete"));
                 });
             }
 
@@ -176,12 +180,10 @@ const CalendarioSIGEC = {
                 containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
             } else {
                 disponiveis.forEach(ficha => {
-                    const nomeFicha = ficha.nomeFicha || ficha.nome || ficha.titulo || "Ficha sem título";
                     const idFicha = ficha.idFicha || ficha.id;
+                    const nome = ficha.nomeFicha || ficha.nome || ficha.titulo || "Ficha sem título";
 
-                    containerDisponiveis.appendChild(
-                        this.criarCardFicha({ id: idFicha, nome: nomeFicha }, "warning", "append")
-                    );
+                    containerDisponiveis.appendChild(this.criarCardFicha({ id: idFicha, nome }, "warning", "append"));
                 });
             }
         } catch (erro) {
@@ -192,13 +194,14 @@ const CalendarioSIGEC = {
     },
 
     async alocarFicha(id, dataIso) {
-        const idTurma = this.getTurmaId();
+        if (!id || !dataIso) return;
 
+        const idTurma = this.getTurmaId();
         const bodyData = new URLSearchParams();
-        bodyData.append("id", id);
-        bodyData.append("data", dataIso);
+        bodyData.append("id", String(id));
+        bodyData.append("data", String(dataIso));
         if (idTurma) {
-            bodyData.append("idTurma", idTurma);
+            bodyData.append("idTurma", String(idTurma));
         }
 
         try {
@@ -322,11 +325,11 @@ const CalendarioSIGEC = {
     },
 
     // =========================================================
-    // CRIAR CARD DE FICHA (ATUALIZADO)
+    // CRIAR CARD DE FICHA
     // =========================================================
-    criarCardFicha(ficha, status, acao) {
-        const id = ficha.id || ficha.idFicha;
-        const nome = ficha.nome || ficha.nomeFicha || ficha.titulo || "Ficha sem título";
+    criarCardFicha(item, status, acao) {
+        const id = item.id;
+        const nome = item.nome || "Ficha sem título";
         const icone = status === "success" ? "check_circle" : "warning";
         const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
 

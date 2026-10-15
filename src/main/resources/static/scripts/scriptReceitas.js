@@ -46,11 +46,15 @@ function popularSeletorTurmas() {
     turmaSelect.innerHTML = '';
 
     turmas.forEach(t => {
-        const lab = t.laboratorio ? t.laboratorio.nomeLaboratorio : 'Lab Indefinido';
+        const id = t.idTurma || t.id;
+        const nomeTurma = t.nomeTurma || t.nome || 'Turma Indefinida';
+        const lab = t.laboratorio
+            ? (t.laboratorio.nomeLaboratorio || t.laboratorio)
+            : 'Lab Indefinido';
 
         const option = document.createElement('option');
-        option.value = t.id;
-        option.textContent = `${t.nomeTurma} — ${lab}`;
+        option.value = id;
+        option.textContent = `${nomeTurma} - ${lab}`;
 
         turmaSelect.appendChild(option);
     });

@@ -68,18 +68,26 @@ function popularTurmasDropdown(turmas) {
   const turmaSelect = $('turma-select');
   if (!turmaSelect) return;
 
-  turmaSelect.innerHTML = ''; // Limpa as opções (removendo "Todas as Turmas")
+  turmaSelect.innerHTML = '';
 
   if (turmas.length === 0) {
     turmaSelect.innerHTML = '<option value="">-- Nenhuma Turma Vinculada --</option>';
   } else {
     turmas.forEach(turma => {
-      const labNome = turma.laboratorio ? turma.laboratorio.nomeLaboratorio : 'Laboratório N/A';
-      turmaSelect.innerHTML += `<option value="${turma.id}">${turma.nomeTurma} - ${labNome}</option>`;
+      const id = turma.idTurma || turma.id;
+      const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
+
+      let labNome = 'Laboratório N/A';
+      if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
+        labNome = turma.laboratorio.nomeLaboratorio || 'Laboratório N/A';
+      } else if (typeof turma.laboratorio === 'string' && turma.laboratorio.trim() !== '') {
+        labNome = turma.laboratorio;
+      }
+
+      turmaSelect.innerHTML += `<option value="${id}">${nomeTurma} - ${labNome}</option>`;
     });
   }
 
-  // Garante que o evento só seja adicionado uma vez
   turmaSelect.removeEventListener('change', onTurmaChange);
   turmaSelect.addEventListener('change', onTurmaChange);
 }
