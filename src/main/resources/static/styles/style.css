@@ -170,6 +170,30 @@ body#auth-page .toggle-password {
 body#auth-page .toggle-password:hover {
     color: #f7941d;
 }
+body#auth-page button.toggle-password {
+    width: auto;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    line-height: 1;
+}
+body#auth-page button.toggle-password svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+body#auth-page button.toggle-password.fa-eye .eye-slash {
+    display: none;
+}
+body#auth-page button.toggle-password.fa-eye-slash .eye-slash {
+    display: block;
+}
 body#auth-page button {
     background: #004A8D;
     color: white;
@@ -640,8 +664,15 @@ body#auth-page .links a:hover {
 main,
 .main,
 .main-container {
-    margin-left: var(--sidebar-width, 264px);
-    padding-top: var(--topbar-height, 68px);
+    margin-left: 32px;
+    padding-top: 100px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease;
+}
+.main-container-calendario {
+    margin-left: 320px;
+    padding-top: 100px;
     box-sizing: border-box;
     min-height: 100vh;
     transition: margin-left 0.3s ease;

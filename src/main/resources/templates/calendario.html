@@ -8,7 +8,7 @@
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/styles/teste.css}">
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
 </head>
 
 <body>
@@ -36,41 +36,14 @@
         </div>
     </div>
 
-    <!-- Links de Navegação Principal -->
-    <nav class="sidebar-nav">
 
-        <p class="nav-group">
-            Menu
-        </p>
-
-
-        <a th:href="@{/home}" class="nav-item">
-
-            <span class="material-symbols-outlined">
-                home
-            </span>
-
-            <span>
-                Início
-            </span>
-
-        </a>
-        <a th:href="@{/calendario}" class="nav-item active">
-
-            <span class="material-symbols-outlined">
-                calendar_month
-            </span>
-
-            <span>
-                Calendário
-            </span>
-
-        </a>
-        <a th:href="@{/receitas}" class="nav-item ">
-            <span class="material-symbols-outlined">menu_book</span>
-            <span>Receitas</span>
-        </a>
-    </nav>
+        <!-- Links de Navegação Principal -->
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a th:href="@{/home}" class="nav-item" ><span class="material-symbols-outlined">home</span><span>Início</span></a>
+            <a href="#" class="nav-item active"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
+            <a th:href="@{/receitas}" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+        </nav>
 
     <div class="sidebar-footer">
         <form th:action="@{/logout}" method="get">
@@ -113,7 +86,6 @@
                 <span class="material-symbols-outlined select-arrow">expand_more</span>
             </div>
         </div>
-
         <!-- Central de Notificações (Menu expansível via JS) -->
         <div class="notif-wrap">
             <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
@@ -133,7 +105,7 @@
     </div>
 </header>
 
-<main class="main-container">
+<main class="main-container-calendario">
     <div class="cal-dashboard-layout">
 
         <section class="cal-calendar-section">

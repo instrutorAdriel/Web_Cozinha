@@ -45,7 +45,7 @@
                         placeholder="Digite a nova senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)"></button>
             </div>
 
             <label for="confirmarSenha">Confirmar Nova Senha</label>
@@ -57,7 +57,7 @@
                         placeholder="Confirme a nova senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="fa-solid fa-eye-slash toggle-password" aria-label="Mostrar confirmação de senha" onclick="mostrarOcultarSenha(this)"></button>
             </div>
 
             <button type="submit">Alterar Senha</button>

@@ -49,7 +49,7 @@
                         placeholder="Digite sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)"></button>
             </div>
 
 
@@ -62,7 +62,7 @@
                         placeholder="Confirme sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password"  onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="fa-solid fa-eye-slash toggle-password" aria-label="Mostrar confirmação de senha" onclick="mostrarOcultarSenha(this)"></button>
             </div>
 
             <div class="erro1" th:if="${erro1}" th:text="${erro1}"></div>

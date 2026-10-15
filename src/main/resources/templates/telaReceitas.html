@@ -6,7 +6,7 @@
     <title>SENAC SIGEC — Receitas</title>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/styles/teste.css}">
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
 </head>
 
 <body id="receitas-page">
@@ -62,33 +62,34 @@
                 </div>
             </div>
 
-        <div class="topbar-actions" style="display: flex; align-items: center; gap: 16px; margin: 0; padding: 0;">
-            <div class="turma-select-group" style="display: flex; align-items: center; gap: 12px; margin: 0; padding: 0;">
-                <label class="field-label" for="turma-select" style="display: inline-block; margin: 0; padding: 0; white-space: nowrap; font-size: 11px; font-weight: 700; color: #002747; letter-spacing: 0.06em; text-transform: uppercase; line-height: 1;">TURMA / LABORATÓRIO</label>
-                <div class="select-wrap" style="position: relative; display: inline-flex; align-items: center; margin: 0; padding: 0;">
-                    <select id="turma-select" style="appearance: none; -webkit-appearance: none; background: #fff; color: #002747; border: 1px solid #c2c7d0; border-radius: 4px; padding: 8px 36px 8px 12px; font-size: 13px; font-weight: 600; cursor: pointer; outline: none; margin: 0; line-height: normal;">
-                        <option value="2024.1.A">Turma 2024.1.A — Padaria Lab 01</option>
-                        <option value="2024.1.C">Turma 2024.1.C — Cozinha Pedagógica 02</option>
-                        <option value="2024.2.N">Turma 2024.2.N — Cozinha Pedagógica 04</option>
-                    </select>
-                    <span class="material-symbols-outlined select-arrow" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #002747; pointer-events: none; font-size: 20px;">expand_more</span>
-                </div>
-            </div>
-            <div class="notif-wrap">
-                <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
-                    <span class="material-symbols-outlined">notifications</span>
-                    <span class="badge-dot" id="notif-badge" hidden></span>
-                </button>
+            <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
+            <div class="topbar-actions">
 
-                <div class="notif-panel" id="notif-panel">
-                    <div class="notif-head">
-                        <h3>Notificações</h3>
-                        <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+                <div class="topbar-actions">
+                    <label class="field-label" for="turma-select">Turma / Laboratório</label>
+                    <div class="select-wrap">
+                        <select id="turma-select">
+                            <!-- Opções carregadas dinamicamente via JS -->
+                        </select>
+                        <span class="material-symbols-outlined select-arrow">expand_more</span>
                     </div>
-                    <div class="notif-list" id="notif-list"></div>
                 </div>
+
+                <div class="notif-wrap">
+                    <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="badge-dot" id="notif-badge" hidden></span>
+                    </button>
+                    <div class="notif-panel" id="notif-panel">
+                        <div class="notif-head">
+                            <h3>Notificações</h3>
+                            <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
+                        </div>
+                        <div class="notif-list" id="notif-list"></div>
+                    </div>
+                </div>
+
             </div>
-        </div>
     </header>
 
     <!-- CORPO PRINCIPAL -->
