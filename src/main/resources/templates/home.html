@@ -109,14 +109,21 @@
         <!-- Bloco Superior: Lista de Aulas e Resumo Dinâmico da Receita -->
         <div class="dashboard-top-grid">
             <!-- Listagem das Aulas/Turmas do Dia -->
+
             <section class="classes-col">
                 <div class="section-head split">
                     <div class="section-head plain">
                         <span class="material-symbols-outlined">today</span>
-                        <h2 class="section-title">Receitas de Hoje</h2>
+                        <h2 class="section-title">Receitas da Semana</h2>
                     </div>
                 </div>
+
+                <!-- Cards preenchidos dinamicamente pelo JavaScript -->
+                <div id="receitas-semana-lista" class="receitas-semana-lista">
+                    <p class="muted">Carregando receitas da semana...</p>
+                </div>
             </section>
+
 
             <!-- Painel Lateral: Resumo Prático dos Passos da Receita Selecionada -->
             <aside class="recipe-summary-card" id="recipe-summary-card">

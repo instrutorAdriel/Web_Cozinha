@@ -62,4 +62,28 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     @Modifying
     @Query(value = "DELETE FROM agendamento WHERE id_agendamento = :id", nativeQuery = true)
     void desalocarPorId(@Param("id") Long id);
+
+
+    // Busca agendamentos de um período vinculados ao usuário
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH f.turma t
+        WHERE a.data BETWEEN :inicio AND :fim
+          AND a.situacao = 'A'
+          AND t.id IN (
+              SELECT tu.id
+              FROM Usuario u
+              JOIN u.turmas tu
+              WHERE u.id = :idUsuario
+          )
+        ORDER BY a.data ASC, a.id ASC
+    """)
+    List<Agendamento> buscarAgendamentosDaSemana(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim,
+            @Param("idUsuario") Long idUsuario
+    );
+
+
 }
