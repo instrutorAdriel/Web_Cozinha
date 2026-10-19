@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:https="http://www.w3.org/1999/xhtml">
+<html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -17,7 +17,7 @@
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-    <!-- Logotipo e Identificação do Sistema -->
+    <!-- Logotipo e Identificação do Sistema (Sem o <br> que desalinhava o cabeçalho) -->
     <div class="sidebar-brand">
         <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="SENAC – Fecomércio Sesc" class="brand-logo-img">
         <div class="brand-text">
@@ -62,11 +62,11 @@
     <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
     <div class="topbar-actions">
 
-        <div class="topbar-actions">
-            <label class="field-label" for="turma-select">Turma / Laboratório</label>
+        <div class="turma-select-group">
+            <label class="field-label" for="turma-select">TURMA / LABORATÓRIO</label>
             <div class="select-wrap">
                 <select id="turma-select">
-                    <!-- Opções carregadas dinamicamente via JS -->
+                    <option value="">-- Nenhuma Turma Vinculada --</option>
                 </select>
                 <span class="material-symbols-outlined select-arrow">expand_more</span>
             </div>
@@ -99,9 +99,9 @@
         <!-- Banner de Boas-vindas (Hero Section) -->
         <section class="hero flight-accent">
             <div class="hero-text">
-                <p class="hero-date" th:text="${dataDeHoje}">Quarta-feira, 17 de Junho</p>
+                <p class="hero-date" th:text="${dataDeHoje}"></p>
                 <h2 class="hero-title">
-                    <span id="mensagem-tempo" th:text="${saudacao}">Bom dia</span><span th:text="', '+${nomeUsuario}">, Chef Ricardo!</span>
+                    <span id="mensagem-tempo" th:text="${saudacao}">Bom dia</span>, <span th:text="${nomeUsuario}">Instrutor</span>!
                 </h2>
                 <p class="hero-sub">Você tem <strong id="hero-turmas-count">0 turmas</strong> hoje.</p>
             </div>
@@ -129,9 +129,7 @@
                 <div class="summary-body">
                     <h4 class="summary-recipe-name" id="summary-recipe-name">Selecione uma aula</h4>
                     <ol class="summary-steps-list" id="summary-steps">
-                        <li>
-                            Clique em "Ver receita" ao lado para carregar os detalhes.
-                        </li>
+                        <p style="color: #94a3b8; font-size: 13px; margin: 8px 0;">Nenhuma receita selecionada.</p>
                     </ol>
 
                     <!-- Rodapé do Resumo -->
@@ -156,14 +154,16 @@
 
                     <label class="field-label" for="recipe-select">Selecione a aula / receita</label>
                     <div class="select-wrap">
-                        <select id="recipe-select"></select>
+                        <select id="recipe-select">
+                            <option value="">-- Selecione uma Receita --</option>
+                        </select>
                         <span class="material-symbols-outlined select-arrow">expand_more</span>
                     </div>
 
                     <!-- Metadados da Receita Ativa -->
-                    <p class="ch-recipe">Receita: <strong id="recipe-name"> </strong></p>
-                    <p class="ch-loc" id="recipe-loc"> </p>
-                    <p class="ch-turma-badge" id="turma-badge"> </p>
+                    <p class="ch-recipe">Receita: <strong id="recipe-name">—</strong></p>
+                    <p class="ch-loc" id="recipe-loc">—</p>
+                    <p class="ch-turma-badge" id="turma-badge">—</p>
                 </div>
 
                 <!-- Barra de Progresso e Lista de Itens dos Insumos -->
@@ -197,9 +197,9 @@
                         <h2 class="ch-title">Checklist de Utensílios</h2>
                     </div>
 
-                    <p class="ch-recipe">Aula: <strong id="util-recipe-name"> </strong></p>
-                    <p class="ch-loc" id="util-recipe-loc"> </p>
-                    <p class="ch-turma-badge" id="util-turma-badge"> </p>
+                    <p class="ch-recipe">Aula: <strong id="util-recipe-name">—</strong></p>
+                    <p class="ch-loc" id="util-recipe-loc">—</p>
+                    <p class="ch-turma-badge" id="util-turma-badge">—</p>
                 </div>
 
                 <!-- Barra de Progresso dos Utensílios -->
@@ -229,7 +229,7 @@
 
 
 <!-- ==========================================================================
-     JANELAS MODAIS (MODAL DIALOGS) - Ocultas por padrão (Controladas via JS/CSS)
+     JANELAS MODAIS (MODAL DIALOGS)
      ========================================================================== -->
 
 <!-- 1. MODAL DO CALENDÁRIO DE AULAS -->
@@ -245,15 +245,12 @@
             <div class="cal-nav">
                 <button class="cal-nav-btn" id="cal-prev"><span class="material-symbols-outlined">chevron_left</span>
                 </button>
-                <span class="cal-month" id="cal-month">Junho 2026</span>
+                <span class="cal-month" id="cal-month"></span>
                 <button class="cal-nav-btn" id="cal-next"><span class="material-symbols-outlined">chevron_right</span>
                 </button>
                 <div class="cal-kitchen-filter">
                     <select id="cal-kitchen">
                         <option value="todas">Todas as cozinhas</option>
-                        <option value="lab01">Padaria Lab 01</option>
-                        <option value="lab02">Cozinha Pedagógica 02</option>
-                        <option value="lab04">Cozinha Pedagógica 04</option>
                     </select>
                 </div>
             </div>
@@ -281,7 +278,7 @@
                     <p>Clique em um dia para ver e alocar fichas.</p>
                 </div>
                 <div class="cal-panel-content" id="cal-panel-content">
-                    <p class="cal-panel-date" id="cal-panel-date"> </p>
+                    <p class="cal-panel-date" id="cal-panel-date">—</p>
                     <h3 class="cal-sub">Fichas alocadas</h3>
                     <div class="cal-allocated" id="cal-allocated"></div>
 
