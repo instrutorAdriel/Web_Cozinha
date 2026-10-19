@@ -686,14 +686,16 @@ main,
 /* Conteúdo Padrão e de Receitas */
 .content,
 .content-receitas {
-    max-width: 1280px;
+    max-width: 82%;
     margin: 0 auto;
     padding: 32px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 32px;
-    width: 100%;
+    margin-left: 15%;
+    margin-right: 25%;
+    width: 75%;
 }
 
 /* Flight Accent */

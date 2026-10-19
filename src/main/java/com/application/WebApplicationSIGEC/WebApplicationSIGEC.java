@@ -8,7 +8,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class WebApplicationSIGEC {
 
     public static void main(String[] args) {
-        // Carrega o arquivo .env (se existir) para as propriedades de sistema do Java
+        // Carrega o arquivo ..env (se existir) para as propriedades de sistema do Java
         Dotenv dotenv = Dotenv.configure()
                 .filename(".env")
                 .ignoreIfMissing()
