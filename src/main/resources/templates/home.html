@@ -103,7 +103,11 @@
                 <h2 class="hero-title">
                     <span id="mensagem-tempo" th:text="${saudacao}">Bom dia</span>, <span th:text="${nomeUsuario}">Instrutor</span>!
                 </h2>
-                <p class="hero-sub">Você tem <strong id="hero-turmas-count">0 turmas</strong> hoje.</p>
+
+                <p class="hero-sub">
+                    Você tem <strong id="hero-receitas-count">0 receitas</strong> agendadas para hoje.
+                </p>
+
             </div>
         </section>
 
@@ -113,8 +117,10 @@
             <section class="classes-col">
                 <div class="section-head split">
                     <div class="section-head plain">
-                        <span class="material-symbols-outlined">today</span>
-                        <h2 class="section-title">Receitas de Hoje</h2>
+                        <span class="material-symbols-outlined">calendar_month</span>
+                        <h2 class="section-title titulo-receitas-semana">
+                            Receitas da Semana
+                        </h2>
                     </div>
                 </div>
 

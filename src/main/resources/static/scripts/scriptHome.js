@@ -70,6 +70,7 @@ function carregarDadosIniciais() {
             if (turmaSelect) turmaSelect.value = turmaInicialId;
 
             filtrarPorTurma(turmaInicialId);
+            atualizarContadorReceitasHoje(turmaInicialId);
 
             // === CONTADOR DE TURMAS DE HOJE ===
             const contadorTurmas = document.getElementById('hero-turmas-count');
@@ -144,6 +145,7 @@ function onTurmaChange(e) {
 }
 
 function filtrarPorTurma(turmaId) {
+    atualizarContadorReceitasHoje(turmaId);
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
 
@@ -168,7 +170,7 @@ function filtrarPorTurma(turmaId) {
     // Preserva o seletor manual de fichas para os checklists.
     const selectReceita = $('recipe-select');
     if (selectReceita) {
-        selectReceita.innerHTML = '<option value="">-- Selecione uma Receita --</option>';
+        selectReceita.innerHTML = '';
         const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
             if (turmaId === 'todas' || turmaId === '') return true;
             const idTurma = f.turma?.idTurma ?? f.turma?.id;
@@ -183,6 +185,23 @@ function filtrarPorTurma(turmaId) {
         });
     }
     limparDetalhesDaTela();
+
+    // Carrega automaticamente a primeira receita agendada para hoje na turma selecionada.
+    const receitaHoje = agendamentosDoDia.find(agendamento =>
+        agendamento.situacao === 'A' &&
+        agendamento.ficha &&
+        filtrar(agendamento)
+    );
+
+    if (receitaHoje) {
+        const idFicha = receitaHoje.ficha.id ?? receitaHoje.ficha.idFicha;
+        if (selectReceita) {
+            const opcaoExiste = Array.from(selectReceita.options)
+                .some(option => option.value === String(idFicha));
+            if (opcaoExiste) selectReceita.value = String(idFicha);
+        }
+        selecionarAula(idFicha, receitaHoje);
+    }
 }
 
 // ===== CARDS EXPANSÍVEIS DOS DIAS DA SEMANA =====
@@ -207,18 +226,18 @@ function renderizarSemana(agendamentos, container) {
         const info = document.createElement('div');
         info.className = 'semana-dia-info';
 
-      const titulo = document.createElement('h3');
+        const titulo = document.createElement('h3');
 
-      const hoje = new Date();
-      const dataAtual = formatarDataLocal(hoje);
+        const hoje = new Date();
+        const dataAtual = formatarDataLocal(hoje);
 
-      titulo.textContent = dataISO === dataAtual
-          ? `${nomeDia} (Hoje)`
-          : nomeDia;
+        titulo.textContent = dataISO === dataAtual
+            ? `${nomeDia} (Hoje)`
+            : nomeDia;
 
-      info.appendChild(titulo);
+        info.appendChild(titulo);
 
-      const seta = document.createElement('span');
+        const seta = document.createElement('span');
         seta.className = 'material-symbols-outlined semana-dia-seta';
         seta.textContent = 'expand_more';
         header.append(info, seta);
@@ -289,9 +308,11 @@ function renderizarCardsDeAulas(agendamentos, container) {
         container.appendChild(card);
     });
 }
-
 // ===== 3. SELEÇÃO DE AULA E DETALHES =====
 function selecionarAula(fichaId, agendamentoSelecionado = null) {
+    const selectReceita = $('recipe-select');
+    if (selectReceita) selectReceita.value = String(fichaId);
+
     document.querySelectorAll('.class-card').forEach(c => {
         c.classList.toggle('selected', Number(c.dataset.recipe) === Number(fichaId));
     });
@@ -724,3 +745,27 @@ const kitchenClose = $('kitchen-close');
 if (kitchenClose) kitchenClose.addEventListener('click', () => {
     if (kitchenModal) kitchenModal.classList.remove('show');
 });
+
+
+function atualizarContadorReceitasHoje(turmaId) {
+    const contador = document.getElementById('hero-receitas-count');
+
+    if (!contador) return;
+
+    let receitasHoje = agendamentosDoDia.filter(
+        agendamento => agendamento.situacao === 'A'
+    );
+
+    // Filtra pela turma selecionada na topbar
+    if (turmaId && turmaId !== 'todas') {
+        receitasHoje = receitasHoje.filter(agendamento => {
+            const idTurma = agendamento.ficha?.turma?.id;
+            return String(idTurma) === String(turmaId);
+        });
+    }
+
+    const quantidade = receitasHoje.length;
+
+    contador.textContent =
+        `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+}
