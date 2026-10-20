@@ -3735,4 +3735,87 @@ body {
         padding: 24px 20px;
         max-height: none;
     }
+
+
+}
+/* ===== RECEITAS DA SEMANA ===== */
+
+.receitas-semana-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.semana-dia-card {
+    background: var(--surface-lowest);
+    border: 1px solid var(--outline-variant);
+    border-radius: var(--r);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .08);
+    overflow: hidden;
+}
+
+.semana-dia-header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--primary);
+}
+
+.semana-dia-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.semana-dia-info h3 {
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.semana-dia-icon {
+    color: #22c55e;
+    font-size: 22px;
+}
+
+.semana-dia-seta {
+    color: var(--secondary-container);
+    transition: transform .2s ease;
+}
+
+.semana-dia-card.aberto .semana-dia-seta {
+    transform: rotate(180deg);
+}
+
+.semana-dia-conteudo {
+    display: none;
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--outline-variant);
+}
+
+.semana-dia-card.aberto .semana-dia-conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.semana-dia-vazio {
+    padding: 12px;
+    color: var(--on-surface-variant);
+    font-size: 13px;
+}
+
+.semana-dia-conteudo .class-card {
+    width: 100%;
+}
+.titulo-receitas-semana {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--primary);
+    margin: 0;
 }

@@ -38,6 +38,22 @@ public class HomeService {
         return agendamentoRepository.findAgendamentosDoUsuarioHoje(data, idUsuario);
     }
 
+
+    // Busca as receitas agendadas durante a semana
+    @Transactional(readOnly = true)
+    public List<Agendamento> buscarAulasDaSemana(
+            LocalDate inicio,
+            LocalDate fim,
+            Long idUsuario
+    ) {
+        return agendamentoRepository.buscarAgendamentosDaSemana(
+                inicio,
+                fim,
+                idUsuario
+        );
+    }
+
+
     // Busca insumos e utensílios referentes a uma ficha técnica
     public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
         Map<String, Object> detalhes = new HashMap<>();

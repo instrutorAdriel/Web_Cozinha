@@ -98,7 +98,11 @@ public class HomeController {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
+
+
         }
+
+
 
         LocalDate dataBusca = LocalDate.now();
         List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
@@ -106,6 +110,35 @@ public class HomeController {
         if (agendamentos.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
+        return ResponseEntity.ok(agendamentos);
+    }
+
+    // Retorna as receitas agendadas para a semana
+    @GetMapping("/api/agendamentos/semana")
+    @ResponseBody
+    public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
+            @RequestParam("inicio") LocalDate inicio,
+            @RequestParam("fim") LocalDate fim,
+            HttpSession session
+    ) {
+        Usuario usuarioLogado =
+                (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        if (inicio.isAfter(fim)) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        List<Agendamento> agendamentos =
+                homeService.buscarAulasDaSemana(
+                        inicio,
+                        fim,
+                        usuarioLogado.getId()
+                );
+
         return ResponseEntity.ok(agendamentos);
     }
 
