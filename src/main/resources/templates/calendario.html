@@ -8,8 +8,7 @@
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
           rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/styles/stylesHome.css}">
-    <link rel="stylesheet" th:href="@{/styles/calendario.css}">
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
 </head>
 
 <body>
@@ -36,40 +35,14 @@
         </div>
     </div>
 
-    <nav class="sidebar-nav">
 
-        <p class="nav-group">
-            Menu
-        </p>
-
-
-        <a th:href="@{/home}" class="nav-item">
-
-            <span class="material-symbols-outlined">
-                home
-            </span>
-
-            <span>
-                Início
-            </span>
-
-        </a>
-        <a th:href="@{/calendario}" class="nav-item active">
-
-            <span class="material-symbols-outlined">
-                calendar_month
-            </span>
-
-            <span>
-                Calendário
-            </span>
-
-        </a>
-        <a th:href="@{/receitas}" class="nav-item ">
-            <span class="material-symbols-outlined">menu_book</span>
-            <span>Receitas</span>
-        </a>
-    </nav>
+        <!-- Links de Navegação Principal -->
+        <nav class="sidebar-nav">
+            <p class="nav-group">Menu</p>
+            <a th:href="@{/home}" class="nav-item" ><span class="material-symbols-outlined">home</span><span>Início</span></a>
+            <a href="#" class="nav-item active"><span class="material-symbols-outlined">calendar_month</span><span>Calendário</span></a>
+            <a th:href="@{/receitas}" class="nav-item"><span class="material-symbols-outlined">menu_book</span><span>Receitas</span></a>
+        </nav>
 
     <div class="sidebar-footer">
         <form th:action="@{/logout}" method="get">
@@ -91,39 +64,28 @@
      ========================================================================== -->
 <header class="topbar">
     <div class="topbar-left">
-        <button class="menu-toggle" id="menu-toggle">
-            <span class="material-symbols-outlined">menu</span>
-        </button>
+        <button class="menu-toggle" id="menu-toggle"><span class="material-symbols-outlined">menu</span></button>
         <div class="breadcrumb">
-
-            <span class="crumb-muted">
-                SIGEC
-            </span>
-
-            <span class="material-symbols-outlined crumb-sep">
-                chevron_right
-            </span>
-
-            <span class="crumb-current">
-                Calendário
-            </span>
-
+            <span class="crumb-muted">SIGEC</span>
+            <span class="material-symbols-outlined crumb-sep">chevron_right</span>
+            <span class="crumb-current">Início</span>
         </div>
     </div>
 
     <div class="topbar-actions">
-        <label class="field-label" for="turma-select">Turma / Laboratório</label>
-        <div class="select-wrap">
-            <select id="turma-select">
-                <option value="">-- Selecione uma Turma --</option>
-                <option value="2024.1.A">Turma 2024.1.A</option>
-                <option value="2024.1.C">Turma 2024.1.C</option>
-            </select>
-            <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+        <div class="topbar-actions">
+            <label class="field-label" for="turma-select">Turma / Laboratório</label>
+            <div class="select-wrap">
+                <select id="turma-select">
+                    <!-- Opções carregadas dinamicamente via JS -->
+                </select>
+                <span class="material-symbols-outlined select-arrow">expand_more</span>
+            </div>
         </div>
 
         <div class="notif-wrap">
-            <button class="icon-btn" id="notif-btn" aria-label="Notificações">
+            <button class="icon-btn" id="notif-btn" aria-label="Notificações" aria-expanded="false">
                 <span class="material-symbols-outlined">notifications</span>
                 <span class="badge-dot" id="notif-badge" th:hidden="${#lists.isEmpty(notificacoes)}"></span>
             </button>
@@ -131,6 +93,7 @@
             <div class="notif-panel" id="notif-panel">
                 <div class="notif-head">
                     <h3>Notificações</h3>
+                    <button class="notif-clear" id="notif-clear">Marcar todas como lidas</button>
                 </div>
                 <div class="notif-list">
 
@@ -166,10 +129,16 @@
             </div>
         </div>
 
+        <div class="user-box">
+            <div class="user-info">
+                <p class="user-name" th:text="${nomeUsuario != null ? nomeUsuario : 'Chef Ricardo Silva'}">Chef Ricardo
+                    Silva</p>
+            </div>
+        </div>
     </div>
 </header>
 
-<main class="main-container">
+<main class="main-container-calendario">
     <div class="cal-dashboard-layout">
 
         <section class="cal-calendar-section">

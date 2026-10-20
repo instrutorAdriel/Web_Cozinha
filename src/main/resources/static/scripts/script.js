@@ -27,11 +27,13 @@ function mostrarOcultarSenha(iconeClicado) {
         campoSenha.type = "text";
         iconeClicado.classList.remove("fa-eye-slash");
         iconeClicado.classList.add("fa-eye");
+        iconeClicado.setAttribute("aria-label", "Ocultar senha");
     } else {
         // Se a senha estava visível e vai ocultar, colocamos o olho riscado
         campoSenha.type = "password";
         iconeClicado.classList.remove("fa-eye");
         iconeClicado.classList.add("fa-eye-slash");
+        iconeClicado.setAttribute("aria-label", "Mostrar senha");
     }
 }
 
