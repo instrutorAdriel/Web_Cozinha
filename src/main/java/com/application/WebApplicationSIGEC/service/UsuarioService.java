@@ -66,20 +66,31 @@ public class UsuarioService {
         }
         return usuario;
     }
-
     public String alterarSenha(UsuarioForm form){
+
         if(!form.getSenha().equals(form.getConfirmarSenha())){
             return "As senhas não conferem";
         }
 
+        String senhaRegex =
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
+
+        if (!form.getSenha().matches(senhaRegex)) {
+            return "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.";
+        }
+
         Optional<Usuario> resultado = usuarioRepository.findByEmail(form.getEmail());
+
         if(resultado.isEmpty()){
             return "E-mail não encontrado!";
         }
 
         Usuario usuario = resultado.get();
         usuario.setSenha(encoder.encode(form.getSenha()));
+
         usuarioRepository.save(usuario);
+
         return null;
     }
+
 }
