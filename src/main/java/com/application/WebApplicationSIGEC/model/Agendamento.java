@@ -21,7 +21,7 @@ public class Agendamento {
     @Column(nullable = false, length = 1)
     private String concluido = "N";
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_ficha")
     private Ficha ficha;
 
