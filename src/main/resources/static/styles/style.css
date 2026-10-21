@@ -3818,3 +3818,124 @@ body {
     color: var(--primary);
     margin: 0;
 }
+/* ==========================================================================
+   PAINEL DE NOTIFICAÇÕES (CORRIGIDO)
+   ========================================================================== */
+
+.notif-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Estado oculto padrão */
+.notif-panel {
+  display: none !important;
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 340px;
+  max-height: 420px;
+  background-color: var(--surface-lowest, #ffffff);
+  border: 1px solid var(--outline-variant, #e2e8f0);
+  border-radius: var(--r-lg, 10px);
+  box-shadow: var(--shadow-2, 0 8px 24px rgba(0, 0, 0, 0.18));
+  z-index: 9999;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Estado visível (Sobrescreve a transparência e permite clique) */
+.notif-panel.active,
+.notif-panel.show {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: translateY(0) !important;
+}
+
+.notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background-color: var(--primary, #002747);
+  color: #ffffff;
+  border-bottom: 3px solid var(--secondary-container, #ff8928);
+}
+
+.notif-head h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffffff;
+}
+
+.notif-clear {
+  background: none;
+  border: none;
+  color: var(--secondary-fixed, #ffdcc6);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.notif-clear:hover {
+  text-decoration: underline;
+}
+
+.notif-list {
+  padding: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notif-item {
+  padding: 10px 12px;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.notif-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.notif-item-title {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #333333;
+}
+
+.notif-item-detail {
+  margin: 4px 0;
+  font-size: 0.8rem;
+  color: #555555;
+}
+
+.notif-item-time {
+  font-size: 0.7rem;
+  color: #888888;
+}
+
+/* Tags de Status */
+.tag-status {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.65rem;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.tag-status.pendente { background-color: #fff3cd; color: #856404; }
+.tag-status.negado   { background-color: #f8d7da; color: #721c24; }
+.tag-status.aprovado { background-color: #d4edda; color: #155724; }
