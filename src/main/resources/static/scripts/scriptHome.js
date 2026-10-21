@@ -354,14 +354,12 @@ function atualizarResumoReceita(ficha) {
     if (summaryName) summaryName.textContent = ficha.nomeFicha || ficha.nome;
     if (summarySteps) {
         if (ficha.preparo) {
-            const passos = ficha.preparo.split('\n').filter(p => p.trim() !== '');
-            summarySteps.innerHTML = passos.map(passo => `<li>${passo}</li>`).join('');
+            renderizarPassosReceita(ficha.preparo, "summary-steps");
         } else {
             summarySteps.innerHTML = `<li style="list-style: none;">Modo de preparo indisponível.</li>`;
         }
     }
 }
-
 // ===== 4. RENDERIZAÇÃO DOS CHECKLISTS =====
 function renderChecklistInsumos(insumos, ficha, separados = []) {
     const lista = $('checklist-main');
@@ -705,7 +703,6 @@ if ($('devolucao-save')) {
             });
     });
 }
-
 // ===== 7. MENU E MODO COZINHA =====
 const menuBtn = $('menu-toggle');
 const sidebar = $('sidebar');
@@ -731,8 +728,7 @@ if (btnOpenKitchen) {
 
         if (kitchenSteps) {
             if (fichaAtual.preparo) {
-                const passos = fichaAtual.preparo.split('\n').filter(p => p.trim() !== '');
-                kitchenSteps.innerHTML = passos.map(passo => `<li>${passo}</li>`).join('');
+                renderizarPassosReceita(fichaAtual.preparo, "kitchen-steps");
             } else {
                 kitchenSteps.innerHTML = `<li>Modo de preparo indisponível.</li>`;
             }
@@ -768,4 +764,32 @@ function atualizarContadorReceitasHoje(turmaId) {
 
     contador.textContent =
         `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+}
+
+function separarPassosReceita(preparo) {
+    if (!preparo || typeof preparo !== "string") {
+        return [];
+    }
+
+    return preparo
+        .split(".")
+        .map(passo => passo.trim())
+        .filter(passo => passo.length > 0)
+        .map(passo => passo + ".");
+}
+
+function renderizarPassosReceita(preparo, containerId) {
+    const container = document.getElementById(containerId);
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const passos = separarPassosReceita(preparo);
+
+    passos.forEach(passo => {
+        const li = document.createElement("li");
+        li.textContent = passo;
+        container.appendChild(li);
+    });
 }
