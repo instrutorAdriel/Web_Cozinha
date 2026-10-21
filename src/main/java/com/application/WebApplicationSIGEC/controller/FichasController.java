@@ -1,19 +1,18 @@
 package com.application.WebApplicationSIGEC.controller;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import com.application.WebApplicationSIGEC.model.Ficha;
+import com.application.WebApplicationSIGEC.model.Agendamento;
+import com.application.WebApplicationSIGEC.model.Turma;
+import com.application.WebApplicationSIGEC.model.Usuario;
+import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.FichasService;
 
 import jakarta.servlet.http.HttpSession;
@@ -23,62 +22,85 @@ import jakarta.servlet.http.HttpSession;
 public class FichasController {
 
     private final FichasService fichasService;
+    private final TurmaRepository turmaRepository;
 
-    // Injeção via construtor
-    public FichasController(FichasService fichasService) {
+    @Autowired
+    public FichasController(FichasService fichasService, TurmaRepository turmaRepository) {
         this.fichasService = fichasService;
+        this.turmaRepository = turmaRepository;
     }
 
     @GetMapping("/calendario")
     public String exibirCalendario(HttpSession session) {
-
         if (session == null || session.getAttribute("usuarioLogado") == null) {
             return "redirect:/";
         }
-
         return "calendario";
     }
 
-    @GetMapping("/calendario/fichas")
-    public ResponseEntity<Map<String, Object>> exibirFichaData(
-            @RequestParam("data") String data) {
+    @GetMapping("/turmas/usuario")
+    @ResponseBody
+    public ResponseEntity<List<Turma>> obterTurmasDoUsuario(HttpSession session) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-        LocalDate dataSelecionada = LocalDate.parse(data);
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
 
-        // Fichas alocadas no dia selecionado
-        List<Ficha> rs = fichasService.buscarData(dataSelecionada);
-
-        // Somente fichas que ainda NÃO possuem data
-        List<Ficha> rsall = fichasService.buscarDisponiveis();
-
-        Map<String, Object> rsFinal = new HashMap<>();
-
-        rsFinal.put("alocadas", rs);
-        rsFinal.put("Disponiveis", rsall);
-
-        return ResponseEntity.ok(rsFinal);
+        List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
+        return ResponseEntity.ok(turmas);
     }
 
     @GetMapping("/calendario/fichas-alocadas")
-    public ResponseEntity<List<Ficha>> obterTodasFichasAlocadas() {
+    @ResponseBody
+    public ResponseEntity<List<Agendamento>> obterFichasAlocadas(
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
 
-        // Somente fichas que possuem uma data
-        List<Ficha> alocadas = fichasService.buscarAlocadas();
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
 
+        List<Agendamento> alocadas = fichasService.buscarTodosAgendamentosDaTurma(usuarioLogado.getId(), idTurma);
         return ResponseEntity.ok(alocadas);
     }
 
-    @GetMapping("/calendario/alocar")
+    @GetMapping("/calendario/fichas")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> exibirFichaData(
+            @RequestParam("data") String data,
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        LocalDate dataSelecionada = LocalDate.parse(data);
+
+        Map<String, Object> response = fichasService.buscarFichasEDisponiveisDoDia(
+                usuarioLogado.getId(), idTurma, dataSelecionada);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/calendario/alocar")
     @ResponseBody
     public ResponseEntity<String> alocarFicha(
             @RequestParam("id") Long id,
-            @RequestParam("data") String dataFinal) {
+            @RequestParam("data") String dataFinal,
+            HttpSession session) {
+
+        if (session == null || session.getAttribute("usuarioLogado") == null) {
+            return ResponseEntity.status(401).body("Acesso negado.");
+        }
 
         LocalDate novaData = LocalDate.parse(dataFinal);
-
         fichasService.alocarFicha(id, novaData);
 
-        return ResponseEntity.ok("Receita atualizada com sucesso!");
+        return ResponseEntity.ok("Ficha agendada com sucesso!");
     }
 
     @PostMapping("/calendario/desalocar")
@@ -88,14 +110,11 @@ public class FichasController {
             HttpSession session) {
 
         if (session == null || session.getAttribute("usuarioLogado") == null) {
-
-            return ResponseEntity
-                    .status(401)
-                    .body("Acesso negado: Usuário não autenticado.");
+            return ResponseEntity.status(401).body("Acesso negado.");
         }
 
         fichasService.desalocarFicha(id);
 
-        return ResponseEntity.ok("Receita desalocada com sucesso!");
+        return ResponseEntity.ok("Ficha removida do agendamento!");
     }
 }

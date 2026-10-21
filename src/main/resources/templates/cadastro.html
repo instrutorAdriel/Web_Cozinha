@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/styles/style.css}">
 </head>
-<body>
+<body id="auth-page">
 <div class="container">
     <div class="logo">
         <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
@@ -40,7 +40,7 @@
                     required
             >
 
-            <label for="senha">Senha</label>
+            <label for="senha">Senha </label>
             <div class="input-container">
                 <input
                         type="password"
@@ -49,20 +49,31 @@
                         placeholder="Digite sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password" onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path class="eye-slash" d="M3 3l18 18"></path>
+                    </svg>
+                </button>
             </div>
 
-
-            <label for="confirmar">Confirmar Senha</label>
+            <label for="senha">Confirma senha </label>
             <div class="input-container">
                 <input
                         type="password"
-                        id="confirmar"
+                        id="confirmaSenha"
                         th:field="*{confirmarSenha}"
-                        placeholder="Confirme sua senha"
+                        placeholder="Digite sua senha"
                         required
                 >
-                <i class="fa-solid fa-eye-slash toggle-password"  onclick="mostrarOcultarSenha(this)"></i>
+                <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path class="eye-slash" d="M3 3l18 18"></path>
+                    </svg>
+                </button>
             </div>
 
             <div class="erro1" th:if="${erro1}" th:text="${erro1}"></div>
