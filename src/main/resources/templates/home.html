@@ -367,9 +367,7 @@
             <h3 class="modal-title">Solicitar Insumo Extra</h3>
             <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">O item será registrado no checklist e enviado para validação.</p>
-
-        <label class="field-label dark">Nome do Insumo</label>
+        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Insumo</label>
         <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
 
         <div style="display: flex; gap: 12px; margin-bottom: 12px;">
@@ -378,8 +376,20 @@
                 <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
             </div>
             <div style="flex: 1;">
-                <label class="field-label dark">Unidade</label>
-                <input type="text" id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: ml, g, un">
+                <label class="field-label dark" for="extra-un">Unidade</label>
+                <div class="select-wrap" style="width: 100%; margin-bottom: 0;">
+                    <select id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto; margin-bottom: 0;">
+                        <option value="un">un (Unidade)</option>
+                        <option value="g">g (Grama)</option>
+                        <option value="kg">kg (Quilograma)</option>
+                        <option value="ml">ml (Mililitro)</option>
+                        <option value="l">L (Litro)</option>
+                        <option value="pct">pct (Pacote)</option>
+                        <option value="cx">cx (Caixa)</option>
+                        <option value="lt">lt (Lata)</option>
+                    </select>
+                    <span class="material-symbols-outlined select-arrow">expand_more</span>
+                </div>
             </div>
         </div>
 
@@ -400,9 +410,7 @@
             <h3 class="modal-title">Adicionar Utensílio Extra</h3>
             <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px;">Adicione um utensílio não previsto na ficha da receita.</p>
-
-        <label class="field-label dark">Nome do Utensílio</label>
+        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Utensílio</label>
         <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
 
         <label class="field-label dark">Quantidade (un)</label>
