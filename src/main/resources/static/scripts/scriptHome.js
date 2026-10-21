@@ -769,3 +769,43 @@ function atualizarContadorReceitasHoje(turmaId) {
     contador.textContent =
         `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
+
+// ===== 8. MODAIS DE SOLICITAÇÃO EXTRA (INSUMOS E UTENSÍLIOS) =====
+
+// --- Lógica do Insumo Extra ---
+const btnAddInsumo = $('btn-add-insumo');
+const modalExtra = $('extra-modal');
+const btnCloseExtra = $('extra-close');
+const btnCancelExtra = $('extra-cancel');
+
+if (btnAddInsumo) {
+    btnAddInsumo.addEventListener('click', () => {
+        if (modalExtra) modalExtra.classList.add('show');
+    });
+}
+
+const fecharModalInsumo = () => {
+    if (modalExtra) modalExtra.classList.remove('show');
+};
+
+if (btnCloseExtra) btnCloseExtra.addEventListener('click', fecharModalInsumo);
+if (btnCancelExtra) btnCancelExtra.addEventListener('click', fecharModalInsumo);
+
+// --- Lógica do Utensílio Extra ---
+const btnAddUtil = $('btn-add-util');
+const modalUtil = $('util-modal');
+const btnCloseUtil = $('util-close');
+const btnCancelUtil = $('util-cancel');
+
+if (btnAddUtil) {
+    btnAddUtil.addEventListener('click', () => {
+        if (modalUtil) modalUtil.classList.add('show');
+    });
+}
+
+const fecharModalUtil = () => {
+    if (modalUtil) modalUtil.classList.remove('show');
+};
+
+if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
+if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
