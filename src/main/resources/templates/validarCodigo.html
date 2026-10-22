@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Código - SIGEC</title>
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
+    <link rel="stylesheet" th:href="@{/styles/alterarSenha.css}">
+</head>
+<body>
+<div class="background-container">
+    <div class="card-recovery">
+        <div class="logo-container">
+            <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="Logo Senac" class="logo">
+        </div>
+
+        <h2>Confirmar Código</h2>
+        <p class="subtitle">Insira o código de 6 dígitos enviado para <br><strong th:text="${email}">seu-email@exemplo.com</strong></p>
+
+        <form th:action="@{/esqueci-senha/validar-codigo}" method="post">
+            <input type="hidden" name="email" th:value="${email}">
+
+            <div class="form-group">
+                <label for="codigo">Código de Verificação</label>
+                <input type="text" id="codigo" name="codigo" maxlength="6" placeholder="000000" class="input-code" required autofocus autocomplete="off">
+            </div>
+
+            <button type="submit" class="btn-primary">Validar Código</button>
+        </form>
+
+        <div class="footer-links">
+            <a th:href="@{/esqueci-senha}">Alterar e-mail</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>

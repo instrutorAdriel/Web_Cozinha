@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - SIGEC</title>
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
+    <link rel="stylesheet" th:href="@{/styles/alterarSenha.css}">
+</head>
+<body>
+<div class="background-container">
+    <div class="card-recovery">
+        <div class="logo-container">
+            <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="Logo Senac" class="logo">
+        </div>
+
+        <h2>Alterar Senha</h2>
+        <p class="subtitle">Informe o seu e-mail para receber o código de verificação.</p>
+
+        <form th:action="@{/esqueci-senha/enviar-codigo}" method="post">
+            <div class="form-group">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" name="email" placeholder="Digite o seu e-mail" required autofocus>
+            </div>
+
+            <button type="submit" class="btn-primary">Enviar Código</button>
+        </form>
+
+        <div class="footer-links">
+            <a th:href="@{/login}">Voltar para o Login</a>
+        </div>
+    </div>
+</div>
+</body>
+</html>
