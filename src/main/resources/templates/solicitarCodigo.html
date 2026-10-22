@@ -1,35 +1,43 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recuperar Senha - SIGEC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/styles/style.css}">
-    <link rel="stylesheet" th:href="@{/styles/alterarSenha.css}">
 </head>
-<body>
-<div class="background-container">
-    <div class="card-recovery">
-        <div class="logo-container">
-            <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="Logo Senac" class="logo">
-        </div>
+<body id="auth-page">
+<div class="container">
+    <div class="logo">
+        <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
+    </div>
+    <div class="card">
+        <h1>Alterar Senha</h1>
+        <p>Informe seu e-mail para receber o código de verificação</p>
 
-        <h2>Alterar Senha</h2>
-        <p class="subtitle">Informe o seu e-mail para receber o código de verificação.</p>
+        <!-- Mensagem de erro -->
+        <div class="erro" th:if="${erro}" th:text="${erro}"></div>
 
         <form th:action="@{/esqueci-senha/enviar-codigo}" method="post">
-            <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" name="email" placeholder="Digite o seu e-mail" required autofocus>
-            </div>
+            <label for="email">E-mail</label>
+            <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                    autofocus
+            >
 
-            <button type="submit" class="btn-primary">Enviar Código</button>
+            <button type="submit">Enviar Código</button>
         </form>
 
-        <div class="footer-links">
-            <a th:href="@{/login}">Voltar para o Login</a>
+        <div class="links">
+            <a th:href="@{/}">Voltar para o Login</a>
         </div>
     </div>
 </div>
+<script th:src="@{/scripts/script.js}"></script>
 </body>
 </html>

@@ -8,48 +8,52 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping("/esqueci-senha")
 public class EsqueciSenhaController {
 
-    // 1. Exibe a tela para digitar o e-mail (solicitarCodigo.html)
-    @GetMapping
+    // Redireciona a rota antiga /alterar-senha para a nova tela de e-mail
+    @GetMapping("/alterar-senha")
+    public String redirecionarAlterarSenha() {
+        return "solicitarCodigo";
+    }
+
+    // ETAPA 1: Renderiza a tela para digitar o e-mail
+    @GetMapping("/esqueci-senha")
     public String telaSolicitarCodigo() {
         return "solicitarCodigo";
     }
 
-    // 2. Recebe o e-mail, envia o código e renderiza validarCodigo.html
-    @PostMapping("/enviar-codigo")
+    // ETAPA 1 -> 2: Processa o e-mail e envia para a tela de digitar o código
+    @PostMapping("/esqueci-senha/enviar-codigo")
     public String enviarCodigo(@RequestParam("email") String email, Model model) {
-        // TODO: Lógica para gerar o código e enviar por e-mail
+        // TODO: Lógica para enviar o e-mail com o código de 6 dígitos
         model.addAttribute("email", email);
         return "validarCodigo";
     }
 
-    // 3. Valida o código digitado e renderiza redefinirSenha.html
-    @PostMapping("/validar-codigo")
+    // ETAPA 2 -> 3: Valida o código digitado e leva para a tela de nova senha
+    @PostMapping("/esqueci-senha/validar-codigo")
     public String validarCodigo(@RequestParam("email") String email,
                                 @RequestParam("codigo") String codigo,
                                 Model model) {
-        // TODO: Lógica para validar se o código bate com o enviado
+        // TODO: Validar se o código informado bate com o gerado
         model.addAttribute("email", email);
         return "redefinirSenha";
     }
 
-    // 4. Recebe a nova senha vinda do teu formulário HTML e salva
-    @PostMapping("/salvar-senha")
+    // ETAPA 3: Recebe a nova senha e salva no banco de dados
+    @PostMapping("/esqueci-senha/salvar-senha")
     public String salvarNovaSenha(@RequestParam("email") String email,
                                   @RequestParam("novaSenha") String novaSenha,
                                   @RequestParam("confirmarSenha") String confirmarSenha,
                                   Model model) {
 
-        // Validação básica se as senhas batem
         if (!novaSenha.equals(confirmarSenha)) {
             model.addAttribute("error", "As senhas não coincidem!");
             model.addAttribute("email", email);
             return "redefinirSenha";
         }
 
-        // TODO: Atualizar a senha do usuário encriptada no banco (via UsuarioService)
+        // TODO: Atualizar a senha do usuário no MySQL (via UsuarioRepository / UsuarioService)
 
         return "redirect:/login?senhaAlterada=true";
     }
