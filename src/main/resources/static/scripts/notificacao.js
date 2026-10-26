@@ -1,109 +1,121 @@
 /**
- * notificacoes.js - Gerenciamento do Painel de Notificações (SIGEC)
+ * notificacao.js - Gerenciamento do Painel de Notificações com Dados Reais do Banco (SIGEC)
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  const notifBtn = document.getElementById("notif-btn");
-  const notifPanel = document.getElementById("notif-panel");
-  const notifList = document.getElementById("notif-list");
-  const notifClear = document.getElementById("notif-clear");
-
-  if (!notifBtn || !notifPanel) {
-    console.error("Notificação: Elementos #notif-btn ou #notif-panel não foram encontrados no DOM.");
-    return;
-  }
-
-  // 1. Popula os cards de teste na lista
-  if (notifList && notifList.children.length === 0) {
-    carregarNotificacoesTeste(notifList);
-  }
-
-  // 2. Evento de clique no botão do sino
-  notifBtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    const estaAberto = notifPanel.classList.contains("active") || notifPanel.classList.contains("show");
-
-    if (estaAberto) {
-      fecharPainel();
-    } else {
-      abrirPainel();
-    }
-  });
-
-  // 3. Previne fechar ao clicar dentro da caixa de notificações
-  notifPanel.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
-
-  // 4. Fecha ao clicar fora da caixa na tela
-  document.addEventListener("click", () => {
-    fecharPainel();
-  });
-
-  // 5. Botão "Marcar todas como lidas"
-  if (notifClear) {
-    notifClear.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const badge = document.getElementById("notif-badge");
-      if (badge) badge.hidden = true;
-    });
-  }
-
-  function abrirPainel() {
-    notifPanel.classList.add("active", "show");
-    notifBtn.setAttribute("aria-expanded", "true");
-  }
-
-  function fecharPainel() {
-    notifPanel.classList.remove("active", "show");
-    notifBtn.setAttribute("aria-expanded", "false");
-  }
+    iniciarNotificacoes();
 });
 
-function carregarNotificacoesTeste(container) {
-  const notificacoesFicticias = [
-    {
-      titulo: "Solicitação de Insumo",
-      detalhe: "Farinha de Trigo - 2 KG (Turma 2026.1)",
-      tempo: "Há 10 minutos",
-      status: "pendente",
-      statusTexto: "Pendente"
-    },
-    {
-      titulo: "Solicitação de Utensílio",
-      detalhe: "Batedeira Planetária Extra",
-      tempo: "Ontem às 14:30",
-      status: "negado",
-      statusTexto: "Negado"
-    },
-    {
-      titulo: "Solicitação de Insumo",
-      detalhe: "Manteiga Sem Sal - 500g",
-      tempo: "Há 2 dias",
-      status: "aprovado",
-      statusTexto: "Aprovado"
+function iniciarNotificacoes() {
+    const notifBtn = document.getElementById("notif-btn");
+    const notifPanel = document.getElementById("notif-panel");
+    const notifList = document.getElementById("notif-list") || document.querySelector(".notif-list");
+    const notifClear = document.getElementById("notif-clear");
+
+    if (!notifBtn || !notifPanel) return;
+
+    // Carregamento inicial ao abrir a página
+    if (notifList) {
+        carregarNotificacoesReais(notifList);
     }
-  ];
 
-  container.innerHTML = "";
+    // Clique no botão do sino (TopBar)
+    notifBtn.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
 
-  notificacoesFicticias.forEach((item) => {
-    const cardHtml = `
+        const containerLista = document.getElementById("notif-list") || document.querySelector(".notif-list");
+        if (containerLista) {
+            carregarNotificacoesReais(containerLista);
+        }
+
+        const estaAberto = notifPanel.classList.contains("active") || notifPanel.classList.contains("show");
+
+        if (estaAberto) {
+            fecharPainel();
+        } else {
+            abrirPainel();
+        }
+    };
+
+    if (notifClear) {
+        notifClear.onclick = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const badge = document.getElementById("notif-badge");
+            if (badge) badge.hidden = true;
+        };
+    }
+
+    notifPanel.onclick = function (e) {
+        e.stopPropagation();
+    };
+
+    document.onclick = function () {
+        fecharPainel();
+    };
+
+    function abrirPainel() {
+        notifPanel.classList.add("active", "show");
+        notifBtn.setAttribute("aria-expanded", "true");
+    }
+
+    function fecharPainel() {
+        notifPanel.classList.remove("active", "show");
+        notifBtn.setAttribute("aria-expanded", "false");
+    }
+}
+
+/**
+ * Consome o endpoint /api/notificacoes e renderiza os cards com as 3 colunas
+ */
+function carregarNotificacoesReais(container) {
+    if (!container) return;
+
+    fetch("/api/notificacoes")
+        .then(response => {
+            if (!response.ok) throw new Error("Erro ao buscar notificações do servidor");
+            return response.json();
+        })
+        .then(notificacoes => {
+            container.innerHTML = "";
+
+            if (!notificacoes || notificacoes.length === 0) {
+                container.innerHTML = '<p style="padding:15px; text-align:center; color:#777; font-size:0.8rem;">Nenhuma notificação encontrada.</p>';
+                const badge = document.getElementById("notif-badge");
+                if (badge) badge.hidden = true;
+                return;
+            }
+
+            notificacoes.forEach((item) => {
+                const cardHtml = `
       <div class="notif-item">
-        <div class="notif-item-header">
-          <strong class="notif-item-title">${item.titulo}</strong>
+        <!-- Coluna 1: Título Fixo + Subtítulo do Tipo -->
+        <div class="notif-col-title">
+          <strong class="notif-item-title">Solicitação</strong>
+          <span class="notif-item-subtitle">${item.tipo}</span>
+        </div>
+
+        <!-- Coluna 2: Resumo / Detalhes -->
+        <div class="notif-col-detail">
+          <p class="notif-item-detail">${item.detalhe}</p>
+        </div>
+
+        <!-- Coluna 3: Tag de Status (Pendente, Negado, Aprovado) -->
+        <div class="notif-col-status">
           <span class="tag-status ${item.status}">${item.statusTexto}</span>
         </div>
-        <p class="notif-item-detail">${item.detalhe}</p>
-        <small class="notif-item-time">${item.tempo}</small>
       </div>
     `;
-    container.innerHTML += cardHtml;
-  });
+                container.innerHTML += cardHtml;
+            });
 
-  const badge = document.getElementById("notif-badge");
-  if (badge) badge.hidden = false;
+            // Ativa o badge de notificação no sino se houver registros
+            const badge = document.getElementById("notif-badge");
+            if (badge) badge.hidden = false;
+        })
+        .catch(erro => {
+            console.error("Erro no carregamento das notificações:", erro);
+            container.innerHTML = '<p style="padding:15px; color:red; text-align:center; font-size:0.8rem;">Erro ao carregar notificações.</p>';
+        });
 }
