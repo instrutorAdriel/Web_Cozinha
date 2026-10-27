@@ -82,4 +82,15 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
         return null;
     }
+    public void atualizarSenhaPorEmail(String email, String novaSenha){
+        Optional<Usuario> resultado = usuarioRepository.findByEmail(email);
+
+        if (resultado.isPresent()){
+            Usuario usuario = resultado.get();
+            usuario.setSenha(encoder.encode(novaSenha));
+            usuarioRepository.save(usuario);
+        } else{
+            throw  new RuntimeException("Usuario nao encontrado com o e-mail: "+email);
+        }
+    }
 }
