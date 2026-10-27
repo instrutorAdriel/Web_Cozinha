@@ -127,14 +127,14 @@ public class HomeService {
         Long idInsumo = null;
 
         try {
-            // Busca o ID do Insumo juntando com a tabela Produto (estrutura padrão do SIGEC)
+            // Busca o id_insumo cruzando com a tabela produto
             String buscaSql = "SELECT i.id_insumo FROM insumo i JOIN produto p ON i.id_produto = p.id_produto WHERE p.nome_produto = :nome LIMIT 1";
             idInsumo = ((Number) entityManager.createNativeQuery(buscaSql)
                     .setParameter("nome", nomeInsumo)
                     .getSingleResult()).longValue();
         } catch (Exception e) {
-            // Se o item não existir no banco, retornamos um erro amigável para o front-end
-            throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado. Cadastre o produto no sistema antes de solicitá-lo como extra.");
+            // Retorna um erro amigável para o front-end exibir no popup
+            throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado. Certifique-se de que o produto está cadastrado no sistema.");
         }
 
         String sql = "INSERT INTO solicitacao_insumo (id_usuario, id_turma, id_insumo, data_solicitacao, quantidade, unidade_medida, justificativa, situacao) " +
@@ -158,25 +158,13 @@ public class HomeService {
         Long idUtensilio = null;
 
         try {
-            idUtensilio = ((Number) entityManager.createNativeQuery(
-                            "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1")
+            // Busca o id_utensilio diretamente pelo nome
+            String buscaSql = "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1";
+            idUtensilio = ((Number) entityManager.createNativeQuery(buscaSql)
                     .setParameter("nome", nomeUtensilio)
                     .getSingleResult()).longValue();
         } catch (Exception e) {
-            try {
-                // Se não existe, tenta criar passando a 'situacao' como 'A' (Ativo), que costuma ser obrigatório
-                entityManager.createNativeQuery(
-                                "INSERT INTO utensilio (nome_utensilio, situacao) VALUES (:nome, 'A')")
-                        .setParameter("nome", nomeUtensilio)
-                        .executeUpdate();
-
-                idUtensilio = ((Number) entityManager.createNativeQuery(
-                                "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1")
-                        .setParameter("nome", nomeUtensilio)
-                        .getSingleResult()).longValue();
-            } catch (Exception ex) {
-                throw new IllegalArgumentException("Erro ao tentar cadastrar o utensílio '" + nomeUtensilio + "' automaticamente. A tabela exige outras colunas obrigatórias.");
-            }
+            throw new IllegalArgumentException("O utensílio '" + nomeUtensilio + "' não existe no banco de dados. Cadastre-o primeiro no painel de utensílios.");
         }
 
         String sql = "INSERT INTO solicitacao_utensilio (id_usuario, id_turma, id_utensilio, data_solicitacao, quantidade, justificativa, situacao) " +
