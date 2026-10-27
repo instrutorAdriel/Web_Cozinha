@@ -124,21 +124,26 @@ public class HomeService {
     // ========================================================
     @Transactional
     public void salvarSolicitacaoInsumoExtra(Long idUsuario, Long idTurma, String nomeInsumo, Double quantidade, String unidadeMedida, String justificativa) {
+        Long idInsumo = null;
+
         try {
-            entityManager.createNativeQuery(
-                            "INSERT INTO insumo (nome_insumo) SELECT * FROM (SELECT :nome) AS tmp WHERE NOT EXISTS (SELECT 1 FROM insumo WHERE nome_insumo = :nome) LIMIT 1"
-                    )
+            // Busca o ID do Insumo juntando com a tabela Produto (estrutura padrão do SIGEC)
+            String buscaSql = "SELECT i.id_insumo FROM insumo i JOIN produto p ON i.id_produto = p.id_produto WHERE p.nome_produto = :nome LIMIT 1";
+            idInsumo = ((Number) entityManager.createNativeQuery(buscaSql)
                     .setParameter("nome", nomeInsumo)
-                    .executeUpdate();
-        } catch (Exception ignored) {}
+                    .getSingleResult()).longValue();
+        } catch (Exception e) {
+            // Se o item não existir no banco, retornamos um erro amigável para o front-end
+            throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado. Cadastre o produto no sistema antes de solicitá-lo como extra.");
+        }
 
         String sql = "INSERT INTO solicitacao_insumo (id_usuario, id_turma, id_insumo, data_solicitacao, quantidade, unidade_medida, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, (SELECT id_insumo FROM insumo WHERE nome_insumo = :nome LIMIT 1), NOW(), :qtd, :unidade, :just, 'N')";
+                "VALUES (:usuario, :turma, :idI, NOW(), :qtd, :unidade, :just, 'N')";
 
         entityManager.createNativeQuery(sql)
                 .setParameter("usuario", idUsuario)
                 .setParameter("turma", idTurma)
-                .setParameter("nome", nomeInsumo)
+                .setParameter("idI", idInsumo)
                 .setParameter("qtd", quantidade)
                 .setParameter("unidade", unidadeMedida)
                 .setParameter("just", justificativa)
@@ -150,21 +155,37 @@ public class HomeService {
     // ========================================================
     @Transactional
     public void salvarSolicitacaoUtensilioExtra(Long idUsuario, Long idTurma, String nomeUtensilio, Integer quantidade, String justificativa) {
+        Long idUtensilio = null;
+
         try {
-            entityManager.createNativeQuery(
-                            "INSERT INTO utensilio (nome_utensilio) SELECT * FROM (SELECT :nome) AS tmp WHERE NOT EXISTS (SELECT 1 FROM utensilio WHERE nome_utensilio = :nome) LIMIT 1"
-                    )
+            idUtensilio = ((Number) entityManager.createNativeQuery(
+                            "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1")
                     .setParameter("nome", nomeUtensilio)
-                    .executeUpdate();
-        } catch (Exception ignored) {}
+                    .getSingleResult()).longValue();
+        } catch (Exception e) {
+            try {
+                // Se não existe, tenta criar passando a 'situacao' como 'A' (Ativo), que costuma ser obrigatório
+                entityManager.createNativeQuery(
+                                "INSERT INTO utensilio (nome_utensilio, situacao) VALUES (:nome, 'A')")
+                        .setParameter("nome", nomeUtensilio)
+                        .executeUpdate();
+
+                idUtensilio = ((Number) entityManager.createNativeQuery(
+                                "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1")
+                        .setParameter("nome", nomeUtensilio)
+                        .getSingleResult()).longValue();
+            } catch (Exception ex) {
+                throw new IllegalArgumentException("Erro ao tentar cadastrar o utensílio '" + nomeUtensilio + "' automaticamente. A tabela exige outras colunas obrigatórias.");
+            }
+        }
 
         String sql = "INSERT INTO solicitacao_utensilio (id_usuario, id_turma, id_utensilio, data_solicitacao, quantidade, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, (SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1), NOW(), :qtd, :just, 'N')";
+                "VALUES (:usuario, :turma, :idU, NOW(), :qtd, :just, 'N')";
 
         entityManager.createNativeQuery(sql)
                 .setParameter("usuario", idUsuario)
                 .setParameter("turma", idTurma)
-                .setParameter("nome", nomeUtensilio)
+                .setParameter("idU", idUtensilio)
                 .setParameter("qtd", quantidade)
                 .setParameter("just", justificativa)
                 .executeUpdate();
