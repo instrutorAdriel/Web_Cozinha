@@ -117,20 +117,17 @@ public class UsuarioController {
         return "redirect:/home";
     }
 
-    @GetMapping("/alterar-senha")
+    @GetMapping("/alterarSenha")
     public String exibirAlterarSenha(Model model, HttpSession session){
-
         encerrarSessaoSeExistir(session);
 
-        //Criando formulário vazio
         model.addAttribute("usuarioForm", new UsuarioForm());
-
         model.addAttribute("tituloPagina", "Alterar Senha");
         model.addAttribute("subTituloPagina", "Informe seus dados para alterar a senha");
 
-        return "alterarSenha";
+        return "solicitarCodigo"; // <--- Alterado aqui
     }
-    @PostMapping("/alterar-senha")
+    @PostMapping("/alterarSenha")
     public String processarAlterarSenha(@ModelAttribute UsuarioForm form, Model model){
         String erro = usuarioService.alterarSenha(form);
 
