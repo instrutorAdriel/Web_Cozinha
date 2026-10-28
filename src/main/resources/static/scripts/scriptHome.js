@@ -770,7 +770,7 @@ function separarPassosReceita(preparo) {
     if (!preparo || typeof preparo !== "string") {
         return [];
     }
-
+//
     return preparo
         .split(".")
         .map(passo => passo.trim())
