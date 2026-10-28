@@ -390,8 +390,8 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
         }
 
         const clsEstoque = st === 'ok' ? '' : (st === 'falta' ? 'estoque-falta' : 'estoque-baixo');
-        const nomeProduto = produto ? produto.nomeProduto : 'Produto não identificado';
-        const uni = produto ? produto.unidade : '';
+        const nomeProduto = produto?.nome || produto?.nomeProduto || 'Produto não identificado';
+        const uni = produto?.unidade || '';
 
         if (isSeparado) {
             return `
@@ -431,8 +431,8 @@ function renderChecklistUtensilios(checklists, ficha) {
 
     lista.innerHTML = checklists.map(check => {
         const util = check.utensilio;
-        const nomeUtil = util ? util.nomeUtensilio : 'Utensílio não identificado';
-        const qtd = util ? util.quantidade : 0;
+        const nomeUtil = util?.nome || util?.nomeUtensilio || 'Utensílio não identificado';
+        const qtd = util?.quantidade || 0;
 
         const estado = check.estadoAtual || 'PRONTO';
         const isInapto = estado !== 'PRONTO';
