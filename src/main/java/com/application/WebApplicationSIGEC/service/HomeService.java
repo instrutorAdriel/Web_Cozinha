@@ -55,16 +55,17 @@ public class HomeService {
 
 
     // Busca insumos e utensílios referentes a uma ficha técnica
+    // Busca os insumos referentes a uma ficha técnica
     public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
         Map<String, Object> detalhes = new HashMap<>();
 
         List<Insumo> insumos = insumoRepository.findByFichaId(fichaId);
-        List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
-        List<Long> insumosSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
+        List<Long> insumosSeparados =
+                movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
 
         detalhes.put("insumos", insumos);
-        detalhes.put("utensilios", utensilios);
-        detalhes.put("insumosSeparados", insumosSeparados); // Envia para o Javascript
+        detalhes.put("utensilios", List.of());
+        detalhes.put("insumosSeparados", insumosSeparados);
 
         return detalhes;
     }
