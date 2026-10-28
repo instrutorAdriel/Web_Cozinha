@@ -187,6 +187,14 @@
                     <!-- Container onde o JS irá renderizar os itens do checklist -->
                     <div id="checklist-main" class="checklist-items"></div>
 
+                    <!-- INÍCIO: Botão de Solicitar Insumo Extra -->
+                    <div class="add-row">
+                        <button class="btn-add" id="btn-add-insumo">
+                            <span class="material-symbols-outlined">add</span>Solicitar insumo extra
+                        </button>
+                    </div>
+                    <!-- FIM: Botão de Solicitar Insumo Extra -->
+
                     <!-- Controles de Finalização do Bloco -->
                     <div class="checklist-footer">
                         <button id="main-btn-reset" class="btn-ghost">Limpar</button>
@@ -221,6 +229,14 @@
 
                 <!-- Container onde o JS irá renderizar os utensílios -->
                 <div id="util-checklist" class="checklist-items"></div>
+
+                <!-- INÍCIO: Botão de Adicionar Utensílio Extra -->
+                <div class="add-row">
+                    <button class="btn-add" id="btn-add-util">
+                        <span class="material-symbols-outlined">add</span>Adicionar utensílio extra
+                    </button>
+                </div>
+                <!-- FIM: Botão de Adicionar Utensílio Extra -->
 
                 <!-- Controles de Finalização de Utensílios -->
                 <div class="checklist-footer">
@@ -340,6 +356,72 @@
             <ol class="kitchen-steps" id="kitchen-steps">
 
             </ol>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE SOLICITAÇÃO DE INSUMO EXTRA -->
+<div class="modal-overlay" id="extra-modal">
+    <div class="modal flight-accent">
+        <div class="modal-head">
+            <h3 class="modal-title">Solicitar Insumo Extra</h3>
+            <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Insumo</label>
+        <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
+
+        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+            <div style="flex: 1;">
+                <label class="field-label dark">Quantidade</label>
+                <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+            </div>
+            <div style="flex: 1;">
+                <label class="field-label dark" for="extra-un">Unidade</label>
+                <div class="select-wrap" style="width: 100%; margin-bottom: 0;">
+                    <select id="extra-un" class="obs-textarea" style="min-height: 40px; height: auto; margin-bottom: 0;">
+                        <option value="un">un (Unidade)</option>
+                        <option value="g">g (Grama)</option>
+                        <option value="kg">kg (Quilograma)</option>
+                        <option value="ml">ml (Mililitro)</option>
+                        <option value="l">L (Litro)</option>
+                        <option value="pct">pct (Pacote)</option>
+                        <option value="cx">cx (Caixa)</option>
+                        <option value="lt">lt (Lata)</option>
+                    </select>
+                    <span class="material-symbols-outlined select-arrow">expand_more</span>
+                </div>
+            </div>
+        </div>
+
+        <label class="field-label dark">Observação / Motivo</label>
+        <textarea id="extra-obs" class="obs-textarea" style="min-height: 60px; margin-bottom: 16px;" placeholder="Ex: Faltou para finalizar o prato..."></textarea>
+
+        <div class="modal-footer">
+            <button class="btn-ghost" style="flex: 1;" id="extra-cancel">Cancelar</button>
+            <button class="btn-confirm" style="flex: 1;" id="extra-save">Adicionar</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE UTENSÍLIO EXTRA -->
+<div class="modal-overlay" id="util-modal">
+    <div class="modal flight-accent">
+        <div class="modal-head">
+            <h3 class="modal-title">Adicionar Utensílio Extra</h3>
+            <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Utensílio</label>
+        <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
+
+        <label class="field-label dark">Quantidade (un)</label>
+        <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
+
+        <label class="field-label dark">Observação / Motivo</label>
+        <textarea id="util-obs" class="obs-textarea" style="min-height: 60px; margin-bottom: 16px;" placeholder="Ex: Precisamos de mais um para agilizar..."></textarea>
+
+        <div class="modal-footer">
+            <button class="btn-ghost" style="flex: 1;" id="util-cancel">Cancelar</button>
+            <button class="btn-confirm" style="flex: 1;" id="util-save">Adicionar Utensílio</button>
         </div>
     </div>
 </div>

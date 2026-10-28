@@ -354,7 +354,8 @@ function atualizarResumoReceita(ficha) {
     if (summaryName) summaryName.textContent = ficha.nomeFicha || ficha.nome;
     if (summarySteps) {
         if (ficha.preparo) {
-            renderizarPassosReceita(ficha.preparo, "summary-steps");
+            const passos = ficha.preparo.split('\n').filter(p => p.trim() !== '');
+            summarySteps.innerHTML = passos.map(passo => `<li>${passo}</li>`).join('');
         } else {
             summarySteps.innerHTML = `<li style="list-style: none;">Modo de preparo indisponível.</li>`;
         }
@@ -793,3 +794,10 @@ function renderizarPassosReceita(preparo, containerId) {
         container.appendChild(li);
     });
 }
+
+const fecharModalUtil = () => {
+    if (modalUtil) modalUtil.classList.remove('show');
+};
+
+if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
+if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Código - SIGEC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
+    <style>
+        .code-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .code-input {
+            width: 45px;
+            height: 52px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #004587;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .code-input:focus {
+            border-color: #f37021;
+            box-shadow: 0 0 5px rgba(243, 112, 33, 0.4);
+        }
+    </style>
+</head>
+<body id="auth-page">
+<div class="container">
+    <div class="logo">
+        <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
+    </div>
+    <div class="card">
+        <h1>Confirmar Código</h1>
+        <p>Digite o código enviado para <br><strong th:text="${email}">seu e-mail</strong></p>
+
+        <!-- Mensagem de erro -->
+        <div class="erro" th:if="${erro}" th:text="${erro}"></div>
+
+        <form th:action="@{/esqueci-senha/validar-codigo}" method="post" id="codeForm">
+            <input type="hidden" name="email" th:value="${email}">
+            <!-- Campo oculto para enviar o código concatenado completo ao Controller -->
+            <input type="hidden" id="codigoCompleto" name="codigo">
+
+            <label>Código de Verificação</label>
+            <div class="code-container">
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required autofocus>
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+                <input type="text" class="code-input" maxlength="1" pattern="[0-9]*" inputmode="numeric" required>
+            </div>
+
+            <button type="submit">Validar Código</button>
+        </form>
+
+        <div class="links">
+            <a th:href="@{/esqueci-senha}">Alterar e-mail</a>
+            <a th:href="@{/}">Voltar ao Login</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const inputs = document.querySelectorAll(".code-input");
+        const hiddenInput = document.getElementById("codigoCompleto");
+        const form = document.getElementById("codeForm");
+
+        inputs.forEach((input, index) => {
+            // Avança para o próximo campo ao digitar
+            input.addEventListener("input", (e) => {
+                if (e.target.value.length === 1 && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                atualizarCodigo();
+            });
+
+            // Volta para o campo anterior ao pressionar Backspace
+            input.addEventListener("keydown", (e) => {
+                if (e.key === "Backspace" && !e.target.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            // Permite colar o código de 6 dígitos direto
+            input.addEventListener("paste", (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData("text").trim();
+                if (/^\d{6}$/.test(pasteData)) {
+                    pasteData.split("").forEach((char, i) => {
+                        if (inputs[i]) inputs[i].value = char;
+                    });
+                    inputs[5].focus();
+                    atualizarCodigo();
+                }
+            });
+        });
+
+        function atualizarCodigo() {
+            let code = "";
+            inputs.forEach(input => code += input.value);
+            hiddenInput.value = code;
+        }
+
+        form.addEventListener("submit", function () {
+            atualizarCodigo();
+        });
+    });
+</script>
+<script th:src="@{/scripts/script.js}"></script>
+</body>
+</html>

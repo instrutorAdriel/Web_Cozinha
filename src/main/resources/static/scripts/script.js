@@ -36,4 +36,19 @@ function mostrarOcultarSenha(iconeClicado) {
         iconeClicado.setAttribute("aria-label", "Mostrar senha");
     }
 }
+function mostrarOcultarSenha(botao) {
+    const container = botao.closest(".input-container");
+    const campo = container?.querySelector("input");
 
+    if (!campo) return;
+
+    const mostrar = campo.type === "password";
+
+    campo.type = mostrar ? "text" : "password";
+    botao.classList.toggle("senha-visivel", mostrar);
+
+    botao.setAttribute(
+        "aria-label",
+        mostrar ? "Ocultar senha" : "Mostrar senha"
+    );
+}
