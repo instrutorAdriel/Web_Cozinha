@@ -37,17 +37,21 @@ public class HomeService {
         this.entityManager = entityManager;
     }
 
+    // Busca as aulas agendadas para a data informada E para o usuário logado
     public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario) {
         return agendamentoRepository.findAgendamentosDoUsuarioHoje(data, idUsuario);
     }
 
+    // Busca as receitas agendadas durante a semana
     @Transactional(readOnly = true)
     public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario) {
         return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario);
     }
 
+    // Busca insumos e utensílios referentes a uma ficha técnica
     public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
         Map<String, Object> detalhes = new HashMap<>();
+
         List<Insumo> insumos = insumoRepository.findByFichaId(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
         List<Long> insumosSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(fichaId);
@@ -55,6 +59,7 @@ public class HomeService {
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
         detalhes.put("insumosSeparados", insumosSeparados);
+
         return detalhes;
     }
 
@@ -63,16 +68,20 @@ public class HomeService {
         for (Long id : insumoIds) {
             Insumo insumo = insumoRepository.findById(id).orElse(null);
             if (insumo != null && insumo.getProduto() != null) {
+
                 List<Long> jaSeparados = movimentacaoEstoqueRepository.findInsumosSeparadosHoje(insumo.getFicha().getId());
                 if (jaSeparados.contains(id)) {
-                    continue;
+                    continue; // Pula este item e vai para o próximo
                 }
+
                 Produto produto = insumo.getProduto();
                 BigDecimal qtdNecessaria = new BigDecimal(insumo.getQuantidade());
 
+                // Subtrai do produto
                 produto.setQuantidade(produto.getQuantidade().subtract(qtdNecessaria));
                 produtoRepository.save(produto);
 
+                // Registra na tabela movimentacao_estoque
                 MovimentacaoEstoque mov = new MovimentacaoEstoque();
                 mov.setTipoMovimentacao("SAIDA");
                 mov.setQuantidade(qtdNecessaria);
@@ -89,13 +98,16 @@ public class HomeService {
         }
     }
 
+    // Registra a SAÍDA dos utensílios para a aula
     @Transactional
     public void confirmarSaidaUtensilios(List<Long> checklistIds) {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
+            // Trava backend: impede que retirem o que já está na cozinha
             if (checklist != null && checklist.getDataHoraSaida() != null && checklist.getDataHoraEntrada() == null) {
                 throw new IllegalArgumentException("O utensílio já está em uso.");
             }
+
             if (checklist != null) {
                 checklist.setDataHoraSaida(LocalDateTime.now());
                 checklist.setDataHoraEntrada(null);
@@ -105,11 +117,13 @@ public class HomeService {
         }
     }
 
+    // Registra a DEVOLUÇÃO (Entrada) dos utensílios em lote (múltiplos)
     @Transactional
     public void registrarDevolucaoUtensilio(List<Long> checklistIds, String estadoAtual, String observacao) {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
             if (checklist != null) {
+                // Salva o estado atual antigo como anterior, e atualiza o novo
                 checklist.setEstadoAnterior(checklist.getEstadoAtual());
                 checklist.setEstadoAtual(estadoAtual);
                 checklist.setObservacao(observacao);
