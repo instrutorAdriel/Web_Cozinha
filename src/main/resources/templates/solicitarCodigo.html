@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - SIGEC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/styles/style.css}">
+</head>
+<body id="auth-page">
+<div class="container">
+    <div class="logo">
+        <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
+    </div>
+    <div class="card">
+        <h1>Alterar Senha</h1>
+        <p>Informe seu e-mail para receber o código de verificação</p>
+
+        <!-- Mensagem de erro -->
+        <div class="erro" th:if="${erro}" th:text="${erro}"></div>
+
+        <form th:action="@{/esqueci-senha/enviar-codigo}" method="post">
+            <label for="email">E-mail</label>
+            <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Digite seu e-mail"
+                    required
+                    autofocus
+            >
+
+            <button type="submit">Enviar Código</button>
+        </form>
+
+        <div class="links">
+            <a th:href="@{/}">Voltar para o Login</a>
+        </div>
+    </div>
+</div>
+<script th:src="@{/scripts/script.js}"></script>
+</body>
+</html>
