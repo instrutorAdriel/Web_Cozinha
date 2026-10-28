@@ -204,34 +204,55 @@ function filtrarPorTurma(turmaId) {
     }
 }
 
+
 // ===== CARDS EXPANSÍVEIS DOS DIAS DA SEMANA =====
 function renderizarSemana(agendamentos, container) {
     if (!container) return;
+
     container.replaceChildren();
-    const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
-    const {segunda} = obterPeriodoSemana();
+
+    const dias = [
+        'Segunda-feira',
+        'Terça-feira',
+        'Quarta-feira',
+        'Quinta-feira',
+        'Sexta-feira'
+    ];
+
+    const { segunda } = obterPeriodoSemana();
+    const dataAtual = formatarDataLocal(new Date());
 
     dias.forEach((nomeDia, indice) => {
         const data = new Date(segunda);
         data.setDate(segunda.getDate() + indice);
-        const dataISO = formatarDataLocal(data);
-        const receitas = agendamentos.filter(a => String(a.data ?? '').slice(0, 10) === dataISO);
 
+        const dataISO = formatarDataLocal(data);
+        const ehHoje = dataISO === dataAtual;
+
+        const receitas = agendamentos.filter(
+            a => String(a.data ?? '').slice(0, 10) === dataISO
+        );
+
+        // Cria o card do dia
         const card = document.createElement('div');
         card.className = 'semana-dia-card';
+
+        // Abre automaticamente o card correspondente ao dia atual
+        if (ehHoje) {
+            card.classList.add('aberto');
+        }
+
+        // Cabeçalho do card
         const header = document.createElement('button');
         header.type = 'button';
         header.className = 'semana-dia-header';
-        header.setAttribute('aria-expanded', 'false');
+        header.setAttribute('aria-expanded', String(ehHoje));
+
         const info = document.createElement('div');
         info.className = 'semana-dia-info';
 
         const titulo = document.createElement('h3');
-
-        const hoje = new Date();
-        const dataAtual = formatarDataLocal(hoje);
-
-        titulo.textContent = dataISO === dataAtual
+        titulo.textContent = ehHoje
             ? `${nomeDia} (Hoje)`
             : nomeDia;
 
@@ -240,22 +261,34 @@ function renderizarSemana(agendamentos, container) {
         const seta = document.createElement('span');
         seta.className = 'material-symbols-outlined semana-dia-seta';
         seta.textContent = 'expand_more';
+
         header.append(info, seta);
 
+        // Conteúdo do card
         const conteudo = document.createElement('div');
         conteudo.className = 'semana-dia-conteudo';
-        if (receitas.length) {
+
+        if (receitas.length > 0) {
             renderizarCardsDeAulas(receitas, conteudo);
         } else {
             const aviso = document.createElement('p');
             aviso.className = 'semana-dia-vazio';
-            aviso.textContent = 'Nenhuma receita programada para este dia.';
+            aviso.textContent =
+                'Nenhuma receita programada para este dia.';
+
             conteudo.appendChild(aviso);
         }
+
+        // Permite abrir e fechar o card manualmente
         header.addEventListener('click', () => {
             const aberto = card.classList.toggle('aberto');
-            header.setAttribute('aria-expanded', String(aberto));
+
+            header.setAttribute(
+                'aria-expanded',
+                String(aberto)
+            );
         });
+
         card.append(header, conteudo);
         container.appendChild(card);
     });
