@@ -1,5 +1,6 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class Usuario {
     @Column(name = "foto_perfil", columnDefinition = "LONGBLOB")
     private byte[] fotoPerfil;
 
-
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "usuario_turma",
@@ -121,7 +122,6 @@ public class Usuario {
         this.fotoPerfil = fotoPerfil;
     }
 
-    // Getters e Setters da lista de Turmas
     public List<Turma> getTurmas() {
         return turmas;
     }

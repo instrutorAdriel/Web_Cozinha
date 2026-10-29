@@ -188,10 +188,11 @@ body#auth-page button.toggle-password svg {
     stroke-linecap: round;
     stroke-linejoin: round;
 }
-body#auth-page button.toggle-password.fa-eye .eye-slash {
+body#auth-page button.toggle-password .eye-slash {
     display: none;
 }
-body#auth-page button.toggle-password.fa-eye-slash .eye-slash {
+
+body#auth-page button.toggle-password.senha-visivel .eye-slash {
     display: block;
 }
 body#auth-page button {
@@ -209,6 +210,10 @@ body#auth-page button {
 body#auth-page button:hover {
     background: #F7941D;
     transform: translateY(-2px);
+}
+body#auth-page button.toggle-password:hover {
+    background: transparent;
+    transform: translateY(-50%);
 }
 body#auth-page .links {
     margin-top: 20px;

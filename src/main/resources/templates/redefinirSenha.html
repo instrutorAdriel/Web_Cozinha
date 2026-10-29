@@ -3,46 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${tituloPagina}"></title>
+    <title>Nova Senha - SIGEC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/styles/style.css}">
 </head>
 <body id="auth-page">
 <div class="container">
-
     <div class="logo">
         <img th:src="@{/img/logo-senac-colorida.png}" alt="Logo Senac">
     </div>
-
     <div class="card">
-
-        <h1 th:text="${tituloPagina}"></h1>
-        <p th:text="${subTituloPagina}"></p>
+        <h1>Nova Senha</h1>
+        <p>Crie uma nova senha para a sua conta</p>
 
         <!-- Mensagem de erro -->
         <div class="erro" th:if="${erro}" th:text="${erro}"></div>
 
-        <!-- Mensagem de sucesso -->
-        <div class="sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <form th:action="@{/esqueci-senha/salvar-senha}" method="post">
+            <input type="hidden" name="email" th:value="${email}">
 
-        <form th:action="@{/alterar-senha}" th:object="${usuarioForm}" method="post">
-
-            <label for="email">E-mail</label>
-            <input
-                    type="email"
-                    id="email"
-                    th:field="*{email}"
-                    placeholder="Digite seu e-mail"
-                    required
-            >
-
-            <label for="senha">Nova senha </label>
+            <label for="novaSenha">Nova Senha</label>
             <div class="input-container">
                 <input
                         type="password"
-                        id="senha"
-                        th:field="*{senha}"
-                        placeholder="Digite sua senha"
+                        id="novaSenha"
+                        name="novaSenha"
+                        placeholder="Digite a nova senha"
                         required
                 >
                 <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
@@ -54,13 +40,13 @@
                 </button>
             </div>
 
-            <label for="senha">Confirma senha </label>
+            <label for="confirmarSenha">Confirmar Nova Senha</label>
             <div class="input-container">
                 <input
                         type="password"
-                        id="confirmaSenha"
-                        th:field="*{confirmarSenha}"
-                        placeholder="Digite sua senha"
+                        id="confirmarSenha"
+                        name="confirmarSenha"
+                        placeholder="Confirme a nova senha"
                         required
                 >
                 <button type="button" class="toggle-password" aria-label="Mostrar senha" onclick="mostrarOcultarSenha(this)">
@@ -73,11 +59,10 @@
             </div>
 
             <button type="submit">Alterar Senha</button>
-
         </form>
 
         <div class="links">
-            <a th:href="@{/}">Voltar para Login</a>
+            <a th:href="@{/}">Cancelar</a>
         </div>
     </div>
 </div>
