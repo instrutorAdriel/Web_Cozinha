@@ -198,13 +198,8 @@ function carregarDadosIniciais() {
 
             popularTurmasDropdown(turmas);
 
-            const turmaSalva = sessionStorage.getItem(
-                'turmaSelecionadaId'
-            );
-
-            const turmaValida = turmas.some(t =>
-                String(t.id ?? t.idTurma) === turmaSalva
-            );
+            const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
+            const turmaValida = turmas.some(t => (t.id || t.idTurma).toString() === turmaSalva);
 
             let turmaInicialId = 'todas';
 
@@ -216,6 +211,7 @@ function carregarDadosIniciais() {
                 );
             }
 
+            // Define a seleção no <select> e aplica o filtro
             const turmaSelect = $('turma-select');
 
             if (turmaSelect) {
@@ -223,9 +219,9 @@ function carregarDadosIniciais() {
             }
 
             filtrarPorTurma(turmaInicialId);
+            atualizarContadorReceitasHoje(turmaInicialId);
 
-            const contadorTurmas = $('hero-turmas-count');
-
+            const contadorTurmas = document.getElementById('hero-turmas-count');
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
 
@@ -247,6 +243,7 @@ function carregarDadosIniciais() {
                     `${quantidade} turma${quantidade !== 1 ? 's' : ''}`;
             }
 
+            // Listener do Select do Checklist Manual
             const selectReceita = $('recipe-select');
 
             if (selectReceita) {
@@ -318,18 +315,14 @@ function onTurmaChange(e) {
 
 function filtrarPorTurma(turmaId) {
     atualizarContadorReceitasHoje(turmaId);
-
     const containerClasses = document.querySelector('.classes-col');
-
     if (!containerClasses) return;
 
     let lista = $('receitas-semana-lista');
-
     if (!lista) {
         lista = document.createElement('div');
         lista.id = 'receitas-semana-lista';
         lista.className = 'receitas-semana-lista';
-
         containerClasses.appendChild(lista);
     }
 
@@ -353,7 +346,6 @@ function filtrarPorTurma(turmaId) {
     renderizarSemana(agendamentosFiltrados, lista);
 
     const selectReceita = $('recipe-select');
-
     if (selectReceita) {
         selectReceita.innerHTML = '';
 
@@ -434,7 +426,6 @@ function filtrarPorTurma(turmaId) {
         if (selectReceita) {
             selectReceita.value = String(idFicha);
         }
-
         selecionarAula(idFicha, receitaHoje);
     }
 }
@@ -551,9 +542,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         if (!ficha) return;
 
         const turma = ficha.turma;
-
         let lab = 'Laboratório N/A';
-
         if (turma && turma.laboratorio) {
             lab = typeof turma.laboratorio === 'object'
                 ? (turma.laboratorio.nomeLaboratorio || 'Laboratório N/A')
@@ -581,6 +570,8 @@ function renderizarCardsDeAulas(agendamentos, container) {
 
         card.className = `class-card ${statusClass}`;
         card.setAttribute('data-recipe', idFicha);
+
+        card.addEventListener('click', () => selecionarAula(idFicha, agendamento));
 
         card.innerHTML = `
             <div class="class-info">
@@ -637,6 +628,10 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         );
     });
 
+    const agendamento = agendamentoSelecionado || agendamentosDaSemana.find(a =>
+        a.ficha && Number(a.ficha.id ?? a.ficha.idFicha) === Number(fichaId)
+    );
+    if (!agendamento) return;
     fichaAtual = agendamento.ficha;
 
     fetch(`/api/fichas/${fichaId}/detalhes`)
@@ -649,7 +644,6 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         })
         .then(detalhes => {
             detalhesReceitaAtual = detalhes;
-
             atualizarResumoReceita(fichaAtual);
 
             renderChecklistInsumos(
@@ -1066,8 +1060,7 @@ if (btnOpenKitchen) {
 
         if (kitchenSteps) {
             if (fichaAtual.preparo) {
-                const passos = fichaAtual.preparo.split('\n').filter(p => p.trim() !== '');
-                kitchenSteps.innerHTML = passos.map(passo => `<li>${passo}</li>`).join('');
+                renderizarPassosReceita(fichaAtual.preparo, "kitchen-steps");
             } else {
                 kitchenSteps.innerHTML = `<li>Modo de preparo indisponível.</li>`;
             }
@@ -1096,8 +1089,46 @@ function atualizarContadorReceitasHoje(turmaId) {
     }
 
     const quantidade = receitasHoje.length;
+
+    contador.textContent =
+        `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+}
+
+function separarPassosReceita(preparo) {
+    if (!preparo || typeof preparo !== "string") {
+        return [];
+    }
+//
+    return preparo
+        .split(".")
+        .map(passo => passo.trim())
+        .filter(passo => passo.length > 0)
+        .map(passo => passo + ".");
     contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
+
+function renderizarPassosReceita(preparo, containerId) {
+    const container = document.getElementById(containerId);
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const passos = separarPassosReceita(preparo);
+
+    passos.forEach(passo => {
+        const li = document.createElement("li");
+        li.textContent = passo;
+        container.appendChild(li);
+    });
+}
+
+const fecharModalUtil = () => {
+    if (modalUtil) modalUtil.classList.remove('show');
+};
+
+if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
+if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
 
 function onReceitaChange(event) {
     const fichaIdSelecionada = event.target.value;
