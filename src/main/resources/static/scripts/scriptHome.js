@@ -10,6 +10,132 @@ const $ = id => document.getElementById(id);
 // ===== INICIALIZAÇÃO =====
 document.addEventListener("DOMContentLoaded", () => {
     carregarDadosIniciais();
+
+    // ========================================================
+    // LÓGICA DE ABERTURA E FECHAMENTO DOS MODAIS (INSUMO E UTENSÍLIO)
+    // ========================================================
+    const modalExtra = $('extra-modal');
+    const modalUtil = $('util-modal');
+
+    const fecharModalInsumo = () => { if (modalExtra) modalExtra.classList.remove('show'); };
+    const fecharModalUtil = () => { if (modalUtil) modalUtil.classList.remove('show'); };
+
+    if ($('btn-add-insumo')) $('btn-add-insumo').addEventListener('click', () => { if (modalExtra) modalExtra.classList.add('show'); });
+    if ($('extra-close')) $('extra-close').addEventListener('click', fecharModalInsumo);
+    if ($('extra-cancel')) $('extra-cancel').addEventListener('click', fecharModalInsumo);
+
+    if ($('btn-add-util')) $('btn-add-util').addEventListener('click', () => { if (modalUtil) modalUtil.classList.add('show'); });
+    if ($('util-close')) $('util-close').addEventListener('click', fecharModalUtil);
+    if ($('util-cancel')) $('util-cancel').addEventListener('click', fecharModalUtil);
+
+
+    // ========================================================
+    // ENVIO: SOLICITAR INSUMO EXTRA
+    // ========================================================
+    const btnSaveExtra = $('extra-save');
+    if (btnSaveExtra) {
+        btnSaveExtra.addEventListener('click', () => {
+            const nomeInsumo = $('extra-name') ? $('extra-name').value.trim() : '';
+            const quantidade = $('extra-qtd') ? $('extra-qtd').value.trim() : '';
+            const unidade = $('extra-un') ? $('extra-un').value : 'un';
+            const observacao = $('extra-obs') ? $('extra-obs').value.trim() : '';
+            const turmaSelect = $('turma-select');
+            const idTurma = turmaSelect ? turmaSelect.value : null;
+
+            if (!nomeInsumo || !quantidade) {
+                alert("Por favor, preencha o nome do insumo e a quantidade.");
+                return;
+            }
+            if (!idTurma || idTurma === "todas" || idTurma === "") {
+                alert("Selecione uma turma específica na barra superior antes de solicitar um insumo extra.");
+                return;
+            }
+
+            btnSaveExtra.innerText = "Enviando...";
+            btnSaveExtra.disabled = true;
+
+            fetch('/api/fichas/solicitar-insumo-extra', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nomeInsumo: nomeInsumo,
+                    quantidade: parseFloat(quantidade),
+                    unidadeMedida: unidade,
+                    justificativa: observacao,
+                    idTurma: parseInt(idTurma)
+                })
+            })
+                .then(async res => {
+                    if (!res.ok) throw new Error(await res.text());
+                    return res.text();
+                })
+                .then(msg => {
+                    alert("Insumo extra solicitado com sucesso para validação!");
+                    $('extra-name').value = '';
+                    $('extra-qtd').value = '';
+                    $('extra-obs').value = '';
+                    fecharModalInsumo();
+                })
+                .catch(err => alert("Erro: " + err.message))
+                .finally(() => {
+                    btnSaveExtra.innerText = "Adicionar";
+                    btnSaveExtra.disabled = false;
+                });
+        });
+    }
+
+    // ========================================================
+    // ENVIO: SOLICITAR UTENSÍLIO EXTRA
+    // ========================================================
+    const btnSaveUtil = $('util-save');
+    if (btnSaveUtil) {
+        btnSaveUtil.addEventListener('click', () => {
+            const nomeUtensilio = $('util-name') ? $('util-name').value.trim() : '';
+            const quantidade = $('util-qtd') ? $('util-qtd').value.trim() : '';
+            const observacao = $('util-obs') ? $('util-obs').value.trim() : '';
+            const turmaSelect = $('turma-select');
+            const idTurma = turmaSelect ? turmaSelect.value : null;
+
+            if (!nomeUtensilio || !quantidade) {
+                alert("Por favor, preencha o nome do utensílio e a quantidade.");
+                return;
+            }
+            if (!idTurma || idTurma === "todas" || idTurma === "") {
+                alert("Selecione uma turma específica na barra superior antes de solicitar um utensílio extra.");
+                return;
+            }
+
+            btnSaveUtil.innerText = "Enviando...";
+            btnSaveUtil.disabled = true;
+
+            fetch('/api/fichas/solicitar-utensilio-extra', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nomeUtensilio: nomeUtensilio,
+                    quantidade: parseInt(quantidade),
+                    justificativa: observacao,
+                    idTurma: parseInt(idTurma)
+                })
+            })
+                .then(async res => {
+                    if (!res.ok) throw new Error(await res.text());
+                    return res.text();
+                })
+                .then(msg => {
+                    alert("Utensílio extra solicitado com sucesso para validação!");
+                    $('util-name').value = '';
+                    $('util-qtd').value = '';
+                    $('util-obs').value = '';
+                    fecharModalUtil();
+                })
+                .catch(err => alert("Erro: " + err.message))
+                .finally(() => {
+                    btnSaveUtil.innerText = "Adicionar Utensílio";
+                    btnSaveUtil.disabled = false;
+                });
+        });
+    }
 });
 
 // ===== PERÍODO DA SEMANA ATUAL (SEGUNDA A SEXTA) =====
@@ -54,7 +180,6 @@ function carregarDadosIniciais() {
 
             popularTurmasDropdown(turmas);
 
-            // 1. Tenta recuperar a turma salva na sessão
             const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
             const turmaValida = turmas.some(t => (t.id || t.idTurma).toString() === turmaSalva);
 
@@ -65,14 +190,12 @@ function carregarDadosIniciais() {
                 turmaInicialId = (turmas[0].id || turmas[0].idTurma).toString();
             }
 
-            // Define a seleção no <select> e aplica o filtro
             const turmaSelect = $('turma-select');
             if (turmaSelect) turmaSelect.value = turmaInicialId;
 
             filtrarPorTurma(turmaInicialId);
             atualizarContadorReceitasHoje(turmaInicialId);
 
-            // === CONTADOR DE TURMAS DE HOJE ===
             const contadorTurmas = document.getElementById('hero-turmas-count');
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
@@ -86,7 +209,6 @@ function carregarDadosIniciais() {
                 contadorTurmas.textContent = `${qtdHoje} turma${qtdHoje !== 1 ? 's' : ''}`;
             }
 
-            // Listener do Select do Checklist Manual
             const selectReceita = $('recipe-select');
             if (selectReceita) {
                 selectReceita.addEventListener('change', (e) => {
@@ -149,7 +271,6 @@ function filtrarPorTurma(turmaId) {
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
 
-    // Preserva o título e usa um contêiner próprio para os cinco dias.
     let lista = $('receitas-semana-lista');
     if (!lista) {
         lista = document.createElement('div');
@@ -167,7 +288,6 @@ function filtrarPorTurma(turmaId) {
     const agendamentosFiltrados = agendamentosDaSemana.filter(filtrar);
     renderizarSemana(agendamentosFiltrados, lista);
 
-    // Preserva o seletor manual de fichas para os checklists.
     const selectReceita = $('recipe-select');
     if (selectReceita) {
         selectReceita.innerHTML = '';
@@ -186,7 +306,6 @@ function filtrarPorTurma(turmaId) {
     }
     limparDetalhesDaTela();
 
-    // Carrega automaticamente a primeira receita agendada para hoje na turma selecionada.
     const receitaHoje = agendamentosDoDia.find(agendamento =>
         agendamento.situacao === 'A' &&
         agendamento.ficha &&
@@ -204,34 +323,55 @@ function filtrarPorTurma(turmaId) {
     }
 }
 
+
 // ===== CARDS EXPANSÍVEIS DOS DIAS DA SEMANA =====
 function renderizarSemana(agendamentos, container) {
     if (!container) return;
+
     container.replaceChildren();
-    const dias = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira'];
-    const {segunda} = obterPeriodoSemana();
+
+    const dias = [
+        'Segunda-feira',
+        'Terça-feira',
+        'Quarta-feira',
+        'Quinta-feira',
+        'Sexta-feira'
+    ];
+
+    const { segunda } = obterPeriodoSemana();
+    const dataAtual = formatarDataLocal(new Date());
 
     dias.forEach((nomeDia, indice) => {
         const data = new Date(segunda);
         data.setDate(segunda.getDate() + indice);
-        const dataISO = formatarDataLocal(data);
-        const receitas = agendamentos.filter(a => String(a.data ?? '').slice(0, 10) === dataISO);
 
+        const dataISO = formatarDataLocal(data);
+        const ehHoje = dataISO === dataAtual;
+
+        const receitas = agendamentos.filter(
+            a => String(a.data ?? '').slice(0, 10) === dataISO
+        );
+
+        // Cria o card do dia
         const card = document.createElement('div');
         card.className = 'semana-dia-card';
+
+        // Abre automaticamente o card correspondente ao dia atual
+        if (ehHoje) {
+            card.classList.add('aberto');
+        }
+
+        // Cabeçalho do card
         const header = document.createElement('button');
         header.type = 'button';
         header.className = 'semana-dia-header';
-        header.setAttribute('aria-expanded', 'false');
+        header.setAttribute('aria-expanded', String(ehHoje));
+
         const info = document.createElement('div');
         info.className = 'semana-dia-info';
 
         const titulo = document.createElement('h3');
-
-        const hoje = new Date();
-        const dataAtual = formatarDataLocal(hoje);
-
-        titulo.textContent = dataISO === dataAtual
+        titulo.textContent = ehHoje
             ? `${nomeDia} (Hoje)`
             : nomeDia;
 
@@ -240,22 +380,34 @@ function renderizarSemana(agendamentos, container) {
         const seta = document.createElement('span');
         seta.className = 'material-symbols-outlined semana-dia-seta';
         seta.textContent = 'expand_more';
+
         header.append(info, seta);
 
+        // Conteúdo do card
         const conteudo = document.createElement('div');
         conteudo.className = 'semana-dia-conteudo';
-        if (receitas.length) {
+
+        if (receitas.length > 0) {
             renderizarCardsDeAulas(receitas, conteudo);
         } else {
             const aviso = document.createElement('p');
             aviso.className = 'semana-dia-vazio';
-            aviso.textContent = 'Nenhuma receita programada para este dia.';
+            aviso.textContent =
+                'Nenhuma receita programada para este dia.';
+
             conteudo.appendChild(aviso);
         }
+
+        // Permite abrir e fechar o card manualmente
         header.addEventListener('click', () => {
             const aberto = card.classList.toggle('aberto');
-            header.setAttribute('aria-expanded', String(aberto));
+
+            header.setAttribute(
+                'aria-expanded',
+                String(aberto)
+            );
         });
+
         card.append(header, conteudo);
         container.appendChild(card);
     });
@@ -302,7 +454,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         card.innerHTML = `
             <div class="class-info">
                 <p class="class-name">${nomeFicha}</p>
-                <p class="class-meta">${lab} • ${nomeTurma}</p>
+                <p class="class-meta">${lab} - ${nomeTurma}</p>
             </div>
         `;
         container.appendChild(card);
@@ -386,12 +538,12 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
             label = 'Falta';
         } else if (qtdEstoque < qtdNecessaria) {
             st = 'baixo';
-            label = `Falta ${qtdNecessaria - qtdEstoque}${produto ? produto.unidade : ''}`;
+            label = `Falta ${(qtdNecessaria - qtdEstoque)}${produto ? produto.unidade : ''}`;
         }
 
         const clsEstoque = st === 'ok' ? '' : (st === 'falta' ? 'estoque-falta' : 'estoque-baixo');
-        const nomeProduto = produto ? produto.nomeProduto : 'Produto não identificado';
-        const uni = produto ? produto.unidade : '';
+        const nomeProduto = produto?.nome || produto?.nomeProduto || 'Produto não identificado';
+        const uni = produto?.unidade || '';
 
         if (isSeparado) {
             return `
@@ -431,8 +583,8 @@ function renderChecklistUtensilios(checklists, ficha) {
 
     lista.innerHTML = checklists.map(check => {
         const util = check.utensilio;
-        const nomeUtil = util ? util.nomeUtensilio : 'Utensílio não identificado';
-        const qtd = util ? util.quantidade : 0;
+        const nomeUtil = util?.nome || util?.nomeUtensilio || 'Utensílio não identificado';
+        const qtd = util?.quantidade || 0;
 
         const estado = check.estadoAtual || 'PRONTO';
         const isInapto = estado !== 'PRONTO';
@@ -489,6 +641,7 @@ if ($('main-btn-reset')) {
         }
     });
 }
+
 // ===== 6. LÓGICA DE AÇÕES DE ESTOQUE E UTENSÍLIOS =====
 const btnFinishInsumos = $('btn-finish-insumos');
 if (btnFinishInsumos) {
@@ -749,14 +902,10 @@ if (kitchenClose) kitchenClose.addEventListener('click', () => {
 
 function atualizarContadorReceitasHoje(turmaId) {
     const contador = document.getElementById('hero-receitas-count');
-
     if (!contador) return;
 
-    let receitasHoje = agendamentosDoDia.filter(
-        agendamento => agendamento.situacao === 'A'
-    );
+    let receitasHoje = agendamentosDoDia.filter(agendamento => agendamento.situacao === 'A');
 
-    // Filtra pela turma selecionada na topbar
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
             const idTurma = agendamento.ficha?.turma?.id;
@@ -765,47 +914,5 @@ function atualizarContadorReceitasHoje(turmaId) {
     }
 
     const quantidade = receitasHoje.length;
-
-    contador.textContent =
-        `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
-
-// ===== 8. MODAIS DE SOLICITAÇÃO EXTRA (INSUMOS E UTENSÍLIOS) =====
-
-// --- Lógica do Insumo Extra ---
-const btnAddInsumo = $('btn-add-insumo');
-const modalExtra = $('extra-modal');
-const btnCloseExtra = $('extra-close');
-const btnCancelExtra = $('extra-cancel');
-
-if (btnAddInsumo) {
-    btnAddInsumo.addEventListener('click', () => {
-        if (modalExtra) modalExtra.classList.add('show');
-    });
-}
-
-const fecharModalInsumo = () => {
-    if (modalExtra) modalExtra.classList.remove('show');
-};
-
-if (btnCloseExtra) btnCloseExtra.addEventListener('click', fecharModalInsumo);
-if (btnCancelExtra) btnCancelExtra.addEventListener('click', fecharModalInsumo);
-
-// --- Lógica do Utensílio Extra ---
-const btnAddUtil = $('btn-add-util');
-const modalUtil = $('util-modal');
-const btnCloseUtil = $('util-close');
-const btnCancelUtil = $('util-cancel');
-
-if (btnAddUtil) {
-    btnAddUtil.addEventListener('click', () => {
-        if (modalUtil) modalUtil.classList.add('show');
-    });
-}
-
-const fecharModalUtil = () => {
-    if (modalUtil) modalUtil.classList.remove('show');
-};
-
-if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
-if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);

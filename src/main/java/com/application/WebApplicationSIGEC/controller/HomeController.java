@@ -1,4 +1,3 @@
-
 package com.application.WebApplicationSIGEC.controller;
 
 import java.time.LocalDate;
@@ -51,7 +50,6 @@ public class HomeController {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-        // Tratamento seguro do primeiro nome
         String primeiroNome = "Instrutor";
         if (usuarioLogado != null && usuarioLogado.getNomeUsuario() != null && !usuarioLogado.getNomeUsuario().trim().isEmpty()) {
             String nomeLimpo = usuarioLogado.getNomeUsuario().trim();
@@ -62,7 +60,6 @@ public class HomeController {
         }
         model.addAttribute("nomeUsuario", primeiroNome);
 
-        // Data formatada e vinculada ao modelo
         try {
             LocalDate hoje = LocalDate.now();
             DateTimeFormatter formatador = DateTimeFormatter.ofPattern("EEEE, dd 'de' MMMM", new Locale("pt", "BR"));
@@ -73,7 +70,6 @@ public class HomeController {
             model.addAttribute("dataDeHoje", "");
         }
 
-        // Saudação Dinâmica
         java.time.LocalTime agora = java.time.LocalTime.now();
         String saudacao = "Bom dia";
         if (agora.getHour() >= 12 && agora.getHour() < 18) {
@@ -98,11 +94,7 @@ public class HomeController {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
-
-
         }
-
-
 
         LocalDate dataBusca = LocalDate.now();
         List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
@@ -113,7 +105,6 @@ public class HomeController {
         return ResponseEntity.ok(agendamentos);
     }
 
-    // Retorna as receitas agendadas para a semana
     @GetMapping("/api/agendamentos/semana")
     @ResponseBody
     public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
@@ -121,8 +112,7 @@ public class HomeController {
             @RequestParam("fim") LocalDate fim,
             HttpSession session
     ) {
-        Usuario usuarioLogado =
-                (Usuario) session.getAttribute("usuarioLogado");
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
@@ -132,13 +122,7 @@ public class HomeController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Agendamento> agendamentos =
-                homeService.buscarAulasDaSemana(
-                        inicio,
-                        fim,
-                        usuarioLogado.getId()
-                );
-
+        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId());
         return ResponseEntity.ok(agendamentos);
     }
 
@@ -149,7 +133,6 @@ public class HomeController {
         return ResponseEntity.ok(detalhes);
     }
 
-    // Endpoint atualizado para permitir filtro por turma
     @GetMapping("/api/fichas")
     @ResponseBody
     public ResponseEntity<List<Ficha>> getTodasFichas(
@@ -157,20 +140,15 @@ public class HomeController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
         }
 
-        // Mantém o comportamento anterior para chamadas sem turma
         if (idTurma == null) {
-            List<Ficha> fichasDoUsuario =
-                    fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
-
+            List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
             return ResponseEntity.ok(fichasDoUsuario);
         }
 
-        // Verifica se a turma está vinculada ao usuário
         boolean turmaPermitida = turmaRepository
                 .findTurmasByUsuarioId(usuarioLogado.getId())
                 .stream()
@@ -180,9 +158,7 @@ public class HomeController {
             return ResponseEntity.status(403).build();
         }
 
-        // Busca somente as receitas da turma selecionada
         List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
-
         return ResponseEntity.ok(fichasDaTurma);
     }
 
@@ -239,13 +215,53 @@ public class HomeController {
             return ResponseEntity.badRequest().body("Nenhum utensílio selecionado para devolução.");
         }
         List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
-
         String estadoAtual = (String) payload.get("estadoAtual");
         String observacao = (String) payload.get("observacao");
 
         homeService.registrarDevolucaoUtensilio(checklistIds, estadoAtual, observacao);
-
         return ResponseEntity.ok("Devolução registrada com sucesso!");
+    }
+
+    // ==========================================
+    // ENDPOINTS DE SOLICITAÇÃO EXTRA
+    // ==========================================
+    @PostMapping("/api/fichas/solicitar-insumo-extra")
+    @ResponseBody
+    public ResponseEntity<String> solicitarInsumoExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
+
+        try {
+            String nomeInsumo = (String) payload.get("nomeInsumo");
+            Double quantidade = Double.valueOf(payload.get("quantidade").toString());
+            String unidadeMedida = (String) payload.get("unidadeMedida");
+            String justificativa = (String) payload.get("justificativa");
+            Long idTurma = Long.valueOf(payload.get("idTurma").toString());
+
+            homeService.salvarSolicitacaoInsumoExtra(usuarioLogado.getId(), idTurma, nomeInsumo, quantidade, unidadeMedida, justificativa);
+            return ResponseEntity.ok("Solicitação de insumo extra registrada com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/api/fichas/solicitar-utensilio-extra")
+    @ResponseBody
+    public ResponseEntity<String> solicitarUtensilioExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
+
+        try {
+            String nomeUtensilio = (String) payload.get("nomeUtensilio");
+            Integer quantidade = Integer.valueOf(payload.get("quantidade").toString());
+            String justificativa = (String) payload.get("justificativa");
+            Long idTurma = Long.valueOf(payload.get("idTurma").toString());
+
+            homeService.salvarSolicitacaoUtensilioExtra(usuarioLogado.getId(), idTurma, nomeUtensilio, quantidade, justificativa);
+            return ResponseEntity.ok("Solicitação de utensílio extra registrada com sucesso!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
+        }
     }
 
     public TurmaRepository getTurmaRepository() {
