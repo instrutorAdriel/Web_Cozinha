@@ -1,5 +1,6 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,14 +12,14 @@ public class Utensilio {
     @Column(name = "id_utensilio")
     private Long id;
 
-    @Column(name = "nome_utensilio", nullable = false, length = 100)
+    @Column(name = "nome_utensilio", nullable = false, length = 55)
     private String nomeUtensilio;
 
     @Column(nullable = false)
-    private Integer quantidade = 0;
+    private Integer quantidade;
 
-    @Column(name = "numero_patrimonio", nullable = false)
-    private Integer numeroPatrimonio;
+    @Column(name = "numero_patrimonio", length = 45)
+    private String numeroPatrimonio;
 
     @Column(length = 255)
     private String observacao;
@@ -26,9 +27,15 @@ public class Utensilio {
     @Column(nullable = false, length = 1)
     private String situacao = "A";
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_categoria_utensilio")
     private CategoriaUtensilio categoriaUtensilio;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_laboratorio")
+    private Laboratorio laboratorio;
 
     public Utensilio() {}
 
@@ -39,12 +46,14 @@ public class Utensilio {
     public void setNomeUtensilio(String nomeUtensilio) { this.nomeUtensilio = nomeUtensilio; }
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
-    public Integer getNumeroPatrimonio() { return numeroPatrimonio; }
-    public void setNumeroPatrimonio(Integer numeroPatrimonio) { this.numeroPatrimonio = numeroPatrimonio; }
+    public String getNumeroPatrimonio() { return numeroPatrimonio; }
+    public void setNumeroPatrimonio(String numeroPatrimonio) { this.numeroPatrimonio = numeroPatrimonio; }
     public String getObservacao() { return observacao; }
     public void setObservacao(String observacao) { this.observacao = observacao; }
     public String getSituacao() { return situacao; }
     public void setSituacao(String situacao) { this.situacao = situacao; }
     public CategoriaUtensilio getCategoriaUtensilio() { return categoriaUtensilio; }
     public void setCategoriaUtensilio(CategoriaUtensilio categoriaUtensilio) { this.categoriaUtensilio = categoriaUtensilio; }
+    public Laboratorio getLaboratorio() { return laboratorio; }
+    public void setLaboratorio(Laboratorio laboratorio) { this.laboratorio = laboratorio; }
 }

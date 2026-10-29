@@ -5,12 +5,12 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "checklist_utensilho")
+@Table(name = "checklist_utensilio")
 public class ChecklistUtensilio {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_checklist_utensilho")
+    @Column(name = "id_checklist_utensilio")
     private Long id;
 
     @JsonIgnore
