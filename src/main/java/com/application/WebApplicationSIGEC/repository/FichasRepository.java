@@ -21,13 +21,15 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
 
     List<Ficha> findByDataIsNotNull();
 
-    @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario)")
+    // Consulta JPQL: busca fichas vinculadas às turmas do usuário logado através da TurmaFicha (sem filtro de situação em turma_ficha)
+    @Query("SELECT DISTINCT tf.ficha FROM TurmaFicha tf WHERE tf.turma.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario)")
     List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Long idUsuario);
 
-    @Query(value = "SELECT * FROM ficha WHERE id_turma = :idTurma", nativeQuery = true)
+    // Consulta SQL Nativa: realiza INNER JOIN com a tabela intermediária turma_ficha
+    @Query(value = "SELECT f.* FROM ficha f INNER JOIN turma_ficha tf ON f.id_ficha = tf.id_ficha WHERE tf.id_turma = :idTurma", nativeQuery = true)
     List<Ficha> findByIdTurma(@Param("idTurma") Long idTurma);
 
-    // Busca somente as receitas vinculadas à turma selecionada
-    @Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id = :idTurma")
+    // Consulta JPQL: busca receitas vinculadas à turma selecionada
+    @Query("SELECT tf.ficha FROM TurmaFicha tf WHERE tf.turma.id = :idTurma")
     List<Ficha> findFichasByTurmaId(@Param("idTurma") Long idTurma);
 }

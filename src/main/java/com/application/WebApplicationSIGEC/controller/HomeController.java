@@ -222,9 +222,6 @@ public class HomeController {
         return ResponseEntity.ok("Devolução registrada com sucesso!");
     }
 
-    // ==========================================
-    // ENDPOINTS DE SOLICITAÇÃO EXTRA
-    // ==========================================
     @PostMapping("/api/fichas/solicitar-insumo-extra")
     @ResponseBody
     public ResponseEntity<String> solicitarInsumoExtra(@RequestBody Map<String, Object> payload, HttpSession session) {

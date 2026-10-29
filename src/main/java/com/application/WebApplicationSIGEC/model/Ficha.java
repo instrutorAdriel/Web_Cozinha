@@ -24,9 +24,9 @@ public class Ficha {
     @Column(nullable = false, length = 1)
     private String situacao = "A";
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_turma")
-    private Turma turma;
+    @JsonIgnore
+    @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TurmaFicha> turmaFichas;
 
     @Column(name = "data")
     private LocalDate data;
@@ -50,8 +50,15 @@ public class Ficha {
     public void setPreparo(String preparo) { this.preparo = preparo; }
     public String getSituacao() { return situacao; }
     public void setSituacao(String situacao) { this.situacao = situacao; }
-    public Turma getTurma() { return turma; }
-    public void setTurma(Turma turma) { this.turma = turma; }
+
+    public List<TurmaFicha> getTurmaFichas() {
+        return turmaFichas;
+    }
+
+    public void setTurmaFichas(List<TurmaFicha> turmaFichas) {
+        this.turmaFichas = turmaFichas;
+    }
+
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
     public List<Insumo> getInsumos() { return insumos; }

@@ -4,6 +4,7 @@ import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Ficha;
 import com.application.WebApplicationSIGEC.repository.AgendamentoRepository;
 import com.application.WebApplicationSIGEC.repository.FichasRepository;
+import com.application.WebApplicationSIGEC.repository.TurmaFichaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,26 +16,20 @@ public class FichasService {
 
     private final FichasRepository fichasRepository;
     private final AgendamentoRepository agendamentoRepository;
+    private final TurmaFichaRepository turmaFichaRepository;
 
-
-    public FichasService(FichasRepository fichasRepository, AgendamentoRepository agendamentoRepository) {
+    // Injeção do TurmaFichaRepository via Construtor
+    public FichasService(FichasRepository fichasRepository,
+                         AgendamentoRepository agendamentoRepository,
+                         TurmaFichaRepository turmaFichaRepository) {
         this.fichasRepository = fichasRepository;
         this.agendamentoRepository = agendamentoRepository;
+        this.turmaFichaRepository = turmaFichaRepository;
     }
 
     public Ficha buscarReceitas(String nomeFicha) {
         Optional<Ficha> rs = fichasRepository.findByNomeFicha(nomeFicha);
         return rs.orElse(null);
-    }
-
-    public List<Ficha> buscarData(LocalDate data) {
-        List<Ficha> rs = fichasRepository.findByData(data);
-
-        if (!rs.isEmpty()) {
-            return rs;
-        }
-
-        return java.util.Collections.emptyList();
     }
 
     public List<Ficha> buscarTodas() {
@@ -45,22 +40,13 @@ public class FichasService {
         return fichasRepository.findFichasByUsuarioId(idUsuario);
     }
 
-    // Busca somente as receitas da turma selecionada
+    // Busca as receitas vinculadas à turma cruzando a tabela intermediária TurmaFicha (sem filtro de situacao)
     public List<Ficha> buscarPorTurma(Long idTurma) {
-        return fichasRepository.findFichasByTurmaId(idTurma);
+        return turmaFichaRepository.findFichasByTurmaId(idTurma);
     }
 
-    // Busca somente as fichas que ainda não foram alocadas
-    public List<Ficha> buscarDisponiveis() {
-        return fichasRepository.findByDataIsNull();
-    }
-
-    // Busca somente as fichas que já foram alocadas no calendário
-    public List<Ficha> buscarAlocadas() {
-        return fichasRepository.findByDataIsNotNull();
-    }
     // =========================================================
-    // MÉTODOS DO CALENDÁRIO / AGENDAMENTO (COM TIPO LONG)
+    // MÉTODOS DO CALENDÁRIO / AGENDAMENTO
     // =========================================================
 
     public List<Agendamento> buscarTodosAgendamentosDaTurma(Long idUsuario, Long idTurma) {
@@ -74,28 +60,28 @@ public class FichasService {
     }
 
     public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Long idTurma, LocalDate data) {
-        // 1. Agendamentos específicos para a DATA SELECIONADA (para exibir no painel lateral do dia)
+        // 1. Agendamentos específicos para a DATA SELECIONADA
         List<Agendamento> alocadasNoDia = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
 
-        // 2. Busca TODAS as fichas pertencentes a esta turma
+        // 2. Busca TODAS as fichas pertencentes a esta turma através da TurmaFicha
         List<Ficha> todasDaTurma = (idTurma != null)
-                ? fichasRepository.findByIdTurma(idTurma)
+                ? turmaFichaRepository.findFichasByTurmaId(idTurma)
                 : Collections.emptyList();
 
-        // 3. Busca TODOS os agendamentos ativos desta turma (EM QUALQUER DATA DO CALENDÁRIO)
+        // 3. Busca TODOS os agendamentos ativos desta turma em qualquer data
         List<Agendamento> todosAgendamentosDaTurma = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma)
                 : Collections.emptyList();
 
-        // 4. Extrai os IDs de TODAS as fichas que já foram agendadas em QUALQUER dia
+        // 4. Extrai os IDs das fichas que já foram agendadas no calendário
         List<Long> idsAlocadosEmQualquerData = todosAgendamentosDaTurma.stream()
                 .filter(a -> a.getFicha() != null)
                 .map(a -> a.getFicha().getId())
                 .toList();
 
-        // 5. FILTRO GLOBAL: Mantém em "disponíveis" APENAS as fichas que NUNCA foram alocadas em dia nenhum
+        // 5. Filtra mantendo apenas as fichas da turma que não estão agendadas na data atual
         List<Ficha> disponiveis = todasDaTurma.stream()
                 .filter(ficha -> ficha.getId() != null && !idsAlocadosEmQualquerData.contains(ficha.getId()))
                 .toList();
@@ -111,7 +97,7 @@ public class FichasService {
     public void alocarFicha(Long idFicha, LocalDate novaData) {
         if (idFicha == null || novaData == null) return;
 
-        // Evita duplicados na mesma data
+        // Evita agendamentos duplicados na mesma data
         boolean jaExiste = agendamentoRepository.existsByFicha_IdAndDataAndSituacao(idFicha, novaData, "A");
         if (jaExiste) {
             throw new IllegalArgumentException("Esta ficha já se encontra agendada para este dia!");
