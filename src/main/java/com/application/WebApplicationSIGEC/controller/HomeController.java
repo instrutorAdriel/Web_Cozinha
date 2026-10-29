@@ -21,6 +21,8 @@ import com.application.WebApplicationSIGEC.service.SessaoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+
+
 @Controller
 @RequestMapping("/")
 public class HomeController {
@@ -36,6 +38,11 @@ public class HomeController {
 
     @Autowired
     private com.application.WebApplicationSIGEC.repository.TurmaRepository turmaRepository;
+
+
+
+
+
 
 @GetMapping("/home")
 public String exibirHome(Model model, HttpServletRequest request) {

@@ -9,7 +9,15 @@ const $ = id => document.getElementById(id);
 // ===== INICIALIZAÇÃO =====
 document.addEventListener("DOMContentLoaded", () => {
   carregarDadosIniciais();
+
 });
+
+
+
+
+
+
+
 
 // ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
 function carregarDadosIniciais() {

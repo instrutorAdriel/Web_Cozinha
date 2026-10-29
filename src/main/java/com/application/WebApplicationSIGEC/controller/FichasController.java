@@ -18,6 +18,8 @@ import com.application.WebApplicationSIGEC.service.FichasService;
 
 import jakarta.servlet.http.HttpSession;
 
+
+
 @Controller
 @RequestMapping("/")
 public class FichasController {
