@@ -288,30 +288,52 @@ function filtrarPorTurma(turmaId) {
     const agendamentosFiltrados = agendamentosDaSemana.filter(filtrar);
     renderizarSemana(agendamentosFiltrados, lista);
 
-    const selectReceita = $('recipe-select');
-    if (selectReceita) {
-        selectReceita.innerHTML = '';
-        const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
-            if (turmaId === 'todas' || turmaId === '') return true;
-            const idTurma = f.turma?.idTurma ?? f.turma?.id;
-            return String(idTurma) === String(turmaId);
-        });
-        fichasFiltradas.forEach(f => {
-            const nomeTurma = f.turma ? (f.turma.nomeTurma || f.turma.nome) : 'Turma Indefinida';
-            const option = document.createElement('option');
-            option.value = f.id ?? f.idFicha;
-            option.textContent = `${f.nomeFicha || f.nome} (${nomeTurma})`;
-            selectReceita.appendChild(option);
-        });
-    }
-    limparDetalhesDaTela();
-
+    // Existe aula hoje para esta turma?
     const receitaHoje = agendamentosDoDia.find(agendamento =>
         agendamento.situacao === 'A' &&
         agendamento.ficha &&
         filtrar(agendamento)
     );
+    const semReceitaHoje = !receitaHoje;
 
+    // Preenche o select
+    const selectReceita = $('recipe-select');
+    if (selectReceita) {
+        selectReceita.innerHTML = '';
+
+        if (semReceitaHoje) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nenhuma receita programada para hoje';
+            selectReceita.appendChild(option);
+            selectReceita.disabled = true;
+        } else {
+            selectReceita.disabled = false;
+            const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
+                if (turmaId === 'todas' || turmaId === '') return true;
+                const idTurma = f.turma?.idTurma ?? f.turma?.id;
+                return String(idTurma) === String(turmaId);
+            });
+            fichasFiltradas.forEach(f => {
+                const nomeTurma = f.turma ? (f.turma.nomeTurma || f.turma.nome) : 'Turma Indefinida';
+                const option = document.createElement('option');
+                option.value = f.id ?? f.idFicha;
+                option.textContent = `${f.nomeFicha || f.nome} (${nomeTurma})`;
+                selectReceita.appendChild(option);
+            });
+        }
+    }
+
+    limparDetalhesDaTela();
+
+    // Mensagem nos utensílios e botões
+    if (semReceitaHoje && $('util-recipe-name')) {
+        $('util-recipe-name').textContent = 'Nenhuma receita programada para hoje';
+    }
+    ['btn-finish-insumos', 'btn-finish-utensilios', 'btn-add-insumo', 'btn-add-util', 'btn-devolucao-utensilios']
+        .forEach(id => { if ($(id)) $(id).disabled = semReceitaHoje; });
+
+    // Se tem aula hoje, seleciona ela
     if (receitaHoje) {
         const idFicha = receitaHoje.ficha.id ?? receitaHoje.ficha.idFicha;
         if (selectReceita) {

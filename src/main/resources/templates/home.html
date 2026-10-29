@@ -61,14 +61,19 @@
 
     <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
     <div class="topbar-actions">
-
         <div class="turma-select-group">
-            <label class="field-label" for="turma-select">TURMA / LABORATÓRIO</label>
+            <label class="field-label" for="turma">TURMA / LABORATÓRIO</label>
+
             <div class="select-wrap">
-                <select id="turma-select">
-                    <option value="">-- Nenhuma Turma Vinculada --</option>
+                <select id="turma" name="turma">
+                    <option value="" selected disabled>
+                        -- Nenhuma Turma Vinculada --
+                    </option>
                 </select>
-                <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+                <span class="material-symbols-outlined select-arrow">
+            expand_more
+        </span>
             </div>
         </div>
 
