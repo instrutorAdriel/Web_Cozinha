@@ -2955,6 +2955,27 @@ main,
     background-color: #0b2545;
     color: var(--text-light);
 }
+
+/* Spinner de Carregamento para Botões de Ação */
+.btn-fiche-action.loading {
+    pointer-events: none;
+    opacity: 0.85;
+}
+
+.spinner-icon {
+    display: inline-block;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: scaleX(-1) rotate(360deg);
+    }
+    to {
+        transform: scaleX(-1) rotate(0deg);
+    }
+}
+
 /* ===== DIALOG / MODAL CUSTOMIZADO ===== */
 .custom-dialog {
     border: none;
