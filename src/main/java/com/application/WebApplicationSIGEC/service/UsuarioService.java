@@ -19,19 +19,19 @@ public class UsuarioService {
         this.usuarioRepository = usuarioRepository;
     }
 
-    public String cadastrar(UsuarioForm form){
-        if(!form.getSenha().equals(form.getConfirmarSenha())){
+    public String cadastrar(UsuarioForm form) {
+        if (!form.getSenha().equals(form.getConfirmarSenha())) {
             return "As senhas não conferem";
         }
         String senhaRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$";
         if (!form.getSenha().matches(senhaRegex)) {
             return "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.";
         }
-        if(usuarioRepository.existsByEmail(form.getEmail())){
+        if (usuarioRepository.existsByEmail(form.getEmail())) {
             return "E-mail já cadastrado no banco";
         }
 
-        if(!form.getEmail().endsWith("@df.senac.br")){
+        if (!form.getEmail().endsWith("@df.senac.br")) {
             return "E-mail inválido. Insira um e-mail @df.senac.br";
         }
 
@@ -53,44 +53,58 @@ public class UsuarioService {
         return null;
     }
 
-    public Usuario autenticar(String email, String senha){
+    public Usuario autenticar(String email, String senha) {
         Optional<Usuario> resultado = usuarioRepository.findByEmail(email);
-        if(resultado.isEmpty()){
+        if (resultado.isEmpty()) {
             return null;
         }
 
         Usuario usuario = resultado.get();
 
-        if(!encoder.matches(senha, usuario.getSenha())){
+        if (!encoder.matches(senha, usuario.getSenha())) {
             return null;
         }
         return usuario;
     }
 
-    public String alterarSenha(UsuarioForm form){
-        if(!form.getSenha().equals(form.getConfirmarSenha())){
+    public String alterarSenha(UsuarioForm form) {
+
+        if (!form.getSenha().equals(form.getConfirmarSenha())) {
             return "As senhas não conferem";
         }
 
+        String senhaRegex =
+                "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$";
+
+        if (!form.getSenha().matches(senhaRegex)) {
+            return "A senha deve conter no mínimo 8 caracteres, incluindo letras maiúsculas, minúsculas, números e caracteres especiais.";
+        }
+
         Optional<Usuario> resultado = usuarioRepository.findByEmail(form.getEmail());
-        if(resultado.isEmpty()){
+
+        if (resultado.isEmpty()) {
             return "E-mail não encontrado!";
         }
 
         Usuario usuario = resultado.get();
         usuario.setSenha(encoder.encode(form.getSenha()));
+
         usuarioRepository.save(usuario);
+
         return null;
     }
-    public void atualizarSenhaPorEmail(String email, String novaSenha){
+
+    public void atualizarSenhaPorEmail(String email, String novaSenha) {
         Optional<Usuario> resultado = usuarioRepository.findByEmail(email);
 
-        if (resultado.isPresent()){
+        if (resultado.isPresent()) {
             Usuario usuario = resultado.get();
             usuario.setSenha(encoder.encode(novaSenha));
             usuarioRepository.save(usuario);
-        } else{
-            throw  new RuntimeException("Usuario nao encontrado com o e-mail: "+email);
+        } else {
+            throw new RuntimeException("Usuario nao encontrado com o e-mail: " + email);
         }
     }
+
+
 }
