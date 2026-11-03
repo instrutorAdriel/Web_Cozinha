@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const quantidade = $('extra-qtd') ? $('extra-qtd').value.trim() : '';
             const unidade = $('extra-un') ? $('extra-un').value : 'un';
             const observacao = $('extra-obs') ? $('extra-obs').value.trim() : '';
-            const turmaSelect = $('turma-select');
+            const turmaSelect = $('turma');
             const idTurma = turmaSelect ? turmaSelect.value : null;
 
             if (!nomeInsumo || !quantidade) {
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const nomeUtensilio = $('util-name') ? $('util-name').value.trim() : '';
             const quantidade = $('util-qtd') ? $('util-qtd').value.trim() : '';
             const observacao = $('util-obs') ? $('util-obs').value.trim() : '';
-            const turmaSelect = $('turma-select');
+            const turmaSelect = $('turma');
             const idTurma = turmaSelect ? turmaSelect.value : null;
 
             if (!nomeUtensilio || !quantidade) {
@@ -184,7 +184,7 @@ function carregarDadosIniciais() {
             const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
             const turmaValida = turmas.some(t => (t.id || t.idTurma).toString() === turmaSalva);
 
-            let turmaInicialId = "todas";
+            let turmaInicialId = "";
             if (turmaSalva && turmaValida) {
                 turmaInicialId = turmaSalva;
             } else if (turmas.length > 0) {
@@ -192,7 +192,7 @@ function carregarDadosIniciais() {
             }
 
             // Define a seleção no <select> e aplica o filtro
-            const turmaSelect = $('turma-select');
+            const turmaSelect = $('turma');
             if (turmaSelect) turmaSelect.value = turmaInicialId;
 
             filtrarPorTurma(turmaInicialId);
@@ -233,13 +233,14 @@ function carregarDadosIniciais() {
 }
 
 function popularTurmasDropdown(turmas) {
-    const turmaSelect = $('turma-select');
+    const turmaSelect = $('turma');
     if (!turmaSelect) return;
 
     turmaSelect.innerHTML = '';
 
     if (turmas.length === 0) {
-        turmaSelect.innerHTML = '<option value="">-- Nenhuma Turma Vinculada --</option>';
+        turmaSelect.innerHTML = '<option value="" selected>-- Nenhuma Turma Vinculada --</option>';
+
     } else {
         turmas.forEach(turma => {
             const id = turma.idTurma || turma.id;
