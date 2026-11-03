@@ -609,3 +609,20 @@ if(btnOpenKitchen) {
 
 const kitchenClose = $('kitchen-close');
 if(kitchenClose) kitchenClose.addEventListener('click', () => { if(kitchenModal) kitchenModal.classList.remove('show'); });
+
+const btnSair = document.getElementById("btnSair");
+const modalSair = document.getElementById("modalSair");
+const btnNao = document.getElementById("btnNao");
+const btnSim = document.getElementById("btnSim");
+
+btnSair.addEventListener("click", function() {
+  modalSair.style.display = "flex";
+});
+
+btnNao.addEventListener("click", function() {
+  modalSair.style.display = "none";
+});
+
+btnSim.addEventListener("click", function() {
+  document.getElementById("formLogout").submit();
+});

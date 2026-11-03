@@ -38,7 +38,7 @@
     <div class="sidebar-footer">
         <form id="formLogout" th:action="@{/logout}" method="get">
             <button type="button" class="btn-logout" onclick="confirmarSaida()">
-                <span class="material-symbols-outlined">logout</span>
+            <span class="material-symbols-outlined">logout</span>
                 Sair
             </button>
         </form>
@@ -345,14 +345,15 @@
 <div class="overlay" id="overlay"></div>
 
 <!-- Arquivo Script JS Principal (Via Thymeleaf) -->
+
+
 <script th:src="@{/scripts/scriptHome.js?v=3}"></script>
 
 <script>
     function confirmarSaida() {
-        if (confirm("Tem certeza que deseja sair do sistema?")) {
-            document.getElementById("formLogout").submit();
-        }
+        alert("Tem certeza que deseja sair");
     }
 </script>
+
 </body>
 </html>
