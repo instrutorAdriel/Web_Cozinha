@@ -17,7 +17,13 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     @Query("SELECT a FROM Agendamento a " +
             "JOIN FETCH a.ficha f " +
             "WHERE a.data = :data AND a.situacao = 'A' " +
-            "AND f.id IN (SELECT tf.ficha.id FROM TurmaFicha tf WHERE tf.turma.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario)) " +
+            "AND f.id IN (" +
+            "    SELECT tf.ficha.id " +
+            "    FROM TurmaFicha tf " +
+            "    WHERE tf.turma.id IN (" +
+            "        SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario" +
+            "    )" +
+            ") " +
             "ORDER BY a.data ASC")
     List<Agendamento> findAgendamentosDoUsuarioHoje(@Param("data") LocalDate data, @Param("idUsuario") Long idUsuario);
 

@@ -203,10 +203,8 @@ function carregarDadosIniciais() {
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
                 agendamentos.forEach(a => {
-                    if (a.ficha && a.ficha.turma) {
-                        const idT = a.ficha.turma.id || a.ficha.turma.idTurma;
-                        if (idT) turmasUnicasHoje.add(idT);
-                    }
+                    const idT = a.turma?.id || a.turma?.idTurma || a.ficha?.turma?.id || a.ficha?.turma?.idTurma;
+                    if (idT) turmasUnicasHoje.add(idT);
                 });
                 const qtdHoje = turmasUnicasHoje.size;
                 contadorTurmas.textContent = `${qtdHoje} turma${qtdHoje !== 1 ? 's' : ''}`;
@@ -284,9 +282,11 @@ function filtrarPorTurma(turmaId) {
         containerClasses.appendChild(lista);
     }
 
+    // Filtro flexível para agendamento/turma
     const filtrar = a => {
-        if (turmaId === 'todas' || turmaId === '') return true;
-        const idTurma = a.ficha?.turma?.idTurma ?? a.ficha?.turma?.id;
+        if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
+        const idTurma = a.turma?.id ?? a.turma?.idTurma ?? a.ficha?.turma?.id ?? a.ficha?.turma?.idTurma;
+        if (!idTurma) return true;
         return String(idTurma) === String(turmaId);
     };
 
@@ -298,8 +298,9 @@ function filtrarPorTurma(turmaId) {
     if (selectReceita) {
         selectReceita.innerHTML = '';
         const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
-            if (turmaId === 'todas' || turmaId === '') return true;
+            if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
             const idTurma = f.turma?.idTurma ?? f.turma?.id;
+            if (!idTurma) return true;
             return String(idTurma) === String(turmaId);
         });
         fichasFiltradas.forEach(f => {
@@ -312,11 +313,9 @@ function filtrarPorTurma(turmaId) {
     }
     limparDetalhesDaTela();
 
-    // Carrega automaticamente a primeira receita agendada para hoje na turma selecionada.
+    // Busca a primeira receita agendada para HOJE para carregar automaticamente
     const receitaHoje = agendamentosDoDia.find(agendamento =>
-        agendamento.situacao === 'A' &&
-        agendamento.ficha &&
-        filtrar(agendamento)
+        agendamento && agendamento.ficha && filtrar(agendamento)
     );
 
     if (receitaHoje) {
@@ -435,7 +434,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         const ficha = agendamento.ficha;
         if (!ficha) return;
 
-        const turma = ficha.turma;
+        const turma = ficha.turma || agendamento.turma;
         let lab = 'Laboratório N/A';
         if (turma && turma.laboratorio) {
             lab = typeof turma.laboratorio === 'object' ? (turma.laboratorio.nomeLaboratorio || 'Laboratório N/A') : turma.laboratorio;
@@ -461,6 +460,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         container.appendChild(card);
     });
 }
+
 // ===== 3. SELEÇÃO DE AULA E DETALHES =====
 function selecionarAula(fichaId, agendamentoSelecionado = null) {
     const selectReceita = $('recipe-select');
@@ -642,6 +642,7 @@ if ($('main-btn-reset')) {
         }
     });
 }
+
 // ===== 6. LÓGICA DE AÇÕES DE ESTOQUE E UTENSÍLIOS =====
 const btnFinishInsumos = $('btn-finish-insumos');
 if (btnFinishInsumos) {
@@ -898,18 +899,17 @@ if (kitchenClose) kitchenClose.addEventListener('click', () => {
     if (kitchenModal) kitchenModal.classList.remove('show');
 });
 
-
 function atualizarContadorReceitasHoje(turmaId) {
     const contador = document.getElementById('hero-receitas-count');
 
     if (!contador) return;
 
-    let receitasHoje = agendamentosDoDia.filter(agendamento => agendamento.situacao === 'A');
+    let receitasHoje = agendamentosDoDia;
 
     // Filtra pela turma selecionada na topbar
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
-            const idTurma = agendamento.ficha?.turma?.id;
+            const idTurma = agendamento.turma?.id || agendamento.turma?.idTurma || agendamento.ficha?.turma?.id || agendamento.ficha?.turma?.idTurma;
             return String(idTurma) === String(turmaId);
         });
     }
@@ -924,13 +924,12 @@ function separarPassosReceita(preparo) {
     if (!preparo || typeof preparo !== "string") {
         return [];
     }
-//
+
     return preparo
         .split(".")
         .map(passo => passo.trim())
         .filter(passo => passo.length > 0)
         .map(passo => passo + ".");
-    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
 
 function renderizarPassosReceita(preparo, containerId) {
@@ -948,10 +947,3 @@ function renderizarPassosReceita(preparo, containerId) {
         container.appendChild(li);
     });
 }
-
-const fecharModalUtil = () => {
-    if (modalUtil) modalUtil.classList.remove('show');
-};
-
-if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
-if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);

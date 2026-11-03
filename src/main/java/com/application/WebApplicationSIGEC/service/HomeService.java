@@ -134,62 +134,77 @@ public class HomeService {
     }
 
     // ========================================================
-    // SALVAMENTO DE INSUMO EXTRA
+    // SALVAMENTO DE INSUMO EXTRA (Corrigido e Blindado)
     // ========================================================
     @Transactional
     public void salvarSolicitacaoInsumoExtra(Long idUsuario, Long idTurma, String nomeInsumo, Double quantidade, String unidadeMedida, String justificativa) {
-        Long idInsumo = null;
+        if (nomeInsumo == null || nomeInsumo.trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome do insumo não foi informado.");
+        }
 
-        try {
-            // Busca o id_insumo cruzando com a tabela produto
-            String buscaSql = "SELECT i.id_insumo FROM insumo i JOIN produto p ON i.id_produto = p.id_produto WHERE p.nome_produto = :nome LIMIT 1";
-            idInsumo = ((Number) entityManager.createNativeQuery(buscaSql)
-                    .setParameter("nome", nomeInsumo)
-                    .getSingleResult()).longValue();
-        } catch (Exception e) {
-            // Retorna um erro amigável para o front-end exibir no popup
+        // Busca o ID do produto de forma segura sem estourar NoResultException
+        String buscaSql = "SELECT id_produto FROM produto WHERE LOWER(nome_produto) = LOWER(:nome) LIMIT 1";
+        List<?> resultados = entityManager.createNativeQuery(buscaSql)
+                .setParameter("nome", nomeInsumo.trim())
+                .getResultList();
+
+        if (resultados.isEmpty()) {
             throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado. Certifique-se de que o produto está cadastrado no sistema.");
         }
 
+        Long idInsumo = ((Number) resultados.get(0)).longValue();
+        int qtdInt = (quantidade != null) ? quantidade.intValue() : 0;
+
+        // 'P' = Pendente para alinhar com a Central de Notificações
         String sql = "INSERT INTO solicitacao_insumo (id_usuario, id_turma, id_insumo, data_solicitacao, quantidade, unidade_medida, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, :idI, NOW(), :qtd, :unidade, :just, 'N')";
+                "VALUES (:usuario, :turma, :idI, NOW(), :qtd, :unidade, :just, 'P')";
 
         entityManager.createNativeQuery(sql)
                 .setParameter("usuario", idUsuario)
                 .setParameter("turma", idTurma)
                 .setParameter("idI", idInsumo)
-                .setParameter("qtd", quantidade)
+                .setParameter("qtd", qtdInt)
                 .setParameter("unidade", unidadeMedida)
                 .setParameter("just", justificativa)
                 .executeUpdate();
+
+        entityManager.flush(); // Garante que a inserção seja efetuada no banco imediatamente
     }
 
     // ========================================================
-    // SALVAMENTO DE UTENSÍLIO EXTRA
+    // SALVAMENTO DE UTENSÍLIO EXTRA (Corrigido e Blindado)
     // ========================================================
     @Transactional
     public void salvarSolicitacaoUtensilioExtra(Long idUsuario, Long idTurma, String nomeUtensilio, Integer quantidade, String justificativa) {
-        Long idUtensilio = null;
+        if (nomeUtensilio == null || nomeUtensilio.trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome do utensílio não foi informado.");
+        }
 
-        try {
-            // Busca o id_utensilio diretamente pelo nome
-            String buscaSql = "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1";
-            idUtensilio = ((Number) entityManager.createNativeQuery(buscaSql)
-                    .setParameter("nome", nomeUtensilio)
-                    .getSingleResult()).longValue();
-        } catch (Exception e) {
+        // Busca o ID do utensílio de forma segura
+        String buscaSql = "SELECT id_utensilio FROM utensilio WHERE LOWER(nome_utensilio) = LOWER(:nome) LIMIT 1";
+        List<?> resultados = entityManager.createNativeQuery(buscaSql)
+                .setParameter("nome", nomeUtensilio.trim())
+                .getResultList();
+
+        if (resultados.isEmpty()) {
             throw new IllegalArgumentException("O utensílio '" + nomeUtensilio + "' não existe no banco de dados. Cadastre-o primeiro no painel de utensílios.");
         }
 
+        Long idUtensilio = ((Number) resultados.get(0)).longValue();
+        int qtdInt = (quantidade != null) ? quantidade : 0;
+
+        // 'P' = Pendente para alinhar com a Central de Notificações
         String sql = "INSERT INTO solicitacao_utensilio (id_usuario, id_turma, id_utensilio, data_solicitacao, quantidade, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, :idU, NOW(), :qtd, :just, 'N')";
+                "VALUES (:usuario, :turma, :idU, NOW(), :qtd, :just, 'P')";
 
         entityManager.createNativeQuery(sql)
                 .setParameter("usuario", idUsuario)
                 .setParameter("turma", idTurma)
                 .setParameter("idU", idUtensilio)
-                .setParameter("qtd", quantidade)
+                .setParameter("qtd", qtdInt)
                 .setParameter("just", justificativa)
                 .executeUpdate();
+
+        entityManager.flush(); // Garante a sincronização do lote no banco
     }
 }
