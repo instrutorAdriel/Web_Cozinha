@@ -3844,6 +3844,10 @@ body {
     color: var(--primary);
     margin: 0;
 }
+#summary-steps {
+    list-style: none;
+    padding-left: 0;
+}
 
 /* ==========================================================================
    CARDS DE NOTIFICAÇÃO (DIVISÃO EM 3 COLUNAS E SUBTÍTULO)
