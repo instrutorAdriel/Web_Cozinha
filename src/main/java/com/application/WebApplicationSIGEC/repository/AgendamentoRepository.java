@@ -72,25 +72,27 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // Busca agendamentos da semana vinculados às turmas do usuário via TurmaFicha
     @Query("""
-        SELECT a FROM Agendamento a
+        SELECT DISTINCT a FROM Agendamento a
         JOIN FETCH a.ficha f
         WHERE a.data BETWEEN :inicio AND :fim
           AND a.situacao = 'A'
           AND f.id IN (
               SELECT tf.ficha.id
               FROM TurmaFicha tf
-              WHERE tf.turma.id IN (
-                  SELECT tu.id
-                  FROM Usuario u
-                  JOIN u.turmas tu
-                  WHERE u.id = :idUsuario
-              )
+              WHERE (:idTurma IS NULL OR tf.turma.id = :idTurma)
+                AND tf.turma.id IN (
+                    SELECT tu.id
+                    FROM Usuario u
+                    JOIN u.turmas tu
+                    WHERE u.id = :idUsuario
+                )
           )
         ORDER BY a.data ASC, a.id ASC
     """)
     List<Agendamento> buscarAgendamentosDaSemana(
             @Param("inicio") LocalDate inicio,
             @Param("fim") LocalDate fim,
-            @Param("idUsuario") Long idUsuario
+            @Param("idUsuario") Long idUsuario,
+            @Param("idTurma") Long idTurma
     );
 }

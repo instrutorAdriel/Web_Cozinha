@@ -148,9 +148,15 @@ function obterPeriodoSemana() {
     return { segunda, inicio: formatarDataLocal(segunda), fim: formatarDataLocal(sexta) };
 }
 
-async function buscarAgendamentosSemana() {
+async function buscarAgendamentosSemana(idTurma = null) {
     const { inicio, fim } = obterPeriodoSemana();
     const parametros = new URLSearchParams({ inicio, fim });
+
+    // Se houver uma turma selecionada (que não seja "todas"), passa na query string
+    if (idTurma && idTurma !== "todas" && idTurma !== "") {
+        parametros.append("idTurma", idTurma);
+    }
+
     const resposta = await fetch(`/api/agendamentos/semana?${parametros}`);
     if (!resposta.ok) throw new Error(`Erro ao carregar agendamentos da semana.`);
     return resposta.status === 204 ? [] : resposta.json();
@@ -250,15 +256,47 @@ function popularTurmasDropdown(turmas) {
 
 function onTurmaChange(e) {
     const selectedId = e.target.value;
-    if (selectedId && selectedId !== "todas") {
+
+    // Passo 1: Limpa o estado da tela "do zero" antes de recarregar a nova turma
+    resetarTelaDoZero();
+
+    // Passo 2: Atualiza a persistência na sessão
+    if (selectedId && selectedId !== "todas" && selectedId !== "") {
         sessionStorage.setItem("turmaSelecionadaId", selectedId);
     } else {
         sessionStorage.removeItem("turmaSelecionadaId");
     }
+
+    // Passo 3: Recarrega todos os dados filtrados pela turma selecionada
     filtrarPorTurma(selectedId);
 }
 
-function filtrarPorTurma(turmaId) {
+function resetarTelaDoZero() {
+    fichaAtual = null;
+    detalhesReceitaAtual = null;
+
+    // Reset de textos de cabeçalho e resumo
+    if ($('summary-recipe-name')) $('summary-recipe-name').textContent = 'Selecione uma aula';
+    if ($('summary-steps')) $('summary-steps').innerHTML = '<li style="list-style: none;">Nenhuma receita selecionada.</li>';
+    if ($('recipe-name')) $('recipe-name').textContent = '';
+    if ($('turma-badge')) $('turma-badge').textContent = '';
+    if ($('util-recipe-name')) $('util-recipe-name').textContent = '';
+    if ($('util-turma-badge')) $('util-turma-badge').textContent = '';
+
+    // Esvazia os containers visuais de Checklists
+    if ($('checklist-main')) $('checklist-main').innerHTML = '';
+    if ($('util-checklist')) $('util-checklist').innerHTML = '';
+
+    // Reseta as barras de progresso visuais
+    atualizarProgresso($('checklist-main'), $('main-progress-text'), $('main-progress-pct'), $('main-progress-bar'));
+    atualizarProgresso($('util-checklist'), $('util-progress-text'), $('util-progress-pct'), $('util-progress-bar'));
+}
+
+// =========================================================================
+// FUNCIONALIDADE: Filtragem e Exibição por Turma (Preservando 'todas')
+// LIGAÇÃO COM AÇÃO: Executado ao carregar a Home e ao mudar o <select id="turma-select">
+// =========================================================================
+async function filtrarPorTurma(turmaId) {
     atualizarContadorReceitasHoje(turmaId);
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
@@ -271,61 +309,54 @@ function filtrarPorTurma(turmaId) {
         containerClasses.appendChild(lista);
     }
 
-    // 💡 COMENTÁRIO EXPLICATIVO:
-    // Leitura resiliente: verifica se o ID da turma bate no agendamento, na ficha ou no objeto aninhado.
-    const filtrar = a => {
-        if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
+    try {
+        // 💡 1. Garante a busca dos agendamentos filtrando pelo idTurma selecionado
+        const agendamentosFiltrados = await buscarAgendamentosSemana(turmaId);
+        agendamentosDaSemana = agendamentosFiltrados;
 
-        // Tenta capturar o ID da turma em diferentes formatos de JSON
-        const idTurmaAgendamento = a.idTurma ?? a.turmaId ?? a.ficha?.turma?.idTurma ?? a.ficha?.turma?.id;
+        // 2. Renderiza os cards diários com as aulas reais dessa turma
+        renderizarSemana(agendamentosFiltrados, lista);
 
-        // Se a API trouxe apenas o agendamento vinculado à turma do usuário, permite a exibição
-        if (idTurmaAgendamento === undefined || idTurmaAgendamento === null) {
-            return true;
-        }
-
-        return String(idTurmaAgendamento) === String(turmaId);
-    };
-
-    const agendamentosFiltrados = agendamentosDaSemana.filter(filtrar);
-    renderizarSemana(agendamentosFiltrados, lista);
-
-    // Popula o select manual de receitas
-    const selectReceita = $('recipe-select');
-    if (selectReceita) {
-        selectReceita.innerHTML = '';
-        const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
-            if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
-            const idTurma = f.idTurma ?? f.turma?.idTurma ?? f.turma?.id;
-            return idTurma ? String(idTurma) === String(turmaId) : true;
-        });
-
-        fichasFiltradas.forEach(f => {
-            const nomeTurma = f.nomeTurma || (f.turma ? (f.turma.nomeTurma || f.turma.nome) : 'Turma Vinculada');
-            const option = document.createElement('option');
-            option.value = f.id ?? f.idFicha;
-            option.textContent = `${f.nomeFicha || f.nome} (${nomeTurma})`;
-            selectReceita.appendChild(option);
-        });
-    }
-
-    limparDetalhesDaTela();
-
-    // Seleciona automaticamente a primeira receita do dia
-    const receitaHoje = agendamentosDoDia.find(agendamento =>
-        agendamento.situacao === 'A' &&
-        agendamento.ficha &&
-        filtrar(agendamento)
-    );
-
-    if (receitaHoje) {
-        const idFicha = receitaHoje.ficha.id ?? receitaHoje.ficha.idFicha;
+        // 3. Atualiza o select manual com as fichas exclusivas da turma
+        const selectReceita = $('recipe-select');
         if (selectReceita) {
-            const opcaoExiste = Array.from(selectReceita.options)
-                .some(option => option.value === String(idFicha));
-            if (opcaoExiste) selectReceita.value = String(idFicha);
+            selectReceita.innerHTML = '<option value="">-- Selecione uma Ficha --</option>';
+
+            const urlFichas = (turmaId && turmaId !== 'todas' && turmaId !== '')
+                ? `/api/fichas?idTurma=${turmaId}`
+                : '/api/fichas';
+
+            const resFichas = await fetch(urlFichas);
+            if (resFichas.ok) {
+                const fichasDaTurma = await resFichas.json();
+                todasAsFichasDoBanco = fichasDaTurma;
+
+                fichasDaTurma.forEach(f => {
+                    const option = document.createElement('option');
+                    option.value = f.id ?? f.idFicha;
+                    option.textContent = f.nomeFicha || f.nome;
+                    selectReceita.appendChild(option);
+                });
+            }
         }
-        selecionarAula(idFicha, receitaHoje);
+
+        limparDetalhesDaTela();
+
+        // 4. Pré-seleciona a primeira aula de hoje, se houver
+        const dataHojeISO = formatarDataLocal(new Date());
+        const receitaHoje = agendamentosFiltrados.find(a =>
+            a.situacao === 'A' &&
+            a.ficha &&
+            String(a.data ?? '').slice(0, 10) === dataHojeISO
+        );
+
+        if (receitaHoje) {
+            const idFicha = receitaHoje.ficha.id ?? receitaHoje.ficha.idFicha;
+            if (selectReceita) selectReceita.value = String(idFicha);
+            selecionarAula(idFicha, receitaHoje);
+        }
+    } catch (err) {
+        console.error("Erro ao filtrar por turma:", err);
     }
 }
 
@@ -430,20 +461,36 @@ function limparDetalhesDaTela() {
 
 // ===== 2. RENDERIZAÇÃO DOS CARDS =====
 function renderizarCardsDeAulas(agendamentos, container) {
+    // 💡 Obtém o elemento do select e o nome da turma ativa na barra superior
+    const selectTurma = $('turma-select');
+    let nomeTurmaAtiva = 'Turma Vinculada';
+    let labNome = 'Laboratório N/A';
+
+    if (selectTurma && selectTurma.selectedIndex >= 0) {
+        const textoOpcao = selectTurma.options[selectTurma.selectedIndex].text;
+        const partes = textoOpcao.split(' - ');
+        nomeTurmaAtiva = partes[0] ? partes[0].trim() : 'Turma Vinculada';
+        if (partes[1]) labNome = partes[1].trim();
+    }
+
     agendamentos.forEach((agendamento) => {
         const ficha = agendamento.ficha;
         if (!ficha) return;
 
-        const turma = ficha.turma;
-        let lab = 'Laboratório N/A';
-        if (turma && turma.laboratorio) {
-            lab = typeof turma.laboratorio === 'object' ? (turma.laboratorio.nomeLaboratorio || 'Laboratório N/A') : turma.laboratorio;
+        // Se houver objeto de turma direto no agendamento usa ele, senão usa a turma ativa
+        const turmaObj = agendamento.turma || ficha.turma;
+        if (turmaObj) {
+            nomeTurmaAtiva = turmaObj.nomeTurma || turmaObj.nome || nomeTurmaAtiva;
+            if (turmaObj.laboratorio) {
+                labNome = typeof turmaObj.laboratorio === 'object'
+                    ? (turmaObj.laboratorio.nomeLaboratorio || labNome)
+                    : turmaObj.laboratorio;
+            }
         }
-        const nomeTurma = turma ? (turma.nomeTurma || turma.nome) : 'Turma Indefinida';
+
         const idFicha = ficha.id || ficha.idFicha;
         const nomeFicha = ficha.nomeFicha || ficha.nome;
-
-        let statusClass = agendamento.concluido === 'S' ? 'done' : '';
+        const statusClass = agendamento.concluido === 'S' ? 'done' : '';
 
         const card = document.createElement('div');
         card.className = `class-card ${statusClass}`;
@@ -454,7 +501,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         card.innerHTML = `
             <div class="class-info">
                 <p class="class-name">${nomeFicha}</p>
-                <p class="class-meta">${lab} - ${nomeTurma}</p>
+                <p class="class-meta">${labNome} - ${nomeTurmaAtiva}</p>
             </div>
         `;
         container.appendChild(card);

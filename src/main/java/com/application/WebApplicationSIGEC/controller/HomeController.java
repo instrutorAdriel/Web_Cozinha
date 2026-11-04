@@ -89,26 +89,46 @@ public class HomeController {
 
     @GetMapping("/api/agendamentos/hoje")
     @ResponseBody
-    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
+    public ResponseEntity<?> getAgendamentosDoDia(
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) return ResponseEntity.status(401).build();
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).build();
+        }
 
+        // Busca agendamentos do dia filtrando por usuário e turma (se informada)
         List<Agendamento> agendamentos = homeService.buscarAulasDoDia(LocalDate.now(), usuarioLogado.getId());
-        return agendamentos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agendamentos);
+
+        if (idTurma != null) {
+            agendamentos = agendamentos.stream().filter(a -> {
+                // Garante a busca cruzada resiliente via turma_ficha
+                List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
+                return a.getFicha() != null && fichasDaTurma.stream().anyMatch(f -> f.getId().equals(a.getFicha().getId()));
+            }).toList();
+        }
+
+        if (agendamentos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(agendamentos);
     }
 
     @GetMapping("/api/agendamentos/semana")
     @ResponseBody
-    public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
+    public ResponseEntity<?> getAgendamentosDaSemana(
             @RequestParam("inicio") LocalDate inicio,
             @RequestParam("fim") LocalDate fim,
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
         if (usuarioLogado == null) return ResponseEntity.status(401).build();
         if (inicio.isAfter(fim)) return ResponseEntity.badRequest().build();
 
-        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId());
+        // 💡 Passa o idTurma diretamente para o filtro do banco de dados
+        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId(), idTurma);
+
         return ResponseEntity.ok(agendamentos);
     }
 
@@ -130,24 +150,15 @@ public class HomeController {
             return ResponseEntity.status(401).build();
         }
 
-        // 💡 COMENTÁRIO EXPLICATIVO:
-        // Se idTurma não for informado, busca todas as fichas associadas via turma_ficha
-        if (idTurma == null) {
-            List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
-            return ResponseEntity.ok(fichasDoUsuario);
+        // 💡 Se idTurma for informado, busca no repositório via turma_ficha
+        if (idTurma != null) {
+            List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
+            return ResponseEntity.ok(fichasDaTurma);
         }
 
-        boolean turmaPermitida = turmaRepository
-                .findTurmasByUsuarioId(usuarioLogado.getId())
-                .stream()
-                .anyMatch(t -> String.valueOf(t.getId()).equals(String.valueOf(idTurma)));
-
-        if (!turmaPermitida) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
-        return ResponseEntity.ok(fichasDaTurma);
+        // Se "todas", traz todas as fichas associadas ao usuário
+        List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
+        return ResponseEntity.ok(fichasDoUsuario);
     }
 
     @GetMapping("/api/turmas")

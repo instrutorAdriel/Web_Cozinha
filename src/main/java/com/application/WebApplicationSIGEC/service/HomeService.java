@@ -44,8 +44,8 @@ public class HomeService {
 
     // Busca as receitas agendadas durante a semana
     @Transactional(readOnly = true)
-    public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario) {
-        return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario);
+    public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario, Long idTurma) {
+        return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario, idTurma);
     }
 
     // Busca insumos e utensílios referentes a uma ficha técnica

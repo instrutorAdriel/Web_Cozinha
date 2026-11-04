@@ -32,4 +32,16 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
     // Consulta JPQL: busca receitas vinculadas à turma selecionada
     @Query("SELECT tf.ficha FROM TurmaFicha tf WHERE tf.turma.id = :idTurma")
     List<Ficha> findFichasByTurmaId(@Param("idTurma") Long idTurma);
+
+    @Query("""
+    SELECT DISTINCT f FROM Ficha f
+    JOIN TurmaFicha tf ON f.id = tf.ficha.id
+    JOIN Agendamento a ON a.ficha.id = f.id
+    WHERE tf.turma.id = :idTurma
+      AND a.situacao = 'A'
+      AND tf.turma.id IN (
+          SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario
+      )
+""")
+    List<Ficha> findFichasAgendadasPorTurmaEUsuario(@Param("idTurma") Long idTurma, @Param("idUsuario") Long idUsuario);
 }
