@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html class="light" lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:https="http://www.w3.org/1999/xhtml">
 <head>
+
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>SENAC SIGEC - Painel do Instrutor</title>
@@ -38,9 +39,16 @@
     <div class="sidebar-footer">
         <form id="formLogout" th:action="@{/logout}" method="get">
             <button type="button" class="btn-logout" onclick="confirmarSaida()">
-            <span class="material-symbols-outlined">logout</span>
+                <span class="material-symbols-outlined">logout</span>
                 Sair
             </button>
+
+            <div id="confirmacaoSaida" class="confirmacao-saida">
+                <p>Tem certeza que deseja sair?</p>
+
+
+                </button>
+            </div>
         </form>
     </div>
 </aside>
@@ -351,7 +359,9 @@
 
 <script>
     function confirmarSaida() {
-        alert("Tem certeza que deseja sair");
+        if (confirm("Tem certeza que deseja sair?")) {
+            document.getElementById("formLogout").submit();
+        }
     }
 </script>
 
