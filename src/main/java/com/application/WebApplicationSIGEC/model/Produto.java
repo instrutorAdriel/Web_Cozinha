@@ -2,6 +2,7 @@ package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Formula;
 import java.math.BigDecimal;
 
 @Entity
@@ -19,7 +20,7 @@ public class Produto {
     @Column(nullable = false, length = 5)
     private String unidade;
 
-    @Column(nullable = false, precision = 10, scale = 3)
+    @Formula("(SELECT COALESCE(SUM(i.quantidade), 0) FROM insumo i WHERE i.id_produto = id_produto AND i.cancelado = 'N')")
     private BigDecimal quantidade = BigDecimal.ZERO;
 
     @Column(nullable = false, length = 1)

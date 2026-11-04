@@ -11,6 +11,6 @@ import java.util.List;
 @Repository
 public interface InsumoRepository extends JpaRepository<Insumo, Long> {
 
-    @Query("SELECT i FROM Insumo i JOIN FETCH i.produto WHERE i.ficha.id = :fichaId AND i.cancelado = 'N'")
+    @Query("SELECT i FROM Insumo i JOIN FETCH i.produto WHERE i.ficha.id = :fichaId")
     List<Insumo> findByFichaId(@Param("fichaId") Long fichaId);
 }

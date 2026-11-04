@@ -128,9 +128,17 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDetalhesFicha(@PathVariable Long fichaId) {
-        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
-        return ResponseEntity.ok(detalhes);
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId) {
+        try {
+            Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
+            return ResponseEntity.ok(detalhes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "erro", e.getMessage() != null ? e.getMessage() : e.getClass().getName(),
+                    "classe", e.getClass().getName()
+            ));
+        }
     }
 
     @GetMapping("/api/fichas")

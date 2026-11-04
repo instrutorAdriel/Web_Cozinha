@@ -4,21 +4,24 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "insumo")
+@Table(name = "insumo_ficha")
 public class Insumo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_insumo")
+    @Column(name = "id_insumo_ficha")
     private Long id;
 
     @Column(nullable = false)
     private int quantidade;
 
-    @Column(nullable = false, length = 1)
+    @Column(name = "unidade_medida", length = 5)
+    private String unidadeMedida;
+
+    @Transient
     private char cancelado = 'N';
 
-    @Column(nullable = false, length = 1)
+    @Transient
     private String extra = "N";
 
     @JsonIgnore
@@ -37,6 +40,8 @@ public class Insumo {
     public void setId(Long id) { this.id = id; }
     public Integer getQuantidade() { return quantidade; }
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
+    public String getUnidadeMedida() { return unidadeMedida; }
+    public void setUnidadeMedida(String unidadeMedida) { this.unidadeMedida = unidadeMedida; }
     public char getCancelado() { return cancelado; }
     public void setCancelado(char cancelado) { this.cancelado = cancelado; }
     public String getExtra() { return extra; }

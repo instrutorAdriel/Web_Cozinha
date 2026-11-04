@@ -116,8 +116,11 @@ async function carregarReceitasPorTurma() {
         RECIPES = fichas.map(f => ({
             id: f.id,
             name: f.nomeFicha,
-            type: "Geral", // Pode ser adaptado se a API retornar categoria
-            cat: f.turma ? f.turma.nomeTurma : "Cozinha",
+            type: f.categoria, // Pode ser adaptado se a API retornar categoria
+            cat: (() => {
+                const t = turmas.find(x => String(x.idTurma || x.id) === String(idTurma));
+                return t ? (t.nomeTurma || t.nome) : "Cozinha";
+            })(),
             status: f.data ? "datadas" : "disponivel",
             dataPrevista: f.data,
             duration: "45 min", // Pode ser substituído se houver duração no banco
@@ -200,15 +203,7 @@ function renderList() {
     const turmaSelecionada = turmaSelect?.value;
 
     const filtered = RECIPES
-        .filter(r => {
-            if (!turmaSelecionada) return false;
-
-            // O backend já retorna somente as fichas da turma
-            // Mantém uma verificação adicional quando o vínculo vem na resposta
-            if (r.idTurma == null) return true;
-
-            return String(r.idTurma) === String(turmaSelecionada);
-        })
+        .filter(() => !!turmaSelecionada)
         .filter(r => activeStatus === 'todas' || r.status === activeStatus)
         .filter(r => activeCategory === 'todas' || r.type === activeCategory)
         .filter(r => {
@@ -243,18 +238,18 @@ function renderList() {
         const badgeTexto = r.status === 'datadas' ? 'DATADA' : 'DISPONÍVEL';
 
         card.innerHTML = `
-            <div class="card-header">
-                <div>
-                    <h4 class="card-title">${r.name}</h4>
-                    <p class="card-category"><span class="text-cat-type">${r.type}</span> &bull; ${r.cat}</p>
-                </div>
-                <span class="badge-status ${badgeClasse}">${badgeTexto}</span>
-            </div>
-            <div class="card-meta">
-                <span class="meta-item"><span class="material-symbols-outlined">calendar_today</span> ${dataFormatada}</span>
-                <span class="meta-duration">${r.duration}</span>
-            </div>
-        `;
+           <div class="card-header">
+               <div>
+                   <h4 class="card-title">${r.name}</h4>
+                   <p class="card-category"><span class="text-cat-type">${r.type}</span> &bull; ${r.cat}</p>
+               </div>
+               <span class="badge-status ${badgeClasse}">${badgeTexto}</span>
+           </div>
+           <div class="card-meta">
+               <span class="meta-item"><span class="material-symbols-outlined">calendar_today</span> ${dataFormatada}</span>
+               <span class="meta-duration">${r.duration}</span>
+           </div>
+       `;
 
         card.addEventListener('click', () => {
             activeId = r.id;
@@ -323,34 +318,34 @@ function renderDetail(r, detalhesDaAPI) {
         : '<div class="resource-item"><span>Nenhum utensílio cadastrado.</span></div>';
 
     detailCol.innerHTML = `
-        <div class="recipe-detail-container">
-            <div class="detail-header">
-                <div class="detail-title-group">
-                    <span class="recipe-type-label">${r.type}</span>
-                    <h1 class="recipe-main-title">${r.name}</h1>
-                </div>
-                <div class="detail-badge-group">
-                    <span class="pill-badge ${badgeClasse}">${badgeTexto}</span>
-                </div>
-            </div>
+       <div class="recipe-detail-container">
+           <div class="detail-header">
+               <div class="detail-title-group">
+                   <span class="recipe-type-label">${r.type}</span>
+                   <h1 class="recipe-main-title">${r.name}</h1>
+               </div>
+               <div class="detail-badge-group">
+                   <span class="pill-badge ${badgeClasse}">${badgeTexto}</span>
+               </div>
+           </div>
 
-            <div class="recipe-lead-card">
-                <p><strong>Modo de Preparo:</strong><br>${r.description}</p>
-            </div>
+           <div class="recipe-lead-card">
+               <p><strong>Modo de Preparo:</strong><br>${r.description}</p>
+           </div>
 
-            <div class="recipe-resources-grid">
-                <section class="resource-block">
-                    <h3 class="section-title"><span class="bar-accent"></span>Ingredientes Necessários</h3>
-                    <div class="items-two-col">${htmlInsumos}</div>
-                </section>
+           <div class="recipe-resources-grid">
+               <section class="resource-block">
+                   <h3 class="section-title"><span class="bar-accent"></span>Ingredientes Necessários</h3>
+                   <div class="items-two-col">${htmlInsumos}</div>
+               </section>
 
-                <section class="resource-block">
-                    <h3 class="section-title"><span class="bar-accent"></span>Utensílios Utilizados</h3>
-                    <div class="items-two-col">${htmlUtensilios}</div>
-                </section>
-            </div>
-        </div>
-    `;
+               <section class="resource-block">
+                   <h3 class="section-title"><span class="bar-accent"></span>Utensílios Utilizados</h3>
+                   <div class="items-two-col">${htmlUtensilios}</div>
+               </section>
+           </div>
+       </div>
+   `;
 }
 
 // ===== 7. CONTROLES DE INTERFACE (Menu e Notificações) =====

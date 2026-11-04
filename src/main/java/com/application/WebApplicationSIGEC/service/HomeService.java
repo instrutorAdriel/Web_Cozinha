@@ -77,9 +77,21 @@ public class HomeService {
                 Produto produto = insumo.getProduto();
                 BigDecimal qtdNecessaria = new BigDecimal(insumo.getQuantidade());
 
-                // Subtrai do produto
-                produto.setQuantidade(produto.getQuantidade().subtract(qtdNecessaria));
-                produtoRepository.save(produto);
+                // Busca id_insumo correspondente na tabela de estoque insumo (se existir) e dá baixa no saldo
+                Long idInsumoEstoque = null;
+                try {
+                    String sqlInsumo = "SELECT id_insumo FROM insumo WHERE id_produto = :idProd AND cancelado = 'N' ORDER BY data_validade ASC LIMIT 1";
+                    idInsumoEstoque = ((Number) entityManager.createNativeQuery(sqlInsumo)
+                            .setParameter("idProd", produto.getId())
+                            .getSingleResult()).longValue();
+
+                    String sqlUpdateEstoque = "UPDATE insumo SET quantidade = GREATEST(0, quantidade - :qtd) WHERE id_insumo = :idIns";
+                    entityManager.createNativeQuery(sqlUpdateEstoque)
+                            .setParameter("qtd", insumo.getQuantidade())
+                            .setParameter("idIns", idInsumoEstoque)
+                            .executeUpdate();
+                } catch (Exception ignored) {
+                }
 
                 // Registra na tabela movimentacao_estoque
                 MovimentacaoEstoque mov = new MovimentacaoEstoque();
@@ -87,6 +99,7 @@ public class HomeService {
                 mov.setQuantidade(qtdNecessaria);
                 mov.setDataMovimentacao(LocalDateTime.now());
                 mov.setProduto(produto);
+                mov.setIdInsumo(idInsumoEstoque);
                 mov.setInsumo(insumo);
                 String obs = (observacaoGeral != null && !observacaoGeral.trim().isEmpty())
                         ? observacaoGeral

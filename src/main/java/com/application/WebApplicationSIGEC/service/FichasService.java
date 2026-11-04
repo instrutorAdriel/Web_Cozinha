@@ -79,9 +79,9 @@ public class FichasService {
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
 
-        // 2. Busca TODAS as fichas pertencentes a esta turma
+        // 2. Busca TODAS as fichas pertencentes a esta turma (via turma_ficha)
         List<Ficha> todasDaTurma = (idTurma != null)
-                ? fichasRepository.findByIdTurma(idTurma)
+                ? fichasRepository.findFichasByTurmaId(idTurma)
                 : Collections.emptyList();
 
         // 3. Busca TODOS os agendamentos ativos desta turma (EM QUALQUER DATA DO CALENDÁRIO)

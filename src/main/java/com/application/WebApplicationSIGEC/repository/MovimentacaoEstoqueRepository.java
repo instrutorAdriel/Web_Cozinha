@@ -11,6 +11,13 @@ import java.util.List;
 @Repository
 public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoque, Long> {
 
-    @Query("SELECT m.insumo.id FROM MovimentacaoEstoque m WHERE m.insumo.ficha.id = :fichaId AND DATE(m.dataMovimentacao) = CURRENT_DATE AND m.tipoMovimentacao = 'SAIDA'")
+    @Query(value = """
+        SELECT inf.id_insumo_ficha
+        FROM movimentacao_estoque m
+        JOIN insumo_ficha inf ON inf.id_produto = m.id_produto
+        WHERE inf.id_ficha = :fichaId
+          AND DATE(m.data_movimentacao) = CURRENT_DATE
+          AND m.tipo_movimentacao = 'SAIDA'
+    """, nativeQuery = true)
     List<Long> findInsumosSeparadosHoje(@Param("fichaId") Long fichaId);
 }
