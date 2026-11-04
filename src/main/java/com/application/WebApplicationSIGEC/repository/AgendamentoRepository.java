@@ -45,7 +45,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
 
     // Todos os agendamentos da turma/usuário via turma_ficha
     @Query(value = """
-        SELECT a.* FROM agendamento a
+        SELECT DISTINCT a.* FROM agendamento a
         INNER JOIN ficha f ON a.id_ficha = f.id_ficha
         INNER JOIN turma_ficha tf ON f.id_ficha = tf.id_ficha
         INNER JOIN turma t ON tf.id_turma = t.id_turma

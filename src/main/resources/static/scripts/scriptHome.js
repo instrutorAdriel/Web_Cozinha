@@ -11,9 +11,7 @@ const $ = id => document.getElementById(id);
 document.addEventListener("DOMContentLoaded", () => {
     carregarDadosIniciais();
 
-    // ========================================================
-    // LÓGICA DE ABERTURA E FECHAMENTO DOS MODAIS (INSUMO E UTENSÍLIO)
-    // ========================================================
+    // Lógica de Modais (Insumos e Utensílios Extras)
     const modalExtra = $('extra-modal');
     const modalUtil = $('util-modal');
 
@@ -28,10 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($('util-close')) $('util-close').addEventListener('click', fecharModalUtil);
     if ($('util-cancel')) $('util-cancel').addEventListener('click', fecharModalUtil);
 
-
-    // ========================================================
-    // ENVIO: SOLICITAR INSUMO EXTRA
-    // ========================================================
+    // Envio de Solicitação de Insumo Extra
     const btnSaveExtra = $('extra-save');
     if (btnSaveExtra) {
         btnSaveExtra.addEventListener('click', () => {
@@ -70,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(msg => {
-                    alert("Insumo extra solicitado com sucesso para validação!");
+                    alert("Insumo extra solicitado com sucesso!");
                     $('extra-name').value = '';
                     $('extra-qtd').value = '';
                     $('extra-obs').value = '';
@@ -84,9 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ========================================================
-    // ENVIO: SOLICITAR UTENSÍLIO EXTRA
-    // ========================================================
+    // Envio de Solicitação de Utensílio Extra
     const btnSaveUtil = $('util-save');
     if (btnSaveUtil) {
         btnSaveUtil.addEventListener('click', () => {
@@ -123,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(msg => {
-                    alert("Utensílio extra solicitado com sucesso para validação!");
+                    alert("Utensílio extra solicitado com sucesso!");
                     $('util-name').value = '';
                     $('util-qtd').value = '';
                     $('util-obs').value = '';
@@ -152,14 +145,14 @@ function obterPeriodoSemana() {
     segunda.setDate(segunda.getDate() - ((segunda.getDay() + 6) % 7));
     const sexta = new Date(segunda);
     sexta.setDate(sexta.getDate() + 4);
-    return {segunda, inicio: formatarDataLocal(segunda), fim: formatarDataLocal(sexta)};
+    return { segunda, inicio: formatarDataLocal(segunda), fim: formatarDataLocal(sexta) };
 }
 
 async function buscarAgendamentosSemana() {
-    const {inicio, fim} = obterPeriodoSemana();
-    const parametros = new URLSearchParams({inicio, fim});
+    const { inicio, fim } = obterPeriodoSemana();
+    const parametros = new URLSearchParams({ inicio, fim });
     const resposta = await fetch(`/api/agendamentos/semana?${parametros}`);
-    if (!resposta.ok) throw new Error(`Não foi possível carregar os agendamentos da semana (HTTP ${resposta.status}). Verifique o endpoint /api/agendamentos/semana no Spring Boot.`);
+    if (!resposta.ok) throw new Error(`Erro ao carregar agendamentos da semana.`);
     return resposta.status === 204 ? [] : resposta.json();
 }
 
@@ -180,7 +173,6 @@ function carregarDadosIniciais() {
 
             popularTurmasDropdown(turmas);
 
-            // 1. Tenta recuperar a turma salva na sessão
             const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
             const turmaValida = turmas.some(t => (t.id || t.idTurma).toString() === turmaSalva);
 
@@ -191,28 +183,24 @@ function carregarDadosIniciais() {
                 turmaInicialId = (turmas[0].id || turmas[0].idTurma).toString();
             }
 
-            // Define a seleção no <select> e aplica o filtro
             const turmaSelect = $('turma-select');
             if (turmaSelect) turmaSelect.value = turmaInicialId;
 
             filtrarPorTurma(turmaInicialId);
-            atualizarContadorReceitasHoje(turmaInicialId);
 
-            // === CONTADOR DE TURMAS DE HOJE ===
+            // Contador de Turmas Ativas no Painel
             const contadorTurmas = document.getElementById('hero-turmas-count');
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
                 agendamentos.forEach(a => {
-                    if (a.ficha && a.ficha.turma) {
-                        const idT = a.ficha.turma.id || a.ficha.turma.idTurma;
-                        if (idT) turmasUnicasHoje.add(idT);
-                    }
+                    const idT = a.idTurma ?? a.ficha?.turma?.idTurma ?? a.ficha?.turma?.id;
+                    if (idT) turmasUnicasHoje.add(idT);
                 });
                 const qtdHoje = turmasUnicasHoje.size;
                 contadorTurmas.textContent = `${qtdHoje} turma${qtdHoje !== 1 ? 's' : ''}`;
             }
 
-            // Listener do Select do Checklist Manual
+            // Evento do Select Manual de Receita
             const selectReceita = $('recipe-select');
             if (selectReceita) {
                 selectReceita.addEventListener('change', (e) => {
@@ -225,9 +213,9 @@ function carregarDadosIniciais() {
             }
         })
         .catch(error => {
-            console.error("Erro na API:", error);
+            console.error("Erro ao inicializar home:", error);
             if (containerClasses) {
-                containerClasses.innerHTML += '<p style="color:red; padding:20px;">Erro ao carregar os dados.</p>';
+                containerClasses.innerHTML += '<p style="color:red; padding:20px;">Erro ao carregar dados da Home.</p>';
             }
         });
 }
@@ -275,7 +263,6 @@ function filtrarPorTurma(turmaId) {
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
 
-    // Preserva o título e usa um contêiner próprio para os cinco dias.
     let lista = $('receitas-semana-lista');
     if (!lista) {
         lista = document.createElement('div');
@@ -284,35 +271,47 @@ function filtrarPorTurma(turmaId) {
         containerClasses.appendChild(lista);
     }
 
+    // 💡 COMENTÁRIO EXPLICATIVO:
+    // Leitura resiliente: verifica se o ID da turma bate no agendamento, na ficha ou no objeto aninhado.
     const filtrar = a => {
-        if (turmaId === 'todas' || turmaId === '') return true;
-        const idTurma = a.ficha?.turma?.idTurma ?? a.ficha?.turma?.id;
-        return String(idTurma) === String(turmaId);
+        if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
+
+        // Tenta capturar o ID da turma em diferentes formatos de JSON
+        const idTurmaAgendamento = a.idTurma ?? a.turmaId ?? a.ficha?.turma?.idTurma ?? a.ficha?.turma?.id;
+
+        // Se a API trouxe apenas o agendamento vinculado à turma do usuário, permite a exibição
+        if (idTurmaAgendamento === undefined || idTurmaAgendamento === null) {
+            return true;
+        }
+
+        return String(idTurmaAgendamento) === String(turmaId);
     };
 
     const agendamentosFiltrados = agendamentosDaSemana.filter(filtrar);
     renderizarSemana(agendamentosFiltrados, lista);
 
-    // Preserva o seletor manual de fichas para os checklists.
+    // Popula o select manual de receitas
     const selectReceita = $('recipe-select');
     if (selectReceita) {
         selectReceita.innerHTML = '';
         const fichasFiltradas = todasAsFichasDoBanco.filter(f => {
-            if (turmaId === 'todas' || turmaId === '') return true;
-            const idTurma = f.turma?.idTurma ?? f.turma?.id;
-            return String(idTurma) === String(turmaId);
+            if (!turmaId || turmaId === 'todas' || turmaId === '') return true;
+            const idTurma = f.idTurma ?? f.turma?.idTurma ?? f.turma?.id;
+            return idTurma ? String(idTurma) === String(turmaId) : true;
         });
+
         fichasFiltradas.forEach(f => {
-            const nomeTurma = f.turma ? (f.turma.nomeTurma || f.turma.nome) : 'Turma Indefinida';
+            const nomeTurma = f.nomeTurma || (f.turma ? (f.turma.nomeTurma || f.turma.nome) : 'Turma Vinculada');
             const option = document.createElement('option');
             option.value = f.id ?? f.idFicha;
             option.textContent = `${f.nomeFicha || f.nome} (${nomeTurma})`;
             selectReceita.appendChild(option);
         });
     }
+
     limparDetalhesDaTela();
 
-    // Carrega automaticamente a primeira receita agendada para hoje na turma selecionada.
+    // Seleciona automaticamente a primeira receita do dia
     const receitaHoje = agendamentosDoDia.find(agendamento =>
         agendamento.situacao === 'A' &&
         agendamento.ficha &&

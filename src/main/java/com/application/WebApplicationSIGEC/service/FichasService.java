@@ -60,30 +60,29 @@ public class FichasService {
     }
 
     public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idUsuario, Long idTurma, LocalDate data) {
-        // 1. Agendamentos específicos para a DATA SELECIONADA
+        // 1. Agendamentos no dia para o usuário e turma informados
         List<Agendamento> alocadasNoDia = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarAgendamentosPorUsuarioTurmaEData(idUsuario, idTurma, data)
                 : Collections.emptyList();
 
-        // 2. Busca TODAS as fichas pertencentes a esta turma através da TurmaFicha
+        // 2. Fichas pertencentes à turma através da tabela intermediária TurmaFicha
         List<Ficha> todasDaTurma = (idTurma != null)
                 ? turmaFichaRepository.findFichasByTurmaId(idTurma)
                 : Collections.emptyList();
 
-        // 3. Busca TODOS os agendamentos ativos desta turma em qualquer data
+        // 3. Fichas que já possuem agendamento no sistema
         List<Agendamento> todosAgendamentosDaTurma = (idUsuario != null && idTurma != null)
                 ? agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma)
                 : Collections.emptyList();
 
-        // 4. Extrai os IDs das fichas que já foram agendadas no calendário
-        List<Long> idsAlocadosEmQualquerData = todosAgendamentosDaTurma.stream()
+        List<Long> idsAlocados = todosAgendamentosDaTurma.stream()
                 .filter(a -> a.getFicha() != null)
                 .map(a -> a.getFicha().getId())
                 .toList();
 
-        // 5. Filtra mantendo apenas as fichas da turma que não estão agendadas na data atual
+        // 4. Fichas da turma ainda não alocadas
         List<Ficha> disponiveis = todasDaTurma.stream()
-                .filter(ficha -> ficha.getId() != null && !idsAlocadosEmQualquerData.contains(ficha.getId()))
+                .filter(ficha -> ficha.getId() != null && !idsAlocados.contains(ficha.getId()))
                 .toList();
 
         Map<String, Object> response = new HashMap<>();

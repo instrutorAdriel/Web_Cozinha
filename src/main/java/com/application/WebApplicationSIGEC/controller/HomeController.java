@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Ficha;
+import com.application.WebApplicationSIGEC.model.Turma;
 import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
@@ -41,9 +42,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String exibirHome(Model model, HttpServletRequest request) {
-
         HttpSession session = request.getSession(false);
-
         if (session == null || session.getAttribute("usuarioLogado") == null) {
             return "redirect:/";
         }
@@ -92,17 +91,10 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
+        if (usuarioLogado == null) return ResponseEntity.status(401).build();
 
-        LocalDate dataBusca = LocalDate.now();
-        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
-
-        if (agendamentos.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(agendamentos);
+        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(LocalDate.now(), usuarioLogado.getId());
+        return agendamentos.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(agendamentos);
     }
 
     @GetMapping("/api/agendamentos/semana")
@@ -110,17 +102,11 @@ public class HomeController {
     public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
             @RequestParam("inicio") LocalDate inicio,
             @RequestParam("fim") LocalDate fim,
-            HttpSession session
-    ) {
+            HttpSession session) {
+
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        if (inicio.isAfter(fim)) {
-            return ResponseEntity.badRequest().build();
-        }
+        if (usuarioLogado == null) return ResponseEntity.status(401).build();
+        if (inicio.isAfter(fim)) return ResponseEntity.badRequest().build();
 
         List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId());
         return ResponseEntity.ok(agendamentos);
@@ -128,7 +114,7 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDetalhesFicha(@PathVariable Long fichaId) {
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable("fichaId") Long fichaId) {
         Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
         return ResponseEntity.ok(detalhes);
     }
@@ -144,6 +130,8 @@ public class HomeController {
             return ResponseEntity.status(401).build();
         }
 
+        // 💡 COMENTÁRIO EXPLICATIVO:
+        // Se idTurma não for informado, busca todas as fichas associadas via turma_ficha
         if (idTurma == null) {
             List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
             return ResponseEntity.ok(fichasDoUsuario);
@@ -164,14 +152,11 @@ public class HomeController {
 
     @GetMapping("/api/turmas")
     @ResponseBody
-    public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Turma>> getTurmasDoUsuario(HttpSession session) {
+    public ResponseEntity<List<Turma>> getTurmasDoUsuario(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) return ResponseEntity.status(401).build();
 
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
-
-        List<com.application.WebApplicationSIGEC.model.Turma> turmasDoUsuario = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
+        List<Turma> turmasDoUsuario = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
         return ResponseEntity.ok(turmasDoUsuario);
     }
 
@@ -194,11 +179,9 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> confirmarSaidaUtensilios(@RequestBody Map<String, Object> payload) {
         List<Integer> idsInt = (List<Integer>) payload.get("checklistIds");
-        if (idsInt == null || idsInt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Nenhum utensílio selecionado.");
-        }
-        List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
+        if (idsInt == null || idsInt.isEmpty()) return ResponseEntity.badRequest().body("Nenhum utensílio selecionado.");
 
+        List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
         try {
             homeService.confirmarSaidaUtensilios(checklistIds);
             return ResponseEntity.ok("Saída de utensílios registrada com sucesso!");
@@ -211,9 +194,8 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> registrarDevolucaoUtensilio(@RequestBody Map<String, Object> payload) {
         List<Integer> idsInt = (List<Integer>) payload.get("checklistIds");
-        if (idsInt == null || idsInt.isEmpty()) {
-            return ResponseEntity.badRequest().body("Nenhum utensílio selecionado para devolução.");
-        }
+        if (idsInt == null || idsInt.isEmpty()) return ResponseEntity.badRequest().body("Nenhum utensílio selecionado para devolução.");
+
         List<Long> checklistIds = idsInt.stream().map(Integer::longValue).toList();
         String estadoAtual = (String) payload.get("estadoAtual");
         String observacao = (String) payload.get("observacao");

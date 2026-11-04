@@ -18,9 +18,6 @@ public class Insumo {
     @Column(nullable = false, length = 1)
     private char cancelado = 'N';
 
-    @Column(nullable = false, length = 1)
-    private String extra = "N";
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_ficha")
@@ -39,8 +36,6 @@ public class Insumo {
     public void setQuantidade(Integer quantidade) { this.quantidade = quantidade; }
     public char getCancelado() { return cancelado; }
     public void setCancelado(char cancelado) { this.cancelado = cancelado; }
-    public String getExtra() { return extra; }
-    public void setExtra(String extra) { this.extra = extra; }
     public Ficha getFicha() { return ficha; }
     public void setFicha(Ficha ficha) { this.ficha = ficha; }
     public Produto getProduto() { return produto; }
