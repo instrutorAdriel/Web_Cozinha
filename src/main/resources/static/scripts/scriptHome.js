@@ -146,6 +146,29 @@ function formatarDataLocal(data) {
     return `${ano}-${mes}-${dia}`;
 }
 
+// Data de hoje (YYYY-MM-DD), recalculada a cada chamada para não ficar
+// desatualizada caso a página fique aberta durante a virada do dia.
+function obterDataHoje() {
+    return formatarDataLocal(new Date());
+}
+
+// Retorna true somente se o agendamento pertence ao dia de hoje.
+function ehAgendamentoDeHoje(agendamento) {
+    const dataAgendamento = String(agendamento?.data ?? '').slice(0, 10);
+    return dataAgendamento !== '' && dataAgendamento === obterDataHoje();
+}
+
+// ÚNICA fonte de receitas para a checklist: agendamentos ativos E de hoje.
+// Filtra pela data a cada chamada, mesmo que /api/agendamentos/hoje
+// devolva agendamentos de outros dias.
+function obterAgendamentosDeHoje() {
+    return agendamentosDoDia.filter(a =>
+        a.situacao === 'A' &&
+        a.ficha &&
+        ehAgendamentoDeHoje(a)
+    );
+}
+
 function obterPeriodoSemana() {
     const hoje = new Date();
     const segunda = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
@@ -194,6 +217,14 @@ function carregarDadosIniciais() {
         .then(([turmas, agendamentos, fichas, semana]) => {
             agendamentosDoDia = agendamentos;
             agendamentosDaSemana = semana;
+
+            const foraDeHoje = agendamentos.filter(a => !ehAgendamentoDeHoje(a));
+            if (foraDeHoje.length > 0) {
+                console.warn(
+                    `/api/agendamentos/hoje retornou ${foraDeHoje.length} agendamento(s) que não são de hoje (${obterDataHoje()}); eles foram ignorados.`,
+                    foraDeHoje
+                );
+            }
             todasAsFichasDoBanco = fichas;
 
             popularTurmasDropdown(turmas);
@@ -225,7 +256,7 @@ function carregarDadosIniciais() {
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
 
-                agendamentos.forEach(agendamento => {
+                obterAgendamentosDeHoje().forEach(agendamento => {
                     if (agendamento.ficha?.turma) {
                         const idTurma =
                             agendamento.ficha.turma.idTurma ??
@@ -349,18 +380,9 @@ function filtrarPorTurma(turmaId) {
     if (selectReceita) {
         selectReceita.innerHTML = '';
 
-        const opcaoInicial = document.createElement('option');
-        opcaoInicial.value = '';
-        opcaoInicial.textContent = '-- Selecione uma Receita --';
-
-        selectReceita.appendChild(opcaoInicial);
-
         // Considera apenas os agendamentos ativos de hoje.
-        const agendamentosHoje = agendamentosDoDia.filter(
-            agendamento =>
-                agendamento.situacao === 'A' &&
-                agendamento.ficha &&
-                pertenceATurma(agendamento)
+        const agendamentosHoje = obterAgendamentosDeHoje().filter(
+            agendamento => pertenceATurma(agendamento)
         );
 
         // Evita mostrar a mesma ficha mais de uma vez.
@@ -401,8 +423,13 @@ function filtrarPorTurma(turmaId) {
         });
 
         if (fichasAdicionadas.size === 0) {
-            opcaoInicial.textContent =
-                'Nenhuma receita agendada para hoje';
+            const opcaoVazia = document.createElement('option');
+            opcaoVazia.value = '';
+            opcaoVazia.textContent = 'Nenhuma receita disponível';
+            opcaoVazia.disabled = true;
+            opcaoVazia.selected = true;
+
+            selectReceita.appendChild(opcaoVazia);
         }
     }
 
@@ -411,11 +438,8 @@ function filtrarPorTurma(turmaId) {
 
     // Seleciona automaticamente a primeira receita de hoje,
     // caso exista uma para a turma selecionada.
-    const receitaHoje = agendamentosDoDia.find(
-        agendamento =>
-            agendamento.situacao === 'A' &&
-            agendamento.ficha &&
-            pertenceATurma(agendamento)
+    const receitaHoje = obterAgendamentosDeHoje().find(
+        agendamento => pertenceATurma(agendamento)
     );
 
     if (receitaHoje) {
@@ -427,6 +451,8 @@ function filtrarPorTurma(turmaId) {
             selectReceita.value = String(idFicha);
         }
         selecionarAula(idFicha, receitaHoje);
+    } else {
+        mostrarSemReceitaDisponivel();
     }
 }
 
@@ -446,7 +472,7 @@ function renderizarSemana(agendamentos, container) {
     ];
 
     const { segunda } = obterPeriodoSemana();
-    const dataAtual = formatarDataLocal(new Date());
+    const dataAtual = obterDataHoje();
 
     dias.forEach((nomeDia, indice) => {
         const data = new Date(segunda);
@@ -505,7 +531,8 @@ function renderizarSemana(agendamentos, container) {
             conteudo.appendChild(aviso);
         }
 
-        // Permite abrir e fechar o card manualmente
+        // Qualquer dia pode ser aberto/fechado para consulta.
+        // Mesmo aberto, só as receitas de hoje chegam à checklist.
         header.addEventListener('click', () => {
             const aberto = card.classList.toggle('aberto');
 
@@ -518,6 +545,16 @@ function renderizarSemana(agendamentos, container) {
         card.append(header, conteudo);
         container.appendChild(card);
     });
+}
+
+// Aviso exibido quando não há nenhuma receita agendada para hoje.
+function mostrarSemReceitaDisponivel() {
+    const aviso = '<p style="padding:12px; color:#64748b; text-align:center;">Nenhuma receita disponível hoje.</p>';
+
+    if ($('summary-recipe-name')) $('summary-recipe-name').textContent = 'Nenhuma receita disponível';
+    if ($('summary-steps')) $('summary-steps').innerHTML = '<li style="list-style: none;">Nenhuma receita disponível hoje.</li>';
+    if ($('checklist-main')) $('checklist-main').innerHTML = aviso;
+    if ($('util-checklist')) $('util-checklist').innerHTML = aviso;
 }
 
 function limparDetalhesDaTela() {
@@ -556,12 +593,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
         const idFicha = ficha.id || ficha.idFicha;
         const nomeFicha = ficha.nomeFicha || ficha.nome;
 
-        const dataAgendamento = String(
-            agendamento.data || ''
-        ).slice(0, 10);
-
-        const hoje = formatarDataLocal(new Date());
-        const ehHoje = dataAgendamento === hoje;
+        const ehHoje = ehAgendamentoDeHoje(agendamento);
 
         const statusClass =
             agendamento.concluido === 'S' ? 'done' : '';
@@ -570,8 +602,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
 
         card.className = `class-card ${statusClass}`;
         card.setAttribute('data-recipe', idFicha);
-
-        card.addEventListener('click', () => selecionarAula(idFicha, agendamento));
+        card.dataset.hoje = String(ehHoje);
 
         card.innerHTML = `
             <div class="class-info">
@@ -596,22 +627,13 @@ function renderizarCardsDeAulas(agendamentos, container) {
 // ===== 3. SELEÇÃO DE AULA E DETALHES =====
 function selecionarAula(fichaId, agendamentoSelecionado = null) {
     const agendamento = agendamentoSelecionado ||
-        agendamentosDoDia.find(a =>
-            a.ficha &&
+        obterAgendamentosDeHoje().find(a =>
             String(a.ficha.id ?? a.ficha.idFicha) === String(fichaId)
         );
 
-    if (!agendamento) {
-        return;
-    }
-
-    const dataAgendamento = String(
-        agendamento.data || ''
-    ).slice(0, 10);
-
-    const hoje = formatarDataLocal(new Date());
-
-    if (dataAgendamento !== hoje) {
+    // A checklist só aceita receitas agendadas para HOJE,
+    // não importa de qual dia da semana veio o clique.
+    if (!agendamento || !agendamento.ficha || !ehAgendamentoDeHoje(agendamento)) {
         return;
     }
 
@@ -621,17 +643,15 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         selectReceita.value = String(fichaId);
     }
 
+    // Destaca apenas os cards de hoje (a mesma receita pode aparecer em outros dias).
     document.querySelectorAll('.class-card').forEach(card => {
         card.classList.toggle(
             'selected',
+            card.dataset.hoje === 'true' &&
             Number(card.dataset.recipe) === Number(fichaId)
         );
     });
 
-    const agendamento = agendamentoSelecionado || agendamentosDaSemana.find(a =>
-        a.ficha && Number(a.ficha.id ?? a.ficha.idFicha) === Number(fichaId)
-    );
-    if (!agendamento) return;
     fichaAtual = agendamento.ficha;
 
     fetch(`/api/fichas/${fichaId}/detalhes`)
@@ -1079,7 +1099,7 @@ function atualizarContadorReceitasHoje(turmaId) {
     const contador = document.getElementById('hero-receitas-count');
     if (!contador) return;
 
-    let receitasHoje = agendamentosDoDia.filter(agendamento => agendamento.situacao === 'A');
+    let receitasHoje = obterAgendamentosDeHoje();
 
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
@@ -1123,13 +1143,6 @@ function renderizarPassosReceita(preparo, containerId) {
     });
 }
 
-const fecharModalUtil = () => {
-    if (modalUtil) modalUtil.classList.remove('show');
-};
-
-if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
-if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
-
 function onReceitaChange(event) {
     const fichaIdSelecionada = event.target.value;
 
@@ -1139,9 +1152,7 @@ function onReceitaChange(event) {
     }
 
     // Procura a ficha entre os agendamentos de hoje.
-    const agendamento = agendamentosDoDia.find(item =>
-        item.situacao === 'A' &&
-        item.ficha &&
+    const agendamento = obterAgendamentosDeHoje().find(item =>
         String(item.ficha.idFicha ?? item.ficha.id) ===
         String(fichaIdSelecionada)
     );
