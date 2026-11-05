@@ -17,7 +17,7 @@ public class Produto {
     @Column(name = "nome_produto", nullable = false, length = 55)
     private String nomeProduto;
 
-    @Column(nullable = false, length = 5)
+    @Column(name = "unidade_m", nullable = false, length = 5)
     private String unidade;
 
     @Formula("(SELECT COALESCE(SUM(i.quantidade), 0) FROM insumo i WHERE i.id_produto = id_produto AND i.cancelado = 'N')")
