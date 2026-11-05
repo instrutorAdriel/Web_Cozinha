@@ -370,11 +370,33 @@ const CalendarioSIGEC = {
             celula.appendChild(spanNumero);
 
             const diaSemana = new Date(ano, mes, dia).getDay();
-            if (diaSemana === 0 || diaSemana === 6) celula.classList.add("weekend");
 
             const strMes = String(mes + 1).padStart(2, "0");
             const strDia = String(dia).padStart(2, "0");
             const dataIso = `${ano}-${strMes}-${strDia}`;
+
+            const feriados = [
+                `${ano}-01-01`,
+                `${ano}-04-21`,
+                `${ano}-05-01`,
+                `${ano}-09-07`,
+                `${ano}-10-12`,
+                `${ano}-11-02`,
+                `${ano}-11-15`,
+                `${ano}-11-20`,
+                `${ano}-12-25`
+            ];
+
+            const ehFimDeSemana = diaSemana === 0 || diaSemana === 6;
+            const ehFeriado = feriados.includes(dataIso);
+
+            if (ehFimDeSemana || ehFeriado) {
+                celula.classList.add(ehFeriado ? "holiday" : "weekend");
+                celula.style.pointerEvents = "none";
+                celula.style.opacity = "0.4";
+            }
+
+
             celula.setAttribute("data-date", dataIso);
 
             const qtdFichas = this.state.alocacoesPorData[dataIso];

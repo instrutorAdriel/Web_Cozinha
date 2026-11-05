@@ -55,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // ENVIO: SOLICITAR INSUMO EXTRA
     // ========================================================
     const btnSaveExtra = $('extra-save');
-
     if (btnSaveExtra) {
         btnSaveExtra.addEventListener('click', () => {
             const nomeInsumo = $('extra-name') ? $('extra-name').value.trim() : '';
@@ -69,7 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Por favor, preencha o nome do insumo e a quantidade.");
                 return;
             }
-
             if (!idTurma || idTurma === "todas" || idTurma === "") {
                 alert("Selecione uma turma específica na barra superior antes de solicitar um insumo extra.");
                 return;
@@ -108,12 +106,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
     // ========================================================
     // ENVIO: SOLICITAR UTENSÍLIO EXTRA
     // ========================================================
     const btnSaveUtil = $('util-save');
-
     if (btnSaveUtil) {
         btnSaveUtil.addEventListener('click', () => {
             const nomeUtensilio = $('util-name') ? $('util-name').value.trim() : '';
@@ -164,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
 
 // ===== PERÍODO DA SEMANA ATUAL (SEGUNDA A SEXTA) =====
 function formatarDataLocal(data) {
@@ -266,7 +261,6 @@ async function buscarAgendamentosSemana() {
     return resposta.status === 204 ? [] : resposta.json();
 }
 
-
 // ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
 function carregarDadosIniciais() {
     const containerClasses = document.querySelector('.classes-col');
@@ -317,6 +311,7 @@ function carregarDadosIniciais() {
 
             popularTurmasDropdown(turmas);
 
+            // 1. Tenta recuperar a turma salva na sessão
             const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
 
             const turmaValida = turmas.some(
@@ -343,8 +338,8 @@ function carregarDadosIniciais() {
             filtrarPorTurma(turmaInicialId);
             atualizarContadorReceitasHoje(turmaInicialId);
 
+            // === CONTADOR DE TURMAS DE HOJE ===
             const contadorTurmas = document.getElementById('hero-turmas-count');
-
             if (contadorTurmas) {
                 const turmasUnicasHoje = new Set();
 
@@ -368,7 +363,6 @@ function carregarDadosIniciais() {
 
             // Listener do Select do Checklist Manual.
             const selectReceita = $('recipe-select');
-
             if (selectReceita) {
                 selectReceita.removeEventListener(
                     'change',
@@ -439,29 +433,23 @@ function popularTurmasDropdown(turmas) {
     turmaSelect.addEventListener('change', onTurmaChange);
 }
 
-
 function onTurmaChange(e) {
     const selectedId = e.target.value;
-
     if (selectedId && selectedId !== "todas") {
         sessionStorage.setItem("turmaSelecionadaId", selectedId);
     } else {
         sessionStorage.removeItem("turmaSelecionadaId");
     }
-
     filtrarPorTurma(selectedId);
 }
 
-
 function filtrarPorTurma(turmaId) {
     atualizarContadorReceitasHoje(turmaId);
-
     const containerClasses = document.querySelector('.classes-col');
-
     if (!containerClasses) return;
 
+    // Preserva o título e usa um contêiner próprio para os cinco dias.
     let lista = $('receitas-semana-lista');
-
     if (!lista) {
         lista = document.createElement('div');
         lista.id = 'receitas-semana-lista';
@@ -488,6 +476,7 @@ function filtrarPorTurma(turmaId) {
 
     renderizarSemana(agendamentosFiltrados, lista);
 
+    // Preserva o seletor manual de fichas para os checklists.
     const selectReceita = $('recipe-select');
 
     // Receita de hoje para a turma selecionada.
@@ -557,8 +546,6 @@ function filtrarPorTurma(turmaId) {
             selectReceita.appendChild(opcao);
         });
     }
-
-    // Limpa os detalhes da receita anterior.
     limparDetalhesDaTela();
 
     // Seleciona automaticamente a primeira receita de hoje, se existir.
@@ -572,11 +559,9 @@ function filtrarPorTurma(turmaId) {
     }
 }
 
-
 // ===== CARDS EXPANSÍVEIS DOS DIAS DA SEMANA =====
 function renderizarSemana(agendamentos, container) {
     if (!container) return;
-
     container.replaceChildren();
 
     const dias = [
@@ -620,7 +605,6 @@ function renderizarSemana(agendamentos, container) {
         info.className = 'semana-dia-info';
 
         const titulo = document.createElement('h3');
-
         titulo.textContent = ehHoje
             ? `${nomeDia} (Hoje)`
             : nomeDia;
@@ -630,10 +614,8 @@ function renderizarSemana(agendamentos, container) {
         const seta = document.createElement('span');
         seta.className = 'material-symbols-outlined semana-dia-seta';
         seta.textContent = 'expand_more';
-
         header.append(info, seta);
 
-        // Conteúdo do card.
         const conteudo = document.createElement('div');
         conteudo.className = 'semana-dia-conteudo';
 
@@ -657,7 +639,6 @@ function renderizarSemana(agendamentos, container) {
                 String(aberto)
             );
         });
-
         card.append(header, conteudo);
         container.appendChild(card);
     });
@@ -744,13 +725,10 @@ function atualizarEstadoBotoesChecklist(habilitado) {
 function renderizarCardsDeAulas(agendamentos, container) {
     agendamentos.forEach(agendamento => {
         const ficha = agendamento.ficha;
-
         if (!ficha) return;
 
         const turma = ficha.turma;
-
         let lab = 'Laboratório N/A';
-
         if (turma && turma.laboratorio) {
             lab = typeof turma.laboratorio === 'object'
                 ? (turma.laboratorio.nomeLaboratorio || 'Laboratório N/A')
@@ -768,7 +746,6 @@ function renderizarCardsDeAulas(agendamentos, container) {
             agendamento.concluido === 'S' ? 'done' : '';
 
         const card = document.createElement('div');
-
         card.className = `class-card ${statusClass}`;
         card.setAttribute('data-recipe', idFicha);
         card.dataset.chave = chaveAgendamento(agendamento);
@@ -820,6 +797,10 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         );
     });
 
+    const agendamento = agendamentoSelecionado || agendamentosDaSemana.find(a =>
+        a.ficha && Number(a.ficha.id ?? a.ficha.idFicha) === Number(fichaId)
+    );
+    if (!agendamento) return;
     fichaAtual = agendamento.ficha;
 
     const requisicaoAtual = ++requisicaoDetalhesAtual;
@@ -854,7 +835,6 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
             }
 
             detalhesReceitaAtual = detalhes;
-
             atualizarResumoReceita(fichaAtual);
 
             renderChecklistInsumos(
@@ -891,7 +871,6 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
             }
         });
 }
-
 
 function carregarDetalhesNoChecklistManual(fichaReal) {
     const idFicha = fichaReal.id || fichaReal.idFicha;
@@ -937,7 +916,6 @@ function carregarDetalhesNoChecklistManual(fichaReal) {
         });
 }
 
-
 function atualizarResumoReceita(ficha) {
     const summaryName = $('summary-recipe-name');
     const summarySteps = $('summary-steps');
@@ -960,7 +938,6 @@ function atualizarResumoReceita(ficha) {
         }
     }
 }
-
 
 // ===== 4. RENDERIZAÇÃO DOS CHECKLISTS =====
 function renderChecklistInsumos(insumos, ficha, separados = []) {
@@ -993,7 +970,6 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
 
         let st = 'ok';
         let label = 'OK';
-
         if (qtdEstoque === 0) {
             st = 'falta';
             label = 'Falta';
@@ -1050,7 +1026,6 @@ function renderChecklistInsumos(insumos, ficha, separados = []) {
     );
 }
 
-
 function renderChecklistUtensilios(checklists, ficha) {
     const lista = $('util-checklist');
     const nome = $('util-recipe-name');
@@ -1080,7 +1055,6 @@ function renderChecklistUtensilios(checklists, ficha) {
 
         const estado = check.estadoAtual || 'PRONTO';
         const isInapto = estado !== 'PRONTO';
-
         const classeInapto = isInapto ? 'text-muted' : '';
 
         const labelInapto = isInapto
@@ -1115,10 +1089,8 @@ function renderChecklistUtensilios(checklists, ficha) {
     );
 }
 
-
 function atualizarProgresso(lista, elText, elPct, elBar) {
     if (!lista) return;
-
     const update = () => {
         const checkboxes =
             lista.querySelectorAll('input[type="checkbox"]');
@@ -1137,27 +1109,19 @@ function atualizarProgresso(lista, elText, elPct, elBar) {
         }
 
         if (elPct) elPct.textContent = pct;
-
         if (elBar) elBar.style.width = pct + '%';
     };
-
     lista.removeEventListener('change', update);
     lista.addEventListener('change', update);
-
     update();
 }
 
-
 function aplicarScrollAdaptativo(container, qtd) {
     if (!container) return;
-
     const ativar = qtd > LIMITE_SCROLL;
-
     container.classList.toggle('is-scrollable', ativar);
 }
 
-
-// ===== 5. RESET DA CHECKLIST =====
 if ($('main-btn-reset')) {
     $('main-btn-reset').addEventListener('click', () => {
         if ($('checklist-main')) {
@@ -1169,11 +1133,8 @@ if ($('main-btn-reset')) {
         }
     });
 }
-
-
 // ===== 6. LÓGICA DE AÇÕES DE ESTOQUE E UTENSÍLIOS =====
 const btnFinishInsumos = $('btn-finish-insumos');
-
 if (btnFinishInsumos) {
     btnFinishInsumos.addEventListener('click', () => {
         const marcados = document.querySelectorAll(
@@ -1211,15 +1172,12 @@ if (btnFinishInsumos) {
                         erroBackend || "Erro ao atualizar o estoque"
                     );
                 }
-
                 return res.text();
             })
             .then(msg => {
                 alert("Separação confirmada! O estoque foi deduzido com sucesso.");
-
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id || fichaAtual.idFicha;
-
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
@@ -1248,9 +1206,7 @@ if (btnFinishInsumos) {
     });
 }
 
-
 const btnFinishUtensilios = $('btn-finish-utensilios');
-
 if (btnFinishUtensilios) {
     btnFinishUtensilios.addEventListener('click', () => {
         const marcados = document.querySelectorAll(
@@ -1309,7 +1265,6 @@ if (btnFinishUtensilios) {
                         erroBackend || "Erro ao confirmar utensílios"
                     );
                 }
-
                 return res.text();
             })
             .then(msg => {
@@ -1325,7 +1280,6 @@ if (btnFinishUtensilios) {
 
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id || fichaAtual.idFicha;
-
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
@@ -1353,11 +1307,8 @@ if (btnFinishUtensilios) {
     });
 }
 
-
-// ===== 6.1 DEVOLUÇÃO DE UTENSÍLIOS =====
 const devolucaoModal = $('devolucao-modal');
 const btnDevolucao = $('btn-devolucao-utensilios');
-
 let checklistIdsSelecionadosParaDevolucao = [];
 
 if (btnDevolucao && devolucaoModal) {
@@ -1410,7 +1361,6 @@ if (btnDevolucao && devolucaoModal) {
     });
 }
 
-
 function fecharModalDevolucao() {
     if (devolucaoModal) {
         devolucaoModal.classList.remove('show');
@@ -1448,7 +1398,6 @@ if ($('devolucao-save')) {
         }
 
         const btnSave = $('devolucao-save');
-
         btnSave.innerText = "Processando...";
         btnSave.disabled = true;
 
@@ -1483,7 +1432,6 @@ if ($('devolucao-save')) {
 
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id || fichaAtual.idFicha;
-
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
@@ -1506,7 +1454,6 @@ if ($('devolucao-save')) {
             });
     });
 }
-
 
 // ===== 7. MENU E MODO COZINHA =====
 const menuBtn = $('menu-toggle');
@@ -1559,7 +1506,6 @@ if (btnOpenKitchen) {
     });
 }
 
-
 const kitchenClose = $('kitchen-close');
 
 if (kitchenClose) {
@@ -1571,7 +1517,6 @@ if (kitchenClose) {
 }
 
 
-// ===== 8. CONTADOR DE RECEITAS DE HOJE =====
 function atualizarContadorReceitasHoje(turmaId) {
     const contador = document.getElementById('hero-receitas-count');
 
@@ -1579,6 +1524,7 @@ function atualizarContadorReceitasHoje(turmaId) {
 
     let receitasHoje = obterAgendamentosDeHoje();
 
+    // Filtra pela turma selecionada na topbar
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
             const idTurma =
@@ -1595,8 +1541,6 @@ function atualizarContadorReceitasHoje(turmaId) {
         `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
 
-
-// ===== 9. MODO DE PREPARO =====
 function separarPassosReceita(preparo) {
     if (!preparo || typeof preparo !== "string") {
         return [];
@@ -1607,8 +1551,8 @@ function separarPassosReceita(preparo) {
         .map(passo => passo.trim())
         .filter(passo => passo.length > 0)
         .map(passo => passo + ".");
+    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
-
 
 function renderizarPassosReceita(preparo, containerId) {
     const container = document.getElementById(containerId);
@@ -1621,9 +1565,7 @@ function renderizarPassosReceita(preparo, containerId) {
 
     passos.forEach(passo => {
         const li = document.createElement("li");
-
         li.textContent = passo;
-
         container.appendChild(li);
     });
 }
