@@ -769,6 +769,7 @@ function renderizarCardsDeAulas(agendamentos, container) {
 
 // ===== 3. SELEÇÃO DE AULA E DETALHES =====
 function selecionarAula(fichaId, agendamentoSelecionado = null) {
+
     // Sem agendamento informado, prefere o de hoje e depois qualquer outro da semana.
     const mesmaFicha = a =>
         String(a.ficha.id ?? a.ficha.idFicha) === String(fichaId);
@@ -797,12 +798,10 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         );
     });
 
-    const agendamento = agendamentoSelecionado || agendamentosDaSemana.find(a =>
-        a.ficha && Number(a.ficha.id ?? a.ficha.idFicha) === Number(fichaId)
-    );
-    if (!agendamento) return;
+    // Atualiza a receita selecionada.
     fichaAtual = agendamento.ficha;
 
+    // Identifica a requisição atual para evitar respostas antigas.
     const requisicaoAtual = ++requisicaoDetalhesAtual;
 
     fetch(`/api/fichas/${fichaId}/detalhes`)
@@ -818,7 +817,8 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
             return res.json();
         })
         .then(detalhes => {
-            // Descarta respostas antigas quando o usuário troca rapidamente de receita.
+
+            // Descarta respostas antigas quando o usuário troca de receita.
             if (requisicaoAtual !== requisicaoDetalhesAtual) {
                 return;
             }
@@ -835,29 +835,33 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
             }
 
             detalhesReceitaAtual = detalhes;
+
             atualizarResumoReceita(fichaAtual);
 
+            // Atualiza checklist de insumos.
             renderChecklistInsumos(
                 detalhes.insumos,
                 fichaAtual,
                 detalhes.insumosSeparados
             );
 
+            // Atualiza checklist de utensílios.
             renderChecklistUtensilios(
                 detalhes.utensilios,
                 fichaAtual
             );
 
+            // Habilita os botões após carregar os detalhes.
             atualizarEstadoBotoesChecklist(true);
         })
         .catch(err => {
+
             if (requisicaoAtual !== requisicaoDetalhesAtual) {
                 return;
             }
 
             console.error('Erro ao carregar detalhes:', err);
 
-            // Só avisa se a receita com erro ainda for a escolhida.
             if (fichaAtual === agendamento.ficha) {
                 const aviso = '<p style="padding:12px; color:#b91c1c; text-align:center;">Não foi possível carregar os detalhes desta receita.</p>';
 
