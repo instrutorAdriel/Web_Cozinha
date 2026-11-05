@@ -1301,3 +1301,40 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarAlocacoesERenderizarGrid();
 
 });
+// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+
+const btnSair = document.getElementById("btnSair");
+const modalSair = document.getElementById("confirmacaoSaida");
+const btnNao = document.getElementById("btnNao");
+const btnSim = document.getElementById("btnSim");
+const formLogout = document.getElementById("formLogout");
+
+// Abrir confirmação
+if (btnSair && modalSair) {
+    btnSair.addEventListener("click", function() {
+        modalSair.classList.add("show");
+    });
+}
+
+// Cancelar saída
+if (btnNao && modalSair) {
+    btnNao.addEventListener("click", function() {
+        modalSair.classList.remove("show");
+    });
+}
+
+// Confirmar saída
+if (btnSim && formLogout) {
+    btnSim.addEventListener("click", function() {
+        formLogout.submit();
+    });
+}
+
+// Fechar ao clicar fora da janela
+if (modalSair) {
+    modalSair.addEventListener("click", function (event) {
+        if (event.target === modalSair) {
+            modalSair.classList.remove("show");
+        }
+    });
+}

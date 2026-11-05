@@ -71,20 +71,39 @@
         </a>
     </nav>
 
+    <!-- Rodapé da Sidebar (Botão de Sair) -->
     <div class="sidebar-footer">
-        <form th:action="@{/logout}" method="get">
-            <button type="submit" class="btn-logout">
-
-                <span class="material-symbols-outlined">
-                    logout
-                </span>
-
+        <form id="formLogout" th:action="@{/logout}" method="get">
+            <button type="button" class="btn-logout" id="btnSair">
+                <span class="material-symbols-outlined">logout</span>
                 Sair
-
             </button>
         </form>
     </div>
 </aside>
+
+<!-- MODAL DE CONFIRMAÇÃO DE SAÍDA -->
+<div class="modal-overlay" id="confirmacaoSaida">
+    <div class="modal flight-accent">
+
+        <div class="modal-head">
+            <h3 class="modal-title">Confirmar Saída</h3>
+        </div>
+
+        <p>Tem certeza que deseja sair do sistema?</p>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-ghost" id="btnNao">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn-confirm" id="btnSim">
+                Sim, sair
+            </button>
+        </div>
+
+    </div>
+</div>
 
 <!-- ==========================================================================
      BARRA SUPERIOR DE FERRAMENTAS (TOPBAR) - CORRIGIDA E PADRONIZADA
@@ -330,6 +349,8 @@
     </div>
 
 </main>
+
+
 
 <script th:src="@{/scripts/calendario.js}"></script>
 

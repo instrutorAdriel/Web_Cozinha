@@ -604,19 +604,40 @@ if(btnOpenKitchen) {
 const kitchenClose = $('kitchen-close');
 if(kitchenClose) kitchenClose.addEventListener('click', () => { if(kitchenModal) kitchenModal.classList.remove('show'); });
 
+// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+
 const btnSair = document.getElementById("btnSair");
-const modalSair = document.getElementById("modalSair");
+const modalSair = document.getElementById("confirmacaoSaida");
 const btnNao = document.getElementById("btnNao");
 const btnSim = document.getElementById("btnSim");
+const formLogout = document.getElementById("formLogout");
 
-btnSair.addEventListener("click", function() {
-  modalSair.style.display = "flex";
-});
+// Abrir confirmação
+if (btnSair && modalSair) {
+  btnSair.addEventListener("click", function() {
+    modalSair.classList.add("show");
+  });
+}
 
-btnNao.addEventListener("click", function() {
-  modalSair.style.display = "none";
-});
+// Cancelar saída
+if (btnNao && modalSair) {
+  btnNao.addEventListener("click", function() {
+    modalSair.classList.remove("show");
+  });
+}
 
-btnSim.addEventListener("click", function() {
-  document.getElementById("formLogout").submit();
-});
+// Confirmar saída
+if (btnSim && formLogout) {
+  btnSim.addEventListener("click", function() {
+    formLogout.submit();
+  });
+}
+
+// Fechar ao clicar fora da janela
+if (modalSair) {
+  modalSair.addEventListener("click", function(event) {
+    if (event.target === modalSair) {
+      modalSair.classList.remove("show");
+    }
+  });
+}

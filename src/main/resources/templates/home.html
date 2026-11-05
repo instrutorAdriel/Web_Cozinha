@@ -38,20 +38,36 @@
     <!-- Rodapé da Sidebar (Botão de Sair) -->
     <div class="sidebar-footer">
         <form id="formLogout" th:action="@{/logout}" method="get">
-            <button type="button" class="btn-logout" onclick="confirmarSaida()">
+            <button type="button" class="btn-logout" id="btnSair">
                 <span class="material-symbols-outlined">logout</span>
                 Sair
             </button>
-
-            <div id="confirmacaoSaida" class="confirmacao-saida">
-                <p>Tem certeza que deseja sair?</p>
-
-
-                </button>
-            </div>
         </form>
     </div>
 </aside>
+
+<!-- MODAL DE CONFIRMAÇÃO DE SAÍDA -->
+<div class="modal-overlay" id="confirmacaoSaida">
+    <div class="modal flight-accent">
+
+        <div class="modal-head">
+            <h3 class="modal-title">Confirmar Saída</h3>
+        </div>
+
+        <p>Tem certeza que deseja sair do sistema?</p>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-ghost" id="btnNao">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn-confirm" id="btnSim">
+                Sim, sair
+            </button>
+        </div>
+
+    </div>
+</div>
 
 <!-- ==========================================================================
      BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
@@ -352,18 +368,12 @@
 <!-- Camada escura de fundo para focar a atenção nas modais abertas -->
 <div class="overlay" id="overlay"></div>
 
+
+
 <!-- Arquivo Script JS Principal (Via Thymeleaf) -->
 
 
 <script th:src="@{/scripts/scriptHome.js?v=3}"></script>
-
-<script>
-    function confirmarSaida() {
-        if (confirm("Tem certeza que deseja sair?")) {
-            document.getElementById("formLogout").submit();
-        }
-    }
-</script>
 
 </body>
 </html>
