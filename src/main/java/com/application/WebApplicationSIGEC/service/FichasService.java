@@ -42,12 +42,19 @@ public class FichasService {
     }
 
     public List<Ficha> buscarFichasPorUsuario(Long idUsuario) {
-        return fichasRepository.findFichasByUsuarioId(idUsuario);
+        if (idUsuario == null) return Collections.emptyList();
+        return fichasRepository.findFichasByUsuarioIdNative(idUsuario);
     }
 
     // Busca somente as receitas da turma selecionada
     public List<Ficha> buscarPorTurma(Long idTurma) {
         return fichasRepository.findFichasByTurmaId(idTurma);
+    }
+
+    // Busca somente as receitas da turma selecionada pertencente ao usuário informado
+    public List<Ficha> buscarPorTurmaEUsuario(Long idTurma, Long idUsuario) {
+        if (idTurma == null || idUsuario == null) return Collections.emptyList();
+        return fichasRepository.findFichasByTurmaIdEUsuarioId(idTurma, idUsuario);
     }
 
     // Busca somente as fichas que ainda não foram alocadas

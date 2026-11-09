@@ -27,16 +27,26 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
             "OR t.id IN (SELECT tu2.id FROM Usuario u2 JOIN u2.turmas tu2 WHERE u2.id = :idUsuario))")
     List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Long idUsuario);
 
-    @Query(value = "SELECT * FROM ficha WHERE id_turma = :idTurma", nativeQuery = true)
+    // Busca somente as receitas do usuário logado via coluna direta id_turma
+    @Query(value = "SELECT DISTINCT f.* FROM ficha f " +
+            "JOIN usuario_turma ut ON ut.id_turma = f.id_turma " +
+            "WHERE ut.id_usuario = :idUsuario AND f.situacao = 'A'",
+            nativeQuery = true)
+    List<Ficha> findFichasByUsuarioIdNative(@Param("idUsuario") Long idUsuario);
+
+    @Query(value = "SELECT * FROM ficha WHERE id_turma = :idTurma AND situacao = 'A'", nativeQuery = true)
     List<Ficha> findByIdTurma(@Param("idTurma") Long idTurma);
 
-    // Busca somente as receitas vinculadas à turma selecionada
-    //@Query("SELECT f FROM Ficha f JOIN f.turma t WHERE t.id = :idTurma")
-    //List<Ficha> findFichasByTurmaId(@Param("idTurma") Long idTurma);
-
-    @Query(value = "SELECT f.* FROM ficha f " +
-            "JOIN turma_ficha tf ON tf.id_ficha = f.id_ficha " +
-            "WHERE tf.id_turma = :idTurma AND f.situacao = 'A'",
-            nativeQuery = true)
+    // Busca somente as receitas vinculadas à turma selecionada via coluna direta id_turma
+    @Query(value = "SELECT * FROM ficha WHERE id_turma = :idTurma AND situacao = 'A'", nativeQuery = true)
     List<Ficha> findFichasByTurmaId(@Param("idTurma") Long idTurma);
+
+    // Busca somente as receitas vinculadas à turma selecionada que pertençam ao usuário logado via coluna direta id_turma
+    @Query(value = "SELECT DISTINCT f.* FROM ficha f " +
+            "JOIN usuario_turma ut ON ut.id_turma = f.id_turma " +
+            "WHERE ut.id_usuario = :idUsuario " +
+            "  AND f.id_turma = :idTurma " +
+            "  AND f.situacao = 'A'",
+            nativeQuery = true)
+    List<Ficha> findFichasByTurmaIdEUsuarioId(@Param("idTurma") Long idTurma, @Param("idUsuario") Long idUsuario);
 }
