@@ -2,7 +2,6 @@ package com.application.WebApplicationSIGEC.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Formula;
 import java.math.BigDecimal;
 
 @Entity
@@ -17,11 +16,11 @@ public class Produto {
     @Column(name = "nome_produto", nullable = false, length = 55)
     private String nomeProduto;
 
-    @Column(name = "unidade_m", nullable = false, length = 5)
-    private String unidade;
+    @Column(nullable = false, length = 5)
+    private String unidade_m;
 
-    @Formula("(SELECT COALESCE(SUM(i.quantidade), 0) FROM insumo i WHERE i.id_produto = id_produto AND i.cancelado = 'N')")
-    private BigDecimal quantidade = BigDecimal.ZERO;
+    @Transient
+    private BigDecimal quantidade;
 
     @Column(nullable = false, length = 1)
     private String situacao = "A";
@@ -38,8 +37,8 @@ public class Produto {
     public void setId(Long id) { this.id = id; }
     public String getNomeProduto() { return nomeProduto; }
     public void setNomeProduto(String nomeProduto) { this.nomeProduto = nomeProduto; }
-    public String getUnidade() { return unidade; }
-    public void setUnidade(String unidade) { this.unidade = unidade; }
+    public String getUnidade() { return unidade_m; }
+    public void setUnidade(String unidade) { this.unidade_m = unidade; }
     public BigDecimal getQuantidade() { return quantidade; }
     public void setQuantidade(BigDecimal quantidade) { this.quantidade = quantidade; }
     public String getSituacao() { return situacao; }

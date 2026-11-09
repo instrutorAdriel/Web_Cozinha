@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -46,8 +47,8 @@ public class Ficha {
     private LocalDate data;
 
     @JsonIgnore
-    @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Insumo> insumos;
+    @OneToMany(mappedBy = "ficha", fetch = FetchType.LAZY)
+    private List<InsumoFicha> insumos = new ArrayList<>();
 
     @JsonIgnore
     @OneToMany(mappedBy = "ficha", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -80,8 +81,8 @@ public class Ficha {
     public LocalDate getData() { return data; }
     public void setData(LocalDate data) { this.data = data; }
 
-    public List<Insumo> getInsumos() { return insumos; }
-    public void setInsumos(List<Insumo> insumos) { this.insumos = insumos; }
+    public List<InsumoFicha> getInsumos() { return insumos; }
+    public void setInsumos(List<InsumoFicha> insumos) { this.insumos = insumos; }
 
     public List<ChecklistUtensilio> getChecklistUtensilios() { return checklistUtensilios; }
     public void setChecklistUtensilios(List<ChecklistUtensilio> checklistUtensilios) { this.checklistUtensilios = checklistUtensilios; }
