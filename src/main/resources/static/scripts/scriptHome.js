@@ -973,5 +973,48 @@ const fecharModalUtil = () => {
     if (modalUtil) modalUtil.classList.remove('show');
 };
 
-if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
-if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
+//if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
+//if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
+
+// ===== CORREÇÃO DA PARTE FINAL DO SCRIPT =====
+
+// Remova referências a variáveis inexistentes (como btnCloseUtil / btnCancelUtil)
+// e mantenha apenas a lógica limpa do modal de saída:
+
+// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+const btnSair = document.getElementById("btnSair");
+const modalSair = document.getElementById("confirmacaoSaida");
+const btnNao = document.getElementById("btnNao");
+const btnSim = document.getElementById("btnSim");
+const formLogout = document.getElementById("formLogout");
+
+// Abrir confirmação
+if (btnSair && modalSair) {
+  btnSair.addEventListener("click", function(e) {
+    e.preventDefault(); // Previne comportamentos indesejados
+    modalSair.classList.add("show");
+  });
+}
+
+// Cancelar saída
+if (btnNao && modalSair) {
+  btnNao.addEventListener("click", function() {
+    modalSair.classList.remove("show");
+  });
+}
+
+// Confirmar saída
+if (btnSim && formLogout) {
+  btnSim.addEventListener("click", function() {
+    formLogout.submit();
+  });
+}
+
+// Fechar ao clicar fora da janela (overlay)
+if (modalSair) {
+  modalSair.addEventListener("click", function(event) {
+    if (event.target === modalSair) {
+      modalSair.classList.remove("show");
+    }
+  });
+}
