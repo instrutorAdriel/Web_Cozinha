@@ -298,7 +298,7 @@ function renderDetail(r, detalhesDaAPI) {
 
     const dataFormatada = formatarDataBR(r.dataPrevista);
     const badgeClasse = r.status === 'datadas' ? 'badge-datada' : 'badge-disponivel';
-    const badgeTexto = r.status === 'datadas' ? `DATADA: ${dataFormatada}` : `DISPONÍVEL: ${dataFormatada}`;
+    const badgeTexto = r.status === 'datadas' ? `DATADA: ${dataFormatada}` : 'DISPONÍVEL';
 
     // Monta o HTML dos Insumos vindos do Banco
     const htmlInsumos = detalhesDaAPI.insumos.length > 0

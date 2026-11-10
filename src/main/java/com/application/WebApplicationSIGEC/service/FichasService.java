@@ -43,18 +43,63 @@ public class FichasService {
 
     public List<Ficha> buscarFichasPorUsuario(Long idUsuario) {
         if (idUsuario == null) return Collections.emptyList();
-        return fichasRepository.findFichasByUsuarioIdNative(idUsuario);
+        List<Ficha> fichas = fichasRepository.findFichasByUsuarioIdNative(idUsuario);
+        preencherDatasAgendadas(fichas, idUsuario, null);
+        return fichas;
     }
 
     // Busca somente as receitas da turma selecionada
     public List<Ficha> buscarPorTurma(Long idTurma) {
-        return fichasRepository.findFichasByTurmaId(idTurma);
+        if (idTurma == null) return Collections.emptyList();
+        List<Ficha> fichas = fichasRepository.findFichasByTurmaId(idTurma);
+        preencherDatasAgendadas(fichas, null, idTurma);
+        return fichas;
     }
 
     // Busca somente as receitas da turma selecionada pertencente ao usuário informado
     public List<Ficha> buscarPorTurmaEUsuario(Long idTurma, Long idUsuario) {
         if (idTurma == null || idUsuario == null) return Collections.emptyList();
-        return fichasRepository.findFichasByTurmaIdEUsuarioId(idTurma, idUsuario);
+        List<Ficha> fichas = fichasRepository.findFichasByTurmaIdEUsuarioId(idTurma, idUsuario);
+        preencherDatasAgendadas(fichas, idUsuario, idTurma);
+        return fichas;
+    }
+
+    private void preencherDatasAgendadas(List<Ficha> fichas, Long idUsuario, Long idTurma) {
+        if (fichas == null || fichas.isEmpty()) return;
+
+        List<Agendamento> agendamentos;
+        if (idUsuario != null) {
+            agendamentos = agendamentoRepository.buscarTodosPorUsuarioETurma(idUsuario, idTurma);
+        } else {
+            agendamentos = agendamentoRepository.findAll();
+        }
+
+        if (agendamentos != null && !agendamentos.isEmpty()) {
+            LocalDate hoje = LocalDate.now();
+            Map<Long, LocalDate> dataPorFicha = new HashMap<>();
+
+            // 1. Prioriza agendamentos futuros ou de hoje (ordem crescente: o mais próximo primeiro)
+            agendamentos.stream()
+                    .filter(a -> a.getFicha() != null && a.getFicha().getId() != null && a.getData() != null)
+                    .filter(a -> "A".equalsIgnoreCase(a.getSituacao()))
+                    .filter(a -> !a.getData().isBefore(hoje))
+                    .sorted(Comparator.comparing(Agendamento::getData))
+                    .forEach(a -> dataPorFicha.putIfAbsent(a.getFicha().getId(), a.getData()));
+
+            // 2. Para fichas sem data futura/hoje, pega a data agendada mais recente do passado
+            agendamentos.stream()
+                    .filter(a -> a.getFicha() != null && a.getFicha().getId() != null && a.getData() != null)
+                    .filter(a -> "A".equalsIgnoreCase(a.getSituacao()))
+                    .filter(a -> a.getData().isBefore(hoje))
+                    .sorted(Comparator.comparing(Agendamento::getData).reversed())
+                    .forEach(a -> dataPorFicha.putIfAbsent(a.getFicha().getId(), a.getData()));
+
+            for (Ficha f : fichas) {
+                if (dataPorFicha.containsKey(f.getId())) {
+                    f.setData(dataPorFicha.get(f.getId()));
+                }
+            }
+        }
     }
 
     // Busca somente as fichas que ainda não foram alocadas
@@ -134,11 +179,21 @@ public class FichasService {
         agendamento.setConcluido("N");
 
         agendamentoRepository.save(agendamento);
+
+        ficha.setData(novaData);
+        fichasRepository.save(ficha);
     }
 
     @Transactional
     public void desalocarFicha(Long idAgendamento) {
         if (idAgendamento != null) {
+            agendamentoRepository.findById(idAgendamento).ifPresent(ag -> {
+                if (ag.getFicha() != null) {
+                    Ficha f = ag.getFicha();
+                    f.setData(null);
+                    fichasRepository.save(f);
+                }
+            });
             agendamentoRepository.desalocarPorId(idAgendamento);
         }
     }
