@@ -370,11 +370,33 @@ const CalendarioSIGEC = {
             celula.appendChild(spanNumero);
 
             const diaSemana = new Date(ano, mes, dia).getDay();
-            if (diaSemana === 0 || diaSemana === 6) celula.classList.add("weekend");
 
             const strMes = String(mes + 1).padStart(2, "0");
             const strDia = String(dia).padStart(2, "0");
             const dataIso = `${ano}-${strMes}-${strDia}`;
+
+            const feriados = [
+                `${ano}-01-01`,
+                `${ano}-04-21`,
+                `${ano}-05-01`,
+                `${ano}-09-07`,
+                `${ano}-10-12`,
+                `${ano}-11-02`,
+                `${ano}-11-15`,
+                `${ano}-11-20`,
+                `${ano}-12-25`
+            ];
+
+            const ehFimDeSemana = diaSemana === 0 || diaSemana === 6;
+            const ehFeriado = feriados.includes(dataIso);
+
+            if (ehFimDeSemana || ehFeriado) {
+                celula.classList.add(ehFeriado ? "holiday" : "weekend");
+                celula.style.pointerEvents = "none";
+                celula.style.opacity = "0.4";
+            }
+
+
             celula.setAttribute("data-date", dataIso);
 
             const qtdFichas = this.state.alocacoesPorData[dataIso];
@@ -450,3 +472,40 @@ const CalendarioSIGEC = {
 
 // Disparo de Inicialização do Módulo
 document.addEventListener("DOMContentLoaded", () => CalendarioSIGEC.init());
+// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+const btnSair = document.getElementById("btnSair");
+const modalSair = document.getElementById("confirmacaoSaida");
+const btnNao = document.getElementById("btnNao");
+const btnSim = document.getElementById("btnSim");
+const formLogout = document.getElementById("formLogout");
+
+// Abrir confirmação
+if (btnSair && modalSair) {
+    btnSair.addEventListener("click", function(e) {
+        e.preventDefault(); // Previne comportamentos indesejados
+        modalSair.classList.add("show");
+    });
+}
+
+// Cancelar saída
+if (btnNao && modalSair) {
+    btnNao.addEventListener("click", function() {
+        modalSair.classList.remove("show");
+    });
+}
+
+// Confirmar saída
+if (btnSim && formLogout) {
+    btnSim.addEventListener("click", function() {
+        formLogout.submit();
+    });
+}
+
+// Fechar ao clicar fora da janela (overlay)
+if (modalSair) {
+    modalSair.addEventListener("click", function(event) {
+        if (event.target === modalSair) {
+            modalSair.classList.remove("show");
+        }
+    });
+}
