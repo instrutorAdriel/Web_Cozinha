@@ -36,14 +36,37 @@
 
     <!-- Rodapé da Sidebar (Botão de Sair) -->
     <div class="sidebar-footer">
-        <form th:action="@{/logout}" method="get">
-            <button type="submit" class="btn-logout">
+        <form id="formLogout" th:action="@{/logout}" method="get">
+            <button type="button" class="btn-logout" id="btnSair">
                 <span class="material-symbols-outlined">logout</span>
                 Sair
             </button>
         </form>
     </div>
 </aside>
+
+<!-- MODAL DE CONFIRMAÇÃO DE SAÍDA -->
+<div class="modal-overlay" id="confirmacaoSaida">
+    <div class="modal flight-accent">
+
+        <div class="modal-head">
+            <h3 class="modal-title">Confirmar Saída</h3>
+        </div>
+
+        <p>Tem certeza que deseja sair do sistema?</p>
+
+        <div class="modal-footer">
+            <button type="button" class="btn-ghost" id="btnNao">
+                Cancelar
+            </button>
+
+            <button type="button" class="btn-confirm" id="btnSim">
+                Sim, sair
+            </button>
+        </div>
+
+    </div>
+</div>
 
 <!-- ==========================================================================
      BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
@@ -61,14 +84,19 @@
 
     <!-- Lado Direito: Caixa de Busca e Ações do Usuário -->
     <div class="topbar-actions">
-
         <div class="turma-select-group">
-            <label class="field-label" for="turma-select">TURMA / LABORATÓRIO</label>
+            <label class="field-label" for="turma">TURMA / LABORATÓRIO</label>
+
             <div class="select-wrap">
-                <select id="turma-select">
-                    <option value="">-- Nenhuma Turma Vinculada --</option>
+                <select id="turma" name="turma">
+                    <option value="" selected disabled>
+                        -- Nenhuma Turma Vinculada --
+                    </option>
                 </select>
-                <span class="material-symbols-outlined select-arrow">expand_more</span>
+
+                <span class="material-symbols-outlined select-arrow">
+            expand_more
+        </span>
             </div>
         </div>
 
@@ -428,7 +456,7 @@
 <div class="overlay" id="overlay"></div>
 
 <!-- Arquivo Script JS Principal (Via Thymeleaf) -->
-<script th:src="@{/scripts/scriptHome.js?v=4}" defer></script>
+<script th:src="@{/scripts/scriptHome.js?v=8}" defer></script>
 
 </body>
 </html>

@@ -46,6 +46,8 @@ public class Ficha {
     @Column(name = "data")
     private LocalDate data;
 
+
+
     @JsonIgnore
     @OneToMany(mappedBy = "ficha", fetch = FetchType.LAZY)
     private List<InsumoFicha> insumos = new ArrayList<>();
@@ -83,7 +85,6 @@ public class Ficha {
 
     public List<InsumoFicha> getInsumos() { return insumos; }
     public void setInsumos(List<InsumoFicha> insumos) { this.insumos = insumos; }
-
     public List<ChecklistUtensilio> getChecklistUtensilios() { return checklistUtensilios; }
     public void setChecklistUtensilios(List<ChecklistUtensilio> checklistUtensilios) { this.checklistUtensilios = checklistUtensilios; }
 }

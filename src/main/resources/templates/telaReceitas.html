@@ -33,16 +33,39 @@
         </nav>
 
         <!-- Rodapé da Sidebar (Botão de Sair) -->
-
+        <!-- Rodapé da Sidebar (Botão de Sair) -->
         <div class="sidebar-footer">
-            <form th:action="@{/logout}" method="get">
-                <button type="submit" class="btn-logout">
+            <form id="formLogout" th:action="@{/logout}" method="get">
+                <button type="button" class="btn-logout" id="btnSair">
                     <span class="material-symbols-outlined">logout</span>
                     Sair
                 </button>
             </form>
         </div>
     </aside>
+
+    <!-- MODAL DE CONFIRMAÇÃO DE SAÍDA -->
+    <div class="modal-overlay" id="confirmacaoSaida">
+        <div class="modal flight-accent">
+
+            <div class="modal-head">
+                <h3 class="modal-title">Confirmar Saída</h3>
+            </div>
+
+            <p>Tem certeza que deseja sair do sistema?</p>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-ghost" id="btnNao">
+                    Cancelar
+                </button>
+
+                <button type="button" class="btn-confirm" id="btnSim">
+                    Sim, sair
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <!-- ==========================================================================
          BARRA SUPERIOR DE FERRAMENTAS (TOPBAR)
@@ -105,7 +128,7 @@
                         <button class="status-tab-btn" data-status="datadas">Datadas</button>
                     </div>
 
-                    <div class="category-filter-section">
+                    <div class="category-filter-section" hidden>
                         <div class="category-header">
                             <span class="category-title">CATEGORIA DA RECEITA</span>
                             <span class="category-count" id="recipeCountLabel">0 receitas</span>
@@ -143,7 +166,7 @@
         </div>
     </main>
 </div>
-
+</div>
 <script th:src="@{/scripts/scriptReceitas.js}"></script>
 </body>
 </html>
