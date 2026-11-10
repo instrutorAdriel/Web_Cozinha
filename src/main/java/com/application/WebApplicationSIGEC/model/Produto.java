@@ -17,10 +17,10 @@ public class Produto {
     private String nomeProduto;
 
     @Column(nullable = false, length = 5)
-    private String unidade;
+    private String unidade_m;
 
-    @Column(nullable = false, precision = 10, scale = 3)
-    private BigDecimal quantidade = BigDecimal.ZERO;
+    @Transient
+    private BigDecimal quantidade;
 
     @Column(nullable = false, length = 1)
     private String situacao = "A";
@@ -37,8 +37,8 @@ public class Produto {
     public void setId(Long id) { this.id = id; }
     public String getNomeProduto() { return nomeProduto; }
     public void setNomeProduto(String nomeProduto) { this.nomeProduto = nomeProduto; }
-    public String getUnidade() { return unidade; }
-    public void setUnidade(String unidade) { this.unidade = unidade; }
+    public String getUnidade() { return unidade_m; }
+    public void setUnidade(String unidade) { this.unidade_m = unidade; }
     public BigDecimal getQuantidade() { return quantidade; }
     public void setQuantidade(BigDecimal quantidade) { this.quantidade = quantidade; }
     public String getSituacao() { return situacao; }

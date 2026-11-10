@@ -368,3 +368,40 @@ function renderDetail(r, detalhesDaAPI) {
     overlay.addEventListener('click', closeSidebar);
     window.addEventListener('resize', () => { if (window.innerWidth > 1024) closeSidebar(); });
 })();
+// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+const btnSair = document.getElementById("btnSair");
+const modalSair = document.getElementById("confirmacaoSaida");
+const btnNao = document.getElementById("btnNao");
+const btnSim = document.getElementById("btnSim");
+const formLogout = document.getElementById("formLogout");
+
+// Abrir confirmação
+if (btnSair && modalSair) {
+    btnSair.addEventListener("click", function(e) {
+        e.preventDefault(); // Previne comportamentos indesejados
+        modalSair.classList.add("show");
+    });
+}
+
+// Cancelar saída
+if (btnNao && modalSair) {
+    btnNao.addEventListener("click", function() {
+        modalSair.classList.remove("show");
+    });
+}
+
+// Confirmar saída
+if (btnSim && formLogout) {
+    btnSim.addEventListener("click", function() {
+        formLogout.submit();
+    });
+}
+
+// Fechar ao clicar fora da janela (overlay)
+if (modalSair) {
+    modalSair.addEventListener("click", function(event) {
+        if (event.target === modalSair) {
+            modalSair.classList.remove("show");
+        }
+    });
+}
