@@ -13,70 +13,41 @@ import java.util.List;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
 
-    @Query("SELECT a FROM Agendamento a " +
-            "JOIN FETCH a.ficha f " +
-            "JOIN FETCH f.turma t " +
-            "WHERE a.data = :data AND a.situacao = 'A' " +
-            "AND t.id IN (SELECT tu.id FROM Usuario u JOIN u.turmas tu WHERE u.id = :idUsuario) " +
-            "ORDER BY a.data ASC")
-    List<Agendamento> findAgendamentosDoUsuarioHoje(@Param("data") LocalDate data, @Param("idUsuario") Long idUsuario);
+    // 1. Validação de duplicidade: impede agendar a mesma ficha para a mesma turma no mesmo dia
+    boolean existsByTurma_IdAndFicha_IdAndDataAndSituacao(Long idTurma, Long idFicha, LocalDate data, String situacao);
 
-
-    // 1. Validação de alocação duplicada mapeando o ID da entidade Ficha
-    boolean existsByFicha_IdAndDataAndSituacao(Long idFicha, LocalDate data, String situacao);
-
-    // Agendamentos do dia por Usuário e Turma
-    @Query(value = """
-        SELECT a.* FROM agendamento a
-        INNER JOIN ficha f ON a.id_ficha = f.id_ficha
-        INNER JOIN turma t ON f.id_turma = t.id_turma
-        INNER JOIN usuario_turma ut ON t.id_turma = ut.id_turma
-        WHERE ut.id_usuario = :idUsuario
-          AND (:idTurma IS NULL OR t.id_turma = :idTurma)
-          AND a.data = :data
-          AND a.situacao = 'A'
-        ORDER BY a.data ASC
-    """, nativeQuery = true)
-    List<Agendamento> buscarAgendamentosPorUsuarioTurmaEData(
-            @Param("idUsuario") Long idUsuario,
-            @Param("idTurma") Long idTurma,
-            @Param("data") LocalDate data
-    );
-
-    // Todos os agendamentos da turma/usuário
-    @Query(value = """
-        SELECT a.* FROM agendamento a
-        INNER JOIN ficha f ON a.id_ficha = f.id_ficha
-        INNER JOIN turma t ON f.id_turma = t.id_turma
-        INNER JOIN usuario_turma ut ON t.id_turma = ut.id_turma
-        WHERE ut.id_usuario = :idUsuario
-          AND (:idTurma IS NULL OR t.id_turma = :idTurma)
-          AND a.situacao = 'A'
-    """, nativeQuery = true)
-    List<Agendamento> buscarTodosPorUsuarioETurma(
-            @Param("idUsuario") Long idUsuario,
-            @Param("idTurma") Long idTurma
-    );
-
-    // Deleta a alocação pelo ID único do agendamento
-    @Modifying
-    @Query(value = "DELETE FROM agendamento WHERE id_agendamento = :id", nativeQuery = true)
-    void desalocarPorId(@Param("id") Long id);
-
-
-    // Busca agendamentos de um período vinculados ao usuário
+    // 2. Todos os agendamentos da turma para montar as marcações (bolinhas) no calendário
     @Query("""
         SELECT a FROM Agendamento a
         JOIN FETCH a.ficha f
-        JOIN FETCH f.turma t
-        WHERE a.data BETWEEN :inicio AND :fim
+        JOIN FETCH a.turma t
+        WHERE a.turma.id = :idTurma
           AND a.situacao = 'A'
-          AND t.id IN (
-              SELECT tu.id
-              FROM Usuario u
-              JOIN u.turmas tu
-              WHERE u.id = :idUsuario
-          )
+        ORDER BY a.data ASC
+    """)
+    List<Agendamento> buscarTodosPorTurma(@Param("idTurma") Long idTurma);
+
+    // 3. Agendamentos de uma data específica na turma (painel lateral do dia)
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH a.turma t
+        WHERE a.turma.id = :idTurma
+          AND a.data = :data
+          AND a.situacao = 'A'
+        ORDER BY f.nomeFicha ASC
+    """)
+    List<Agendamento> buscarPorTurmaEData(@Param("idTurma") Long idTurma, @Param("data") LocalDate data);
+
+    // 4. Agendamentos da semana para o painel principal (Home) filtrados pelo professor logado
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH a.turma t
+        INNER JOIN UsuarioTurma ut ON ut.turma.id = t.id
+        WHERE ut.usuario.id = :idUsuario
+          AND a.data BETWEEN :inicio AND :fim
+          AND a.situacao = 'A'
         ORDER BY a.data ASC, a.id ASC
     """)
     List<Agendamento> buscarAgendamentosDaSemana(
@@ -85,5 +56,24 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             @Param("idUsuario") Long idUsuario
     );
 
+    // 5. Agendamentos do dia atual para o dashboard da Home
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH a.turma t
+        INNER JOIN UsuarioTurma ut ON ut.turma.id = t.id
+        WHERE ut.usuario.id = :idUsuario
+          AND a.data = :hoje
+          AND a.situacao = 'A'
+        ORDER BY a.data ASC
+    """)
+    List<Agendamento> findAgendamentosDoUsuarioHoje(
+            @Param("hoje") LocalDate hoje,
+            @Param("idUsuario") Long idUsuario
+    );
 
+    // 6. Desalocar / Cancelar aula pelo ID do agendamento
+    @Modifying
+    @Query("DELETE FROM Agendamento a WHERE a.id = :id")
+    void desalocarPorId(@Param("id") Long id);
 }

@@ -158,7 +158,7 @@ public class HomeController {
             return ResponseEntity.status(403).build();
         }
 
-        List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
+        List<Ficha> fichasDaTurma = fichasService.buscarFichasPorUsuario(idTurma);
         return ResponseEntity.ok(fichasDaTurma);
     }
 
