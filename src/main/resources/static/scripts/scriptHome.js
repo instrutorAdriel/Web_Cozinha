@@ -18,6 +18,16 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarEstadoBotoesChecklist(false);
     carregarDadosIniciais();
 
+    // Bloqueia digitação ou colagem de sinal negativo e decimais nos campos de quantidade
+    ['extra-qtd', 'util-qtd'].forEach(id => {
+        const input = $(id);
+        if (!input) return;
+
+        input.addEventListener('input', () => {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        });
+    });
+
     // ========================================================
     // LÓGICA DE ABERTURA E FECHAMENTO DOS MODAIS
     // ========================================================
