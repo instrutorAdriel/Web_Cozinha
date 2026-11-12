@@ -3827,3 +3827,54 @@ body {
     list-style: none;
     padding-left: 0;
 }
+/* Efeito de carregamento isolado no card específico */
+.fiche-card.is-loading {
+    opacity: 0.65;
+    background-color: rgba(184, 184, 184, 0);
+    border: transparent;
+    pointer-events: none !important;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+/* Spinner no botão da ação e travamento completo */
+.btn-fiche-action.loading {
+    pointer-events: none !important;
+    cursor: wait !important;
+    background-color: rgba(255, 255, 255, 0.01) !important;
+    border-color: #ff7b00 !important;
+}
+
+.spinner-btn {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 123, 0, 0.25);
+    border-top-color: #ff7b00;
+    border-right-color: #ff7b00;
+    border-radius: 50%;
+    animation: girarSpinner 0.65s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes girarSpinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Spinner global (quando troca de dia) */
+.spinner-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 0;
+    width: 100%;
+}
+
+.spinner-loader {
+    width: 28px;
+    height: 28px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #ff7b00;
+    border-radius: 50%;
+    animation: girarSpinner 0.7s linear infinite;
+}

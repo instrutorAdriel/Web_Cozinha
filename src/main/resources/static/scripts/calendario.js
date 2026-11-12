@@ -1,13 +1,12 @@
 const CalendarioSIGEC = {
-    // 1. Controle de Estado Reativo
     state: {
         dataAtual: new Date(),
         diaSelecionado: new Date().getDate(),
+        dataIsoSelecionada: null,
         alocacoesPorData: {},
-        fichaIdDesalocar: null
+        agendamentosPorData: {}
     },
 
-    // 2. Mapeamento dos Elementos DOM
     elements: {
         selectTurma: document.getElementById("turma-select") || document.getElementById("select-turma"),
         grid: document.getElementById("cal-grid"),
@@ -16,10 +15,7 @@ const CalendarioSIGEC = {
         containerAlocadas: document.getElementById("cal-allocated"),
         containerDisponiveis: document.getElementById("cal-available"),
         btnPrev: document.getElementById("cal-prev"),
-        btnNext: document.getElementById("cal-next"),
-        dialogConfirmacao: document.getElementById("modal-confirmacao"),
-        btnConfirmarExclusao: document.getElementById("btn-confirmar-exclusao"),
-        btnCancelarExclusao: document.getElementById("btn-cancelar-exclusao")
+        btnNext: document.getElementById("cal-next")
     },
 
     nomesMeses: [
@@ -27,21 +23,27 @@ const CalendarioSIGEC = {
         "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ],
 
-    // 3. Inicialização e Eventos Fixos
     init() {
         this.bindEvents();
         this.carregarTurmas();
     },
 
     getTurmaId() {
-        return this.elements.selectTurma ? this.elements.selectTurma.value : null;
+        if (this.elements.selectTurma && this.elements.selectTurma.value) {
+            return this.elements.selectTurma.value;
+        }
+        return sessionStorage.getItem("turmaSelecionadaId") || "1";
     },
 
     bindEvents() {
-        const { selectTurma, btnPrev, btnNext, btnCancelarExclusao, btnConfirmarExclusao } = this.elements;
+        const { selectTurma, btnPrev, btnNext } = this.elements;
 
         if (selectTurma) {
-            selectTurma.addEventListener("change", () => this.carregarAlocacoes());
+            selectTurma.addEventListener("change", () => {
+                if (selectTurma.value) sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
+                this.carregarAlocacoes();
+                this.recarregarPainelDiaAtual(false);
+            });
         }
 
         if (btnPrev) {
@@ -57,22 +59,7 @@ const CalendarioSIGEC = {
                 this.carregarAlocacoes();
             });
         }
-
-        if (btnCancelarExclusao) {
-            btnCancelarExclusao.addEventListener("click", () => {
-                if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
-                this.state.fichaIdDesalocar = null;
-            });
-        }
-
-        if (btnConfirmarExclusao) {
-            btnConfirmarExclusao.addEventListener("click", () => this.confirmarDesalocacao());
-        }
     },
-
-    // ==========================================
-    // CHAMADAS DE API (ASYNC / AWAIT)
-    // ==========================================
 
     async carregarTurmas() {
         if (!this.elements.selectTurma) {
@@ -89,114 +76,30 @@ const CalendarioSIGEC = {
             select.innerHTML = "";
 
             if (turmas.length === 0) {
-                select.innerHTML = '<option value="">Nenhuma turma vinculada</option>';
+                select.innerHTML = '<option value="1">Turma 1</option>';
             } else {
                 turmas.forEach(turma => {
                     const id = turma.idTurma || turma.id;
                     const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
-
                     let labNome = '';
                     if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
                         labNome = turma.laboratorio.nomeLaboratorio || '';
                     } else if (typeof turma.laboratorio === 'string') {
                         labNome = turma.laboratorio;
                     }
-
-                    const textoOpcao = labNome ? `${nomeTurma} - ${labNome}` : nomeTurma;
+                    const textoOpcao = labNome ? `${nomeTurma} (${labNome})` : nomeTurma;
                     select.appendChild(new Option(textoOpcao, id));
                 });
 
-                // Recupera a turma gravada na sessão
                 const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
                 const existeTurma = turmas.some(t => (t.idTurma || t.id).toString() === turmaSalva);
-
-                if (turmaSalva && existeTurma) {
-                    select.value = turmaSalva;
-                }
+                if (turmaSalva && existeTurma) select.value = turmaSalva;
             }
         } catch (erro) {
             console.error("Erro no carregamento das turmas:", erro);
-            if (this.elements.selectTurma) {
-                this.elements.selectTurma.innerHTML = '<option value="">Erro ao carregar turmas</option>';
-            }
+            if (this.elements.selectTurma) this.elements.selectTurma.innerHTML = '<option value="1">Turma 1</option>';
         } finally {
             this.carregarAlocacoes();
-        }
-    },
-
-    bindEvents() {
-        const { selectTurma, btnPrev, btnNext, btnCancelarExclusao, btnConfirmarExclusao } = this.elements;
-
-        if (selectTurma) {
-            selectTurma.addEventListener("change", () => {
-                if (selectTurma.value) {
-                    sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
-                }
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnPrev) {
-            btnPrev.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnNext) {
-            btnNext.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnCancelarExclusao) {
-            btnCancelarExclusao.addEventListener("click", () => {
-                if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
-                this.state.fichaIdDesalocar = null;
-            });
-        }
-
-        if (btnConfirmarExclusao) {
-            btnConfirmarExclusao.addEventListener("click", () => this.confirmarDesalocacao());
-        }
-    },
-
-    bindEvents() {
-        const { selectTurma, btnPrev, btnNext, btnCancelarExclusao, btnConfirmarExclusao } = this.elements;
-
-        if (selectTurma) {
-            selectTurma.addEventListener("change", () => {
-                if (selectTurma.value) {
-                    sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
-                }
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnPrev) {
-            btnPrev.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnNext) {
-            btnNext.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
-                this.carregarAlocacoes();
-            });
-        }
-
-        if (btnCancelarExclusao) {
-            btnCancelarExclusao.addEventListener("click", () => {
-                if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
-                this.state.fichaIdDesalocar = null;
-            });
-        }
-
-        if (btnConfirmarExclusao) {
-            btnConfirmarExclusao.addEventListener("click", () => this.confirmarDesalocacao());
         }
     },
 
@@ -208,12 +111,23 @@ const CalendarioSIGEC = {
             const response = await fetch(url);
             if (!response.ok) throw new Error("Erro ao carregar marcadores alocados.");
 
-            const fichas = await response.json();
+            const agendamentos = await response.json();
             this.state.alocacoesPorData = {};
+            this.state.agendamentosPorData = {};
 
-            fichas.forEach(ficha => {
-                if (ficha.data) {
-                    this.state.alocacoesPorData[ficha.data] = (this.state.alocacoesPorData[ficha.data] || 0) + 1;
+            agendamentos.forEach(agendamento => {
+                let dataIso = agendamento.data;
+                if (Array.isArray(dataIso)) {
+                    dataIso = `${dataIso[0]}-${String(dataIso[1]).padStart(2, '0')}-${String(dataIso[2]).padStart(2, '0')}`;
+                } else if (typeof dataIso === 'string') {
+                    dataIso = dataIso.split('T')[0];
+                }
+
+                if (dataIso) {
+                    this.state.alocacoesPorData[dataIso] = (this.state.alocacoesPorData[dataIso] || 0) + 1;
+                    if (!this.state.agendamentosPorData[dataIso]) this.state.agendamentosPorData[dataIso] = [];
+                    const idAgendamento = agendamento.idAgendamento || agendamento.id;
+                    if (idAgendamento) this.state.agendamentosPorData[dataIso].push(idAgendamento);
                 }
             });
         } catch (erro) {
@@ -223,12 +137,19 @@ const CalendarioSIGEC = {
         }
     },
 
-    async buscarFichasDoDia(dataIso, dia, nomeMes, ano) {
+    // A mágica: silentUpdate = true por padrão nas transições de cards
+    async buscarFichasDoDia(dataIso, dia, nomeMes, ano, silentUpdate = true) {
+        this.state.dataIsoSelecionada = dataIso;
         const { labelDataPainel, containerAlocadas, containerDisponiveis } = this.elements;
 
         if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
-        if (containerAlocadas) containerAlocadas.innerHTML = '<p class="crumb-muted">A carregar agenda...</p>';
-        if (containerDisponiveis) containerDisponiveis.innerHTML = '<p class="crumb-muted">A carregar acervo...</p>';
+
+        // Se NÃO for update silencioso, zera tudo com o spinner.
+        if (!silentUpdate) {
+            const htmlSpinner = '<div class="spinner-container"><div class="spinner-loader"></div></div>';
+            if (containerAlocadas) containerAlocadas.innerHTML = htmlSpinner;
+            if (containerDisponiveis) containerDisponiveis.innerHTML = htmlSpinner;
+        }
 
         const idTurma = this.getTurmaId();
         const url = idTurma ? `/calendario/fichas?data=${dataIso}&idTurma=${idTurma}` : `/calendario/fichas?data=${dataIso}`;
@@ -236,106 +157,168 @@ const CalendarioSIGEC = {
         try {
             const response = await fetch(url);
             if (!response.ok) throw new Error("Erro na resposta do servidor.");
-
             const dados = await response.json();
 
+            // SÓ ESVAZIA A TELA AGORA QUE OS DADOS CHEGARAM
             if (containerAlocadas) containerAlocadas.innerHTML = "";
             if (containerDisponiveis) containerDisponiveis.innerHTML = "";
 
             const alocadas = dados.alocadas || [];
             const disponiveis = dados.disponiveis || dados.Disponiveis || [];
 
-            // 1. Renderiza Fichas Alocadas
+            // 1. Monta as datadas
             if (alocadas.length === 0 && containerAlocadas) {
-                containerAlocadas.innerHTML = '<p class="crumb-muted">Nenhuma aula ou ficha programada para este dia.</p>';
-            } else {
+                containerAlocadas.innerHTML = '<p class="crumb-muted msg-vazia">Nenhuma aula programada para este dia.</p>';
+            } else if (containerAlocadas) {
                 alocadas.forEach(agendamento => {
-                    const fichaObj = agendamento.ficha || agendamento;
-                    const idAgendamento = agendamento.idAgendamento || agendamento.id || agendamento.idFicha;
-                    const nome = fichaObj.nomeFicha || fichaObj.nome || fichaObj.titulo || "Ficha sem título";
+                    const fichaObj = agendamento.ficha || (agendamento.turmaFicha ? agendamento.turmaFicha.ficha : agendamento);
+                    const idAgendamento = agendamento.idAgendamento || agendamento.id;
+                    const idFicha = fichaObj ? (fichaObj.idFicha || fichaObj.id) : null;
+                    const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || fichaObj.titulo) : "Ficha sem título";
 
-                    containerAlocadas.appendChild(this.criarCardFicha({ id: idAgendamento, nome }, "success", "delete"));
+                    containerAlocadas.appendChild(this.criarCardFicha({
+                        id: idAgendamento, idFicha: idFicha, nome: nome
+                    }, "success", "delete"));
                 });
             }
 
-            // 2. Renderiza Fichas Disponíveis
+            // 2. Monta as do acervo
             if (disponiveis.length === 0 && containerDisponiveis) {
-                containerDisponiveis.innerHTML = '<p class="crumb-muted">Acervo vazio.</p>';
-            } else {
-                disponiveis.forEach(ficha => {
-                    const idFicha = ficha.idFicha || ficha.id;
-                    const nome = ficha.nomeFicha || ficha.nome || ficha.titulo || "Ficha sem título";
+                containerDisponiveis.innerHTML = '<p class="crumb-muted msg-vazia">Acervo vazio ou todas já agendadas.</p>';
+            } else if (containerDisponiveis) {
+                disponiveis.forEach(item => {
+                    const fichaObj = item.ficha ? item.ficha : item;
+                    const idFicha = item.idFicha || item.id_ficha || item.id || (fichaObj ? fichaObj.id : null);
+                    const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || item.nomeFicha) : "Ficha sem título";
 
-                    containerDisponiveis.appendChild(this.criarCardFicha({ id: idFicha, nome }, "warning", "append"));
+                    containerDisponiveis.appendChild(this.criarCardFicha({
+                        id: idFicha, idFicha: idFicha, nome: nome
+                    }, "warning", "append"));
                 });
             }
         } catch (erro) {
             console.error("Erro ao carregar fichas:", erro);
-            if (containerAlocadas) containerAlocadas.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
-            if (containerDisponiveis) containerDisponiveis.innerHTML = '<p style="color: red;">Erro ao carregar dados.</p>';
         }
     },
 
-    async alocarFicha(id, dataIso) {
-        if (!id || !dataIso) return;
+    // =========================================================
+    // TRANSIÇÕES EXATAS SEM PISCAR
+    // =========================================================
+    async alocarFicha(cardElement, idFicha, nomeFicha, dataIso) {
+        if (!idFicha || !dataIso || !cardElement) return;
+
+        // Trava para evitar duplo clique
+        if (cardElement.hasAttribute("data-loading")) return;
+        cardElement.setAttribute("data-loading", "true");
+        cardElement.classList.add("is-loading");
 
         const idTurma = this.getTurmaId();
-        const bodyData = new URLSearchParams();
-        bodyData.append("id", String(id));
-        bodyData.append("data", String(dataIso));
-        if (idTurma) {
-            bodyData.append("idTurma", String(idTurma));
+        const btnElement = cardElement.querySelector(".btn-fiche-action");
+        let conteudoOriginal = null;
+
+        if (btnElement) {
+            btnElement.disabled = true;
+            conteudoOriginal = btnElement.innerHTML;
+            btnElement.classList.add("loading");
+            btnElement.innerHTML = '<span class="spinner-btn"></span>';
         }
+
+        const bodyData = new URLSearchParams();
+        bodyData.append("idFicha", String(idFicha));
+        bodyData.append("id", String(idFicha));
+        bodyData.append("idTurma", String(idTurma));
+        bodyData.append("data", String(dataIso));
 
         try {
             const response = await fetch("/calendario/alocar", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: bodyData.toString()
             });
 
-            if (!response.ok) throw new Error("Erro ao alocar ficha.");
+            if (!response.ok) throw new Error(await response.text() || "Erro ao alocar ficha.");
 
-            this.carregarAlocacoes();
+            // Recarrega as bolinhas e a lista lateral de forma "Silent"
+            await Promise.all([
+                this.carregarAlocacoes(),
+                this.recarregarPainelDiaAtual(true)
+            ]);
+
         } catch (erro) {
             console.error("Erro na alocação:", erro);
-            alert("Não foi possível agendar a ficha para esta data.");
+            alert(erro.message || "Não foi possível agendar a ficha.");
+
+            cardElement.removeAttribute("data-loading");
+            cardElement.classList.remove("is-loading");
+            if (btnElement && conteudoOriginal) {
+                btnElement.classList.remove("loading");
+                btnElement.disabled = false;
+                btnElement.innerHTML = conteudoOriginal;
+            }
         }
     },
 
-    solicitarDesalocacao(id) {
-        this.state.fichaIdDesalocar = id;
-        if (this.elements.dialogConfirmacao) {
-            this.elements.dialogConfirmacao.showModal();
-        } else {
-            this.confirmarDesalocacao();
+    async desalocarFicha(cardElement, idAgendamento, nomeFicha = null, idFicha = null) {
+        if (!idAgendamento) return;
+
+        if (cardElement) {
+            if (cardElement.hasAttribute("data-loading")) return;
+            cardElement.setAttribute("data-loading", "true");
+            cardElement.classList.add("is-loading");
         }
-    },
 
-    async confirmarDesalocacao() {
-        if (!this.state.fichaIdDesalocar) return;
+        const btnElement = cardElement ? cardElement.querySelector(".btn-fiche-action") : null;
+        let conteudoOriginal = null;
 
-        const idTurma = this.getTurmaId();
-        const url = `/calendario/desalocar?id=${this.state.fichaIdDesalocar}${idTurma ? `&idTurma=${idTurma}` : ''}`;
+        if (btnElement) {
+            btnElement.disabled = true;
+            conteudoOriginal = btnElement.innerHTML;
+            btnElement.classList.add("loading");
+            btnElement.innerHTML = '<span class="spinner-btn"></span>';
+        }
+
+        const bodyData = new URLSearchParams();
+        bodyData.append("id", String(idAgendamento));
 
         try {
-            const response = await fetch(url, { method: "POST" });
+            const response = await fetch("/calendario/desalocar", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: bodyData.toString()
+            });
+
             if (!response.ok) throw new Error("Erro ao desalocar ficha.");
 
-            if (this.elements.dialogConfirmacao) this.elements.dialogConfirmacao.close();
-            this.state.fichaIdDesalocar = null;
-            this.carregarAlocacoes();
+            // Faz a troca inteira das divs silenciosamente.
+            await Promise.all([
+                this.carregarAlocacoes(),
+                this.recarregarPainelDiaAtual(true)
+            ]);
+
         } catch (erro) {
             console.error("Erro ao remover ficha:", erro);
-            alert("Ocorreu um erro ao tentar retirar a ficha do calendário.");
+            alert("Ocorreu um erro ao retirar a ficha do agendamento.");
+
+            if (cardElement) {
+                cardElement.removeAttribute("data-loading");
+                cardElement.classList.remove("is-loading");
+            }
+            if (btnElement && conteudoOriginal) {
+                btnElement.classList.remove("loading");
+                btnElement.disabled = false;
+                btnElement.innerHTML = conteudoOriginal;
+            }
         }
     },
 
-    // ==========================================
-    // RENDERIZAÇÃO DO DOM E MONTAGEM DA GRID
-    // ==========================================
+    recarregarPainelDiaAtual(silentUpdate = true) {
+        const { dataAtual, diaSelecionado, dataIsoSelecionada } = this.state;
+        const ano = dataAtual.getFullYear();
+        const mes = dataAtual.getMonth();
+
+        const dataIso = dataIsoSelecionada || `${ano}-${String(mes + 1).padStart(2, "0")}-${String(diaSelecionado).padStart(2, "0")}`;
+        return this.buscarFichasDoDia(dataIso, diaSelecionado, this.nomesMeses[mes], ano, silentUpdate);
+    },
 
     renderizarGrid() {
         const { grid, indicadorMes } = this.elements;
@@ -351,9 +334,7 @@ const CalendarioSIGEC = {
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
         const totalDiasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-        if (this.state.diaSelecionado > totalDiasNoMes) {
-            this.state.diaSelecionado = totalDiasNoMes;
-        }
+        if (this.state.diaSelecionado > totalDiasNoMes) this.state.diaSelecionado = totalDiasNoMes;
 
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
@@ -370,21 +351,13 @@ const CalendarioSIGEC = {
             celula.appendChild(spanNumero);
 
             const diaSemana = new Date(ano, mes, dia).getDay();
-
             const strMes = String(mes + 1).padStart(2, "0");
             const strDia = String(dia).padStart(2, "0");
             const dataIso = `${ano}-${strMes}-${strDia}`;
 
             const feriados = [
-                `${ano}-01-01`,
-                `${ano}-04-21`,
-                `${ano}-05-01`,
-                `${ano}-09-07`,
-                `${ano}-10-12`,
-                `${ano}-11-02`,
-                `${ano}-11-15`,
-                `${ano}-11-20`,
-                `${ano}-12-25`
+                `${ano}-01-01`, `${ano}-04-21`, `${ano}-05-01`, `${ano}-09-07`,
+                `${ano}-10-12`, `${ano}-11-02`, `${ano}-11-15`, `${ano}-11-20`, `${ano}-12-25`
             ];
 
             const ehFimDeSemana = diaSemana === 0 || diaSemana === 6;
@@ -396,14 +369,13 @@ const CalendarioSIGEC = {
                 celula.style.opacity = "0.4";
             }
 
-
             celula.setAttribute("data-date", dataIso);
 
-            const qtdFichas = this.state.alocacoesPorData[dataIso];
-            if (qtdFichas) {
+            const qtdFichas = this.state.alocacoesPorData[dataIso] || 0;
+            if (qtdFichas > 0) {
                 const dotsContainer = document.createElement("div");
                 dotsContainer.className = "indicator-dots";
-                Object.assign(dotsContainer.style, { justifyContent: "flex-end", marginLeft: "auto", marginTop: "auto" });
+                Object.assign(dotsContainer.style, { display: "flex", gap: "3px", justifyContent: "flex-end", marginLeft: "auto", marginTop: "auto" });
 
                 for (let k = 0; k < qtdFichas; k++) {
                     const dot = document.createElement("div");
@@ -415,31 +387,35 @@ const CalendarioSIGEC = {
 
             if (dia === this.state.diaSelecionado) {
                 celula.classList.add("active-selected");
-                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano);
+                // Importante: quando clica na célula e muda de dia, não é silent. Assim ele apaga e mostra carregando.
+                // Mas, durante a renderização inicial (montando a grid na tela), fazemos em background.
+                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano, true);
             }
 
             celula.addEventListener("click", () => {
                 grid.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
                 celula.classList.add("active-selected");
                 this.state.diaSelecionado = dia;
-                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano);
+                // Ao trocar de dia manualmente, queremos ver que está atualizando
+                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano, false);
             });
 
             grid.appendChild(celula);
         }
     },
 
-    // =========================================================
-    // CRIAR CARD DE FICHA
-    // =========================================================
     criarCardFicha(item, status, acao) {
         const id = item.id;
+        const idFicha = item.idFicha || id;
         const nome = item.nome || "Ficha sem título";
         const icone = status === "success" ? "check_circle" : "warning";
         const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
 
         const card = document.createElement("div");
         card.className = "fiche-card";
+        card.setAttribute("data-id", id);
+        card.setAttribute("data-id-ficha", idFicha);
+
         card.innerHTML = `
             <div class="fiche-info">
                 <p class="fiche-name">${nome}</p>
@@ -448,7 +424,7 @@ const CalendarioSIGEC = {
                     ${textoEstoque}
                 </span>
             </div>
-            <button class="btn-fiche-action ${acao}">
+            <button class="btn-fiche-action ${acao}" title="${acao === "delete" ? "Remover do agendamento" : "Agendar para este dia"}">
                 <span class="material-symbols-outlined">${acao === "delete" ? "close" : "add"}</span>
             </button>
         `;
@@ -456,56 +432,34 @@ const CalendarioSIGEC = {
         const btnAcao = card.querySelector(".btn-fiche-action");
 
         if (acao === "append") {
-            btnAcao.addEventListener("click", () => {
+            btnAcao.addEventListener("click", (e) => {
+                e.preventDefault();
                 const celulaAtiva = document.querySelector(".day-cell.active-selected");
                 if (celulaAtiva) {
-                    this.alocarFicha(id, celulaAtiva.getAttribute("data-date"));
+                    this.alocarFicha(card, idFicha, nome, celulaAtiva.getAttribute("data-date"));
                 }
             });
         } else if (acao === "delete") {
-            btnAcao.addEventListener("click", () => this.solicitarDesalocacao(id));
+            btnAcao.addEventListener("click", (e) => {
+                e.preventDefault();
+                this.desalocarFicha(card, id, nome, idFicha);
+            });
         }
 
         return card;
     }
 };
 
-// Disparo de Inicialização do Módulo
 document.addEventListener("DOMContentLoaded", () => CalendarioSIGEC.init());
-// ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
+
+// ===== CONFIRMAÇÃO DE SAÍDA =====
 const btnSair = document.getElementById("btnSair");
 const modalSair = document.getElementById("confirmacaoSaida");
 const btnNao = document.getElementById("btnNao");
 const btnSim = document.getElementById("btnSim");
 const formLogout = document.getElementById("formLogout");
 
-// Abrir confirmação
-if (btnSair && modalSair) {
-    btnSair.addEventListener("click", function(e) {
-        e.preventDefault(); // Previne comportamentos indesejados
-        modalSair.classList.add("show");
-    });
-}
-
-// Cancelar saída
-if (btnNao && modalSair) {
-    btnNao.addEventListener("click", function() {
-        modalSair.classList.remove("show");
-    });
-}
-
-// Confirmar saída
-if (btnSim && formLogout) {
-    btnSim.addEventListener("click", function() {
-        formLogout.submit();
-    });
-}
-
-// Fechar ao clicar fora da janela (overlay)
-if (modalSair) {
-    modalSair.addEventListener("click", function(event) {
-        if (event.target === modalSair) {
-            modalSair.classList.remove("show");
-        }
-    });
-}
+if (btnSair && modalSair) { btnSair.addEventListener("click", (e) => { e.preventDefault(); modalSair.classList.add("show"); }); }
+if (btnNao && modalSair) { btnNao.addEventListener("click", () => modalSair.classList.remove("show")); }
+if (btnSim && formLogout) { btnSim.addEventListener("click", () => formLogout.submit()); }
+if (modalSair) { modalSair.addEventListener("click", (e) => { if (e.target === modalSair) modalSair.classList.remove("show"); }); }
