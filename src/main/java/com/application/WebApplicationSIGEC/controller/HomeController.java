@@ -137,7 +137,7 @@ public class HomeController {
             return ResponseEntity
                     .status(HttpStatus.UNAUTHORIZED)
                     .contentType(MediaType.TEXT_PLAIN)
-                    .body("ERRO 401, USUÁRIO NÃO AUTORIZADOOO");
+                    .body("ERRO 401, USUARIO NAO AUTORIZADO!");
         }
 
         try {
