@@ -1739,16 +1739,18 @@ if (inputExtraName && listaSugestoes) {
     });
 }
 // ========================================================
-// AUTOCOMPLETAR UTENSÍLIO EXTRA
+// AUTOCOMPLETAR UTENSÍLIO EXTRA (DEBOUNCE + API)
 // ========================================================
 const inputUtilName = document.getElementById('util-name');
 const listaSugestoesUtil = document.getElementById('lista-sugestoes-utensilios');
 let timeoutBuscaUtil = null;
 
 if (inputUtilName && listaSugestoesUtil) {
+
     inputUtilName.addEventListener('input', function() {
         const termo = this.value.trim();
 
+        // Só pesquisa se tiver 2 ou mais letras
         if (termo.length < 2) {
             listaSugestoesUtil.style.display = 'none';
             return;
@@ -1757,6 +1759,8 @@ if (inputUtilName && listaSugestoesUtil) {
         clearTimeout(timeoutBuscaUtil);
 
         timeoutBuscaUtil = setTimeout(() => {
+
+            // Chama a rota que testámos no navegador
             fetch(`/api/utensilios/pesquisar?termo=${encodeURIComponent(termo)}`)
                 .then(res => res.json())
                 .then(utensilios => {
@@ -1772,8 +1776,9 @@ if (inputUtilName && listaSugestoesUtil) {
                         li.style.padding = '10px 12px';
                         li.style.cursor = 'pointer';
                         li.style.borderBottom = '1px solid #f0f0f0';
-                        li.style.color = '#002747';
+                        li.style.color = '#002747'; // Cor primária do SIGEC
 
+                        // Ícone do liquidificador para identificar os utensílios
                         li.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; color: #f2911b; margin-right: 8px;">blender</span> ${utensilio.nomeUtensilio}`;
 
                         li.onmouseover = () => li.style.backgroundColor = '#f4f6f9';
@@ -1793,6 +1798,7 @@ if (inputUtilName && listaSugestoesUtil) {
         }, 300);
     });
 
+    // Esconde a lista se clicares fora
     document.addEventListener('click', function(event) {
         if (event.target !== inputUtilName && event.target !== listaSugestoesUtil) {
             listaSugestoesUtil.style.display = 'none';

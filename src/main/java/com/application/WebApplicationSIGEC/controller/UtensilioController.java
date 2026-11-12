@@ -20,7 +20,10 @@ public class UtensilioController {
 
     @GetMapping("/pesquisar")
     public ResponseEntity<List<Utensilio>> pesquisarUtensilios(@RequestParam String termo) {
+        // Chama o método que criaste no Passo 1, passando a palavra digitada
         List<Utensilio> resultados = utensilioRepository.findByNomeUtensilioContainingIgnoreCase(termo);
+
+        // Devolve os dados para a tela
         return ResponseEntity.ok(resultados);
     }
 }
