@@ -1654,3 +1654,87 @@ if (modalSair) {
     }
   });
 }
+// ========================================================
+// AUTOCOMPLETAR INSUMO EXTRA (DEBOUNCE + API)
+// ========================================================
+const inputExtraName = document.getElementById('extra-name');
+const listaSugestoes = document.getElementById('lista-sugestoes-insumos');
+let timeoutBusca = null;
+
+if (inputExtraName && listaSugestoes) {
+
+    // Ouve sempre que o utilizador digitar algo no campo de insumo
+    inputExtraName.addEventListener('input', function() {
+        const termo = this.value.trim();
+
+        // Se apagar o texto ou tiver só 1 letra, esconde a lista e não procura
+        if (termo.length < 2) {
+            listaSugestoes.style.display = 'none';
+            return;
+        }
+
+        // DEBOUNCE: Se estiver a digitar rápido, cancela a busca anterior
+        clearTimeout(timeoutBusca);
+
+        // Aguarda 300ms depois de parar de digitar para fazer a busca
+        timeoutBusca = setTimeout(() => {
+
+            // Faz o pedido à API que criaste no Passo 2
+            fetch(`/api/produtos/pesquisar?termo=${encodeURIComponent(termo)}`)
+                .then(res => res.json())
+                .then(produtos => {
+                    listaSugestoes.innerHTML = ''; // Limpa as sugestões antigas
+
+                    // Se não encontrar produtos, esconde a lista
+                    if (produtos.length === 0) {
+                        listaSugestoes.style.display = 'none';
+                        return;
+                    }
+
+                    // Cria um item na lista para cada produto encontrado
+                    produtos.forEach(produto => {
+                        const li = document.createElement('li');
+                        li.style.padding = '10px 12px';
+                        li.style.cursor = 'pointer';
+                        li.style.borderBottom = '1px solid #f0f0f0';
+                        li.style.color = '#002747'; // Cor primária do SIGEC
+
+                        // Desenha o item com o ícone de lupa igual ao teu design mobile
+                        li.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; color: #f2911b; margin-right: 8px;">search</span> ${produto.nomeProduto}`;
+
+                        // Efeito visual ao passar o rato por cima
+                        li.onmouseover = () => li.style.backgroundColor = '#f4f6f9';
+                        li.onmouseout = () => li.style.backgroundColor = 'white';
+
+                        // Quando clicares numa sugestão:
+                        li.addEventListener('click', () => {
+                            // 1. Coloca o nome no input
+                            inputExtraName.value = produto.nomeProduto;
+
+                            // 2. Preenche automaticamente a unidade de medida (se existir)
+                            const selectUnidade = document.getElementById('extra-un');
+                            if (selectUnidade && produto.unidade) {
+                                selectUnidade.value = produto.unidade;
+                            }
+
+                            // 3. Esconde a lista
+                            listaSugestoes.style.display = 'none';
+                        });
+
+                        listaSugestoes.appendChild(li);
+                    });
+
+                    // Mostra a lista final
+                    listaSugestoes.style.display = 'block';
+                })
+                .catch(err => console.error("Erro na busca de insumos:", err));
+        }, 300);
+    });
+
+    // Se o utilizador clicar em qualquer lugar fora da lista ou do input, esconde a lista
+    document.addEventListener('click', function(event) {
+        if (event.target !== inputExtraName && event.target !== listaSugestoes) {
+            listaSugestoes.style.display = 'none';
+        }
+    });
+}
