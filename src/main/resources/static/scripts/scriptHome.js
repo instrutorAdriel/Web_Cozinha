@@ -1738,3 +1738,64 @@ if (inputExtraName && listaSugestoes) {
         }
     });
 }
+// ========================================================
+// AUTOCOMPLETAR UTENSÍLIO EXTRA
+// ========================================================
+const inputUtilName = document.getElementById('util-name');
+const listaSugestoesUtil = document.getElementById('lista-sugestoes-utensilios');
+let timeoutBuscaUtil = null;
+
+if (inputUtilName && listaSugestoesUtil) {
+    inputUtilName.addEventListener('input', function() {
+        const termo = this.value.trim();
+
+        if (termo.length < 2) {
+            listaSugestoesUtil.style.display = 'none';
+            return;
+        }
+
+        clearTimeout(timeoutBuscaUtil);
+
+        timeoutBuscaUtil = setTimeout(() => {
+            fetch(`/api/utensilios/pesquisar?termo=${encodeURIComponent(termo)}`)
+                .then(res => res.json())
+                .then(utensilios => {
+                    listaSugestoesUtil.innerHTML = '';
+
+                    if (utensilios.length === 0) {
+                        listaSugestoesUtil.style.display = 'none';
+                        return;
+                    }
+
+                    utensilios.forEach(utensilio => {
+                        const li = document.createElement('li');
+                        li.style.padding = '10px 12px';
+                        li.style.cursor = 'pointer';
+                        li.style.borderBottom = '1px solid #f0f0f0';
+                        li.style.color = '#002747';
+
+                        li.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; color: #f2911b; margin-right: 8px;">blender</span> ${utensilio.nomeUtensilio}`;
+
+                        li.onmouseover = () => li.style.backgroundColor = '#f4f6f9';
+                        li.onmouseout = () => li.style.backgroundColor = 'white';
+
+                        li.addEventListener('click', () => {
+                            inputUtilName.value = utensilio.nomeUtensilio;
+                            listaSugestoesUtil.style.display = 'none';
+                        });
+
+                        listaSugestoesUtil.appendChild(li);
+                    });
+
+                    listaSugestoesUtil.style.display = 'block';
+                })
+                .catch(err => console.error("Erro na busca de utensílios:", err));
+        }, 300);
+    });
+
+    document.addEventListener('click', function(event) {
+        if (event.target !== inputUtilName && event.target !== listaSugestoesUtil) {
+            listaSugestoesUtil.style.display = 'none';
+        }
+    });
+}
