@@ -240,14 +240,22 @@ public class HomeController {
         if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
-            String nomeInsumo = (String) payload.get("nomeInsumo");
+            if (payload.get("quantidade") == null || payload.get("quantidade").toString().isEmpty()) {
+                return ResponseEntity.badRequest().body("Informe uma quantidade válida.");
+            }
             Double quantidade = Double.valueOf(payload.get("quantidade").toString());
+            if (quantidade <= 0) {
+                return ResponseEntity.badRequest().body("A quantidade solicitada deve ser maior que zero.");
+            }
+            String nomeInsumo = (String) payload.get("nomeInsumo");
             String unidadeMedida = (String) payload.get("unidadeMedida");
             String justificativa = (String) payload.get("justificativa");
             Long idTurma = Long.valueOf(payload.get("idTurma").toString());
 
             homeService.salvarSolicitacaoInsumoExtra(usuarioLogado.getId(), idTurma, nomeInsumo, quantidade, unidadeMedida, justificativa);
             return ResponseEntity.ok("Solicitação de insumo extra registrada com sucesso!");
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Formato de quantidade inválido.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
         }
@@ -260,23 +268,25 @@ public class HomeController {
         if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
-            String nomeUtensilio = (String) payload.get("nomeUtensilio");
+            if (payload.get("quantidade") == null || payload.get("quantidade").toString().trim().isEmpty()) {
+                return ResponseEntity.badRequest().body("Informe uma quantidade válida.");
+            }
+
             Integer quantidade = Integer.valueOf(payload.get("quantidade").toString());
+            if (quantidade <= 0) {
+                return ResponseEntity.badRequest().body("A quantidade solicitada deve ser maior que zero.");
+            }
+
+            String nomeUtensilio = (String) payload.get("nomeUtensilio");
             String justificativa = (String) payload.get("justificativa");
             Long idTurma = Long.valueOf(payload.get("idTurma").toString());
 
             homeService.salvarSolicitacaoUtensilioExtra(usuarioLogado.getId(), idTurma, nomeUtensilio, quantidade, justificativa);
             return ResponseEntity.ok("Solicitação de utensílio extra registrada com sucesso!");
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body("Formato de quantidade inválido.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
         }
-    }
-
-    public TurmaRepository getTurmaRepository() {
-        return turmaRepository;
-    }
-
-    public void setTurmaRepository(TurmaRepository turmaRepository) {
-        this.turmaRepository = turmaRepository;
     }
 }

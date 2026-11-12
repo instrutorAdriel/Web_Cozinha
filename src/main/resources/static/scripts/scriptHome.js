@@ -51,21 +51,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($('util-cancel')) $('util-cancel').addEventListener('click', fecharModalUtil);
 
 
-    // ========================================================
+// ========================================================
     // ENVIO: SOLICITAR INSUMO EXTRA
     // ========================================================
     const btnSaveExtra = $('extra-save');
     if (btnSaveExtra) {
         btnSaveExtra.addEventListener('click', () => {
             const nomeInsumo = $('extra-name') ? $('extra-name').value.trim() : '';
-            const quantidade = $('extra-qtd') ? $('extra-qtd').value.trim() : '';
+            const quantidadeStr = $('extra-qtd') ? $('extra-qtd').value.trim() : '';
+            const quantidade = parseFloat(quantidadeStr);
             const unidade = $('extra-un') ? $('extra-un').value : 'un';
             const observacao = $('extra-obs') ? $('extra-obs').value.trim() : '';
             const turmaSelect = obterSelectTurma();
             const idTurma = turmaSelect ? turmaSelect.value : null;
 
-            if (!nomeInsumo || !quantidade) {
+            if (!nomeInsumo || !quantidadeStr) {
                 alert("Por favor, preencha o nome do insumo e a quantidade.");
+                return;
+            }
+            if (isNaN(quantidade) || quantidade <= 0) {
+                alert("A quantidade solicitada deve ser maior que zero.");
+                $('extra-qtd')?.focus();
                 return;
             }
             if (!idTurma || idTurma === "todas" || idTurma === "") {
@@ -81,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     nomeInsumo: nomeInsumo,
-                    quantidade: parseFloat(quantidade),
+                    quantidade: quantidade,
                     unidadeMedida: unidade,
                     justificativa: observacao,
                     idTurma: parseInt(idTurma)
@@ -113,16 +119,21 @@ document.addEventListener("DOMContentLoaded", () => {
     if (btnSaveUtil) {
         btnSaveUtil.addEventListener('click', () => {
             const nomeUtensilio = $('util-name') ? $('util-name').value.trim() : '';
-            const quantidade = $('util-qtd') ? $('util-qtd').value.trim() : '';
+            const quantidadeStr = $('util-qtd') ? $('util-qtd').value.trim() : '';
+            const quantidade = parseInt(quantidadeStr, 10);
             const observacao = $('util-obs') ? $('util-obs').value.trim() : '';
             const turmaSelect = obterSelectTurma();
             const idTurma = turmaSelect ? turmaSelect.value : null;
 
-            if (!nomeUtensilio || !quantidade) {
+            if (!nomeUtensilio || !quantidadeStr) {
                 alert("Por favor, preencha o nome do utensílio e a quantidade.");
                 return;
             }
-
+            if (isNaN(quantidade) || quantidade <= 0) {
+                alert("A quantidade de utensílios deve ser maior que zero.");
+                $('util-qtd')?.focus();
+                return;
+            }
             if (!idTurma || idTurma === "todas" || idTurma === "") {
                 alert("Selecione uma turma específica na barra superior antes de solicitar um utensílio extra.");
                 return;
@@ -136,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     nomeUtensilio: nomeUtensilio,
-                    quantidade: parseInt(quantidade),
+                    quantidade: quantidade,
                     justificativa: observacao,
                     idTurma: parseInt(idTurma)
                 })
