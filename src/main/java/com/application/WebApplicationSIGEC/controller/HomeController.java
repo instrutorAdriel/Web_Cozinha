@@ -12,6 +12,8 @@ import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -128,9 +130,25 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDetalhesFicha(@PathVariable Long fichaId) {
-        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
-        return ResponseEntity.ok(detalhes);
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId, HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("ERRO 401, USUARIO NAO AUTORIZADO!");
+        }
+
+        try {
+            Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
+            return ResponseEntity.ok(detalhes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "erro", "Erro ao buscar os detalhes da ficha."
+            ));
+        }
     }
 
     @GetMapping("/api/fichas")
@@ -158,7 +176,7 @@ public class HomeController {
             return ResponseEntity.status(403).build();
         }
 
-        List<Ficha> fichasDaTurma = fichasService.buscarPorTurma(idTurma);
+        List<Ficha> fichasDaTurma = fichasService.buscarPorTurmaEUsuario(idTurma, usuarioLogado.getId());
         return ResponseEntity.ok(fichasDaTurma);
     }
 
