@@ -4,7 +4,11 @@ const CalendarioSIGEC = {
         diaSelecionado: new Date().getDate(),
         dataIsoSelecionada: null,
         alocacoesPorData: {},
-        agendamentosPorData: {}
+        cacheAgendamentos: [],
+        cacheDisponiveis: [],
+        fichasAlocando: new Set(),
+        agendamentosDesalocando: new Set(),
+        abortControllerDia: null
     },
 
     elements: {
@@ -40,30 +44,73 @@ const CalendarioSIGEC = {
 
         if (selectTurma) {
             selectTurma.addEventListener("change", () => {
-                if (selectTurma.value) sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
-                this.carregarAlocacoes();
-                this.recarregarPainelDiaAtual(false);
+                if (selectTurma.value) {
+                    sessionStorage.setItem("turmaSelecionadaId", selectTurma.value);
+                }
+                this.state.fichasAlocando.clear();
+                this.state.agendamentosDesalocando.clear();
+                this.sincronizarTudoDaTurma(true);
             });
         }
 
         if (btnPrev) {
             btnPrev.addEventListener("click", () => {
                 this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
-                this.carregarAlocacoes();
+                this.renderizarGrid();
+                this.selecionarDiaInstantaneo(this.state.diaSelecionado);
             });
         }
 
         if (btnNext) {
             btnNext.addEventListener("click", () => {
                 this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
-                this.carregarAlocacoes();
+                this.carregarAlocacoesERenderizarMes();
             });
         }
     },
 
+    carregarAlocacoesERenderizarMes() {
+        this.renderizarGrid();
+        this.selecionarDiaInstantaneo(this.state.diaSelecionado);
+    },
+
+    // =========================================================
+    // NORMALIZAÇÃO SEGURA DE DADOS E DATAS
+    // =========================================================
+    normalizarDataIso(dataBruta) {
+        if (!dataBruta) return null;
+        if (Array.isArray(dataBruta)) {
+            return `${dataBruta[0]}-${String(dataBruta[1]).padStart(2, "0")}-${String(dataBruta[2]).padStart(2, "0")}`;
+        }
+        if (typeof dataBruta === "string") {
+            return dataBruta.split("T")[0].trim();
+        }
+        return null;
+    },
+
+    extrairAgendamento(ag) {
+        const fichaObj = ag.ficha || (ag.turmaFicha ? ag.turmaFicha.ficha : ag);
+        const idAgendamento = ag.idAgendamento || ag.id;
+        const idFicha = fichaObj ? (fichaObj.idFicha || fichaObj.id) : idAgendamento;
+        const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || fichaObj.titulo) : "Ficha sem título";
+        const dataIso = this.normalizarDataIso(ag.data || (ag.turmaFicha ? ag.turmaFicha.data : null));
+
+        return { idAgendamento, idFicha, nome, dataIso };
+    },
+
+    extrairFichaDisponivel(item) {
+        const fichaObj = item.ficha ? item.ficha : item;
+        const idFicha = item.idFicha || item.id_ficha || item.id || (fichaObj ? fichaObj.id : null);
+        const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || item.nomeFicha) : "Ficha sem título";
+        return { idFicha, nome };
+    },
+
+    // =========================================================
+    // CARREGAMENTO DAS TURMAS E CACHE DA TURMA ATIVA
+    // =========================================================
     async carregarTurmas() {
         if (!this.elements.selectTurma) {
-            this.carregarAlocacoes();
+            this.sincronizarTudoDaTurma(true);
             return;
         }
 
@@ -81,10 +128,10 @@ const CalendarioSIGEC = {
                 turmas.forEach(turma => {
                     const id = turma.idTurma || turma.id;
                     const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
-                    let labNome = '';
-                    if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
-                        labNome = turma.laboratorio.nomeLaboratorio || '';
-                    } else if (typeof turma.laboratorio === 'string') {
+                    let labNome = "";
+                    if (typeof turma.laboratorio === "object" && turma.laboratorio !== null) {
+                        labNome = turma.laboratorio.nomeLaboratorio || "";
+                    } else if (typeof turma.laboratorio === "string") {
                         labNome = turma.laboratorio;
                     }
                     const textoOpcao = labNome ? `${nomeTurma} (${labNome})` : nomeTurma;
@@ -92,142 +139,215 @@ const CalendarioSIGEC = {
                 });
 
                 const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
-                const existeTurma = turmas.some(t => (t.idTurma || t.id).toString() === turmaSalva);
-                if (turmaSalva && existeTurma) select.value = turmaSalva;
+                const existeTurma = turmas.some(t => String(t.idTurma || t.id) === String(turmaSalva));
+                if (turmaSalva && existeTurma) {
+                    select.value = turmaSalva;
+                }
             }
         } catch (erro) {
             console.error("Erro no carregamento das turmas:", erro);
-            if (this.elements.selectTurma) this.elements.selectTurma.innerHTML = '<option value="1">Turma 1</option>';
+            if (this.elements.selectTurma) {
+                this.elements.selectTurma.innerHTML = '<option value="1">Turma 1</option>';
+            }
         } finally {
-            this.carregarAlocacoes();
+            this.sincronizarTudoDaTurma(true);
         }
     },
 
-    async carregarAlocacoes() {
+    async sincronizarTudoDaTurma(exibirLoadingInicial = false) {
         const idTurma = this.getTurmaId();
-        const url = idTurma ? `/calendario/fichas-alocadas?idTurma=${idTurma}` : "/calendario/fichas-alocadas";
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Erro ao carregar marcadores alocados.");
-
-            const agendamentos = await response.json();
-            this.state.alocacoesPorData = {};
-            this.state.agendamentosPorData = {};
-
-            agendamentos.forEach(agendamento => {
-                let dataIso = agendamento.data;
-                if (Array.isArray(dataIso)) {
-                    dataIso = `${dataIso[0]}-${String(dataIso[1]).padStart(2, '0')}-${String(dataIso[2]).padStart(2, '0')}`;
-                } else if (typeof dataIso === 'string') {
-                    dataIso = dataIso.split('T')[0];
-                }
-
-                if (dataIso) {
-                    this.state.alocacoesPorData[dataIso] = (this.state.alocacoesPorData[dataIso] || 0) + 1;
-                    if (!this.state.agendamentosPorData[dataIso]) this.state.agendamentosPorData[dataIso] = [];
-                    const idAgendamento = agendamento.idAgendamento || agendamento.id;
-                    if (idAgendamento) this.state.agendamentosPorData[dataIso].push(idAgendamento);
-                }
-            });
-        } catch (erro) {
-            console.error("Erro ao carregar alocações:", erro);
-        } finally {
-            this.renderizarGrid();
-        }
-    },
-
-    // A mágica: silentUpdate = true por padrão nas transições de cards
-    async buscarFichasDoDia(dataIso, dia, nomeMes, ano, silentUpdate = true) {
+        const { dataAtual, diaSelecionado } = this.state;
+        const ano = dataAtual.getFullYear();
+        const mes = dataAtual.getMonth();
+        const dataIso = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(diaSelecionado).padStart(2, "0")}`;
         this.state.dataIsoSelecionada = dataIso;
-        const { labelDataPainel, containerAlocadas, containerDisponiveis } = this.elements;
 
-        if (labelDataPainel) labelDataPainel.textContent = `${dia} De ${nomeMes}, ${ano}`;
-
-        // Se NÃO for update silencioso, zera tudo com o spinner.
-        if (!silentUpdate) {
+        if (exibirLoadingInicial) {
+            this.renderizarGrid();
             const htmlSpinner = '<div class="spinner-container"><div class="spinner-loader"></div></div>';
-            if (containerAlocadas) containerAlocadas.innerHTML = htmlSpinner;
-            if (containerDisponiveis) containerDisponiveis.innerHTML = htmlSpinner;
+            if (this.elements.containerAlocadas) this.elements.containerAlocadas.innerHTML = htmlSpinner;
+            if (this.elements.containerDisponiveis) this.elements.containerDisponiveis.innerHTML = htmlSpinner;
         }
 
-        const idTurma = this.getTurmaId();
-        const url = idTurma ? `/calendario/fichas?data=${dataIso}&idTurma=${idTurma}` : `/calendario/fichas?data=${dataIso}`;
-
         try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error("Erro na resposta do servidor.");
-            const dados = await response.json();
+            const [resAlocadasMes, resDia] = await Promise.all([
+                fetch(`/calendario/fichas-alocadas?idTurma=${idTurma}`),
+                fetch(`/calendario/fichas?data=${dataIso}&idTurma=${idTurma}`)
+            ]);
 
-            // SÓ ESVAZIA A TELA AGORA QUE OS DADOS CHEGARAM
-            if (containerAlocadas) containerAlocadas.innerHTML = "";
-            if (containerDisponiveis) containerDisponiveis.innerHTML = "";
-
-            const alocadas = dados.alocadas || [];
-            const disponiveis = dados.disponiveis || dados.Disponiveis || [];
-
-            // 1. Monta as datadas
-            if (alocadas.length === 0 && containerAlocadas) {
-                containerAlocadas.innerHTML = '<p class="crumb-muted msg-vazia">Nenhuma aula programada para este dia.</p>';
-            } else if (containerAlocadas) {
-                alocadas.forEach(agendamento => {
-                    const fichaObj = agendamento.ficha || (agendamento.turmaFicha ? agendamento.turmaFicha.ficha : agendamento);
-                    const idAgendamento = agendamento.idAgendamento || agendamento.id;
-                    const idFicha = fichaObj ? (fichaObj.idFicha || fichaObj.id) : null;
-                    const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || fichaObj.titulo) : "Ficha sem título";
-
-                    containerAlocadas.appendChild(this.criarCardFicha({
-                        id: idAgendamento, idFicha: idFicha, nome: nome
-                    }, "success", "delete"));
-                });
+            if (resAlocadasMes.ok) {
+                const agendamentosBrutos = await resAlocadasMes.json();
+                this.state.cacheAgendamentos = agendamentosBrutos
+                    .map(ag => this.extrairAgendamento(ag))
+                    .filter(ag => ag.dataIso !== null);
+                this.recalcularMapaDeBolinhas();
             }
 
-            // 2. Monta as do acervo
-            if (disponiveis.length === 0 && containerDisponiveis) {
-                containerDisponiveis.innerHTML = '<p class="crumb-muted msg-vazia">Acervo vazio ou todas já agendadas.</p>';
-            } else if (containerDisponiveis) {
-                disponiveis.forEach(item => {
-                    const fichaObj = item.ficha ? item.ficha : item;
-                    const idFicha = item.idFicha || item.id_ficha || item.id || (fichaObj ? fichaObj.id : null);
-                    const nome = fichaObj ? (fichaObj.nomeFicha || fichaObj.nome || item.nomeFicha) : "Ficha sem título";
+            if (resDia.ok) {
+                const dadosDia = await resDia.json();
+                const disponiveisBrutas = dadosDia.disponiveis || dadosDia.Disponiveis || [];
+                const idsAlocadosNaTurma = new Set(this.state.cacheAgendamentos.map(a => String(a.idFicha)));
 
-                    containerDisponiveis.appendChild(this.criarCardFicha({
-                        id: idFicha, idFicha: idFicha, nome: nome
-                    }, "warning", "append"));
-                });
+                this.state.cacheDisponiveis = disponiveisBrutas
+                    .map(item => this.extrairFichaDisponivel(item))
+                    .filter(f => f.idFicha != null && !idsAlocadosNaTurma.has(String(f.idFicha)));
             }
+
+            this.atualizarBolinhasNoGrid();
+            this.renderizarPainelDoCache(this.state.dataIsoSelecionada);
         } catch (erro) {
-            console.error("Erro ao carregar fichas:", erro);
+            console.error("Erro ao sincronizar dados da turma:", erro);
+        }
+    },
+
+    recalcularMapaDeBolinhas() {
+        this.state.alocacoesPorData = {};
+        this.state.cacheAgendamentos.forEach(ag => {
+            if (ag.dataIso) {
+                this.state.alocacoesPorData[ag.dataIso] = (this.state.alocacoesPorData[ag.dataIso] || 0) + 1;
+            }
+        });
+    },
+
+    // =========================================================
+    // TROCA DE DIA INSTANTÂNEA PRESERVANDO FICHAS EM LOADING
+    // =========================================================
+    selecionarDiaInstantaneo(dia) {
+        const { dataAtual } = this.state;
+        const ano = dataAtual.getFullYear();
+        const mes = dataAtual.getMonth();
+        const dataIso = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
+        this.state.diaSelecionado = dia;
+        this.state.dataIsoSelecionada = dataIso;
+
+        this.renderizarPainelDoCache(dataIso);
+        this.sincronizarDiaEmBackground(dataIso);
+    },
+
+    renderizarPainelDoCache(dataIso) {
+        const { labelDataPainel, containerAlocadas, containerDisponiveis } = this.elements;
+        if (!dataIso || !containerAlocadas || !containerDisponiveis) return;
+
+        const [anoStr, mesStr, diaStr] = dataIso.split("-");
+        const diaNum = parseInt(diaStr, 10);
+        const mesIndex = parseInt(mesStr, 10) - 1;
+
+        if (labelDataPainel) {
+            labelDataPainel.textContent = `${diaNum} De ${this.nomesMeses[mesIndex]}, ${anoStr}`;
+        }
+
+        const alocadasHoje = this.state.cacheAgendamentos.filter(ag => ag.dataIso === dataIso);
+        const idsAlocadosNaTurma = new Set(this.state.cacheAgendamentos.map(a => String(a.idFicha)));
+        const disponiveis = this.state.cacheDisponiveis.filter(f => !idsAlocadosNaTurma.has(String(f.idFicha)));
+
+        containerAlocadas.innerHTML = "";
+        containerDisponiveis.innerHTML = "";
+
+        if (alocadasHoje.length === 0) {
+            containerAlocadas.innerHTML = '<p class="crumb-muted msg-vazia">Nenhuma aula programada para este dia.</p>';
+        } else {
+            alocadasHoje.forEach(ag => {
+                containerAlocadas.appendChild(this.criarCardFicha({
+                    id: ag.idAgendamento,
+                    idFicha: ag.idFicha,
+                    nome: ag.nome
+                }, "delete"));
+            });
+        }
+
+        if (disponiveis.length === 0) {
+            containerDisponiveis.innerHTML = '<p class="crumb-muted msg-vazia">Acervo vazio ou todas já agendadas.</p>';
+        } else {
+            disponiveis.forEach(ficha => {
+                containerDisponiveis.appendChild(this.criarCardFicha({
+                    id: ficha.idFicha,
+                    idFicha: ficha.idFicha,
+                    nome: ficha.nome
+                }, "append"));
+            });
+        }
+    },
+
+    async sincronizarDiaEmBackground(dataIso) {
+        if (this.state.fichasAlocando.size > 0 || this.state.agendamentosDesalocando.size > 0) return;
+
+        if (this.state.abortControllerDia) {
+            this.state.abortControllerDia.abort();
+        }
+        this.state.abortControllerDia = new AbortController();
+
+        const idTurma = this.getTurmaId();
+        try {
+            const response = await fetch(`/calendario/fichas?data=${dataIso}&idTurma=${idTurma}`, {
+                signal: this.state.abortControllerDia.signal
+            });
+            if (!response.ok) return;
+
+            const dados = await response.json();
+            if (this.state.fichasAlocando.size > 0 || this.state.agendamentosDesalocando.size > 0) return;
+
+            const alocadasValidasDoDia = (dados.alocadas || [])
+                .map(ag => this.extrairAgendamento(ag))
+                .filter(ag => !ag.dataIso || ag.dataIso === dataIso)
+                .map(ag => ({ ...ag, dataIso: ag.dataIso || dataIso }));
+
+            const disponiveisServidor = (dados.disponiveis || dados.Disponiveis || [])
+                .map(item => this.extrairFichaDisponivel(item));
+
+            this.state.cacheAgendamentos = [
+                ...this.state.cacheAgendamentos.filter(ag => ag.dataIso !== dataIso),
+                ...alocadasValidasDoDia
+            ];
+
+            const idsAlocadosNaTurma = new Set(this.state.cacheAgendamentos.map(a => String(a.idFicha)));
+            this.state.cacheDisponiveis = disponiveisServidor.filter(
+                f => f.idFicha != null && !idsAlocadosNaTurma.has(String(f.idFicha))
+            );
+
+            this.recalcularMapaDeBolinhas();
+            this.atualizarBolinhasNoGrid();
+
+            if (this.state.dataIsoSelecionada === dataIso &&
+                this.state.fichasAlocando.size === 0 &&
+                this.state.agendamentosDesalocando.size === 0) {
+                this.renderizarPainelDoCache(dataIso);
+            }
+        } catch (e) {
+            // Ignora AbortError
         }
     },
 
     // =========================================================
-    // TRANSIÇÕES EXATAS SEM PISCAR
+    // ALOCAR FICHA (COM TRAVA GLOBAL ENTRE TODOS OS DIAS)
     // =========================================================
-    async alocarFicha(cardElement, idFicha, nomeFicha, dataIso) {
-        if (!idFicha || !dataIso || !cardElement) return;
+    async alocarFicha(cardElement, idFicha, nomeFicha, dataIsoAlocacao) {
+        if (!idFicha || !dataIsoAlocacao) return;
 
-        // Trava para evitar duplo clique
-        if (cardElement.hasAttribute("data-loading")) return;
-        cardElement.setAttribute("data-loading", "true");
-        cardElement.classList.add("is-loading");
+        const chaveFicha = String(idFicha);
+
+        if (this.state.fichasAlocando.has(chaveFicha)) return;
+        if (this.state.cacheAgendamentos.some(a => String(a.idFicha) === chaveFicha)) return;
+
+        this.state.fichasAlocando.add(chaveFicha);
 
         const idTurma = this.getTurmaId();
-        const btnElement = cardElement.querySelector(".btn-fiche-action");
-        let conteudoOriginal = null;
-
-        if (btnElement) {
-            btnElement.disabled = true;
-            conteudoOriginal = btnElement.innerHTML;
-            btnElement.classList.add("loading");
-            btnElement.innerHTML = '<span class="spinner-btn"></span>';
+        if (cardElement) {
+            cardElement.setAttribute("data-loading", "true");
+            cardElement.classList.add("is-loading");
+            const btnElement = cardElement.querySelector(".btn-fiche-action");
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.classList.add("loading");
+                btnElement.innerHTML = '<span class="spinner-btn"></span>';
+            }
         }
 
         const bodyData = new URLSearchParams();
-        bodyData.append("idFicha", String(idFicha));
-        bodyData.append("id", String(idFicha));
+        bodyData.append("idFicha", chaveFicha);
+        bodyData.append("id", chaveFicha);
         bodyData.append("idTurma", String(idTurma));
-        bodyData.append("data", String(dataIso));
+        bodyData.append("data", String(dataIsoAlocacao));
 
         try {
             const response = await fetch("/calendario/alocar", {
@@ -236,49 +356,118 @@ const CalendarioSIGEC = {
                 body: bodyData.toString()
             });
 
-            if (!response.ok) throw new Error(await response.text() || "Erro ao alocar ficha.");
+            if (!response.ok) {
+                throw new Error((await response.text()) || "Erro ao alocar ficha.");
+            }
 
-            // Recarrega as bolinhas e a lista lateral de forma "Silent"
-            await Promise.all([
-                this.carregarAlocacoes(),
-                this.recarregarPainelDiaAtual(true)
-            ]);
+            const resAlocadas = await fetch(`/calendario/fichas-alocadas?idTurma=${idTurma}`);
+            let realIdAgendamento = idFicha;
+
+            if (resAlocadas.ok) {
+                const agendamentosBrutos = await resAlocadas.json();
+                this.state.cacheAgendamentos = agendamentosBrutos
+                    .map(ag => this.extrairAgendamento(ag))
+                    .filter(ag => ag.dataIso !== null);
+
+                const recemCriado = this.state.cacheAgendamentos.find(
+                    a => String(a.idFicha) === chaveFicha && a.dataIso === dataIsoAlocacao
+                );
+                if (recemCriado) {
+                    realIdAgendamento = recemCriado.idAgendamento;
+                }
+            } else {
+                this.state.cacheAgendamentos.push({
+                    idAgendamento: realIdAgendamento,
+                    idFicha: idFicha,
+                    nome: nomeFicha,
+                    dataIso: dataIsoAlocacao
+                });
+            }
+
+            this.state.fichasAlocando.delete(chaveFicha);
+            this.state.cacheDisponiveis = this.state.cacheDisponiveis.filter(
+                f => String(f.idFicha) !== chaveFicha
+            );
+            this.recalcularMapaDeBolinhas();
+            this.atualizarBolinhasNoGrid();
+
+            if (this.elements.containerDisponiveis) {
+                const cardNaTelaAtual = this.elements.containerDisponiveis.querySelector(
+                    `.fiche-card[data-id-ficha="${chaveFicha}"]`
+                );
+                if (cardNaTelaAtual) cardNaTelaAtual.remove();
+
+                if (!this.elements.containerDisponiveis.querySelector(".fiche-card")) {
+                    this.elements.containerDisponiveis.innerHTML = '<p class="crumb-muted msg-vazia">Acervo vazio ou todas já agendadas.</p>';
+                }
+            }
+
+            if (this.state.dataIsoSelecionada === dataIsoAlocacao && this.elements.containerAlocadas) {
+                const msgVaziaAlocadas = this.elements.containerAlocadas.querySelector(".msg-vazia");
+                if (msgVaziaAlocadas) msgVaziaAlocadas.remove();
+
+                const jaExisteAlocadoNoDom = this.elements.containerAlocadas.querySelector(
+                    `.fiche-card[data-id-ficha="${chaveFicha}"]`
+                );
+                if (!jaExisteAlocadoNoDom) {
+                    const novoCardAlocado = this.criarCardFicha({
+                        id: realIdAgendamento,
+                        idFicha: idFicha,
+                        nome: nomeFicha
+                    }, "delete");
+
+                    this.elements.containerAlocadas.appendChild(novoCardAlocado);
+                }
+            }
 
         } catch (erro) {
             console.error("Erro na alocação:", erro);
+            this.state.fichasAlocando.delete(chaveFicha);
             alert(erro.message || "Não foi possível agendar a ficha.");
 
-            cardElement.removeAttribute("data-loading");
-            cardElement.classList.remove("is-loading");
-            if (btnElement && conteudoOriginal) {
-                btnElement.classList.remove("loading");
-                btnElement.disabled = false;
-                btnElement.innerHTML = conteudoOriginal;
+            if (this.elements.containerDisponiveis) {
+                const cardNaTelaAtual = this.elements.containerDisponiveis.querySelector(
+                    `.fiche-card[data-id-ficha="${chaveFicha}"]`
+                );
+                if (cardNaTelaAtual) {
+                    cardNaTelaAtual.removeAttribute("data-loading");
+                    cardNaTelaAtual.classList.remove("is-loading");
+                    const btn = cardNaTelaAtual.querySelector(".btn-fiche-action");
+                    if (btn) {
+                        btn.classList.remove("loading");
+                        btn.disabled = false;
+                        btn.innerHTML = '<span class="material-symbols-outlined">add</span>';
+                    }
+                }
             }
         }
     },
 
-    async desalocarFicha(cardElement, idAgendamento, nomeFicha = null, idFicha = null) {
+    // =========================================================
+    // DESALOCAR FICHA (COM TRAVA GLOBAL ENTRE TODOS OS DIAS)
+    // =========================================================
+    async desalocarFicha(cardElement, idAgendamento, nomeFicha, idFicha) {
         if (!idAgendamento) return;
 
+        const chaveAgendamento = String(idAgendamento);
+        if (this.state.agendamentosDesalocando.has(chaveAgendamento)) return;
+
+        this.state.agendamentosDesalocando.add(chaveAgendamento);
+        const dataIsoDesalocacao = this.state.dataIsoSelecionada;
+
         if (cardElement) {
-            if (cardElement.hasAttribute("data-loading")) return;
             cardElement.setAttribute("data-loading", "true");
             cardElement.classList.add("is-loading");
-        }
-
-        const btnElement = cardElement ? cardElement.querySelector(".btn-fiche-action") : null;
-        let conteudoOriginal = null;
-
-        if (btnElement) {
-            btnElement.disabled = true;
-            conteudoOriginal = btnElement.innerHTML;
-            btnElement.classList.add("loading");
-            btnElement.innerHTML = '<span class="spinner-btn"></span>';
+            const btnElement = cardElement.querySelector(".btn-fiche-action");
+            if (btnElement) {
+                btnElement.disabled = true;
+                btnElement.classList.add("loading");
+                btnElement.innerHTML = '<span class="spinner-btn"></span>';
+            }
         }
 
         const bodyData = new URLSearchParams();
-        bodyData.append("id", String(idAgendamento));
+        bodyData.append("id", chaveAgendamento);
 
         try {
             const response = await fetch("/calendario/desalocar", {
@@ -289,35 +478,103 @@ const CalendarioSIGEC = {
 
             if (!response.ok) throw new Error("Erro ao desalocar ficha.");
 
-            // Faz a troca inteira das divs silenciosamente.
-            await Promise.all([
-                this.carregarAlocacoes(),
-                this.recarregarPainelDiaAtual(true)
-            ]);
+            const fichaIdReal = idFicha || (cardElement && cardElement.getAttribute("data-id-ficha")) || idAgendamento;
+
+            this.state.agendamentosDesalocando.delete(chaveAgendamento);
+            this.state.cacheAgendamentos = this.state.cacheAgendamentos.filter(
+                ag => String(ag.idAgendamento) !== chaveAgendamento
+            );
+            if (!this.state.cacheDisponiveis.some(f => String(f.idFicha) === String(fichaIdReal))) {
+                this.state.cacheDisponiveis.push({ idFicha: fichaIdReal, nome: nomeFicha });
+            }
+            this.recalcularMapaDeBolinhas();
+            this.atualizarBolinhasNoGrid();
+
+            if (this.state.dataIsoSelecionada === dataIsoDesalocacao && this.elements.containerAlocadas) {
+                const cardAlocadoNaTela = this.elements.containerAlocadas.querySelector(
+                    `.fiche-card[data-id="${chaveAgendamento}"]`
+                );
+                if (cardAlocadoNaTela) cardAlocadoNaTela.remove();
+
+                if (!this.elements.containerAlocadas.querySelector(".fiche-card")) {
+                    this.elements.containerAlocadas.innerHTML = '<p class="crumb-muted msg-vazia">Nenhuma aula programada para este dia.</p>';
+                }
+            }
+
+            if (this.elements.containerDisponiveis) {
+                const msgVaziaDisponiveis = this.elements.containerDisponiveis.querySelector(".msg-vazia");
+                if (msgVaziaDisponiveis) msgVaziaDisponiveis.remove();
+
+                const jaExisteNoDom = this.elements.containerDisponiveis.querySelector(
+                    `.fiche-card[data-id-ficha="${fichaIdReal}"]`
+                );
+                if (!jaExisteNoDom) {
+                    const novoCardDisponivel = this.criarCardFicha({
+                        id: fichaIdReal,
+                        idFicha: fichaIdReal,
+                        nome: nomeFicha
+                    }, "append");
+
+                    this.elements.containerDisponiveis.appendChild(novoCardDisponivel);
+                }
+            }
 
         } catch (erro) {
             console.error("Erro ao remover ficha:", erro);
+            this.state.agendamentosDesalocando.delete(chaveAgendamento);
             alert("Ocorreu um erro ao retirar a ficha do agendamento.");
 
-            if (cardElement) {
-                cardElement.removeAttribute("data-loading");
-                cardElement.classList.remove("is-loading");
-            }
-            if (btnElement && conteudoOriginal) {
-                btnElement.classList.remove("loading");
-                btnElement.disabled = false;
-                btnElement.innerHTML = conteudoOriginal;
+            if (this.elements.containerAlocadas) {
+                const cardAlocadoNaTela = this.elements.containerAlocadas.querySelector(
+                    `.fiche-card[data-id="${chaveAgendamento}"]`
+                );
+                if (cardAlocadoNaTela) {
+                    cardAlocadoNaTela.removeAttribute("data-loading");
+                    cardAlocadoNaTela.classList.remove("is-loading");
+                    const btn = cardAlocadoNaTela.querySelector(".btn-fiche-action");
+                    if (btn) {
+                        btn.classList.remove("loading");
+                        btn.disabled = false;
+                        btn.innerHTML = '<span class="material-symbols-outlined">close</span>';
+                    }
+                }
             }
         }
     },
 
-    recarregarPainelDiaAtual(silentUpdate = true) {
-        const { dataAtual, diaSelecionado, dataIsoSelecionada } = this.state;
-        const ano = dataAtual.getFullYear();
-        const mes = dataAtual.getMonth();
+    // =========================================================
+    // MONTAGEM DO GRID E BOLINHAS INDICADORAS
+    // =========================================================
+    atualizarBolinhasNoGrid() {
+        const { grid } = this.elements;
+        if (!grid) return;
 
-        const dataIso = dataIsoSelecionada || `${ano}-${String(mes + 1).padStart(2, "0")}-${String(diaSelecionado).padStart(2, "0")}`;
-        return this.buscarFichasDoDia(dataIso, diaSelecionado, this.nomesMeses[mes], ano, silentUpdate);
+        grid.querySelectorAll(".day-cell[data-date]").forEach(celula => {
+            const dataIso = celula.getAttribute("data-date");
+            const qtdFichas = this.state.alocacoesPorData[dataIso] || 0;
+
+            const containerAntigo = celula.querySelector(".indicator-dots");
+            if (containerAntigo) containerAntigo.remove();
+
+            if (qtdFichas > 0) {
+                const dotsContainer = document.createElement("div");
+                dotsContainer.className = "indicator-dots";
+                Object.assign(dotsContainer.style, {
+                    display: "flex",
+                    gap: "3px",
+                    justifyContent: "flex-end",
+                    marginLeft: "auto",
+                    marginTop: "auto"
+                });
+
+                for (let k = 0; k < qtdFichas; k++) {
+                    const dot = document.createElement("div");
+                    dot.className = "dot orange";
+                    dotsContainer.appendChild(dot);
+                }
+                celula.appendChild(dotsContainer);
+            }
+        });
     },
 
     renderizarGrid() {
@@ -325,7 +582,7 @@ const CalendarioSIGEC = {
         if (!grid) return;
 
         grid.innerHTML = "";
-        const { dataAtual, diaSelecionado } = this.state;
+        const { dataAtual } = this.state;
         const ano = dataAtual.getFullYear();
         const mes = dataAtual.getMonth();
 
@@ -334,7 +591,9 @@ const CalendarioSIGEC = {
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
         const totalDiasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-        if (this.state.diaSelecionado > totalDiasNoMes) this.state.diaSelecionado = totalDiasNoMes;
+        if (this.state.diaSelecionado > totalDiasNoMes) {
+            this.state.diaSelecionado = totalDiasNoMes;
+        }
 
         for (let i = 0; i < primeiroDiaSemana; i++) {
             const espaco = document.createElement("div");
@@ -371,61 +630,56 @@ const CalendarioSIGEC = {
 
             celula.setAttribute("data-date", dataIso);
 
-            const qtdFichas = this.state.alocacoesPorData[dataIso] || 0;
-            if (qtdFichas > 0) {
-                const dotsContainer = document.createElement("div");
-                dotsContainer.className = "indicator-dots";
-                Object.assign(dotsContainer.style, { display: "flex", gap: "3px", justifyContent: "flex-end", marginLeft: "auto", marginTop: "auto" });
-
-                for (let k = 0; k < qtdFichas; k++) {
-                    const dot = document.createElement("div");
-                    dot.className = "dot orange";
-                    dotsContainer.appendChild(dot);
-                }
-                celula.appendChild(dotsContainer);
-            }
-
             if (dia === this.state.diaSelecionado) {
                 celula.classList.add("active-selected");
-                // Importante: quando clica na célula e muda de dia, não é silent. Assim ele apaga e mostra carregando.
-                // Mas, durante a renderização inicial (montando a grid na tela), fazemos em background.
-                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano, true);
+                this.state.dataIsoSelecionada = dataIso;
             }
 
             celula.addEventListener("click", () => {
                 grid.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
                 celula.classList.add("active-selected");
-                this.state.diaSelecionado = dia;
-                // Ao trocar de dia manualmente, queremos ver que está atualizando
-                this.buscarFichasDoDia(dataIso, dia, this.nomesMeses[mes], ano, false);
+                this.selecionarDiaInstantaneo(dia);
             });
 
             grid.appendChild(celula);
         }
+
+        this.atualizarBolinhasNoGrid();
     },
 
-    criarCardFicha(item, status, acao) {
+    // =========================================================
+    // CRIAÇÃO DO CARD (SEM O STATUS ABAIXO DO NOME DA FICHA)
+    // =========================================================
+    criarCardFicha(item, acaoOuStatus, acaoOpcional) {
+        // Suporta tanto criarCardFicha(item, "delete") quanto criarCardFicha(item, "success", "delete")
+        const acao = acaoOpcional || acaoOuStatus;
         const id = item.id;
         const idFicha = item.idFicha || id;
         const nome = item.nome || "Ficha sem título";
-        const icone = status === "success" ? "check_circle" : "warning";
-        const textoEstoque = status === "success" ? "Estoque Completo" : "Verificar Insumos";
+
+        const estaCarregando = (acao === "append" && this.state.fichasAlocando.has(String(idFicha))) ||
+            (acao === "delete" && this.state.agendamentosDesalocando.has(String(id)));
 
         const card = document.createElement("div");
-        card.className = "fiche-card";
+        card.className = `fiche-card${estaCarregando ? " is-loading" : ""}`;
         card.setAttribute("data-id", id);
         card.setAttribute("data-id-ficha", idFicha);
+        if (estaCarregando) {
+            card.setAttribute("data-loading", "true");
+        }
+
+        const conteudoBotao = estaCarregando
+            ? '<span class="spinner-btn"></span>'
+            : `<span class="material-symbols-outlined">${acao === "delete" ? "close" : "add"}</span>`;
 
         card.innerHTML = `
             <div class="fiche-info">
-                <p class="fiche-name">${nome}</p>
-                <span class="stock-status ${status}">
-                    <span class="material-symbols-outlined">${icone}</span>
-                    ${textoEstoque}
-                </span>
+                <p class="fiche-name" style="margin: 0;">${nome}</p>
             </div>
-            <button class="btn-fiche-action ${acao}" title="${acao === "delete" ? "Remover do agendamento" : "Agendar para este dia"}">
-                <span class="material-symbols-outlined">${acao === "delete" ? "close" : "add"}</span>
+            <button class="btn-fiche-action ${acao}${estaCarregando ? " loading" : ""}" 
+                    ${estaCarregando ? "disabled" : ""} 
+                    title="${acao === "delete" ? "Remover do agendamento" : "Agendar para este dia"}">
+                ${conteudoBotao}
             </button>
         `;
 
@@ -435,8 +689,9 @@ const CalendarioSIGEC = {
             btnAcao.addEventListener("click", (e) => {
                 e.preventDefault();
                 const celulaAtiva = document.querySelector(".day-cell.active-selected");
-                if (celulaAtiva) {
-                    this.alocarFicha(card, idFicha, nome, celulaAtiva.getAttribute("data-date"));
+                const dataIso = celulaAtiva ? celulaAtiva.getAttribute("data-date") : this.state.dataIsoSelecionada;
+                if (dataIso) {
+                    this.alocarFicha(card, idFicha, nome, dataIso);
                 }
             });
         } else if (acao === "delete") {

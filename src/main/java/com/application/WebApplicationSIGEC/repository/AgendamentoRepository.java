@@ -13,6 +13,9 @@ import java.util.List;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
 
+    // Impede que a mesma ficha seja agendada mais de uma vez na mesma turma (em qualquer dia)
+    boolean existsByTurma_IdAndFicha_IdAndSituacao(Long idTurma, Long idFicha, String situacao);
+
     // 1. Validação de duplicidade: impede agendar a mesma ficha para a mesma turma no mesmo dia
     boolean existsByTurma_IdAndFicha_IdAndDataAndSituacao(Long idTurma, Long idFicha, LocalDate data, String situacao);
 

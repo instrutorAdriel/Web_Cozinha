@@ -3836,45 +3836,76 @@ body {
     user-select: none;
     transition: all 0.2s ease;
 }
+/* Animação suave ao mover o card entre as listas */
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
 
-/* Spinner no botão da ação e travamento completo */
+.fiche-card {
+    animation: cardSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Card bloqueado: apenas cinza, sem borda ou fundo laranja */
+.fiche-card.is-loading {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    opacity: 0.75;
+    pointer-events: none !important;
+    user-select: none;
+}
+
+.fiche-card.is-loading .fiche-info {
+    opacity: 0.55;
+}
+
+/* Garante formato 100% redondo tanto no botão de alocar (+) quanto no de desalocar (x) */
+.btn-fiche-action,
+.btn-fiche-action.append,
+.btn-fiche-action.delete {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Fundo do botão redondo e cinza neutro durante o loading */
 .btn-fiche-action.loading {
     pointer-events: none !important;
     cursor: wait !important;
-    background-color: rgba(255, 255, 255, 0.01) !important;
-    border-color: #ff7b00 !important;
+    background-color: #e5e7eb !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 50% !important;
 }
 
+/* Laranja exclusivo no spinner */
 .spinner-btn {
-    width: 20px;
-    height: 20px;
-    border: 3px solid rgba(255, 123, 0, 0.25);
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 123, 0, 0.22);
     border-top-color: #ff7b00;
     border-right-color: #ff7b00;
-    border-radius: 50%;
-    animation: girarSpinner 0.65s linear infinite;
+    border-radius: 50% !important;
+    animation: girarSpinner 0.6s linear infinite;
     display: inline-block;
-    vertical-align: middle;
+    box-sizing: border-box;
 }
 
 @keyframes girarSpinner {
-    to { transform: rotate(360deg); }
-}
-
-/* Spinner global (quando troca de dia) */
-.spinner-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px 0;
-    width: 100%;
-}
-
-.spinner-loader {
-    width: 28px;
-    height: 28px;
-    border: 3px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #ff7b00;
-    border-radius: 50%;
-    animation: girarSpinner 0.7s linear infinite;
+    to {
+        transform: rotate(360deg);
+    }
 }

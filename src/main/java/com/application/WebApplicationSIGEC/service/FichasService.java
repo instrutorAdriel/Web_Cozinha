@@ -105,10 +105,10 @@ public class FichasService {
         }
 
         // Evita duplicidade no mesmo dia para a mesma turma
-        boolean jaExiste = agendamentoRepository.existsByTurma_IdAndFicha_IdAndDataAndSituacao(
-                idTurma, idFicha, dataAula, "A");
+        boolean jaExiste = agendamentoRepository.existsByTurma_IdAndFicha_IdAndSituacao(
+                idTurma, idFicha, "A");
         if (jaExiste) {
-            throw new IllegalArgumentException("Esta receita já está agendada para esta turma nesta data!");
+            throw new IllegalArgumentException("Esta receita já está agendada para esta turma!");
         }
 
         Ficha ficha = fichasRepository.findById(idFicha)
