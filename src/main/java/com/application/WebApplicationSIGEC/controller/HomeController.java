@@ -12,6 +12,8 @@ import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -128,15 +130,23 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId) {
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId, HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("ERRO 401, USUÁRIO NÃO AUTORIZADOOO");
+        }
+
         try {
             Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
             return ResponseEntity.ok(detalhes);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body(Map.of(
-                    "erro", e.getMessage() != null ? e.getMessage() : e.getClass().getName(),
-                    "classe", e.getClass().getName()
+                    "erro", "Erro ao buscar os detalhes da ficha."
             ));
         }
     }
