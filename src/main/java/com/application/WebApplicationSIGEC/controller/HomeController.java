@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Ficha;
+import com.application.WebApplicationSIGEC.model.Turma;
 import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
@@ -39,9 +40,16 @@ public class HomeController {
     @Autowired
     private TurmaRepository turmaRepository;
 
+    private Long resolverTurmaSelecionada(Long idUsuario, Long idTurmaParam) {
+        if (idTurmaParam != null) {
+            return idTurmaParam;
+        }
+        List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(idUsuario);
+        return (turmas != null && !turmas.isEmpty()) ? turmas.get(0).getId() : null;
+    }
+
     @GetMapping("/home")
     public String exibirHome(Model model, HttpServletRequest request) {
-
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("usuarioLogado") == null) {
@@ -90,14 +98,22 @@ public class HomeController {
 
     @GetMapping("/api/agendamentos/hoje")
     @ResponseBody
-    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
+    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
+
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
         if (usuarioLogado == null) {
             return ResponseEntity.status(401).build();
         }
 
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         LocalDate dataBusca = LocalDate.now();
-        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
+        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId(), turmaAtiva);
 
         if (agendamentos.isEmpty()) {
             return ResponseEntity.noContent().build();

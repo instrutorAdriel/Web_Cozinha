@@ -66,13 +66,16 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
         JOIN FETCH a.turma t
         INNER JOIN UsuarioTurma ut ON ut.turma.id = t.id
         WHERE ut.usuario.id = :idUsuario
-          AND a.data = :hoje
+          AND t.id = :idTurma
+          AND a.data = :data
           AND a.situacao = 'A'
-        ORDER BY a.data ASC
+          AND a.concluido = 'N'
+        ORDER BY f.nomeFicha ASC
     """)
-    List<Agendamento> findAgendamentosDoUsuarioHoje(
-            @Param("hoje") LocalDate hoje,
-            @Param("idUsuario") Long idUsuario
+    List<Agendamento> buscarAulasDoDiaPorTurma(
+            @Param("idUsuario") Long idUsuario,
+            @Param("idTurma") Long idTurma,
+            @Param("data") LocalDate data
     );
 
     // 6. Desalocar / Cancelar aula pelo ID do agendamento

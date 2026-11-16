@@ -344,10 +344,9 @@ function carregarDadosIniciais() {
                 const turmasUnicasHoje = new Set();
 
                 obterAgendamentosDeHoje().forEach(agendamento => {
-                    if (agendamento.ficha?.turma) {
-                        const idTurma =
-                            agendamento.ficha.turma.idTurma ??
-                            agendamento.ficha.turma.id;
+                    // ADAPTAÇÃO: A turma agora é lida direto do agendamento, não mais da ficha
+                    if (agendamento.turma) {
+                        const idTurma = agendamento.turma.idTurma ?? agendamento.turma.id;
 
                         if (idTurma != null) {
                             turmasUnicasHoje.add(String(idTurma));
@@ -356,9 +355,7 @@ function carregarDadosIniciais() {
                 });
 
                 const quantidade = turmasUnicasHoje.size;
-
-                contadorTurmas.textContent =
-                    `${quantidade} turma${quantidade !== 1 ? 's' : ''}`;
+                contadorTurmas.textContent = `${quantidade} turma${quantidade !== 1 ? 's' : ''}`;
             }
 
             // Listener do Select do Checklist Manual.
@@ -448,7 +445,6 @@ function filtrarPorTurma(turmaId) {
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
 
-    // Preserva o título e usa um contêiner próprio para os cinco dias.
     let lista = $('receitas-semana-lista');
     if (!lista) {
         lista = document.createElement('div');
@@ -457,56 +453,38 @@ function filtrarPorTurma(turmaId) {
         containerClasses.appendChild(lista);
     }
 
-    // Filtra os agendamentos pela turma selecionada.
+    // ADAPTAÇÃO: Filtra lendo a turma direto do agendamento
     const pertenceATurma = agendamento => {
         if (turmaId === 'todas' || turmaId === '') {
             return true;
         }
 
-        const idTurma =
-            agendamento.ficha?.turma?.idTurma ??
-            agendamento.ficha?.turma?.id;
-
+        const idTurma = agendamento.turma?.idTurma ?? agendamento.turma?.id;
         return String(idTurma) === String(turmaId);
     };
 
-    // Atualiza os cards da semana.
-    const agendamentosFiltrados =
-        agendamentosDaSemana.filter(pertenceATurma);
-
+    const agendamentosFiltrados = agendamentosDaSemana.filter(pertenceATurma);
     renderizarSemana(agendamentosFiltrados, lista);
 
-    // Preserva o seletor manual de fichas para os checklists.
     const selectReceita = $('recipe-select');
+    const receitaHoje = obterAgendamentosDeHoje().find(pertenceATurma);
 
-    // Receita de hoje para a turma selecionada.
-    const receitaHoje =
-        obterAgendamentosDeHoje().find(pertenceATurma);
-
-    // Opções: receitas de hoje + receitas da semana,
-    // sem repetir a mesma receita no mesmo dia e em ordem de data.
     const opcoesAgendamentos = [
         ...obterAgendamentosDeHoje().filter(pertenceATurma),
         ...obterAgendamentosDaSemana().filter(pertenceATurma)
-    ].sort((a, b) =>
-        String(a.data ?? '').localeCompare(String(b.data ?? ''))
-    );
+    ].sort((a, b) => String(a.data ?? '').localeCompare(String(b.data ?? '')));
 
     if (selectReceita) {
         selectReceita.innerHTML = '';
 
-        // Sem receita hoje: mostra o aviso, mas ainda permite escolher as da semana.
         if (!receitaHoje) {
             const opcaoVazia = document.createElement('option');
-
             opcaoVazia.value = '';
             opcaoVazia.textContent = opcoesAgendamentos.length > 0
                 ? 'Nenhuma receita disponível hoje'
                 : 'Nenhuma receita disponível';
-
             opcaoVazia.disabled = true;
             opcaoVazia.selected = true;
-
             selectReceita.appendChild(opcaoVazia);
         }
 
@@ -514,46 +492,31 @@ function filtrarPorTurma(turmaId) {
 
         opcoesAgendamentos.forEach(agendamento => {
             const ficha = agendamento.ficha;
-            const idFicha = ficha.idFicha ?? ficha.id;
+            const idFicha = ficha?.idFicha ?? ficha?.id;
 
             if (idFicha == null) return;
 
             const chave = chaveAgendamento(agendamento);
-
             if (chavesAdicionadas.has(chave)) return;
-
             chavesAdicionadas.add(chave);
 
-            const nomeFicha =
-                ficha.nomeFicha ||
-                ficha.nome ||
-                'Receita sem nome';
+            const nomeFicha = ficha.nomeFicha || ficha.nome || 'Receita sem nome';
 
-            const nomeTurma = ficha.turma
-                ? (
-                    ficha.turma.nomeTurma ||
-                    ficha.turma.nome ||
-                    'Turma sem nome'
-                )
+            // ADAPTAÇÃO: O nome da turma vem do agendamento
+            const nomeTurma = agendamento.turma
+                ? (agendamento.turma.nomeTurma || agendamento.turma.nome || 'Turma sem nome')
                 : 'Turma indefinida';
 
             const opcao = document.createElement('option');
-
             opcao.value = chave;
-            opcao.textContent =
-                `${nomeFicha} (${nomeTurma}) - ${rotuloDiaSemana(agendamento.data)}`;
-
+            opcao.textContent = `${nomeFicha} (${nomeTurma}) - ${rotuloDiaSemana(agendamento.data)}`;
             selectReceita.appendChild(opcao);
         });
     }
     limparDetalhesDaTela();
 
-    // Seleciona automaticamente a primeira receita de hoje, se existir.
     if (receitaHoje) {
-        selecionarAula(
-            receitaHoje.ficha.idFicha ?? receitaHoje.ficha.id,
-            receitaHoje
-        );
+        selecionarAula(receitaHoje.ficha.idFicha ?? receitaHoje.ficha.id, receitaHoje);
     } else {
         mostrarSemReceitaDisponivel();
     }
@@ -727,7 +690,8 @@ function renderizarCardsDeAulas(agendamentos, container) {
         const ficha = agendamento.ficha;
         if (!ficha) return;
 
-        const turma = ficha.turma;
+        // ADAPTAÇÃO: Turma vem do agendamento direto
+        const turma = agendamento.turma;
         let lab = 'Laboratório N/A';
         if (turma && turma.laboratorio) {
             lab = typeof turma.laboratorio === 'object'
@@ -735,15 +699,11 @@ function renderizarCardsDeAulas(agendamentos, container) {
                 : turma.laboratorio;
         }
 
-        const nomeTurma = turma
-            ? (turma.nomeTurma || turma.nome)
-            : 'Turma Indefinida';
-
+        const nomeTurma = turma ? (turma.nomeTurma || turma.nome) : 'Turma Indefinida';
         const idFicha = ficha.id || ficha.idFicha;
         const nomeFicha = ficha.nomeFicha || ficha.nome;
 
-        const statusClass =
-            agendamento.concluido === 'S' ? 'done' : '';
+        const statusClass = agendamento.concluido === 'S' ? 'done' : '';
 
         const card = document.createElement('div');
         card.className = `class-card ${statusClass}`;
@@ -757,7 +717,6 @@ function renderizarCardsDeAulas(agendamentos, container) {
             </div>
         `;
 
-        // Qualquer receita da semana pode ser aberta na checklist.
         card.addEventListener('click', () => {
             selecionarAula(idFicha, agendamento);
         });
@@ -1523,26 +1482,20 @@ if (kitchenClose) {
 
 function atualizarContadorReceitasHoje(turmaId) {
     const contador = document.getElementById('hero-receitas-count');
-
     if (!contador) return;
 
     let receitasHoje = obterAgendamentosDeHoje();
 
-    // Filtra pela turma selecionada na topbar
+    // ADAPTAÇÃO: Filtra lendo idTurma do Agendamento, e não mais da ficha.turma
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
-            const idTurma =
-                agendamento.ficha?.turma?.idTurma ??
-                agendamento.ficha?.turma?.id;
-
+            const idTurma = agendamento.turma?.idTurma ?? agendamento.turma?.id;
             return String(idTurma) === String(turmaId);
         });
     }
 
     const quantidade = receitasHoje.length;
-
-    contador.textContent =
-        `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
 
 function separarPassosReceita(preparo) {

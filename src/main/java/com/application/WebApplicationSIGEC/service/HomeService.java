@@ -41,8 +41,8 @@ public class HomeService {
     }
 
     // Busca as aulas agendadas para a data informada E para o usuário logado
-    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario) {
-        return agendamentoRepository.findAgendamentosDoUsuarioHoje(data, idUsuario);
+    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario, Long idTurma) {
+        return agendamentoRepository.buscarAulasDoDiaPorTurma(idUsuario, idTurma, data);
     }
 
     // Busca as receitas agendadas durante a semana
