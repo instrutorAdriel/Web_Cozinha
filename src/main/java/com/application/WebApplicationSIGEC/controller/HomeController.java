@@ -126,6 +126,7 @@ public class HomeController {
     public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
             @RequestParam("inicio") LocalDate inicio,
             @RequestParam("fim") LocalDate fim,
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session
     ) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
@@ -134,11 +135,16 @@ public class HomeController {
             return ResponseEntity.status(401).build();
         }
 
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         if (inicio.isAfter(fim)) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId());
+        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId(), turmaAtiva);
         return ResponseEntity.ok(agendamentos);
     }
 

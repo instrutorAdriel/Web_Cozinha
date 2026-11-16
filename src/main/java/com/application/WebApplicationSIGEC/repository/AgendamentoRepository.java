@@ -82,4 +82,42 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     @Modifying
     @Query("DELETE FROM Agendamento a WHERE a.id = :id")
     void desalocarPorId(@Param("id") Long id);
+
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH a.turma t
+        LEFT JOIN FETCH t.laboratorio
+        INNER JOIN UsuarioTurma ut ON ut.turma.id = t.id
+        WHERE ut.usuario.id = :idUsuario
+          AND a.data = :data
+          AND a.situacao = 'A'
+          AND t.id = :idTurma
+        ORDER BY t.nomeTurma ASC, f.nomeFicha ASC
+    """)
+    List<Agendamento> findAgendamentosDoUsuarioPorData(
+            @Param("data") LocalDate data,
+            @Param("idUsuario") Long idUsuario,
+            @Param("idTurma") Long idTurma
+    );
+
+    @Query("""
+        SELECT a FROM Agendamento a
+        JOIN FETCH a.ficha f
+        JOIN FETCH a.turma t
+        LEFT JOIN FETCH t.laboratorio
+        INNER JOIN UsuarioTurma ut ON ut.turma.id = t.id
+        WHERE ut.usuario.id = :idUsuario
+          AND a.data BETWEEN :inicio AND :fim
+          AND a.situacao = 'A'
+          AND t.id = :idTurma
+        ORDER BY a.data ASC, t.nomeTurma ASC, f.nomeFicha ASC
+    """)
+    List<Agendamento> buscarAgendamentosDaSemana(
+            @Param("inicio") LocalDate inicio,
+            @Param("fim") LocalDate fim,
+            @Param("idUsuario") Long idUsuario,
+            @Param("idTurma") Long idTurma
+    );
 }
+

@@ -40,23 +40,31 @@ public class HomeService {
         this.entityManager = entityManager;
     }
 
-    // Busca as aulas agendadas para a data informada E para o usuário logado
-    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario, Long idTurma) {
-        return agendamentoRepository.buscarAulasDoDiaPorTurma(idUsuario, idTurma, data);
-    }
+    // ==========================================
+    // ADAPTAÇÃO: Busca de Aulas (Sem turma_ficha)
+    // ==========================================
 
-    // Busca as receitas agendadas durante a semana
+    // Busca as aulas agendadas para o dia, filtrando pelo utilizador e pela turma
     @Transactional(readOnly = true)
-    public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario) {
-        return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario);
+    public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario, Long idTurma) {
+        return agendamentoRepository.findAgendamentosDoUsuarioPorData(data, idUsuario, idTurma);
     }
 
-    // Busca insumos e utensílios referentes a uma ficha técnica
+    // Busca as aulas agendadas para a semana, filtrando pelo utilizador e pela turma
+    @Transactional(readOnly = true)
+    public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario, Long idTurma) {
+        return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario, idTurma);
+    }
+
+    // ==========================================
+    // FLUXO DE INSUMOS E UTENSÍLIOS (MANTIDOS INTACTOS)
+    // ==========================================
+
     @Transactional(readOnly = true)
     public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
         Map<String, Object> detalhes = new HashMap<>();
 
-        List<Map<String, Object>> insumos = montarInsumosDaFicha(fichaId);
+        List<?> insumos = montarInsumosDaFicha(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
         List<Long> insumosSeparados = buscarInsumosSeparadosHoje(fichaId);
 
@@ -67,9 +75,7 @@ public class HomeService {
         return detalhes;
     }
 
-    // Ingredientes da ficha (insumo_ficha) com o estoque atual de cada produto (soma dos lotes em insumo).
-    // Formato lido pelo scriptHome.js: { id, quantidade, produto: { nomeProduto, unidade, quantidade (= estoque) } }
-    private List<Map<String, Object>> montarInsumosDaFicha(Long fichaId) {
+    private List<?> montarInsumosDaFicha(Long fichaId) {
         List<InsumoFicha> itens = insumoFichaRepository.findByFichaId(fichaId);
 
         Set<Long> idsProdutos = itens.stream()
@@ -93,16 +99,14 @@ public class HomeService {
             produto.put("quantidade", estoquePorProduto.getOrDefault(p.getId(), 0.0));
 
             Map<String, Object> insumo = new LinkedHashMap<>();
-            insumo.put("id", item.getId());                       // id_insumo_ficha
-            insumo.put("quantidade", item.getQuantidade());       // quantidade necessária na receita
+            insumo.put("id", item.getId());
+            insumo.put("quantidade", item.getQuantidade());
             insumo.put("unidadeMedida", item.getUnidadeMedida());
             insumo.put("produto", produto);
             return insumo;
         }).collect(Collectors.toList());
     }
 
-    // ids de insumo_ficha desta ficha cujo produto já teve SAÍDA registrada hoje.
-    // movimentacao_estoque não guarda a ficha, então o vínculo é pelo produto.
     @SuppressWarnings("unchecked")
     private List<Long> buscarInsumosSeparadosHoje(Long fichaId) {
         List<Object> ids = entityManager.createNativeQuery("""
@@ -121,8 +125,6 @@ public class HomeService {
                 .collect(Collectors.toList());
     }
 
-    // Confirma a separação: dá baixa nos lotes de insumo (FEFO) e registra a saída.
-    // Os ids recebidos são de insumo_ficha (os mesmos ids dos checkboxes da checklist).
     @Transactional
     public void confirmarSeparacaoInsumos(List<Long> insumoFichaIds, String observacaoGeral) {
         String obs = (observacaoGeral != null && !observacaoGeral.trim().isEmpty())
@@ -135,7 +137,6 @@ public class HomeService {
                 continue;
             }
 
-            // Pula o que já foi separado hoje
             if (buscarInsumosSeparadosHoje(item.getFicha().getId()).contains(item.getId())) {
                 continue;
             }
@@ -143,7 +144,6 @@ public class HomeService {
             Produto produto = item.getProduto();
             int necessario = item.getQuantidade() == null ? 0 : item.getQuantidade();
 
-            // Quantidade 0 na receita: só registra a saída para marcar como separado
             if (necessario <= 0) {
                 registrarSaida(produto, null, 0, obs);
                 continue;
@@ -153,7 +153,6 @@ public class HomeService {
             int disponivel = lotes.stream().mapToInt(Insumo::getQuantidade).sum();
 
             if (disponivel < necessario) {
-                // Desfaz tudo (rollback) e devolve a mensagem ao front
                 throw new IllegalArgumentException("Estoque insuficiente de '" + produto.getNomeProduto()
                         + "': necessário " + necessario + ", disponível " + disponivel + ".");
             }
@@ -186,12 +185,10 @@ public class HomeService {
         movimentacaoEstoqueRepository.save(mov);
     }
 
-    // Registra a SAÍDA dos utensílios para a aula
     @Transactional
     public void confirmarSaidaUtensilios(List<Long> checklistIds) {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
-            // Trava backend: impede que retirem o que já está na cozinha
             if (checklist != null && checklist.getDataHoraSaida() != null && checklist.getDataHoraEntrada() == null) {
                 throw new IllegalArgumentException("O utensílio já está em uso.");
             }
@@ -205,13 +202,11 @@ public class HomeService {
         }
     }
 
-    // Registra a DEVOLUÇÃO (Entrada) dos utensílios em lote (múltiplos)
     @Transactional
     public void registrarDevolucaoUtensilio(List<Long> checklistIds, String estadoAtual, String observacao) {
         for (Long id : checklistIds) {
             ChecklistUtensilio checklist = checklistUtensilioRepository.findById(id).orElse(null);
             if (checklist != null) {
-                // Salva o estado atual antigo como anterior, e atualiza o novo
                 checklist.setEstadoAnterior(checklist.getEstadoAtual());
                 checklist.setEstadoAtual(estadoAtual);
                 checklist.setObservacao(observacao);
@@ -221,16 +216,15 @@ public class HomeService {
         }
     }
 
-    // ========================================================
-    // SALVAMENTO DE INSUMO EXTRA  (tabela solicitacao_insumo)
-    // ========================================================
+    // ==========================================
+    // SOLICITAÇÕES EXTRA (MANTIDOS INTACTOS)
+    // ==========================================
+
     @Transactional
     public void salvarSolicitacaoInsumoExtra(Long idUsuario, Long idTurma, String nomeInsumo, Double quantidade, String unidadeMedida, String justificativa) {
         Long idInsumo;
 
         try {
-            // solicitacao_insumo.id_insumo aponta para um lote em insumo:
-            // usa o lote ativo mais recente do produto com esse nome.
             String buscaSql = """
                     SELECT i.id_insumo
                     FROM insumo i
@@ -243,7 +237,6 @@ public class HomeService {
                     .setParameter("nome", nomeInsumo)
                     .getSingleResult()).longValue();
         } catch (Exception e) {
-            // Retorna um erro amigável para o front-end exibir no popup
             throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado no estoque. Certifique-se de que o produto está cadastrado e possui lote.");
         }
 
@@ -260,15 +253,11 @@ public class HomeService {
                 .executeUpdate();
     }
 
-    // ========================================================
-    // SALVAMENTO DE UTENSÍLIO EXTRA  (tabela solicitacao_utensilio)
-    // ========================================================
     @Transactional
     public void salvarSolicitacaoUtensilioExtra(Long idUsuario, Long idTurma, String nomeUtensilio, Integer quantidade, String justificativa) {
         Long idUtensilio;
 
         try {
-            // Busca o id_utensilio diretamente pelo nome
             String buscaSql = "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1";
             idUtensilio = ((Number) entityManager.createNativeQuery(buscaSql)
                     .setParameter("nome", nomeUtensilio)
