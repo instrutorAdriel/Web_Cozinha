@@ -32,6 +32,9 @@ public class Ficha {
     @Column(name = "data")
     private LocalDate data;
 
+    @Column(name = "categoria")
+    private String categoria;
+
 
 
     @JsonIgnore
@@ -61,4 +64,12 @@ public class Ficha {
     public void setInsumos(List<InsumoFicha> insumos) { this.insumos = insumos; }
     public List<ChecklistUtensilio> getChecklistUtensilios() { return checklistUtensilios; }
     public void setChecklistUtensilios(List<ChecklistUtensilio> checklistUtensilios) { this.checklistUtensilios = checklistUtensilios; }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
+    }
 }

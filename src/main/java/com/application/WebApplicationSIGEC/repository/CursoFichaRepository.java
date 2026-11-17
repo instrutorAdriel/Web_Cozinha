@@ -18,7 +18,7 @@ public interface CursoFichaRepository extends JpaRepository<CursoFicha, Long> {
 
     // Retorna todas as receitas vinculadas ao curso da turma informada
     @Query("""
-        SELECT cf.ficha FROM CursoFicha cf
+        SELECT DISTINCT cf.ficha FROM CursoFicha cf
         INNER JOIN Turma t ON t.curso.id = cf.curso.id
         WHERE t.id = :idTurma
           AND cf.ficha.situacao = 'A'

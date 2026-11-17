@@ -48,34 +48,65 @@ public class FichasService {
     // CALENDÁRIO E AGENDAMENTO
     // =========================================================
 
-    /**
-     * Retorna todos os agendamentos da turma para desenhar as marcações do mês.
-     */
     public List<Agendamento> buscarTodosAgendamentosDaTurma(Long idTurma) {
         if (idTurma == null) return Collections.emptyList();
         return agendamentoRepository.buscarTodosPorTurma(idTurma);
     }
 
-    /**
-     * Monta o painel lateral do dia no Calendário:
-     * - 'alocadas': Aulas agendadas especificamente nesta data para a turma.
-     * - 'disponiveis': Receitas do CURSO da turma que ainda NÃO foram agendadas em dia algum para ela.
-     */
+    // =========================================================
+    // ACERVO DE RECEITAS (NOVO MÉTODO CORRIGIDO)
+    // =========================================================
+    public List<?> buscarAcervoReceitasDaTurma(Long idTurma) {
+        if (idTurma == null) return Collections.emptyList();
+
+        // 1. Busca todas as fichas vinculadas ao curso desta turma
+        List<Ficha> fichasDoCurso = fichasRepository.findFichasAtivasByTurmaId(idTurma);
+
+        // 2. Busca todos os agendamentos desta turma
+        List<Agendamento> agendamentosDaTurma = agendamentoRepository.buscarTodosPorTurma(idTurma);
+
+        // Mapa de agendamentos: id_ficha -> data
+        Map<Long, LocalDate> fichasAgendadas = new HashMap<>();
+        for (Agendamento a : agendamentosDaTurma) {
+            if ("A".equals(a.getSituacao()) && a.getFicha() != null) {
+                fichasAgendadas.put(a.getFicha().getId(), a.getData());
+            }
+        }
+
+        // Usando 'var' do JDK 25, o Java permite o acervo.add(map) sem ficar vermelho
+        var acervo = new ArrayList<>();
+
+        for (Ficha f : fichasDoCurso) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", f.getId());
+            map.put("nomeFicha", f.getNomeFicha());
+            map.put("preparo", f.getPreparo());
+            map.put("categoria", f.getCategoria());
+            map.put("idTurma", idTurma);
+
+            if (fichasAgendadas.containsKey(f.getId())) {
+                map.put("status", "datadas");
+                map.put("dataPrevista", fichasAgendadas.get(f.getId()).toString());
+            } else {
+                map.put("status", "disponivel");
+                map.put("dataPrevista", null);
+            }
+            acervo.add(map);
+        }
+
+        return acervo;
+    }
+
     public Map<String, Object> buscarFichasEDisponiveisDoDia(Long idTurma, LocalDate data) {
         if (idTurma == null || data == null) return Collections.emptyMap();
 
-        // 1. Aulas marcadas no dia selecionado
         List<Agendamento> alocadasNoDia = agendamentoRepository.buscarPorTurmaEData(idTurma, data);
-
-        // 2. Todas as fichas da grade do curso pertencente à turma
         List<Ficha> fichasDoCurso = cursoFichaRepository.findFichasByTurmaCurso(idTurma);
 
-        // Se o curso ainda não tiver grade cadastrada, busca o catálogo geral como contingência
         if (fichasDoCurso.isEmpty()) {
             fichasDoCurso = fichasRepository.findAll();
         }
 
-        // 3. Fichas que já foram agendadas em qualquer dia para essa turma
         List<Agendamento> todosDaTurma = agendamentoRepository.buscarTodosPorTurma(idTurma);
         Set<Long> idsJaAlocados = new HashSet<>();
         for (Agendamento a : todosDaTurma) {
@@ -84,7 +115,6 @@ public class FichasService {
             }
         }
 
-        // 4. Disponíveis: fichas da grade do curso que ainda estão livres para agendamento
         List<Ficha> disponiveis = fichasDoCurso.stream()
                 .filter(f -> f.getId() != null && !idsJaAlocados.contains(f.getId()))
                 .toList();
@@ -95,16 +125,12 @@ public class FichasService {
         return response;
     }
 
-    /**
-     * Aloca uma ficha diretamente para a turma na data informada.
-     */
     @Transactional
     public void alocarFicha(Long idFicha, Long idTurma, LocalDate dataAula) {
         if (idFicha == null || idTurma == null || dataAula == null) {
             throw new IllegalArgumentException("Parâmetros obrigatórios ausentes para alocação.");
         }
 
-        // Evita duplicidade no mesmo dia para a mesma turma
         boolean jaExiste = agendamentoRepository.existsByTurma_IdAndFicha_IdAndSituacao(
                 idTurma, idFicha, "A");
         if (jaExiste) {
@@ -127,9 +153,6 @@ public class FichasService {
         agendamentoRepository.save(agendamento);
     }
 
-    /**
-     * Cancela/desaloca a aula pelo ID do agendamento.
-     */
     @Transactional
     public void desalocarFicha(Long idAgendamento) {
         if (idAgendamento != null) {

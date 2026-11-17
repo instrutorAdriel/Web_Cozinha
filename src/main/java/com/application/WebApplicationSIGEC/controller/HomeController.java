@@ -150,14 +150,14 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getDetalhesFicha(@PathVariable Long fichaId) {
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId) {
         Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
         return ResponseEntity.ok(detalhes);
     }
 
     @GetMapping("/api/fichas")
     @ResponseBody
-    public ResponseEntity<List<Ficha>> getTodasFichas(
+    public ResponseEntity<?> getTodasFichas(
             @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session) {
 
@@ -166,22 +166,13 @@ public class HomeController {
             return ResponseEntity.status(401).build();
         }
 
-        if (idTurma == null) {
-            List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
-            return ResponseEntity.ok(fichasDoUsuario);
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
         }
 
-        boolean turmaPermitida = turmaRepository
-                .findTurmasByUsuarioId(usuarioLogado.getId())
-                .stream()
-                .anyMatch(t -> String.valueOf(t.getId()).equals(String.valueOf(idTurma)));
-
-        if (!turmaPermitida) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<Ficha> fichasDaTurma = fichasService.buscarFichasPorUsuario(idTurma);
-        return ResponseEntity.ok(fichasDaTurma);
+        List<?> acervoCruzado = fichasService.buscarAcervoReceitasDaTurma(turmaAtiva);
+        return ResponseEntity.ok(acervoCruzado);
     }
 
     @GetMapping("/api/turmas")

@@ -33,4 +33,13 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
         ORDER BY cf.ficha.nomeFicha ASC
     """)
     List<Ficha> findFichasByUsuarioId(@Param("idUsuario") Long idUsuario);
+
+    @Query("""
+        SELECT DISTINCT cf.ficha FROM CursoFicha cf
+        INNER JOIN Turma t ON t.curso.id = cf.curso.id
+        WHERE t.id = :idTurma
+          AND cf.ficha.situacao = 'A'
+        ORDER BY cf.ficha.nomeFicha ASC
+    """)
+    List<Ficha> findFichasAtivasByTurmaId(@Param("idTurma") Long idTurma);
 }
