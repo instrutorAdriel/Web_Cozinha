@@ -727,8 +727,6 @@ function renderizarCardsDeAulas(agendamentos, container) {
     });
 }
 
-
-// ===== 3. SELEÇÃO DE AULA E DETALHES =====
 // ===== 3. SELEÇÃO DE AULA E DETALHES =====
 function selecionarAula(fichaId, agendamentoSelecionado = null) {
     const mesmaFicha = a => String(a.ficha.id ?? a.ficha.idFicha) === String(fichaId);
@@ -889,7 +887,6 @@ function atualizarResumoReceita(ficha) {
     }
 }
 
-// ===== 4. RENDERIZAÇÃO DOS CHECKLISTS =====
 // ===== 4. RENDERIZAÇÃO DOS CHECKLISTS =====
 function renderChecklistInsumos(insumos, ficha, separados = [], turma = null) {
     const lista = $('checklist-main');
