@@ -266,8 +266,9 @@ function carregarDadosIniciais() {
     const containerClasses = document.querySelector('.classes-col');
 
     Promise.all([
-        fetch('/api/turmas').then(res => {
+        fetch('/turmas/usuario').then(res => {
             if (!res.ok && res.status !== 204) {
+
                 throw new Error('Erro ao carregar turmas.');
             }
 
@@ -318,7 +319,7 @@ function carregarDadosIniciais() {
                 t => (t.id || t.idTurma).toString() === turmaSalva
             );
 
-            let turmaInicialId = 'todas';
+            let turmaInicialId = '';
 
             if (turmaSalva && turmaValida) {
                 turmaInicialId = turmaSalva;
@@ -401,36 +402,58 @@ function popularTurmasDropdown(turmas) {
     turmaSelect.innerHTML = '';
 
     if (turmas.length === 0) {
-        turmaSelect.innerHTML =
-            '<option value="">-- Nenhuma Turma Vinculada --</option>';
-    } else {
-        turmas.forEach(turma => {
-            const id = turma.idTurma || turma.id;
-            const nomeTurma =
-                turma.nomeTurma || turma.nome || "Turma sem nome";
 
-            let labNome = 'Laboratório N/A';
+        turmaSelect.add(
+            new Option('Nenhuma turma vinculada', '')
+        );
 
-            if (
-                typeof turma.laboratorio === 'object' &&
-                turma.laboratorio !== null
-            ) {
-                labNome =
-                    turma.laboratorio.nomeLaboratorio || 'Laboratório N/A';
-            } else if (
-                typeof turma.laboratorio === 'string' &&
-                turma.laboratorio.trim() !== ''
-            ) {
-                labNome = turma.laboratorio;
-            }
+        turmaSelect.disabled = true;
 
-            turmaSelect.innerHTML +=
-                `<option value="${id}">${nomeTurma} - ${labNome}</option>`;
-        });
+        return;
     }
 
-    turmaSelect.removeEventListener('change', onTurmaChange);
-    turmaSelect.addEventListener('change', onTurmaChange);
+    turmaSelect.disabled = false;
+
+    turmas.forEach(turma => {
+        const id = turma.idTurma || turma.id;
+
+        const nomeTurma =
+            turma.nomeTurma ||
+            turma.nome ||
+            "Turma sem nome";
+
+        let labNome = 'Laboratório N/A';
+
+        if (
+            typeof turma.laboratorio === 'object' &&
+            turma.laboratorio !== null
+        ) {
+            labNome =
+                turma.laboratorio.nomeLaboratorio ||
+                'Laboratório N/A';
+        } else if (
+            typeof turma.laboratorio === 'string'
+        ) {
+            labNome = turma.laboratorio;
+        }
+
+        turmaSelect.add(
+            new Option(
+                `${nomeTurma} - ${labNome}`,
+                id
+            )
+        );
+    });
+
+    turmaSelect.removeEventListener(
+        'change',
+        onTurmaChange
+    );
+
+    turmaSelect.addEventListener(
+        'change',
+        onTurmaChange
+    );
 }
 
 function onTurmaChange(e) {
@@ -1653,4 +1676,6 @@ if (modalSair) {
       modalSair.classList.remove("show");
     }
   });
+    // Preencher select de turma na Home
+
 }

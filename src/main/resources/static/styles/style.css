@@ -475,6 +475,7 @@ body#auth-page .links a:hover {
     position: relative;
     display: inline-flex;
     align-items: center;
+    width: 220px;
 }
 
 .select-wrap select,
@@ -3826,4 +3827,13 @@ body {
 #summary-steps {
     list-style: none;
     padding-left: 0;
+}
+
+body#receitas-page .select-wrap {
+    width: 220px; /* Mude este valor (ex: 200px, 250px) para deixar o quadrado do tamanho que preferir */
+}
+
+body#receitas-page .select-wrap select,
+body#receitas-page #turma-select {
+    width: 100% !important;
 }

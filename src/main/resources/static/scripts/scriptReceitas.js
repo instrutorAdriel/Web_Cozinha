@@ -44,6 +44,18 @@ function popularSeletorTurmas() {
     if (!turmaSelect) return;
 
     turmaSelect.innerHTML = '';
+    if (turmas.length === 0) {
+        turmaSelect.add(
+            new Option('Nenhuma turma vinculada', '')
+        );
+
+        turmaSelect.disabled = true;
+
+        return;
+    }
+
+    turmaSelect.disabled = false;
+
 
     turmas.forEach(t => {
         const id = t.idTurma || t.id;
