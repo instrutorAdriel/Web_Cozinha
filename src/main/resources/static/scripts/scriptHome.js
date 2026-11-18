@@ -1,15 +1,14 @@
 // ===== VARIÁVEIS GLOBAIS DE ESTADO =====
 let agendamentosDoDia = [];
 let agendamentosDaSemana = [];
-let todasAsFichasDoBanco = [];
 let fichaAtual = null;
 let agendamentoAtual = null;
 let detalhesReceitaAtual = null;
 let requisicaoDetalhesAtual = 0;
+let requisicaoTurmaAtual = 0;
 const LIMITE_SCROLL = 10;
 const $ = id => document.getElementById(id);
 
-// Aceita os IDs usados nas duas versões do código e no layout do projeto.
 function obterSelectTurma() {
     return $('turma-select') || $('select-turma') || $('turma');
 }
@@ -61,8 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if ($('util-close')) $('util-close').addEventListener('click', fecharModalUtil);
     if ($('util-cancel')) $('util-cancel').addEventListener('click', fecharModalUtil);
 
-
-// ========================================================
+    // ========================================================
     // ENVIO: SOLICITAR INSUMO EXTRA
     // ========================================================
     const btnSaveExtra = $('extra-save');
@@ -101,14 +99,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     quantidade: quantidade,
                     unidadeMedida: unidade,
                     justificativa: observacao,
-                    idTurma: parseInt(idTurma)
+                    idTurma: parseInt(idTurma, 10)
                 })
             })
                 .then(async res => {
                     if (!res.ok) throw new Error(await res.text());
                     return res.text();
                 })
-                .then(msg => {
+                .then(() => {
                     alert("Insumo extra solicitado com sucesso para validação!");
                     $('extra-name').value = '';
                     $('extra-qtd').value = '';
@@ -160,14 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     nomeUtensilio: nomeUtensilio,
                     quantidade: quantidade,
                     justificativa: observacao,
-                    idTurma: parseInt(idTurma)
+                    idTurma: parseInt(idTurma, 10)
                 })
             })
                 .then(async res => {
                     if (!res.ok) throw new Error(await res.text());
                     return res.text();
                 })
-                .then(msg => {
+                .then(() => {
                     alert("Utensílio extra solicitado com sucesso para validação!");
                     $('util-name').value = '';
                     $('util-qtd').value = '';
@@ -191,21 +189,15 @@ function formatarDataLocal(data) {
     return `${ano}-${mes}-${dia}`;
 }
 
-// Data de hoje (YYYY-MM-DD), recalculada a cada chamada para não ficar
-// desatualizada caso a página fique aberta durante a virada do dia.
 function obterDataHoje() {
     return formatarDataLocal(new Date());
 }
 
-// Retorna true somente se o agendamento pertence ao dia de hoje.
 function ehAgendamentoDeHoje(agendamento) {
     const dataAgendamento = String(agendamento?.data ?? '').slice(0, 10);
     return dataAgendamento !== '' && dataAgendamento === obterDataHoje();
 }
 
-// ÚNICA fonte de receitas para a checklist: agendamentos ativos E de hoje.
-// Filtra pela data a cada chamada, mesmo que /api/agendamentos/hoje
-// devolva agendamentos de outros dias.
 function obterAgendamentosDeHoje() {
     return agendamentosDoDia.filter(a =>
         a.situacao === 'A' &&
@@ -214,8 +206,6 @@ function obterAgendamentosDeHoje() {
     );
 }
 
-// Identifica um agendamento pela receita + dia (a mesma receita pode
-// aparecer em dias diferentes da semana).
 function chaveAgendamento(agendamento) {
     const ficha = agendamento?.ficha;
     const idFicha = ficha?.idFicha ?? ficha?.id;
@@ -223,7 +213,6 @@ function chaveAgendamento(agendamento) {
     return `${idFicha}|${data}`;
 }
 
-// Receitas da semana (segunda a sexta) disponíveis para escolha.
 function obterAgendamentosDaSemana() {
     return agendamentosDaSemana.filter(a =>
         a.ficha &&
@@ -231,32 +220,21 @@ function obterAgendamentosDaSemana() {
     );
 }
 
-// Rótulo curto do dia da semana de uma data (YYYY-MM-DD), com "Hoje" quando for o caso.
 function rotuloDiaSemana(data) {
     const iso = String(data ?? '').slice(0, 10);
     const partes = iso.split('-').map(Number);
 
     if (partes.length !== 3 || partes.some(Number.isNaN)) return 'Sem data';
-
     if (iso === obterDataHoje()) return 'Hoje';
 
     const dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
     return dias[new Date(partes[0], partes[1] - 1, partes[2]).getDay()];
 }
 
 function obterPeriodoSemana() {
     const hoje = new Date();
-
-    const segunda = new Date(
-        hoje.getFullYear(),
-        hoje.getMonth(),
-        hoje.getDate()
-    );
-
-    segunda.setDate(
-        segunda.getDate() - ((segunda.getDay() + 6) % 7)
-    );
+    const segunda = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    segunda.setDate(segunda.getDate() - ((segunda.getDay() + 6) % 7));
 
     const sexta = new Date(segunda);
     sexta.setDate(sexta.getDate() + 4);
@@ -268,183 +246,128 @@ function obterPeriodoSemana() {
     };
 }
 
-async function buscarAgendamentosSemana() {
-    const { inicio, fim } = obterPeriodoSemana();
-    const parametros = new URLSearchParams({ inicio, fim });
-
-    const resposta = await fetch(`/api/agendamentos/semana?${parametros}`);
-
-    if (!resposta.ok) {
-        throw new Error(
-            `Não foi possível carregar os agendamentos da semana (HTTP ${resposta.status}). Verifique o endpoint /api/agendamentos/semana no Spring Boot.`
-        );
-    }
-
-    return resposta.status === 204 ? [] : resposta.json();
-}
-
-// ===== 1. BUSCA DE DADOS NA API E FILTROS DINÂMICOS =====
-function carregarDadosIniciais() {
+// ===== 1. BUSCA DE DADOS NA API POR TURMA =====
+async function carregarDadosIniciais() {
     const containerClasses = document.querySelector('.classes-col');
 
-    Promise.all([
-        fetch('/api/turmas').then(res => {
-            if (!res.ok && res.status !== 204) {
-                throw new Error('Erro ao carregar turmas.');
-            }
+    try {
+        const resTurmas = await fetch('/api/turmas');
+        if (!resTurmas.ok && resTurmas.status !== 204) {
+            throw new Error('Erro ao carregar turmas.');
+        }
 
-            return res.status === 204 ? [] : res.json();
-        }),
+        const turmas = resTurmas.status === 204 ? [] : await resTurmas.json();
+        popularTurmasDropdown(turmas);
 
-        fetch('/api/agendamentos/hoje').then(res => {
-            if (!res.ok && res.status !== 204) {
-                throw new Error('Erro ao carregar receitas de hoje.');
-            }
+        // Recupera a turma salva na sessão ou seleciona a primeira turma vinculada
+        const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
+        const turmaValida = turmas.some(t => String(t.idTurma ?? t.id) === String(turmaSalva));
 
-            return res.status === 204 ? [] : res.json();
-        }),
+        let turmaInicialId = '';
+        if (turmaSalva && turmaValida) {
+            turmaInicialId = String(turmaSalva);
+        } else if (turmas.length > 0) {
+            turmaInicialId = String(turmas[0].idTurma ?? turmas[0].id);
+        }
 
-        fetch('/api/fichas').then(res => {
-            if (!res.ok && res.status !== 204) {
-                throw new Error('Erro ao carregar fichas.');
-            }
+        const turmaSelect = obterSelectTurma();
+        if (turmaSelect && turmaInicialId) {
+            turmaSelect.value = turmaInicialId;
+        }
 
-            return res.status === 204 ? [] : res.json();
-        }),
+        const selectReceita = $('recipe-select');
+        if (selectReceita) {
+            selectReceita.removeEventListener('change', onReceitaChange);
+            selectReceita.addEventListener('change', onReceitaChange);
+        }
 
-        buscarAgendamentosSemana()
-    ])
-        .then(([turmas, agendamentos, fichas, semana]) => {
-            agendamentosDoDia = agendamentos;
-            agendamentosDaSemana = semana;
+        await carregarAgendamentosDaTurma(turmaInicialId);
 
-            const foraDeHoje = agendamentos.filter(
-                a => !ehAgendamentoDeHoje(a)
-            );
+    } catch (error) {
+        console.error('Erro ao carregar dados:', error);
 
-            if (foraDeHoje.length > 0) {
-                console.warn(
-                    `/api/agendamentos/hoje retornou ${foraDeHoje.length} agendamento(s) que não são de hoje (${obterDataHoje()}); eles foram ignorados.`,
-                    foraDeHoje
-                );
-            }
+        if (containerClasses) {
+            containerClasses.innerHTML += '<p style="color:red; padding:20px;">Erro ao carregar os dados.</p>';
+        }
 
-            todasAsFichasDoBanco = fichas;
-
-            popularTurmasDropdown(turmas);
-
-            // 1. Tenta recuperar a turma salva na sessão
-            const turmaSalva = sessionStorage.getItem("turmaSelecionadaId");
-
-            const turmaValida = turmas.some(
-                t => (t.id || t.idTurma).toString() === turmaSalva
-            );
-
-            let turmaInicialId = 'todas';
-
-            if (turmaSalva && turmaValida) {
-                turmaInicialId = turmaSalva;
-            } else if (turmas.length > 0) {
-                turmaInicialId = String(
-                    turmas[0].idTurma ?? turmas[0].id
-                );
-            }
-
-            // Define a seleção no <select> e aplica o filtro.
-            const turmaSelect = obterSelectTurma();
-
-            if (turmaSelect) {
-                turmaSelect.value = turmaInicialId;
-            }
-
-            filtrarPorTurma(turmaInicialId);
-            atualizarContadorReceitasHoje(turmaInicialId);
-
-            // === CONTADOR DE TURMAS DE HOJE ===
-            const contadorTurmas = document.getElementById('hero-turmas-count');
-            if (contadorTurmas) {
-                const turmasUnicasHoje = new Set();
-
-                obterAgendamentosDeHoje().forEach(agendamento => {
-                    // ADAPTAÇÃO: A turma agora é lida direto do agendamento, não mais da ficha
-                    if (agendamento.turma) {
-                        const idTurma = agendamento.turma.idTurma ?? agendamento.turma.id;
-
-                        if (idTurma != null) {
-                            turmasUnicasHoje.add(String(idTurma));
-                        }
-                    }
-                });
-
-                const quantidade = turmasUnicasHoje.size;
-                contadorTurmas.textContent = `${quantidade} turma${quantidade !== 1 ? 's' : ''}`;
-            }
-
-            // Listener do Select do Checklist Manual.
-            const selectReceita = $('recipe-select');
-            if (selectReceita) {
-                selectReceita.removeEventListener(
-                    'change',
-                    onReceitaChange
-                );
-
-                selectReceita.addEventListener(
-                    'change',
-                    onReceitaChange
-                );
-            }
-        })
-        .catch(error => {
-            console.error('Erro ao carregar dados:', error);
-
-            if (containerClasses) {
-                containerClasses.innerHTML +=
-                    '<p style="color:red; padding:20px;">Erro ao carregar os dados.</p>';
-            }
-
-            const selectReceita = $('recipe-select');
-
-            if (selectReceita) {
-                selectReceita.innerHTML =
-                    '<option value="">Erro ao carregar receitas</option>';
-            }
-        });
+        const selectReceita = $('recipe-select');
+        if (selectReceita) {
+            selectReceita.innerHTML = '<option value="">Erro ao carregar receitas</option>';
+        }
+    }
 }
 
+async function carregarAgendamentosDaTurma(turmaId) {
+    const requisicaoAtual = ++requisicaoTurmaAtual;
+
+    if (!turmaId) {
+        agendamentosDoDia = [];
+        agendamentosDaSemana = [];
+        filtrarPorTurma('');
+        return;
+    }
+
+    const { inicio, fim } = obterPeriodoSemana();
+    const paramsHoje = new URLSearchParams();
+    const paramsSemana = new URLSearchParams({ inicio, fim });
+
+    if (turmaId !== 'todas') {
+        paramsHoje.append('idTurma', turmaId);
+        paramsSemana.append('idTurma', turmaId);
+    }
+
+    const queryHoje = paramsHoje.toString() ? `?${paramsHoje.toString()}` : '';
+
+    try {
+        const [resHoje, resSemana] = await Promise.all([
+            fetch(`/api/agendamentos/hoje${queryHoje}`),
+            fetch(`/api/agendamentos/semana?${paramsSemana.toString()}`)
+        ]);
+
+        if (!resHoje.ok && resHoje.status !== 204) {
+            throw new Error(`Erro ao carregar receitas de hoje (HTTP ${resHoje.status}).`);
+        }
+        if (!resSemana.ok && resSemana.status !== 204) {
+            throw new Error(`Erro ao carregar receitas da semana (HTTP ${resSemana.status}).`);
+        }
+
+        const hojeJson = resHoje.status === 204 ? [] : await resHoje.json();
+        const semanaJson = resSemana.status === 204 ? [] : await resSemana.json();
+
+        // Ignora respostas atrasadas se o usuário trocou de turma rapidamente
+        if (requisicaoAtual !== requisicaoTurmaAtual) return;
+
+        agendamentosDoDia = hojeJson;
+        agendamentosDaSemana = semanaJson;
+
+        filtrarPorTurma(turmaId);
+    } catch (error) {
+        if (requisicaoAtual !== requisicaoTurmaAtual) return;
+        console.error('Erro ao carregar agendamentos da turma:', error);
+    }
+}
 
 function popularTurmasDropdown(turmas) {
     const turmaSelect = obterSelectTurma();
-
     if (!turmaSelect) return;
 
     turmaSelect.innerHTML = '';
 
     if (turmas.length === 0) {
-        turmaSelect.innerHTML =
-            '<option value="">-- Nenhuma Turma Vinculada --</option>';
+        turmaSelect.innerHTML = '<option value="">-- Nenhuma Turma Vinculada --</option>';
     } else {
         turmas.forEach(turma => {
-            const id = turma.idTurma || turma.id;
-            const nomeTurma =
-                turma.nomeTurma || turma.nome || "Turma sem nome";
+            const id = turma.idTurma ?? turma.id;
+            const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
 
             let labNome = 'Laboratório N/A';
-
-            if (
-                typeof turma.laboratorio === 'object' &&
-                turma.laboratorio !== null
-            ) {
-                labNome =
-                    turma.laboratorio.nomeLaboratorio || 'Laboratório N/A';
-            } else if (
-                typeof turma.laboratorio === 'string' &&
-                turma.laboratorio.trim() !== ''
-            ) {
+            if (typeof turma.laboratorio === 'object' && turma.laboratorio !== null) {
+                labNome = turma.laboratorio.nomeLaboratorio || 'Laboratório N/A';
+            } else if (typeof turma.laboratorio === 'string' && turma.laboratorio.trim() !== '') {
                 labNome = turma.laboratorio;
             }
 
-            turmaSelect.innerHTML +=
-                `<option value="${id}">${nomeTurma} - ${labNome}</option>`;
+            turmaSelect.innerHTML += `<option value="${id}">${nomeTurma} - ${labNome}</option>`;
         });
     }
 
@@ -459,11 +382,12 @@ function onTurmaChange(e) {
     } else {
         sessionStorage.removeItem("turmaSelecionadaId");
     }
-    filtrarPorTurma(selectedId);
+    carregarAgendamentosDaTurma(selectedId);
 }
 
 function filtrarPorTurma(turmaId) {
     atualizarContadorReceitasHoje(turmaId);
+
     const containerClasses = document.querySelector('.classes-col');
     if (!containerClasses) return;
 
@@ -475,12 +399,10 @@ function filtrarPorTurma(turmaId) {
         containerClasses.appendChild(lista);
     }
 
-    // ADAPTAÇÃO: Filtra lendo a turma direto do agendamento
     const pertenceATurma = agendamento => {
-        if (turmaId === 'todas' || turmaId === '') {
+        if (!turmaId || turmaId === 'todas' || turmaId === '') {
             return true;
         }
-
         const idTurma = agendamento.turma?.idTurma ?? agendamento.turma?.id;
         return String(idTurma) === String(turmaId);
     };
@@ -515,7 +437,6 @@ function filtrarPorTurma(turmaId) {
         opcoesAgendamentos.forEach(agendamento => {
             const ficha = agendamento.ficha;
             const idFicha = ficha?.idFicha ?? ficha?.id;
-
             if (idFicha == null) return;
 
             const chave = chaveAgendamento(agendamento);
@@ -523,8 +444,6 @@ function filtrarPorTurma(turmaId) {
             chavesAdicionadas.add(chave);
 
             const nomeFicha = ficha.nomeFicha || ficha.nome || 'Receita sem nome';
-
-            // ADAPTAÇÃO: O nome da turma vem do agendamento
             const nomeTurma = agendamento.turma
                 ? (agendamento.turma.nomeTurma || agendamento.turma.nome || 'Turma sem nome')
                 : 'Turma indefinida';
@@ -535,6 +454,7 @@ function filtrarPorTurma(turmaId) {
             selectReceita.appendChild(opcao);
         });
     }
+
     limparDetalhesDaTela();
 
     if (receitaHoje) {
@@ -566,33 +486,28 @@ function renderizarSemana(agendamentos, container) {
 
         const dataISO = formatarDataLocal(data);
         const ehHoje = dataISO === dataAtual;
+        const receitas = agendamentos.filter(a => String(a.data ?? '').slice(0, 10) === dataISO);
 
-        const receitas = agendamentos.filter(
-            a => String(a.data ?? '').slice(0, 10) === dataISO
-        );
+        // Abre automaticamente o dia atual E qualquer dia que possua receita agendada
+        const deveAbrir = ehHoje || receitas.length > 0;
 
-        // Cria o card do dia.
         const card = document.createElement('div');
-        card.className = 'semana-dia-card';
+        card.className = 'semana-dia-card' + (deveAbrir ? ' aberto' : '');
 
-        // Abre automaticamente o card correspondente ao dia atual.
-        if (ehHoje) {
-            card.classList.add('aberto');
-        }
-
-        // Cabeçalho do card.
         const header = document.createElement('button');
         header.type = 'button';
         header.className = 'semana-dia-header';
-        header.setAttribute('aria-expanded', String(ehHoje));
+        header.setAttribute('aria-expanded', String(deveAbrir));
 
         const info = document.createElement('div');
         info.className = 'semana-dia-info';
 
         const titulo = document.createElement('h3');
-        titulo.textContent = ehHoje
-            ? `${nomeDia} (Hoje)`
-            : nomeDia;
+        const sufixoHoje = ehHoje ? ' (Hoje)' : '';
+        const sufixoQtd = receitas.length > 0
+            ? ` • ${receitas.length} ${receitas.length === 1 ? 'receita' : 'receitas'}`
+            : '';
+        titulo.textContent = `${nomeDia}${sufixoHoje}${sufixoQtd}`;
 
         info.appendChild(titulo);
 
@@ -609,28 +524,20 @@ function renderizarSemana(agendamentos, container) {
         } else {
             const aviso = document.createElement('p');
             aviso.className = 'semana-dia-vazio';
-            aviso.textContent =
-                'Nenhuma receita programada para este dia.';
-
+            aviso.textContent = 'Nenhuma receita programada para este dia.';
             conteudo.appendChild(aviso);
         }
 
-        // Qualquer dia pode ser aberto ou fechado para consulta.
         header.addEventListener('click', () => {
             const aberto = card.classList.toggle('aberto');
-
-            header.setAttribute(
-                'aria-expanded',
-                String(aberto)
-            );
+            header.setAttribute('aria-expanded', String(aberto));
         });
+
         card.append(header, conteudo);
         container.appendChild(card);
     });
 }
 
-
-// Aviso exibido quando não há nenhuma receita agendada para hoje.
 function mostrarSemReceitaDisponivel() {
     const aviso = '<p style="padding:12px; color:#64748b; text-align:center;">Nenhuma receita disponível hoje.</p>';
 
@@ -639,14 +546,12 @@ function mostrarSemReceitaDisponivel() {
     }
 
     if ($('summary-steps')) {
-        $('summary-steps').innerHTML =
-            '<li style="list-style: none;">Nenhuma receita disponível hoje.</li>';
+        $('summary-steps').innerHTML = '<li style="list-style: none;">Nenhuma receita disponível hoje.</li>';
     }
 
     if ($('checklist-main')) $('checklist-main').innerHTML = aviso;
     if ($('util-checklist')) $('util-checklist').innerHTML = aviso;
 }
-
 
 function limparDetalhesDaTela() {
     requisicaoDetalhesAtual++;
@@ -660,8 +565,7 @@ function limparDetalhesDaTela() {
     }
 
     if ($('summary-steps')) {
-        $('summary-steps').innerHTML =
-            '<li style="list-style: none;">Nenhuma receita selecionada.</li>';
+        $('summary-steps').innerHTML = '<li style="list-style: none;">Nenhuma receita selecionada.</li>';
     }
 
     if ($('checklist-main')) $('checklist-main').innerHTML = '';
@@ -688,8 +592,6 @@ function limparDetalhesDaTela() {
     atualizarEstadoBotoesChecklist(false);
 }
 
-
-// Habilita ações somente depois que uma receita válida foi carregada.
 function atualizarEstadoBotoesChecklist(habilitado) {
     [
         'btn-finish-insumos',
@@ -699,13 +601,11 @@ function atualizarEstadoBotoesChecklist(habilitado) {
         'btn-devolucao-utensilios'
     ].forEach(id => {
         const botao = $(id);
-
         if (botao) {
             botao.disabled = !habilitado;
         }
     });
 }
-
 
 // ===== 2. RENDERIZAÇÃO DOS CARDS =====
 function renderizarCardsDeAulas(agendamentos, container) {
@@ -713,7 +613,6 @@ function renderizarCardsDeAulas(agendamentos, container) {
         const ficha = agendamento.ficha;
         if (!ficha) return;
 
-        // ADAPTAÇÃO: Turma vem do agendamento direto
         const turma = agendamento.turma;
         let lab = 'Laboratório N/A';
         if (turma && turma.laboratorio) {
@@ -723,9 +622,8 @@ function renderizarCardsDeAulas(agendamentos, container) {
         }
 
         const nomeTurma = turma ? (turma.nomeTurma || turma.nome) : 'Turma Indefinida';
-        const idFicha = ficha.id || ficha.idFicha;
+        const idFicha = ficha.id ?? ficha.idFicha;
         const nomeFicha = ficha.nomeFicha || ficha.nome;
-
         const statusClass = agendamento.concluido === 'S' ? 'done' : '';
 
         const card = document.createElement('div');
@@ -768,9 +666,8 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         card.classList.toggle('selected', card.dataset.chave === chave);
     });
 
-    // Atualiza as variáveis de estado
     fichaAtual = agendamento.ficha;
-    agendamentoAtual = agendamento; // [ADAPTAÇÃO SIGEC]
+    agendamentoAtual = agendamento;
 
     const requisicaoAtual = ++requisicaoDetalhesAtual;
 
@@ -792,7 +689,6 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
             detalhesReceitaAtual = detalhes;
             atualizarResumoReceita(fichaAtual);
 
-            // [ADAPTAÇÃO SIGEC]: Repassa a turma através do agendamentoAtual
             renderChecklistInsumos(detalhes.insumos, fichaAtual, detalhes.insumosSeparados, agendamentoAtual.turma);
             renderChecklistUtensilios(detalhes.utensilios, fichaAtual, agendamentoAtual.turma);
 
@@ -810,81 +706,6 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
         });
 }
 
-function carregarDetalhesNoChecklistManual(fichaReal) {
-    const idFicha = fichaReal.id || fichaReal.idFicha;
-    const requisicaoAtual = ++requisicaoDetalhesAtual;
-
-    fetch(`/api/fichas/${idFicha}/detalhes`)
-        .then(res => {
-            if (!res.ok) throw new Error(`Erro ao carregar detalhes (HTTP ${res.status})`);
-            return res.json();
-        })
-        .then(detalhes => {
-            if (requisicaoAtual !== requisicaoDetalhesAtual) return;
-
-            detalhesReceitaAtual = detalhes;
-            fichaAtual = fichaReal;
-
-            atualizarResumoReceita(fichaReal);
-
-            // [ADAPTAÇÃO SIGEC]: Usa a turma do agendamento salvo na memória
-            const turmaParaBadge = agendamentoAtual ? agendamentoAtual.turma : null;
-
-            renderChecklistInsumos(detalhes.insumos, fichaReal, detalhes.insumosSeparados, turmaParaBadge);
-            renderChecklistUtensilios(detalhes.utensilios, fichaReal, turmaParaBadge);
-
-            atualizarEstadoBotoesChecklist(true);
-        })
-        .catch(err => {
-            if (requisicaoAtual !== requisicaoDetalhesAtual) return;
-            console.error("Erro ao carregar detalhes:", err);
-        });
-}
-
-function carregarDetalhesNoChecklistManual(fichaReal) {
-    const idFicha = fichaReal.id || fichaReal.idFicha;
-    const requisicaoAtual = ++requisicaoDetalhesAtual;
-
-    fetch(`/api/fichas/${idFicha}/detalhes`)
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`Erro ao carregar detalhes (HTTP ${res.status})`);
-            }
-
-            return res.json();
-        })
-        .then(detalhes => {
-            if (requisicaoAtual !== requisicaoDetalhesAtual) {
-                return;
-            }
-
-            detalhesReceitaAtual = detalhes;
-            fichaAtual = fichaReal;
-
-            atualizarResumoReceita(fichaReal);
-
-            renderChecklistInsumos(
-                detalhes.insumos,
-                fichaReal,
-                detalhes.insumosSeparados
-            );
-
-            renderChecklistUtensilios(
-                detalhes.utensilios,
-                fichaReal
-            );
-
-            atualizarEstadoBotoesChecklist(true);
-        })
-        .catch(err => {
-            if (requisicaoAtual !== requisicaoDetalhesAtual) {
-                return;
-            }
-
-            console.error("Erro ao carregar detalhes:", err);
-        });
-}
-
 function atualizarResumoReceita(ficha) {
     const summaryName = $('summary-recipe-name');
     const summarySteps = $('summary-steps');
@@ -899,11 +720,9 @@ function atualizarResumoReceita(ficha) {
                 .split('\n')
                 .filter(p => p.trim() !== '');
 
-            summarySteps.innerHTML =
-                passos.map(passo => `<li>${passo}</li>`).join('');
+            summarySteps.innerHTML = passos.map(passo => `<li>${passo}</li>`).join('');
         } else {
-            summarySteps.innerHTML =
-                `<li style="list-style: none;">Modo de preparo indisponível.</li>`;
+            summarySteps.innerHTML = `<li style="list-style: none;">Modo de preparo indisponível.</li>`;
         }
     }
 }
@@ -917,7 +736,6 @@ function renderChecklistInsumos(insumos, ficha, separados = [], turma = null) {
     if (nome) nome.textContent = ficha.nomeFicha || ficha.nome;
 
     if (badge) {
-        // [ADAPTAÇÃO SIGEC]: Usa a turma injetada por parâmetro, já que ficha.turma não existe mais
         badge.textContent = turma ? (turma.nomeTurma || turma.nome) : '';
     }
 
@@ -928,6 +746,7 @@ function renderChecklistInsumos(insumos, ficha, separados = [], turma = null) {
         const qtdNecessaria = insumo.quantidade;
         const qtdEstoque = produto && produto.quantidade ? parseFloat(produto.quantidade) : 0;
         const isSeparado = separados.includes(insumo.id);
+        const uni = insumo.unidadeMedida || produto?.unidade || '';
 
         let st = 'ok';
         let label = 'OK';
@@ -936,12 +755,11 @@ function renderChecklistInsumos(insumos, ficha, separados = [], turma = null) {
             label = 'Falta';
         } else if (qtdEstoque < qtdNecessaria) {
             st = 'baixo';
-            label = `Falta ${(qtdNecessaria - qtdEstoque)}${produto ? produto.unidade : ''}`;
+            label = `Falta ${(qtdNecessaria - qtdEstoque)}${uni}`;
         }
 
         const clsEstoque = st === 'ok' ? '' : (st === 'falta' ? 'estoque-falta' : 'estoque-baixo');
         const nomeProduto = produto?.nome || produto?.nomeProduto || 'Produto não identificado';
-        const uni = produto?.unidade || '';
 
         if (isSeparado) {
             return `
@@ -978,7 +796,6 @@ function renderChecklistUtensilios(checklists, ficha, turma = null) {
     if (nome) nome.textContent = ficha.nomeFicha || ficha.nome;
 
     if (badge) {
-        // [ADAPTAÇÃO SIGEC]: Lê a turma injetada pelo parâmetro
         badge.textContent = turma ? (turma.nomeTurma || turma.nome) : '';
     }
 
@@ -1012,22 +829,12 @@ function renderChecklistUtensilios(checklists, ficha, turma = null) {
 function atualizarProgresso(lista, elText, elPct, elBar) {
     if (!lista) return;
     const update = () => {
-        const checkboxes =
-            lista.querySelectorAll('input[type="checkbox"]');
-
+        const checkboxes = lista.querySelectorAll('input[type="checkbox"]');
         const total = checkboxes.length;
+        const done = lista.querySelectorAll('input[type="checkbox"]:checked').length;
+        const pct = total ? Math.round((done / total) * 100) : 0;
 
-        const done =
-            lista.querySelectorAll('input[type="checkbox"]:checked').length;
-
-        const pct = total
-            ? Math.round((done / total) * 100)
-            : 0;
-
-        if (elText) {
-            elText.textContent = `${done} de ${total} itens marcados`;
-        }
-
+        if (elText) elText.textContent = `${done} de ${total} itens marcados`;
         if (elPct) elPct.textContent = pct;
         if (elBar) elBar.style.width = pct + '%';
     };
@@ -1046,13 +853,14 @@ if ($('main-btn-reset')) {
     $('main-btn-reset').addEventListener('click', () => {
         if ($('checklist-main')) {
             $('checklist-main')
-                .querySelectorAll('input[type="checkbox"]')
+                .querySelectorAll('input[type="checkbox"]:not(:disabled)')
                 .forEach(cb => cb.checked = false);
 
             $('checklist-main').dispatchEvent(new Event('change'));
         }
     });
 }
+
 // ===== 6. LÓGICA DE AÇÕES DE ESTOQUE E UTENSÍLIOS =====
 const btnFinishInsumos = $('btn-finish-insumos');
 if (btnFinishInsumos) {
@@ -1060,17 +868,6 @@ if (btnFinishInsumos) {
         const marcados = document.querySelectorAll(
             '#checklist-main input[type="checkbox"]:checked:not(:disabled)'
         );
-
-        if (fichaAtual) {
-            const idFicha = fichaAtual.id || fichaAtual.idFicha;
-            fetch(`/api/fichas/${idFicha}/detalhes`)
-                .then(res => res.json())
-                .then(detalhes => {
-                    detalhesReceitaAtual = detalhes;
-                    // [ADAPTAÇÃO SIGEC] Adicionado agendamentoAtual?.turma
-                    renderChecklistInsumos(detalhes.insumos, fichaAtual, detalhes.insumosSeparados, agendamentoAtual?.turma);
-                });
-        }
 
         if (marcados.length === 0) {
             alert("Selecione pelo menos um insumo NOVO para confirmar a separação.");
@@ -1081,8 +878,7 @@ if (btnFinishInsumos) {
             return;
         }
 
-        const insumoIds = Array.from(marcados)
-            .map(cb => parseInt(cb.dataset.id));
+        const insumoIds = Array.from(marcados).map(cb => parseInt(cb.dataset.id, 10));
 
         btnFinishInsumos.innerText = "Processando...";
         btnFinishInsumos.disabled = true;
@@ -1098,37 +894,30 @@ if (btnFinishInsumos) {
             .then(async res => {
                 if (!res.ok) {
                     const erroBackend = await res.text();
-
-                    throw new Error(
-                        erroBackend || "Erro ao atualizar o estoque"
-                    );
+                    throw new Error(erroBackend || "Erro ao atualizar o estoque");
                 }
                 return res.text();
             })
-            .then(msg => {
+            .then(() => {
                 alert("Separação confirmada! O estoque foi deduzido com sucesso.");
                 if (fichaAtual) {
-                    const idFicha = fichaAtual.id || fichaAtual.idFicha;
+                    const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
                             detalhesReceitaAtual = detalhes;
-
                             renderChecklistInsumos(
                                 detalhes.insumos,
                                 fichaAtual,
-                                detalhes.insumosSeparados
+                                detalhes.insumosSeparados,
+                                agendamentoAtual?.turma
                             );
                         });
                 }
             })
             .catch(err => {
                 console.error(err);
-
-                alert(
-                    err.message ||
-                    "Ocorreu um erro ao confirmar a separação no banco de dados."
-                );
+                alert(err.message || "Ocorreu um erro ao confirmar a separação no banco de dados.");
             })
             .finally(() => {
                 btnFinishInsumos.innerText = "Confirmar Separação";
@@ -1144,41 +933,20 @@ if (btnFinishUtensilios) {
             '#util-checklist input[type="checkbox"]:checked'
         );
 
-        if (fichaAtual) {
-            const idFicha = fichaAtual.id || fichaAtual.idFicha;
-            fetch(`/api/fichas/${idFicha}/detalhes`)
-                .then(res => res.json())
-                .then(detalhes => {
-                    detalhesReceitaAtual = detalhes;
-                    // [ADAPTAÇÃO SIGEC] Adicionado agendamentoAtual?.turma
-                    renderChecklistUtensilios(detalhes.utensilios, fichaAtual, agendamentoAtual?.turma);
-                });
-        }
-
         if (marcados.length === 0) {
             alert("Selecione pelo menos um utensílio para registrar a saída.");
             return;
         }
 
-        const temItemInapto = Array.from(marcados)
-            .some(cb => cb.dataset.estado !== 'PRONTO');
-
+        const temItemInapto = Array.from(marcados).some(cb => cb.dataset.estado !== 'PRONTO');
         if (temItemInapto) {
-            alert(
-                "Atenção: Você selecionou utensílios que estão DANIFICADOS ou EM MANUTENÇÃO.\n\nSe eles já foram consertados, selecione-os e clique em 'Registrar Devolução' para atualizar o estado para 'PRONTO' antes de confirmar a saída."
-            );
-
+            alert("Atenção: Você selecionou utensílios que estão DANIFICADOS ou EM MANUTENÇÃO.\n\nSe eles já foram consertados, selecione-os e clique em 'Registrar Devolução' para atualizar o estado para 'PRONTO' antes de confirmar a saída.");
             return;
         }
 
-        const temEmUso = Array.from(marcados)
-            .some(cb => cb.dataset.emUso === 'true');
-
+        const temEmUso = Array.from(marcados).some(cb => cb.dataset.emUso === 'true');
         if (temEmUso) {
-            alert(
-                "Atenção: Você selecionou utensílios que já estão EM USO.\n\nEles não podem ser retirados 2 vezes. Desmarque-os para retirar novos itens ou utilize o botão 'Registrar Devolução'."
-            );
-
+            alert("Atenção: Você selecionou utensílios que já estão EM USO.\n\nEles não podem ser retirados 2 vezes. Desmarque-os para retirar novos itens ou utilize o botão 'Registrar Devolução'.");
             return;
         }
 
@@ -1186,8 +954,7 @@ if (btnFinishUtensilios) {
             return;
         }
 
-        const checklistIds = Array.from(marcados)
-            .map(cb => parseInt(cb.dataset.id));
+        const checklistIds = Array.from(marcados).map(cb => parseInt(cb.dataset.id, 10));
 
         btnFinishUtensilios.innerText = "Processando...";
         btnFinishUtensilios.disabled = true;
@@ -1195,52 +962,35 @@ if (btnFinishUtensilios) {
         fetch('/api/fichas/confirmar-utensilios', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                checklistIds: checklistIds
-            })
+            body: JSON.stringify({ checklistIds })
         })
             .then(async res => {
                 if (!res.ok) {
                     const erroBackend = await res.text();
-
-                    throw new Error(
-                        erroBackend || "Erro ao confirmar utensílios"
-                    );
+                    throw new Error(erroBackend || "Erro ao confirmar utensílios");
                 }
                 return res.text();
             })
-            .then(msg => {
+            .then(() => {
                 alert("Retirada de utensílios registrada com sucesso!");
 
-                document.querySelectorAll(
-                    '#util-checklist input[type="checkbox"]'
-                ).forEach(cb => cb.checked = false);
-
-                if ($('util-checklist')) {
-                    $('util-checklist').dispatchEvent(new Event('change'));
-                }
-
                 if (fichaAtual) {
-                    const idFicha = fichaAtual.id || fichaAtual.idFicha;
+                    const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
                             detalhesReceitaAtual = detalhes;
-
                             renderChecklistUtensilios(
                                 detalhes.utensilios,
-                                fichaAtual
+                                fichaAtual,
+                                agendamentoAtual?.turma
                             );
                         });
                 }
             })
             .catch(err => {
                 console.error(err);
-
-                alert(
-                    err.message ||
-                    "Ocorreu um erro ao confirmar a retirada no banco de dados."
-                );
+                alert(err.message || "Ocorreu um erro ao confirmar a retirada no banco de dados.");
             })
             .finally(() => {
                 btnFinishUtensilios.innerText = "Confirmar Utensílios";
@@ -1259,56 +1009,25 @@ if (btnDevolucao && devolucaoModal) {
             '#util-checklist input[type="checkbox"]:checked'
         );
 
-        if (fichaAtual) {
-            const idFicha = fichaAtual.id || fichaAtual.idFicha;
-            fetch(`/api/fichas/${idFicha}/detalhes`)
-                .then(res => res.json())
-                .then(detalhes => {
-                    detalhesReceitaAtual = detalhes;
-                    // [ADAPTAÇÃO SIGEC] Adicionado agendamentoAtual?.turma
-                    renderChecklistUtensilios(detalhes.utensilios, fichaAtual, agendamentoAtual?.turma);
-                });
-        }
-
         if (marcados.length === 0) {
             alert("Selecione pelo menos um utensílio na lista para registrar a devolução.");
             return;
         }
 
-        checklistIdsSelecionadosParaDevolucao = Array.from(marcados)
-            .map(cb => parseInt(cb.dataset.id));
+        checklistIdsSelecionadosParaDevolucao = Array.from(marcados).map(cb => parseInt(cb.dataset.id, 10));
 
-        let nomesUtensilios = [];
-
-        if (
-            detalhesReceitaAtual &&
-            detalhesReceitaAtual.utensilios
-        ) {
+        const nomesUtensilios = [];
+        if (detalhesReceitaAtual && detalhesReceitaAtual.utensilios) {
             detalhesReceitaAtual.utensilios.forEach(check => {
-                if (
-                    check.utensilio &&
-                    checklistIdsSelecionadosParaDevolucao.includes(check.id)
-                ) {
-                    nomesUtensilios.push(
-                        check.utensilio.nomeUtensilio
-                    );
+                if (check.utensilio && checklistIdsSelecionadosParaDevolucao.includes(check.id)) {
+                    nomesUtensilios.push(check.utensilio.nomeUtensilio);
                 }
             });
         }
 
-        const inputNome = $('devolucao-nome-util');
-
-        if (inputNome) {
-            inputNome.value = nomesUtensilios.join(', ');
-        }
-
-        if ($('devolucao-obs')) {
-            $('devolucao-obs').value = 'Devolvido.';
-        }
-
-        if ($('devolucao-estado')) {
-            $('devolucao-estado').value = 'PRONTO';
-        }
+        if ($('devolucao-nome-util')) $('devolucao-nome-util').value = nomesUtensilios.join(', ');
+        if ($('devolucao-obs')) $('devolucao-obs').value = 'Devolvido.';
+        if ($('devolucao-estado')) $('devolucao-estado').value = 'PRONTO';
 
         devolucaoModal.classList.add('show');
     });
@@ -1320,30 +1039,13 @@ function fecharModalDevolucao() {
     }
 }
 
-if ($('devolucao-close')) {
-    $('devolucao-close').addEventListener(
-        'click',
-        fecharModalDevolucao
-    );
-}
-
-if ($('devolucao-cancel')) {
-    $('devolucao-cancel').addEventListener(
-        'click',
-        fecharModalDevolucao
-    );
-}
-
+if ($('devolucao-close')) $('devolucao-close').addEventListener('click', fecharModalDevolucao);
+if ($('devolucao-cancel')) $('devolucao-cancel').addEventListener('click', fecharModalDevolucao);
 
 if ($('devolucao-save')) {
     $('devolucao-save').addEventListener('click', () => {
-        const estadoAtual = $('devolucao-estado')
-            ? $('devolucao-estado').value
-            : 'PRONTO';
-
-        const obs = $('devolucao-obs')
-            ? $('devolucao-obs').value.trim()
-            : '';
+        const estadoAtual = $('devolucao-estado') ? $('devolucao-estado').value : 'PRONTO';
+        const obs = $('devolucao-obs') ? $('devolucao-obs').value.trim() : '';
 
         if (checklistIdsSelecionadosParaDevolucao.length === 0) {
             alert("Erro interno: Nenhum utensílio válido foi selecionado para devolução.");
@@ -1364,35 +1066,23 @@ if ($('devolucao-save')) {
             })
         })
             .then(res => {
-                if (!res.ok) {
-                    throw new Error("Erro ao registrar devolução");
-                }
-
+                if (!res.ok) throw new Error("Erro ao registrar devolução");
                 return res.text();
             })
-            .then(msg => {
+            .then(() => {
                 alert("Status / Devolução registrada com sucesso no banco de dados!");
-
-                document.querySelectorAll(
-                    '#util-checklist input[type="checkbox"]'
-                ).forEach(cb => cb.checked = false);
-
-                if ($('util-checklist')) {
-                    $('util-checklist').dispatchEvent(new Event('change'));
-                }
-
                 fecharModalDevolucao();
 
                 if (fichaAtual) {
-                    const idFicha = fichaAtual.id || fichaAtual.idFicha;
+                    const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
                     fetch(`/api/fichas/${idFicha}/detalhes`)
                         .then(res => res.json())
                         .then(detalhes => {
                             detalhesReceitaAtual = detalhes;
-
                             renderChecklistUtensilios(
                                 detalhes.utensilios,
-                                fichaAtual
+                                fichaAtual,
+                                agendamentoAtual?.turma
                             );
                         });
                 }
@@ -1426,7 +1116,6 @@ overlay?.addEventListener('click', () => {
     toggleSidebar(false);
 });
 
-
 const btnOpenKitchen = $('btn-open-kitchen');
 const kitchenModal = $('kitchen-modal');
 const kitchenTitle = $('kitchen-title');
@@ -1437,19 +1126,14 @@ if (btnOpenKitchen) {
         if (!fichaAtual) return;
 
         if (kitchenTitle) {
-            kitchenTitle.textContent =
-                fichaAtual.nomeFicha || fichaAtual.nome;
+            kitchenTitle.textContent = fichaAtual.nomeFicha || fichaAtual.nome;
         }
 
         if (kitchenSteps) {
             if (fichaAtual.preparo) {
-                renderizarPassosReceita(
-                    fichaAtual.preparo,
-                    "kitchen-steps"
-                );
+                renderizarPassosReceita(fichaAtual.preparo, "kitchen-steps");
             } else {
-                kitchenSteps.innerHTML =
-                    `<li>Modo de preparo indisponível.</li>`;
+                kitchenSteps.innerHTML = `<li>Modo de preparo indisponível.</li>`;
             }
         }
 
@@ -1460,7 +1144,6 @@ if (btnOpenKitchen) {
 }
 
 const kitchenClose = $('kitchen-close');
-
 if (kitchenClose) {
     kitchenClose.addEventListener('click', () => {
         if (kitchenModal) {
@@ -1469,14 +1152,9 @@ if (kitchenClose) {
     });
 }
 
-
 function atualizarContadorReceitasHoje(turmaId) {
-    const contador = document.getElementById('hero-receitas-count');
-    if (!contador) return;
-
     let receitasHoje = obterAgendamentosDeHoje();
 
-    // ADAPTAÇÃO: Filtra lendo idTurma do Agendamento, e não mais da ficha.turma
     if (turmaId && turmaId !== 'todas') {
         receitasHoje = receitasHoje.filter(agendamento => {
             const idTurma = agendamento.turma?.idTurma ?? agendamento.turma?.id;
@@ -1484,8 +1162,24 @@ function atualizarContadorReceitasHoje(turmaId) {
         });
     }
 
-    const quantidade = receitasHoje.length;
-    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+    const contador = document.getElementById('hero-receitas-count');
+    if (contador) {
+        const quantidade = receitasHoje.length;
+        contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
+    }
+
+    const contadorTurmas = document.getElementById('hero-turmas-count');
+    if (contadorTurmas) {
+        const turmasUnicasHoje = new Set();
+        receitasHoje.forEach(agendamento => {
+            const idTurma = agendamento.turma?.idTurma ?? agendamento.turma?.id;
+            if (idTurma != null) {
+                turmasUnicasHoje.add(String(idTurma));
+            }
+        });
+        const qtdTurmas = turmasUnicasHoje.size;
+        contadorTurmas.textContent = `${qtdTurmas} turma${qtdTurmas !== 1 ? 's' : ''}`;
+    }
 }
 
 function separarPassosReceita(preparo) {
@@ -1498,16 +1192,13 @@ function separarPassosReceita(preparo) {
         .map(passo => passo.trim())
         .filter(passo => passo.length > 0)
         .map(passo => passo + ".");
-    contador.textContent = `${quantidade} ${quantidade === 1 ? 'receita' : 'receitas'}`;
 }
 
 function renderizarPassosReceita(preparo, containerId) {
     const container = document.getElementById(containerId);
-
     if (!container) return;
 
     container.innerHTML = "";
-
     const passos = separarPassosReceita(preparo);
 
     passos.forEach(passo => {
@@ -1516,7 +1207,6 @@ function renderizarPassosReceita(preparo, containerId) {
         container.appendChild(li);
     });
 }
-
 
 // ===== 10. SELEÇÃO MANUAL DE RECEITA =====
 function onReceitaChange(event) {
@@ -1527,38 +1217,20 @@ function onReceitaChange(event) {
         return;
     }
 
-    // Procura a receita (e o dia) escolhida entre hoje e a semana.
     const agendamento = [
         ...obterAgendamentosDeHoje(),
         ...obterAgendamentosDaSemana()
-    ].find(item =>
-        chaveAgendamento(item) === chaveSelecionada
-    );
+    ].find(item => chaveAgendamento(item) === chaveSelecionada);
 
     if (agendamento) {
-        const idFicha =
-            agendamento.ficha.idFicha ??
-            agendamento.ficha.id;
-
+        const idFicha = agendamento.ficha.idFicha ?? agendamento.ficha.id;
         selecionarAula(idFicha, agendamento);
-
         return;
     }
 
-    console.warn(
-        'Não foi encontrado agendamento para a receita selecionada.'
-    );
-
+    console.warn('Não foi encontrado agendamento para a receita selecionada.');
     limparDetalhesDaTela();
 }
-
-//if (btnCloseUtil) btnCloseUtil.addEventListener('click', fecharModalUtil);
-//if (btnCancelUtil) btnCancelUtil.addEventListener('click', fecharModalUtil);
-
-// ===== CORREÇÃO DA PARTE FINAL DO SCRIPT =====
-
-// Remova referências a variáveis inexistentes (como btnCloseUtil / btnCancelUtil)
-// e mantenha apenas a lógica limpa do modal de saída:
 
 // ===== CONFIRMAÇÃO DE SAÍDA DO SISTEMA =====
 const btnSair = document.getElementById("btnSair");
@@ -1567,36 +1239,33 @@ const btnNao = document.getElementById("btnNao");
 const btnSim = document.getElementById("btnSim");
 const formLogout = document.getElementById("formLogout");
 
-// Abrir confirmação
 if (btnSair && modalSair) {
-  btnSair.addEventListener("click", function(e) {
-    e.preventDefault(); // Previne comportamentos indesejados
-    modalSair.classList.add("show");
-  });
+    btnSair.addEventListener("click", function(e) {
+        e.preventDefault();
+        modalSair.classList.add("show");
+    });
 }
 
-// Cancelar saída
 if (btnNao && modalSair) {
-  btnNao.addEventListener("click", function() {
-    modalSair.classList.remove("show");
-  });
+    btnNao.addEventListener("click", function() {
+        modalSair.classList.remove("show");
+    });
 }
 
-// Confirmar saída
 if (btnSim && formLogout) {
-  btnSim.addEventListener("click", function() {
-    formLogout.submit();
-  });
+    btnSim.addEventListener("click", function() {
+        formLogout.submit();
+    });
 }
 
-// Fechar ao clicar fora da janela (overlay)
 if (modalSair) {
-  modalSair.addEventListener("click", function(event) {
-    if (event.target === modalSair) {
-      modalSair.classList.remove("show");
-    }
-  });
+    modalSair.addEventListener("click", function(event) {
+        if (event.target === modalSair) {
+            modalSair.classList.remove("show");
+        }
+    });
 }
+
 // ========================================================
 // AUTOCOMPLETAR INSUMO EXTRA (DEBOUNCE + API)
 // ========================================================
@@ -1605,82 +1274,65 @@ const listaSugestoes = document.getElementById('lista-sugestoes-insumos');
 let timeoutBusca = null;
 
 if (inputExtraName && listaSugestoes) {
-
-    // Ouve sempre que o utilizador digitar algo no campo de insumo
     inputExtraName.addEventListener('input', function() {
         const termo = this.value.trim();
 
-        // Se apagar o texto ou tiver só 1 letra, esconde a lista e não procura
         if (termo.length < 2) {
             listaSugestoes.style.display = 'none';
             return;
         }
 
-        // DEBOUNCE: Se estiver a digitar rápido, cancela a busca anterior
         clearTimeout(timeoutBusca);
 
-        // Aguarda 300ms depois de parar de digitar para fazer a busca
         timeoutBusca = setTimeout(() => {
-
-            // Faz o pedido à API que criaste no Passo 2
             fetch(`/api/produtos/pesquisar?termo=${encodeURIComponent(termo)}`)
                 .then(res => res.json())
                 .then(produtos => {
-                    listaSugestoes.innerHTML = ''; // Limpa as sugestões antigas
+                    listaSugestoes.innerHTML = '';
 
-                    // Se não encontrar produtos, esconde a lista
                     if (produtos.length === 0) {
                         listaSugestoes.style.display = 'none';
                         return;
                     }
 
-                    // Cria um item na lista para cada produto encontrado
                     produtos.forEach(produto => {
                         const li = document.createElement('li');
                         li.style.padding = '10px 12px';
                         li.style.cursor = 'pointer';
                         li.style.borderBottom = '1px solid #f0f0f0';
-                        li.style.color = '#002747'; // Cor primária do SIGEC
-
-                        // Desenha o item com o ícone de lupa igual ao teu design mobile
+                        li.style.color = '#002747';
                         li.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; color: #f2911b; margin-right: 8px;">search</span> ${produto.nomeProduto}`;
 
-                        // Efeito visual ao passar o rato por cima
                         li.onmouseover = () => li.style.backgroundColor = '#f4f6f9';
                         li.onmouseout = () => li.style.backgroundColor = 'white';
 
-                        // Quando clicares numa sugestão:
                         li.addEventListener('click', () => {
-                            // 1. Coloca o nome no input
                             inputExtraName.value = produto.nomeProduto;
 
-                            // 2. Preenche automaticamente a unidade de medida (se existir)
                             const selectUnidade = document.getElementById('extra-un');
                             if (selectUnidade && produto.unidade) {
                                 selectUnidade.value = produto.unidade;
                             }
 
-                            // 3. Esconde a lista
                             listaSugestoes.style.display = 'none';
                         });
 
                         listaSugestoes.appendChild(li);
                     });
 
-                    // Mostra a lista final
                     listaSugestoes.style.display = 'block';
                 })
                 .catch(err => console.error("Erro na busca de insumos:", err));
         }, 300);
     });
 
-    // Se o utilizador clicar em qualquer lugar fora da lista ou do input, esconde a lista
     document.addEventListener('click', function(event) {
         if (event.target !== inputExtraName && event.target !== listaSugestoes) {
             listaSugestoes.style.display = 'none';
         }
     });
 }
+
 // ========================================================
 // AUTOCOMPLETAR UTENSÍLIO EXTRA (DEBOUNCE + API)
 // ========================================================
@@ -1689,11 +1341,9 @@ const listaSugestoesUtil = document.getElementById('lista-sugestoes-utensilios')
 let timeoutBuscaUtil = null;
 
 if (inputUtilName && listaSugestoesUtil) {
-
     inputUtilName.addEventListener('input', function() {
         const termo = this.value.trim();
 
-        // Só pesquisa se tiver 2 ou mais letras
         if (termo.length < 2) {
             listaSugestoesUtil.style.display = 'none';
             return;
@@ -1702,8 +1352,6 @@ if (inputUtilName && listaSugestoesUtil) {
         clearTimeout(timeoutBuscaUtil);
 
         timeoutBuscaUtil = setTimeout(() => {
-
-            // Chama a rota que testámos no navegador
             fetch(`/api/utensilios/pesquisar?termo=${encodeURIComponent(termo)}`)
                 .then(res => res.json())
                 .then(utensilios => {
@@ -1719,9 +1367,7 @@ if (inputUtilName && listaSugestoesUtil) {
                         li.style.padding = '10px 12px';
                         li.style.cursor = 'pointer';
                         li.style.borderBottom = '1px solid #f0f0f0';
-                        li.style.color = '#002747'; // Cor primária do SIGEC
-
-                        // Ícone do liquidificador para identificar os utensílios
+                        li.style.color = '#002747';
                         li.innerHTML = `<span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; color: #f2911b; margin-right: 8px;">blender</span> ${utensilio.nomeUtensilio}`;
 
                         li.onmouseover = () => li.style.backgroundColor = '#f4f6f9';
@@ -1741,7 +1387,6 @@ if (inputUtilName && listaSugestoesUtil) {
         }, 300);
     });
 
-    // Esconde a lista se clicares fora
     document.addEventListener('click', function(event) {
         if (event.target !== inputUtilName && event.target !== listaSugestoesUtil) {
             listaSugestoesUtil.style.display = 'none';
