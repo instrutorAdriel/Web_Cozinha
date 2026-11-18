@@ -2803,8 +2803,28 @@ main,
     border: none;
     cursor: default;
 }
-.day-cell.weekend {
-    background-color: #f8fafc;
+
+.day-cell.weekend,
+.day-cell.holiday {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    opacity: 1 !important;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Número apagado apenas no final de semana */
+.day-cell.weekend > span {
+    color: #94a3b8 !important;
+    opacity: 0.6;
+}
+
+/* Número vermelho vivo no feriado */
+.day-cell.holiday > span {
+    color: #ef4444 !important;
+    font-weight: 700;
+    opacity: 1 !important;
+
 }
 .day-cell.active-selected {
     border: 2px solid #0b2545 !important;
@@ -2873,6 +2893,7 @@ main,
     gap: 24px;
     box-sizing: border-box;
 }
+
 .panel-date-title {
     font-size: 16px;
     font-weight: 700;

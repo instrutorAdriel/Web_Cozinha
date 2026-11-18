@@ -28,6 +28,12 @@ const CalendarioSIGEC = {
     ],
 
     init() {
+        const ano = this.state.dataAtual.getFullYear();
+        const mes = this.state.dataAtual.getMonth();
+        const diaValido = this.obterPrimeiroDiaValido(ano, mes, this.state.diaSelecionado);
+        if (diaValido) {
+            this.state.diaSelecionado = diaValido;
+        }
         this.bindEvents();
         this.carregarTurmas();
     },
@@ -54,24 +60,116 @@ const CalendarioSIGEC = {
         }
 
         if (btnPrev) {
-            btnPrev.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() - 1);
-                this.renderizarGrid();
-                this.selecionarDiaInstantaneo(this.state.diaSelecionado);
-            });
+            btnPrev.addEventListener("click", () => this.mudarMes(-1));
         }
 
         if (btnNext) {
-            btnNext.addEventListener("click", () => {
-                this.state.dataAtual.setMonth(this.state.dataAtual.getMonth() + 1);
-                this.carregarAlocacoesERenderizarMes();
-            });
+            btnNext.addEventListener("click", () => this.mudarMes(1));
         }
     },
 
-    carregarAlocacoesERenderizarMes() {
+    // =========================================================
+    // VALIDAÇÃO DE DATAS, FERIADOS E NAVEGAÇÃO ENTRE MESES
+    // =========================================================
+    obterDataPascoa(ano) {
+        const a = ano % 19;
+        const b = Math.floor(ano / 100);
+        const c = ano % 100;
+        const d = Math.floor(b / 4);
+        const e = b % 4;
+        const f = Math.floor((b + 8) / 25);
+        const g = Math.floor((b - f + 1) / 3);
+        const h = (19 * a + b - d - g + 15) % 30;
+        const i = Math.floor(c / 4);
+        const k = c % 4;
+        const l = (32 + 2 * e + 2 * i - h - k) % 7;
+        const m = Math.floor((a + 11 * h + 22 * l) / 451);
+
+        const mes = Math.floor((h + l - 7 * m + 114) / 31);
+        const dia = ((h + l - 7 * m + 114) % 31) + 1;
+
+        return new Date(ano, mes - 1, dia);
+    },
+
+    obterFeriados(ano) {
+        const feriados = [
+            `${ano}-01-01`, `${ano}-04-21`, `${ano}-05-01`, `${ano}-09-07`,
+            `${ano}-10-12`, `${ano}-11-02`, `${ano}-11-15`, `${ano}-11-20`, `${ano}-12-25`
+        ];
+
+        const pascoa = this.obterDataPascoa(ano);
+        const sextaSanta = new Date(ano, pascoa.getMonth(), pascoa.getDate() - 2);
+        const sextaIso = `${sextaSanta.getFullYear()}-${String(sextaSanta.getMonth() + 1).padStart(2, "0")}-${String(sextaSanta.getDate()).padStart(2, "0")}`;
+
+        feriados.push(sextaIso);
+        return feriados;
+    },
+
+    verificarDataPermitida(dataIso) {
+        if (!dataIso || !/^\d{4}-\d{2}-\d{2}$/.test(dataIso)) {
+            return { permitida: false, motivo: "Data inválida." };
+        }
+
+        const [ano, mes, dia] = dataIso.split("-").map(Number);
+        const data = new Date(ano, mes - 1, dia);
+
+        if (data.getFullYear() !== ano || data.getMonth() !== mes - 1 || data.getDate() !== dia) {
+            return { permitida: false, motivo: "Data inválida." };
+        }
+
+        // 1º: Verifica feriado (tem prioridade mesmo se cair no sábado ou domingo)
+        if (this.obterFeriados(ano).includes(dataIso)) {
+            return { permitida: false, motivo: "Não é permitido agendar fichas em feriados." };
+        }
+
+        // 2º: Verifica final de semana
+        const diaSemana = data.getDay();
+        if (diaSemana === 0 || diaSemana === 6) {
+            return { permitida: false, motivo: "Não é permitido agendar fichas aos finais de semana." };
+        }
+
+        return { permitida: true, motivo: "" };
+    },
+
+    obterPrimeiroDiaValido(ano, mes, diaPreferido = 1) {
+        const totalDias = new Date(ano, mes + 1, 0).getDate();
+
+        for (let dia = Math.min(diaPreferido, totalDias); dia <= totalDias; dia++) {
+            const dataIso = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+            if (this.verificarDataPermitida(dataIso).permitida) {
+                return dia;
+            }
+        }
+
+        for (let dia = 1; dia < Math.min(diaPreferido, totalDias + 1); dia++) {
+            const dataIso = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+            if (this.verificarDataPermitida(dataIso).permitida) {
+                return dia;
+            }
+        }
+
+        return null;
+    },
+
+    mudarMes(direcao) {
+        const data = this.state.dataAtual;
+        const diaAnterior = this.state.diaSelecionado || 1;
+
+        data.setDate(1);
+        data.setMonth(data.getMonth() + direcao);
+
+        const ano = data.getFullYear();
+        const mes = data.getMonth();
+
+        const diaValido = this.obterPrimeiroDiaValido(ano, mes, diaAnterior);
+        if (diaValido) {
+            this.state.diaSelecionado = diaValido;
+        }
+
         this.renderizarGrid();
-        this.selecionarDiaInstantaneo(this.state.diaSelecionado);
+        if (diaValido) {
+            this.selecionarDiaInstantaneo(diaValido);
+        }
     },
 
     // =========================================================
@@ -319,13 +417,18 @@ const CalendarioSIGEC = {
     },
 
     // =========================================================
-    // ALOCAR FICHA (COM TRAVA GLOBAL ENTRE TODOS OS DIAS)
+    // ALOCAR FICHA (COM TRAVA GLOBAL E VALIDAÇÃO DE DATA)
     // =========================================================
     async alocarFicha(cardElement, idFicha, nomeFicha, dataIsoAlocacao) {
         if (!idFicha || !dataIsoAlocacao) return;
 
-        const chaveFicha = String(idFicha);
+        const validacao = this.verificarDataPermitida(dataIsoAlocacao);
+        if (!validacao.permitida) {
+            alert(validacao.motivo);
+            return;
+        }
 
+        const chaveFicha = String(idFicha);
         if (this.state.fichasAlocando.has(chaveFicha)) return;
         if (this.state.cacheAgendamentos.some(a => String(a.idFicha) === chaveFicha)) return;
 
@@ -561,17 +664,26 @@ const CalendarioSIGEC = {
                 dotsContainer.className = "indicator-dots";
                 Object.assign(dotsContainer.style, {
                     display: "flex",
+                    alignItems: "center",
                     gap: "3px",
                     justifyContent: "flex-end",
                     marginLeft: "auto",
                     marginTop: "auto"
                 });
 
+                // Bolinhas laranjas para aulas agendadas
                 for (let k = 0; k < qtdFichas; k++) {
                     const dot = document.createElement("div");
                     dot.className = "dot orange";
+                    Object.assign(dot.style, {
+                        width: "7px",
+                        height: "7px",
+                        borderRadius: "50%",
+                        flexShrink: "0"
+                    });
                     dotsContainer.appendChild(dot);
                 }
+
                 celula.appendChild(dotsContainer);
             }
         });
@@ -591,8 +703,13 @@ const CalendarioSIGEC = {
         const primeiroDiaSemana = new Date(ano, mes, 1).getDay();
         const totalDiasNoMes = new Date(ano, mes + 1, 0).getDate();
 
-        if (this.state.diaSelecionado > totalDiasNoMes) {
-            this.state.diaSelecionado = totalDiasNoMes;
+        const dataAtualCheck = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(this.state.diaSelecionado).padStart(2, "0")}`;
+        if (
+            !this.state.diaSelecionado ||
+            this.state.diaSelecionado > totalDiasNoMes ||
+            !this.verificarDataPermitida(dataAtualCheck).permitida
+        ) {
+            this.state.diaSelecionado = this.obterPrimeiroDiaValido(ano, mes, 1);
         }
 
         for (let i = 0; i < primeiroDiaSemana; i++) {
@@ -609,23 +726,30 @@ const CalendarioSIGEC = {
             spanNumero.textContent = dia;
             celula.appendChild(spanNumero);
 
-            const diaSemana = new Date(ano, mes, dia).getDay();
             const strMes = String(mes + 1).padStart(2, "0");
             const strDia = String(dia).padStart(2, "0");
             const dataIso = `${ano}-${strMes}-${strDia}`;
 
-            const feriados = [
-                `${ano}-01-01`, `${ano}-04-21`, `${ano}-05-01`, `${ano}-09-07`,
-                `${ano}-10-12`, `${ano}-11-02`, `${ano}-11-15`, `${ano}-11-20`, `${ano}-12-25`
-            ];
-
+            const validacao = this.verificarDataPermitida(dataIso);
+            const diaSemana = new Date(ano, mes, dia).getDay();
+            const ehFeriado = this.obterFeriados(ano).includes(dataIso);
             const ehFimDeSemana = diaSemana === 0 || diaSemana === 6;
-            const ehFeriado = feriados.includes(dataIso);
 
-            if (ehFimDeSemana || ehFeriado) {
+            if (!validacao.permitida) {
                 celula.classList.add(ehFeriado ? "holiday" : "weekend");
                 celula.style.pointerEvents = "none";
-                celula.style.opacity = "0.4";
+                celula.style.opacity = "1";
+                celula.style.backgroundColor = "#f8fafc";
+                celula.style.cursor = "not-allowed";
+                celula.title = validacao.motivo;
+
+                if (ehFeriado) {
+                    spanNumero.style.color = "#ef4444";
+                    spanNumero.style.fontWeight = "700";
+                } else if (ehFimDeSemana) {
+                    spanNumero.style.color = "#94a3b8";
+                    spanNumero.style.opacity = "0.6";
+                }
             }
 
             celula.setAttribute("data-date", dataIso);
@@ -635,11 +759,13 @@ const CalendarioSIGEC = {
                 this.state.dataIsoSelecionada = dataIso;
             }
 
-            celula.addEventListener("click", () => {
-                grid.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
-                celula.classList.add("active-selected");
-                this.selecionarDiaInstantaneo(dia);
-            });
+            if (validacao.permitida) {
+                celula.addEventListener("click", () => {
+                    grid.querySelectorAll(".day-cell").forEach(c => c.classList.remove("active-selected"));
+                    celula.classList.add("active-selected");
+                    this.selecionarDiaInstantaneo(dia);
+                });
+            }
 
             grid.appendChild(celula);
         }
@@ -648,10 +774,9 @@ const CalendarioSIGEC = {
     },
 
     // =========================================================
-    // CRIAÇÃO DO CARD (SEM O STATUS ABAIXO DO NOME DA FICHA)
+    // CRIAÇÃO DO CARD (LIMPO E COM TRAVA DE LOADING)
     // =========================================================
     criarCardFicha(item, acaoOuStatus, acaoOpcional) {
-        // Suporta tanto criarCardFicha(item, "delete") quanto criarCardFicha(item, "success", "delete")
         const acao = acaoOpcional || acaoOuStatus;
         const id = item.id;
         const idFicha = item.idFicha || id;
