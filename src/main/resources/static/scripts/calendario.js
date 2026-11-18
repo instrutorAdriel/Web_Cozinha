@@ -89,7 +89,7 @@ const CalendarioSIGEC = {
             select.innerHTML = "";
 
             if (turmas.length === 0) {
-                select.innerHTML = '<option value="">Nenhuma turma vinculada</option>';
+                select.innerHTML = '<option value="">Nenhuma  Turma Vinculada</option>';
 
                 select.disabled = true; // <--- ISSO IMPEDE QUE ELE ABRA
             } else {

@@ -404,7 +404,7 @@ function popularTurmasDropdown(turmas) {
     if (turmas.length === 0) {
 
         turmaSelect.add(
-            new Option('Nenhuma turma vinculada', '')
+            new Option('Nenhuma Turma Vinculada', '')
         );
 
         turmaSelect.disabled = true;

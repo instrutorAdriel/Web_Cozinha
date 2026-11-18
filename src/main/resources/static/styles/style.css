@@ -482,7 +482,7 @@ body#auth-page .links a:hover {
 #turma-select {
     appearance: none;
     background: #fff;
-    color: var(--primary);
+    color: #0b2647 !important;
     border: 1px solid var(--outline-variant);
     border-radius: var(--r);
     padding: 8px 36px 8px 12px;
