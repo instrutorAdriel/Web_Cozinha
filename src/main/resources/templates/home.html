@@ -5,6 +5,8 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>SENAC SIGEC - Painel do Instrutor</title>
 
+    <link rel="icon" type="image/png" th:href="@{/img/logo-senac.png}">
+
     <!-- Fontes do Google (Tipografia do Sistema) -->
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet">
@@ -19,7 +21,8 @@
 <aside class="sidebar" id="sidebar">
     <!-- Logotipo e Identificação do Sistema (Sem o <br> que desalinhava o cabeçalho) -->
     <div class="sidebar-brand">
-        <img th:src="@{/img/logo-branca-senac-fecomercio.png}" alt="SENAC – Fecomércio Sesc" class="brand-logo-img">
+        <img th:src="@{/img/logo-branca-senac-fecomercio.png}"
+             alt="SENAC – Fecomércio Sesc" class="brand-logo-img">
         <div class="brand-text">
             <h1 class="brand-title">SIGEC</h1>
             <p class="brand-sub">Painel do Instrutor</p>
@@ -394,12 +397,17 @@
             <button class="modal-close" id="extra-close"><span class="material-symbols-outlined">close</span></button>
         </div>
         <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Insumo</label>
-        <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem">
+        <div style="position: relative;">
+            <input type="text" id="extra-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Azeite Extra Virgem" autocomplete="off">
 
+            <ul id="lista-sugestoes-insumos" style="display: none; position: absolute; top: 100%; left: 0; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 0; margin-top: -12px; list-style: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></ul>
+        </div>
         <div style="display: flex; gap: 12px; margin-bottom: 12px;">
             <div style="flex: 1;">
-                <label class="field-label dark">Quantidade</label>
-                <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500">
+                <div style="flex: 1;">
+                    <label class="field-label dark">Quantidade</label>
+                    <input type="number" id="extra-qtd" class="obs-textarea" style="min-height: 40px; height: auto;" placeholder="Ex: 500" min="1" step="1" onkeydown="return !['-', '+', 'e', 'E', '.', ','].includes(event.key)">
+                </div>
             </div>
             <div style="flex: 1;">
                 <label class="field-label dark" for="extra-un">Unidade</label>
@@ -408,9 +416,9 @@
                         <option value="un">un (Unidade)</option>
                         <option value="g">g (Grama)</option>
                         <option value="kg">kg (Quilograma)</option>
-                        <option value="ml">ml (Mililitro)</option>
+                        <option value="ml">mL (Mililitro)</option>
                         <option value="l">L (Litro)</option>
-                        <option value="pct">pct (Pacote)</option>
+                        <option value="pct">pc (Pacote)</option>
                         <option value="cx">cx (Caixa)</option>
                         <option value="lt">lt (Lata)</option>
                     </select>
@@ -436,11 +444,17 @@
             <h3 class="modal-title">Adicionar Utensílio Extra</h3>
             <button class="modal-close" id="util-close"><span class="material-symbols-outlined">close</span></button>
         </div>
-        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>        <label class="field-label dark">Nome do Utensílio</label>
-        <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial">
+        <p class="hero-sub" style="font-size: 14px; margin-bottom: 16px; color: var(--primary-container); font-weight: 600;">O item será registrado no checklist e enviado para validação.</p>
+
+        <label class="field-label dark">Nome do Utensílio</label>
+        <!-- Alteração feita aqui em baixo: -->
+        <div style="position: relative;">
+            <input type="text" id="util-name" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: Liquidificador Industrial" autocomplete="off">
+            <ul id="lista-sugestoes-utensilios" style="display: none; position: absolute; top: 100%; left: 0; z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 4px; padding: 0; margin-top: -12px; list-style: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></ul>
+        </div>
 
         <label class="field-label dark">Quantidade (un)</label>
-        <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2">
+        <input type="number" id="util-qtd" class="obs-textarea" style="min-height: 40px; margin-bottom: 12px; height: auto;" placeholder="Ex: 2" min="1" step="1">
 
         <label class="field-label dark">Observação / Motivo</label>
         <textarea id="util-obs" class="obs-textarea" style="min-height: 60px; margin-bottom: 16px;" placeholder="Ex: Precisamos de mais um para agilizar..."></textarea>
@@ -454,6 +468,8 @@
 
 <!-- Camada escura de fundo para focar a atenção nas modais abertas -->
 <div class="overlay" id="overlay"></div>
+
+
 
 <!-- Arquivo Script JS Principal (Via Thymeleaf) -->
 <script th:src="@{/scripts/scriptHome.js?v=8}" defer></script>

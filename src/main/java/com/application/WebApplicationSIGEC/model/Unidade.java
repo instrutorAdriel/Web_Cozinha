@@ -1,9 +1,11 @@
 package com.application.WebApplicationSIGEC.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
-@Table
+@Table(name = "unidade")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Unidade {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +21,12 @@ public class Unidade {
     public Unidade() {
     }
 
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNomeUnidade() { return nomeUnidade; }
+    public void setNomeUnidade(String nomeUnidade) { this.nomeUnidade = nomeUnidade; }
+
+    public String getSituacao() { return situacao; }
+    public void setSituacao(String situacao) { this.situacao = situacao; }
 }
