@@ -3837,3 +3837,13 @@ body#receitas-page .select-wrap select,
 body#receitas-page #turma-select {
     width: 100% !important;
 }
+#turma-select:disabled {
+    color: #000000;
+    background-color: #ffffff;
+    opacity: 1;
+    cursor: default;
+}
+
+#turma-select:disabled + .select-arrow {
+    display: none;
+}

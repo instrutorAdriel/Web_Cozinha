@@ -90,7 +90,11 @@ const CalendarioSIGEC = {
 
             if (turmas.length === 0) {
                 select.innerHTML = '<option value="">Nenhuma turma vinculada</option>';
+
+                select.disabled = true; // <--- ISSO IMPEDE QUE ELE ABRA
             } else {
+                select.disabled = false; // Habilita caso venham turmas
+
                 turmas.forEach(turma => {
                     const id = turma.idTurma || turma.id;
                     const nomeTurma = turma.nomeTurma || turma.nome || "Turma sem nome";
@@ -118,6 +122,7 @@ const CalendarioSIGEC = {
             console.error("Erro no carregamento das turmas:", erro);
             if (this.elements.selectTurma) {
                 this.elements.selectTurma.innerHTML = '<option value="">Erro ao carregar turmas</option>';
+                this.elements.selectTurma.disabled = true; // <--- Garante que desativa também em caso de erro
             }
         } finally {
             this.carregarAlocacoes();
