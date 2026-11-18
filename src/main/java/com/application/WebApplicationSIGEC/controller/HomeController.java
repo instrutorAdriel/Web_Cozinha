@@ -40,18 +40,9 @@ public class HomeController {
     @Autowired
     private TurmaRepository turmaRepository;
 
-    private Long resolverTurmaSelecionada(Long idUsuario, Long idTurmaParam) {
-        if (idTurmaParam != null) {
-            return idTurmaParam;
-        }
-        List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(idUsuario);
-        return (turmas != null && !turmas.isEmpty()) ? turmas.get(0).getId() : null;
-    }
-
     @GetMapping("/home")
     public String exibirHome(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
         if (session == null || session.getAttribute("usuarioLogado") == null) {
             return "redirect:/";
         }
@@ -283,5 +274,13 @@ public class HomeController {
 
     public void setTurmaRepository(TurmaRepository turmaRepository) {
         this.turmaRepository = turmaRepository;
+    }
+
+    private Long resolverTurmaSelecionada(Long idUsuario, Long idTurmaParam) {
+        if (idTurmaParam != null) {
+            return idTurmaParam;
+        }
+        List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(idUsuario);
+        return (turmas != null && !turmas.isEmpty()) ? turmas.get(0).getId() : null;
     }
 }

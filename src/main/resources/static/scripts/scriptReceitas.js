@@ -113,21 +113,25 @@ async function carregarReceitasPorTurma() {
         // Ignora respostas antigas quando a turma muda rapidamente
         if (requisicaoAtual !== requisicaoReceitas) return;
 
-        RECIPES = fichas.map(f => ({
-            id: f.id,
-            name: f.nomeFicha,
-            type: f.categoria, // Pode ser adaptado se a API retornar categoria
-            cat: (() => {
-                const t = turmas.find(x => String(x.idTurma || x.id) === String(idTurma));
-                return t ? (t.nomeTurma || t.nome) : "Cozinha";
-            })(),
-            status: f.data ? "datadas" : "disponivel",
-            dataPrevista: f.data,
-            duration: "45 min", // Pode ser substituído se houver duração no banco
-            description: f.preparo || "Sem modo de preparo cadastrado.",
-            turma: f.turma,
-            idTurma: f.idTurma ?? f.turma?.id ?? f.turma?.idTurma
-        }));
+        RECIPES = fichas.map(f => {
+            const dataAgendada = f.dataPrevista || f.data || null;
+            const statusCalculado = f.status || (dataAgendada ? "datadas" : "disponivel");
+
+            return {
+                id: f.id,
+                name: f.nomeFicha,
+                type: f.categoria || "Geral",
+                cat: (() => {
+                    const t = turmas.find(x => String(x.idTurma || x.id) === String(idTurma));
+                    return t ? (t.nomeTurma || t.nome) : "Cozinha";
+                })(),
+                status: statusCalculado,
+                dataPrevista: dataAgendada,
+                duration: "45 min",
+                description: f.preparo || "Sem modo de preparo cadastrado.",
+                idTurma: f.idTurma ?? idTurma
+            };
+        });
 
         activeId = null;
         renderList();

@@ -119,5 +119,8 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
             @Param("idUsuario") Long idUsuario,
             @Param("idTurma") Long idTurma
     );
+
+
+
 }
 

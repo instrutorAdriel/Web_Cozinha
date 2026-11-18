@@ -101,11 +101,9 @@ public class FichasService {
         if (idTurma == null || data == null) return Collections.emptyMap();
 
         List<Agendamento> alocadasNoDia = agendamentoRepository.buscarPorTurmaEData(idTurma, data);
-        List<Ficha> fichasDoCurso = cursoFichaRepository.findFichasByTurmaCurso(idTurma);
 
-        if (fichasDoCurso.isEmpty()) {
-            fichasDoCurso = fichasRepository.findAll();
-        }
+        // Usa a mesma query da tela de Receitas: traz SOMENTE as fichas ativas do curso desta turma
+        List<Ficha> fichasDoCurso = fichasRepository.findFichasAtivasByTurmaId(idTurma);
 
         List<Agendamento> todosDaTurma = agendamentoRepository.buscarTodosPorTurma(idTurma);
         Set<Long> idsJaAlocados = new HashSet<>();
