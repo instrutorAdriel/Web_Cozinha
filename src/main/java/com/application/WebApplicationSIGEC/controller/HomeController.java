@@ -43,10 +43,6 @@ public class HomeController {
     @GetMapping("/home")
     public String exibirHome(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/";
-        }
-
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
         String primeiroNome = "Instrutor";
@@ -94,9 +90,6 @@ public class HomeController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
         if (turmaAtiva == null) {
@@ -121,10 +114,6 @@ public class HomeController {
             HttpSession session
     ) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
         if (turmaAtiva == null) {
@@ -153,9 +142,6 @@ public class HomeController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
         if (turmaAtiva == null) {
@@ -170,10 +156,6 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Turma>> getTurmasDoUsuario(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         List<com.application.WebApplicationSIGEC.model.Turma> turmasDoUsuario = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
         return ResponseEntity.ok(turmasDoUsuario);
@@ -233,7 +215,6 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> solicitarInsumoExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
             String nomeInsumo = (String) payload.get("nomeInsumo");
@@ -253,7 +234,6 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> solicitarUtensilioExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
             String nomeUtensilio = (String) payload.get("nomeUtensilio");

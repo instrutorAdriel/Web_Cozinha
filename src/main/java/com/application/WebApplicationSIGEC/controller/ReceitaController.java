@@ -23,11 +23,6 @@ public class ReceitaController {
     @GetMapping("/receitas") // 2. Mapeia a URL /receitas
     public String receitas(Model model, HttpServletRequest request) {
         HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/"; // Redireciona e PARA a execução
-        }
-
         return "telaReceitas"; // 3. Procura por receitas.html na pasta templates
 
     }

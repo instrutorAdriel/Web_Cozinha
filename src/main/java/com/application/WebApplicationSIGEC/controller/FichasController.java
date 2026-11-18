@@ -32,9 +32,6 @@ public class FichasController {
 
     @GetMapping("/calendario")
     public String exibirCalendario(HttpSession session) {
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/";
-        }
         return "calendario";
     }
 
@@ -42,10 +39,6 @@ public class FichasController {
     @ResponseBody
     public ResponseEntity<List<Turma>> obterTurmasDoUsuario(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
         return ResponseEntity.ok(turmas);
@@ -58,9 +51,6 @@ public class FichasController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         // Se idTurma não for passado, utiliza 18L como padrão de desenvolvimento
         Long turmaConsulta = (idTurma != null) ? idTurma : 18L;
@@ -76,9 +66,6 @@ public class FichasController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         LocalDate dataSelecionada = LocalDate.parse(data);
         Long turmaConsulta = (idTurma != null) ? idTurma : 18L;
@@ -95,10 +82,6 @@ public class FichasController {
             @RequestParam(value = "idTurma", required = false) Long idTurma,
             @RequestParam("data") String dataFinal,
             HttpSession session) {
-
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return ResponseEntity.status(401).body("Acesso negado.");
-        }
 
         Long fichaIdFinal = (idFicha != null) ? idFicha : id;
         if (fichaIdFinal == null) {
@@ -124,9 +107,6 @@ public class FichasController {
             @RequestParam("id") Long id,
             HttpSession session) {
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return ResponseEntity.status(401).body("Acesso negado.");
-        }
 
         fichasService.desalocarFicha(id);
         return ResponseEntity.ok("Ficha removida do agendamento!");
