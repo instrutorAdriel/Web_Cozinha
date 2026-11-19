@@ -16,4 +16,14 @@ public interface InsumoFichaRepository extends JpaRepository<InsumoFicha, Long> 
     // a mesma ficha existe em várias turmas e cada ingrediente viria repetido.
     @Query("SELECT i FROM InsumoFicha i JOIN FETCH i.produto WHERE i.ficha.id = :fichaId ORDER BY i.id")
     List<InsumoFicha> findByFichaId(@Param("fichaId") Long fichaId);
+
+    @Query(value = """
+    SELECT DISTINCT f.id_insumo_ficha
+    FROM insumo_ficha f
+    JOIN movimentacao_estoque m ON m.id_produto = f.id_produto
+    WHERE f.id_ficha = :fichaId
+      AND m.tipo_movimentacao = 'SAIDA'
+      AND DATE(m.data_movimentacao) = CURDATE()
+""", nativeQuery = true)
+    List<Long> buscarIdsSeparadosHoje(@Param("fichaId") Long fichaId);
 }

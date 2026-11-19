@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "solicitacao_utensilio")
 public class SolicitacaoUtensilio {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_solicitacao_utensilio")
@@ -20,7 +21,7 @@ public class SolicitacaoUtensilio {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_utensilio")
-    private Insumo id_utensilio;
+    private Utensilio id_utensilio;
 
     private String data_solicitacao;
 
@@ -30,52 +31,12 @@ public class SolicitacaoUtensilio {
 
     private String situacao;
 
-    public String getSituacao() {
-        return situacao;
+    public Long getId() {
+        return id;
     }
 
-    public void setSituacao(String situacao) {
-        this.situacao = situacao;
-    }
-
-    public String getJustificativa() {
-        return justificativa;
-    }
-
-    public void setJustificativa(String justificativa) {
-        this.justificativa = justificativa;
-    }
-
-    public int getQuantidade() {
-        return quantidade;
-    }
-
-    public void setQuantidade(int quantidade) {
-        this.quantidade = quantidade;
-    }
-
-    public String getData_solicitacao() {
-        return data_solicitacao;
-    }
-
-    public void setData_solicitacao(String data_solicitacao) {
-        this.data_solicitacao = data_solicitacao;
-    }
-
-    public Insumo getId_insumo() {
-        return id_utensilio;
-    }
-
-    public void setId_insumo(Insumo id_insumo) {
-        this.id_utensilio = id_insumo;
-    }
-
-    public Turma getId_turma() {
-        return id_turma;
-    }
-
-    public void setId_turma(Turma id_turma) {
-        this.id_turma = id_turma;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Usuario getId_usuario() {
@@ -86,11 +47,51 @@ public class SolicitacaoUtensilio {
         this.id_usuario = id_usuario;
     }
 
-    public Long getId() {
-        return id;
+    public Turma getId_turma() {
+        return id_turma;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setId_turma(Turma id_turma) {
+        this.id_turma = id_turma;
+    }
+
+    public Utensilio getId_utensilio() {
+        return id_utensilio;
+    }
+
+    public void setId_utensilio(Utensilio id_utensilio) {
+        this.id_utensilio = id_utensilio;
+    }
+
+    public String getData_solicitacao() {
+        return data_solicitacao;
+    }
+
+    public void setData_solicitacao(String data_solicitacao) {
+        this.data_solicitacao = data_solicitacao;
+    }
+
+    public int getQuantidade() {
+        return quantidade;
+    }
+
+    public void setQuantidade(int quantidade) {
+        this.quantidade = quantidade;
+    }
+
+    public String getJustificativa() {
+        return justificativa;
+    }
+
+    public void setJustificativa(String justificativa) {
+        this.justificativa = justificativa;
+    }
+
+    public String getSituacao() {
+        return situacao;
+    }
+
+    public void setSituacao(String situacao) {
+        this.situacao = situacao;
     }
 }

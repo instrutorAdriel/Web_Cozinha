@@ -38,4 +38,12 @@ public interface InsumoRepository extends JpaRepository<Insumo, Long> {
             FOR UPDATE
             """, nativeQuery = true)
     List<Insumo> findLotesDisponiveis(@Param("idProduto") Long idProduto);
+
+    @Query("""
+    SELECT i FROM Insumo i
+    JOIN i.produto p
+    WHERE LOWER(TRIM(p.nomeProduto)) = LOWER(TRIM(:nome))
+    ORDER BY i.cancelado ASC, i.dataValidade DESC, i.id DESC
+""")
+    List<Insumo> buscarPorNomeProdutoOrdenado(@Param("nome") String nome);
 }

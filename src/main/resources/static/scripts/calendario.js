@@ -843,3 +843,33 @@ if (btnSair && modalSair) { btnSair.addEventListener("click", (e) => { e.prevent
 if (btnNao && modalSair) { btnNao.addEventListener("click", () => modalSair.classList.remove("show")); }
 if (btnSim && formLogout) { btnSim.addEventListener("click", () => formLogout.submit()); }
 if (modalSair) { modalSair.addEventListener("click", (e) => { if (e.target === modalSair) modalSair.classList.remove("show"); }); }
+
+// ===== INTERCEPTADOR GLOBAL DE SESSÃO (FORÇA F5 / LOGIN NO RERUN) =====
+if (!window.__sigecSessionGuard) {
+    window.__sigecSessionGuard = true;
+
+    const fetchOriginal = window.fetch;
+    window.fetch = async (...args) => {
+        const response = await fetchOriginal(...args);
+        if (response.status === 401) {
+            // Força o reload (F5) -> o AutenticacaoInterceptor barra e manda pro "/"
+            window.location.reload();
+        }
+        return response;
+    };
+
+    // Força F5 se o usuário apertar "Voltar" no navegador e pegar tela em cache
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
+    // Assim que você der Rerun no IntelliJ e voltar pra aba do navegador,
+    // ele já checa se a sessão morreu e força o F5 sozinho (sem precisar clicar em nada)
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            fetch("/api/notificacoes").catch(() => {});
+        }
+    });
+}

@@ -2,13 +2,13 @@ package com.application.WebApplicationSIGEC.service;
 
 import com.application.WebApplicationSIGEC.model.*;
 import com.application.WebApplicationSIGEC.repository.*;
-import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -19,45 +19,57 @@ import java.util.stream.Collectors;
 @Service
 public class HomeService {
 
+    private static final DateTimeFormatter FORMATO_DATA_HORA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     private final AgendamentoRepository agendamentoRepository;
     private final InsumoRepository insumoRepository;
     private final InsumoFichaRepository insumoFichaRepository;
     private final ChecklistUtensilioRepository checklistUtensilioRepository;
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
-    private final EntityManager entityManager;
+    private final UtensilioRepository utensilioRepository;
+    private final SolicitacaoInsumoRepository solicitacaoInsumoRepository;
+    private final SolicitacaoUtensilioRepository solicitacaoUtensilioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final TurmaRepository turmaRepository;
 
     public HomeService(AgendamentoRepository agendamentoRepository,
                        InsumoRepository insumoRepository,
                        InsumoFichaRepository insumoFichaRepository,
                        ChecklistUtensilioRepository checklistUtensilioRepository,
                        MovimentacaoEstoqueRepository movimentacaoEstoqueRepository,
-                       EntityManager entityManager) {
+                       UtensilioRepository utensilioRepository,
+                       SolicitacaoInsumoRepository solicitacaoInsumoRepository,
+                       SolicitacaoUtensilioRepository solicitacaoUtensilioRepository,
+                       UsuarioRepository usuarioRepository,
+                       TurmaRepository turmaRepository) {
         this.agendamentoRepository = agendamentoRepository;
         this.insumoRepository = insumoRepository;
         this.insumoFichaRepository = insumoFichaRepository;
         this.checklistUtensilioRepository = checklistUtensilioRepository;
         this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
-        this.entityManager = entityManager;
+        this.utensilioRepository = utensilioRepository;
+        this.solicitacaoInsumoRepository = solicitacaoInsumoRepository;
+        this.solicitacaoUtensilioRepository = solicitacaoUtensilioRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.turmaRepository = turmaRepository;
     }
 
     // ==========================================
-    // ADAPTAÇÃO: Busca de Aulas (Sem turma_ficha)
+    // BUSCA DE AULAS
     // ==========================================
 
-    // Busca as aulas agendadas para o dia, filtrando pelo utilizador e pela turma
     @Transactional(readOnly = true)
     public List<Agendamento> buscarAulasDoDia(LocalDate data, Long idUsuario, Long idTurma) {
         return agendamentoRepository.findAgendamentosDoUsuarioPorData(data, idUsuario, idTurma);
     }
 
-    // Busca as aulas agendadas para a semana, filtrando pelo utilizador e pela turma
     @Transactional(readOnly = true)
     public List<Agendamento> buscarAulasDaSemana(LocalDate inicio, LocalDate fim, Long idUsuario, Long idTurma) {
         return agendamentoRepository.buscarAgendamentosDaSemana(inicio, fim, idUsuario, idTurma);
     }
 
     // ==========================================
-    // FLUXO DE INSUMOS E UTENSÍLIOS (MANTIDOS INTACTOS)
+    // FLUXO DE INSUMOS E UTENSÍLIOS
     // ==========================================
 
     @Transactional(readOnly = true)
@@ -66,7 +78,7 @@ public class HomeService {
 
         List<?> insumos = montarInsumosDaFicha(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
-        List<Long> insumosSeparados = buscarInsumosSeparadosHoje(fichaId);
+        List<Long> insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId);
 
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
@@ -107,24 +119,6 @@ public class HomeService {
         }).collect(Collectors.toList());
     }
 
-    @SuppressWarnings("unchecked")
-    private List<Long> buscarInsumosSeparadosHoje(Long fichaId) {
-        List<Object> ids = entityManager.createNativeQuery("""
-                SELECT DISTINCT f.id_insumo_ficha
-                FROM insumo_ficha f
-                JOIN movimentacao_estoque m ON m.id_produto = f.id_produto
-                WHERE f.id_ficha = :fichaId
-                  AND m.tipo_movimentacao = 'SAIDA'
-                  AND DATE(m.data_movimentacao) = CURDATE()
-                """)
-                .setParameter("fichaId", fichaId)
-                .getResultList();
-
-        return ids.stream()
-                .map(id -> ((Number) id).longValue())
-                .collect(Collectors.toList());
-    }
-
     @Transactional
     public void confirmarSeparacaoInsumos(List<Long> insumoFichaIds, String observacaoGeral) {
         String obs = (observacaoGeral != null && !observacaoGeral.trim().isEmpty())
@@ -137,7 +131,7 @@ public class HomeService {
                 continue;
             }
 
-            if (buscarInsumosSeparadosHoje(item.getFicha().getId()).contains(item.getId())) {
+            if (insumoFichaRepository.buscarIdsSeparadosHoje(item.getFicha().getId()).contains(item.getId())) {
                 continue;
             }
 
@@ -217,64 +211,82 @@ public class HomeService {
     }
 
     // ==========================================
-    // SOLICITAÇÕES EXTRA (MANTIDOS INTACTOS)
+    // SOLICITAÇÕES EXTRA
     // ==========================================
 
     @Transactional
-    public void salvarSolicitacaoInsumoExtra(Long idUsuario, Long idTurma, String nomeInsumo, Double quantidade, String unidadeMedida, String justificativa) {
-        Long idInsumo;
-
-        try {
-            String buscaSql = """
-                    SELECT i.id_insumo
-                    FROM insumo i
-                    JOIN produto p ON i.id_produto = p.id_produto
-                    WHERE p.nome_produto = :nome
-                    ORDER BY i.cancelado ASC, i.data_validade DESC, i.id_insumo DESC
-                    LIMIT 1
-                    """;
-            idInsumo = ((Number) entityManager.createNativeQuery(buscaSql)
-                    .setParameter("nome", nomeInsumo)
-                    .getSingleResult()).longValue();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("O item '" + nomeInsumo + "' não foi encontrado no estoque. Certifique-se de que o produto está cadastrado e possui lote.");
+    public void salvarSolicitacaoInsumoExtra(Long idUsuario,
+                                             Long idTurma,
+                                             String nomeInsumo,
+                                             Double quantidade,
+                                             String unidadeMedida,
+                                             String justificativa) {
+        if (nomeInsumo == null || nomeInsumo.isBlank()) {
+            throw new IllegalArgumentException("Informe o nome do insumo.");
+        }
+        if (quantidade == null || quantidade.intValue() <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
 
-        String sql = "INSERT INTO solicitacao_insumo (id_usuario, id_turma, id_insumo, data_solicitacao, quantidade, unidade_medida, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, :idI, NOW(), :qtd, :unidade, :just, 'N')";
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        entityManager.createNativeQuery(sql)
-                .setParameter("usuario", idUsuario)
-                .setParameter("turma", idTurma)
-                .setParameter("idI", idInsumo)
-                .setParameter("qtd", quantidade)
-                .setParameter("unidade", unidadeMedida)
-                .setParameter("just", justificativa)
-                .executeUpdate();
+        Turma turma = turmaRepository.findById(idTurma)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada."));
+
+        Insumo insumo = insumoRepository.buscarPorNomeProdutoOrdenado(nomeInsumo)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "O item '" + nomeInsumo + "' não foi encontrado no estoque. Certifique-se de que o produto está cadastrado e possui lote."
+                ));
+
+        SolicitacaoInsumo solicitacao = new SolicitacaoInsumo();
+        solicitacao.setId_usuario(usuario);
+        solicitacao.setId_turma(turma);
+        solicitacao.setId_insumo(insumo);
+        solicitacao.setData_solicitacao(LocalDateTime.now().format(FORMATO_DATA_HORA));
+        solicitacao.setQuantidade(quantidade.intValue());
+        solicitacao.setUnidade_medida(unidadeMedida);
+        solicitacao.setJustificativa(justificativa);
+        solicitacao.setSituacao("P");
+
+        solicitacaoInsumoRepository.save(solicitacao);
     }
 
     @Transactional
-    public void salvarSolicitacaoUtensilioExtra(Long idUsuario, Long idTurma, String nomeUtensilio, Integer quantidade, String justificativa) {
-        Long idUtensilio;
-
-        try {
-            String buscaSql = "SELECT id_utensilio FROM utensilio WHERE nome_utensilio = :nome LIMIT 1";
-            idUtensilio = ((Number) entityManager.createNativeQuery(buscaSql)
-                    .setParameter("nome", nomeUtensilio)
-                    .getSingleResult()).longValue();
-        } catch (Exception e) {
-            throw new IllegalArgumentException("O utensílio '" + nomeUtensilio + "' não existe no banco de dados. Cadastre-o primeiro no painel de utensílios.");
+    public void salvarSolicitacaoUtensilioExtra(Long idUsuario,
+                                                Long idTurma,
+                                                String nomeUtensilio,
+                                                Integer quantidade,
+                                                String justificativa) {
+        if (nomeUtensilio == null || nomeUtensilio.isBlank()) {
+            throw new IllegalArgumentException("Informe o nome do utensílio.");
+        }
+        if (quantidade == null || quantidade <= 0) {
+            throw new IllegalArgumentException("A quantidade deve ser maior que zero.");
         }
 
-        String sql = "INSERT INTO solicitacao_utensilio (id_usuario, id_turma, id_utensilio, data_solicitacao, quantidade, justificativa, situacao) " +
-                "VALUES (:usuario, :turma, :idU, NOW(), :qtd, :just, 'N')";
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        entityManager.createNativeQuery(sql)
-                .setParameter("usuario", idUsuario)
-                .setParameter("turma", idTurma)
-                .setParameter("idU", idUtensilio)
-                .setParameter("qtd", quantidade)
-                .setParameter("just", justificativa)
-                .executeUpdate();
+        Turma turma = turmaRepository.findById(idTurma)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada."));
+
+        Utensilio utensilio = utensilioRepository.findFirstByNomeUtensilioIgnoreCase(nomeUtensilio.trim())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "O utensílio '" + nomeUtensilio + "' não existe no banco de dados. Cadastre-o primeiro no painel de utensílios."
+                ));
+
+        SolicitacaoUtensilio solicitacao = new SolicitacaoUtensilio();
+        solicitacao.setId_usuario(usuario);
+        solicitacao.setId_turma(turma);
+        solicitacao.setId_utensilio(utensilio);
+        solicitacao.setData_solicitacao(LocalDateTime.now().format(FORMATO_DATA_HORA));
+        solicitacao.setQuantidade(quantidade);
+        solicitacao.setJustificativa(justificativa);
+        solicitacao.setSituacao("P");
+
+        solicitacaoUtensilioRepository.save(solicitacao);
     }
 }

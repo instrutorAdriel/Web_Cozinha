@@ -25,7 +25,7 @@ public class Notificacao {
         if ("A".equals(st) || "APROVADO".equals(st)) {
             this.status = "aprovado";
             this.statusTexto = "Aprovado";
-        } else if ("R".equals(st) || "N".equals(st) || "RECUSADO".equals(st) || "NEGADO".equals(st) || "C".equals(st)) {
+        } else if ("R".equals(st)){
             this.status = "negado";
             this.statusTexto = "Negado";
         } else {
