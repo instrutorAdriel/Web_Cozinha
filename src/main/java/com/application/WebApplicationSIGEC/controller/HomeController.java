@@ -8,12 +8,11 @@ import java.util.Map;
 
 import com.application.WebApplicationSIGEC.model.Agendamento;
 import com.application.WebApplicationSIGEC.model.Ficha;
+import com.application.WebApplicationSIGEC.model.Turma;
 import com.application.WebApplicationSIGEC.repository.TurmaRepository;
 import com.application.WebApplicationSIGEC.service.HomeService;
 import com.application.WebApplicationSIGEC.service.FichasService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -43,13 +42,7 @@ public class HomeController {
 
     @GetMapping("/home")
     public String exibirHome(Model model, HttpServletRequest request) {
-
         HttpSession session = request.getSession(false);
-
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/";
-        }
-
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
         String primeiroNome = "Instrutor";
@@ -92,14 +85,19 @@ public class HomeController {
 
     @GetMapping("/api/agendamentos/hoje")
     @ResponseBody
-    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(HttpSession session) {
+    public ResponseEntity<List<Agendamento>> getAgendamentosDoDia(
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
+            HttpSession session) {
+
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
+
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
         }
 
         LocalDate dataBusca = LocalDate.now();
-        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId());
+        List<Agendamento> agendamentos = homeService.buscarAulasDoDia(dataBusca, usuarioLogado.getId(), turmaAtiva);
 
         if (agendamentos.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -112,82 +110,52 @@ public class HomeController {
     public ResponseEntity<List<Agendamento>> getAgendamentosDaSemana(
             @RequestParam("inicio") LocalDate inicio,
             @RequestParam("fim") LocalDate fim,
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session
     ) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
         }
 
         if (inicio.isAfter(fim)) {
             return ResponseEntity.badRequest().build();
         }
 
-        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId());
+        List<Agendamento> agendamentos = homeService.buscarAulasDaSemana(inicio, fim, usuarioLogado.getId(), turmaAtiva);
         return ResponseEntity.ok(agendamentos);
     }
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId, HttpSession session) {
-
-        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body("ERRO 401, USUARIO NAO AUTORIZADO!");
-        }
-
-        try {
-            Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
-            return ResponseEntity.ok(detalhes);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of(
-                    "erro", "Erro ao buscar os detalhes da ficha."
-            ));
-        }
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId) {
+        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
+        return ResponseEntity.ok(detalhes);
     }
 
     @GetMapping("/api/fichas")
     @ResponseBody
-    public ResponseEntity<List<Ficha>> getTodasFichas(
+    public ResponseEntity<?> getTodasFichas(
             @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
+
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurma);
+        if (turmaAtiva == null) {
+            return ResponseEntity.noContent().build();
         }
 
-        if (idTurma == null) {
-            List<Ficha> fichasDoUsuario = fichasService.buscarFichasPorUsuario(usuarioLogado.getId());
-            return ResponseEntity.ok(fichasDoUsuario);
-        }
-
-        boolean turmaPermitida = turmaRepository
-                .findTurmasByUsuarioId(usuarioLogado.getId())
-                .stream()
-                .anyMatch(t -> String.valueOf(t.getId()).equals(String.valueOf(idTurma)));
-
-        if (!turmaPermitida) {
-            return ResponseEntity.status(403).build();
-        }
-
-        List<Ficha> fichasDaTurma = fichasService.buscarPorTurmaEUsuario(idTurma, usuarioLogado.getId());
-        return ResponseEntity.ok(fichasDaTurma);
+        List<?> acervoCruzado = fichasService.buscarAcervoReceitasDaTurma(turmaAtiva);
+        return ResponseEntity.ok(acervoCruzado);
     }
 
     @GetMapping("/api/turmas")
     @ResponseBody
     public ResponseEntity<List<com.application.WebApplicationSIGEC.model.Turma>> getTurmasDoUsuario(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         List<com.application.WebApplicationSIGEC.model.Turma> turmasDoUsuario = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
         return ResponseEntity.ok(turmasDoUsuario);
@@ -247,25 +215,16 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> solicitarInsumoExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
-            if (payload.get("quantidade") == null || payload.get("quantidade").toString().isEmpty()) {
-                return ResponseEntity.badRequest().body("Informe uma quantidade válida.");
-            }
-            Double quantidade = Double.valueOf(payload.get("quantidade").toString());
-            if (quantidade <= 0) {
-                return ResponseEntity.badRequest().body("A quantidade solicitada deve ser maior que zero.");
-            }
             String nomeInsumo = (String) payload.get("nomeInsumo");
+            Double quantidade = Double.valueOf(payload.get("quantidade").toString());
             String unidadeMedida = (String) payload.get("unidadeMedida");
             String justificativa = (String) payload.get("justificativa");
             Long idTurma = Long.valueOf(payload.get("idTurma").toString());
 
             homeService.salvarSolicitacaoInsumoExtra(usuarioLogado.getId(), idTurma, nomeInsumo, quantidade, unidadeMedida, justificativa);
             return ResponseEntity.ok("Solicitação de insumo extra registrada com sucesso!");
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body("Formato de quantidade inválido.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
         }
@@ -275,28 +234,33 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<String> solicitarUtensilioExtra(@RequestBody Map<String, Object> payload, HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) return ResponseEntity.status(401).body("Usuário não autenticado.");
 
         try {
-            if (payload.get("quantidade") == null || payload.get("quantidade").toString().trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Informe uma quantidade válida.");
-            }
-
-            Integer quantidade = Integer.valueOf(payload.get("quantidade").toString());
-            if (quantidade <= 0) {
-                return ResponseEntity.badRequest().body("A quantidade solicitada deve ser maior que zero.");
-            }
-
             String nomeUtensilio = (String) payload.get("nomeUtensilio");
+            Integer quantidade = Integer.valueOf(payload.get("quantidade").toString());
             String justificativa = (String) payload.get("justificativa");
             Long idTurma = Long.valueOf(payload.get("idTurma").toString());
 
             homeService.salvarSolicitacaoUtensilioExtra(usuarioLogado.getId(), idTurma, nomeUtensilio, quantidade, justificativa);
             return ResponseEntity.ok("Solicitação de utensílio extra registrada com sucesso!");
-        } catch (NumberFormatException e) {
-            return ResponseEntity.badRequest().body("Formato de quantidade inválido.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao salvar solicitação: " + e.getMessage());
         }
+    }
+
+    public TurmaRepository getTurmaRepository() {
+        return turmaRepository;
+    }
+
+    public void setTurmaRepository(TurmaRepository turmaRepository) {
+        this.turmaRepository = turmaRepository;
+    }
+
+    private Long resolverTurmaSelecionada(Long idUsuario, Long idTurmaParam) {
+        if (idTurmaParam != null) {
+            return idTurmaParam;
+        }
+        List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(idUsuario);
+        return (turmas != null && !turmas.isEmpty()) ? turmas.get(0).getId() : null;
     }
 }

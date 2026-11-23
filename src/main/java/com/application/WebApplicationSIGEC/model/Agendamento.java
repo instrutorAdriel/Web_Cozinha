@@ -25,6 +25,10 @@ public class Agendamento {
     @JoinColumn(name = "id_ficha")
     private Ficha ficha;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "id_turma", nullable = false)
+    private Turma turma;
+
     public Agendamento() {}
 
     // Getters e Setters
@@ -38,4 +42,12 @@ public class Agendamento {
     public void setConcluido(String concluido) { this.concluido = concluido; }
     public Ficha getFicha() { return ficha; }
     public void setFicha(Ficha ficha) { this.ficha = ficha; }
+
+    public Turma getTurma() {
+        return turma;
+    }
+
+    public void setTurma(Turma turma) {
+        this.turma = turma;
+    }
 }

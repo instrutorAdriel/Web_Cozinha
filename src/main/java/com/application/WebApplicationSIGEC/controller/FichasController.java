@@ -32,9 +32,6 @@ public class FichasController {
 
     @GetMapping("/calendario")
     public String exibirCalendario(HttpSession session) {
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return "redirect:/";
-        }
         return "calendario";
     }
 
@@ -42,10 +39,6 @@ public class FichasController {
     @ResponseBody
     public ResponseEntity<List<Turma>> obterTurmasDoUsuario(HttpSession session) {
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         List<Turma> turmas = turmaRepository.findTurmasByUsuarioId(usuarioLogado.getId());
         return ResponseEntity.ok(turmas);
@@ -58,49 +51,54 @@ public class FichasController {
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
-        List<Agendamento> alocadas = fichasService.buscarTodosAgendamentosDaTurma(usuarioLogado.getId(), idTurma);
+        // Se idTurma não for passado, utiliza 18L como padrão de desenvolvimento
+        Long turmaConsulta = (idTurma != null) ? idTurma : 18L;
+        List<Agendamento> alocadas = fichasService.buscarTodosAgendamentosDaTurma(turmaConsulta);
         return ResponseEntity.ok(alocadas);
     }
 
     @GetMapping("/calendario/fichas")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> exibirFichaData(
+    public ResponseEntity<?> exibirFichaData(
             @RequestParam("data") String data,
             @RequestParam(value = "idTurma", required = false) Long idTurma,
             HttpSession session) {
 
         Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
-        if (usuarioLogado == null) {
-            return ResponseEntity.status(401).build();
-        }
 
         LocalDate dataSelecionada = LocalDate.parse(data);
+        Long turmaConsulta = (idTurma != null) ? idTurma : 18L;
 
-        Map<String, Object> response = fichasService.buscarFichasEDisponiveisDoDia(
-                usuarioLogado.getId(), idTurma, dataSelecionada);
-
+        Map<String, Object> response = fichasService.buscarFichasEDisponiveisDoDia(turmaConsulta, dataSelecionada);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/calendario/alocar")
     @ResponseBody
     public ResponseEntity<String> alocarFicha(
-            @RequestParam("id") Long id,
+            @RequestParam(value = "idFicha", required = false) Long idFicha,
+            @RequestParam(value = "id", required = false) Long id, // Mantido para compatibilidade se o front enviar como "id"
+            @RequestParam(value = "idTurma", required = false) Long idTurma,
             @RequestParam("data") String dataFinal,
             HttpSession session) {
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return ResponseEntity.status(401).body("Acesso negado.");
+        Long fichaIdFinal = (idFicha != null) ? idFicha : id;
+        if (fichaIdFinal == null) {
+            return ResponseEntity.badRequest().body("ID da receita não informado.");
         }
 
         LocalDate novaData = LocalDate.parse(dataFinal);
-        fichasService.alocarFicha(id, novaData);
+        Long turmaAlocar = (idTurma != null) ? idTurma : 18L;
 
-        return ResponseEntity.ok("Ficha agendada com sucesso!");
+        try {
+            fichasService.alocarFicha(fichaIdFinal, turmaAlocar, novaData);
+            return ResponseEntity.ok("Ficha agendada com sucesso!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Erro ao agendar aula: " + e.getMessage());
+        }
     }
 
     @PostMapping("/calendario/desalocar")
@@ -109,12 +107,8 @@ public class FichasController {
             @RequestParam("id") Long id,
             HttpSession session) {
 
-        if (session == null || session.getAttribute("usuarioLogado") == null) {
-            return ResponseEntity.status(401).body("Acesso negado.");
-        }
 
         fichasService.desalocarFicha(id);
-
         return ResponseEntity.ok("Ficha removida do agendamento!");
     }
 }

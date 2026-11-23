@@ -21,6 +21,10 @@ public class Turma {
     @JoinColumn(name = "id_laboratorio")
     private Laboratorio laboratorio;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_curso", nullable = false)
+    private Curso curso;
+
     public Turma() {}
 
     // Getters e Setters
@@ -32,4 +36,12 @@ public class Turma {
     public void setSituacao(String situacao) { this.situacao = situacao; }
     public Laboratorio getLaboratorio() { return laboratorio; }
     public void setLaboratorio(Laboratorio laboratorio) { this.laboratorio = laboratorio; }
+
+    public Curso getCurso() {
+        return curso;
+    }
+
+    public void setCurso(Curso curso) {
+        this.curso = curso;
+    }
 }

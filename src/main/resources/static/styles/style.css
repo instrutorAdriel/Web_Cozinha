@@ -475,14 +475,13 @@ body#auth-page .links a:hover {
     position: relative;
     display: inline-flex;
     align-items: center;
-    width: 220px;
 }
 
 .select-wrap select,
 #turma-select {
     appearance: none;
     background: #fff;
-    color: #0b2647 !important;
+    color: var(--primary);
     border: 1px solid var(--outline-variant);
     border-radius: var(--r);
     padding: 8px 36px 8px 12px;
@@ -2804,8 +2803,28 @@ main,
     border: none;
     cursor: default;
 }
-.day-cell.weekend {
-    background-color: #f8fafc;
+
+.day-cell.weekend,
+.day-cell.holiday {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
+    opacity: 1 !important;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Número apagado apenas no final de semana */
+.day-cell.weekend > span {
+    color: #94a3b8 !important;
+    opacity: 0.6;
+}
+
+/* Número vermelho vivo no feriado */
+.day-cell.holiday > span {
+    color: #ef4444 !important;
+    font-weight: 700;
+    opacity: 1 !important;
+
 }
 .day-cell.active-selected {
     border: 2px solid #0b2545 !important;
@@ -3828,22 +3847,163 @@ body {
     list-style: none;
     padding-left: 0;
 }
-
-body#receitas-page .select-wrap {
-    width: 220px; /* Mude este valor (ex: 200px, 250px) para deixar o quadrado do tamanho que preferir */
+/* Efeito de carregamento isolado no card específico */
+.fiche-card.is-loading {
+    opacity: 0.65;
+    background-color: rgba(184, 184, 184, 0);
+    border: transparent;
+    pointer-events: none !important;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+/* Animação suave ao mover o card entre as listas */
+@keyframes cardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
-body#receitas-page .select-wrap select,
-body#receitas-page #turma-select {
-    width: 100% !important;
-}
-#turma-select:disabled {
-    color: #000000;
-    background-color: #ffffff;
-    opacity: 1;
-    cursor: default;
+.fiche-card {
+    animation: cardSlideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
 }
 
-#turma-select:disabled + .select-arrow {
-    display: none;
+/* Card bloqueado: apenas cinza, sem borda ou fundo laranja */
+.fiche-card.is-loading {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    opacity: 0.75;
+    pointer-events: none !important;
+    user-select: none;
 }
+
+.fiche-card.is-loading .fiche-info {
+    opacity: 0.55;
+}
+
+/* Garante formato 100% redondo tanto no botão de alocar (+) quanto no de desalocar (x) */
+.btn-fiche-action,
+.btn-fiche-action.append,
+.btn-fiche-action.delete {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Fundo do botão redondo e cinza neutro durante o loading */
+.btn-fiche-action.loading {
+    pointer-events: none !important;
+    cursor: wait !important;
+    background-color: #e5e7eb !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 50% !important;
+}
+
+/* Laranja exclusivo no spinner */
+.spinner-btn {
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 123, 0, 0.22);
+    border-top-color: #ff7b00;
+    border-right-color: #ff7b00;
+    border-radius: 50% !important;
+    animation: girarSpinner 0.6s linear infinite;
+    display: inline-block;
+    box-sizing: border-box;
+}
+
+@keyframes girarSpinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================================
+   CARDS DE NOTIFICAÇÃO (DIVISÃO EM 3 COLUNAS E SUBTÍTULO)
+   ========================================================================== */
+
+.notif-item {
+    display: grid;
+    grid-template-columns: 100px 1fr 85px; /* Coluna 1 | Resumo | Tag Status */
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.notif-item:hover {
+    background-color: #f1f5f9;
+}
+
+/* Coluna 1: Título e Subtítulo */
+.notif-col-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notif-item-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary, #002747);
+    line-height: 1.1;
+}
+
+.notif-item-subtitle {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--secondary-container, #ff8928);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* Coluna 2: Resumo/Detalhe */
+.notif-col-detail {
+    display: flex;
+    align-items: center;
+}
+
+.notif-item-detail {
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--on-surface-variant, #42474f);
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+/* Coluna 3: Tag de Status (Alinhada à direita) */
+.notif-col-status {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.tag-status {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.tag-status.pendente { background-color: #fff3cd; color: #856404; }
+.tag-status.negado   { background-color: #f8d7da; color: #721c24; }
+.tag-status.aprovado { background-color: #d4edda; color: #155724; }
