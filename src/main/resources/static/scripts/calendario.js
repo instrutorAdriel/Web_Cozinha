@@ -93,15 +93,27 @@ const CalendarioSIGEC = {
 
     obterFeriados(ano) {
         const feriados = [
-            `${ano}-01-01`, `${ano}-04-21`, `${ano}-05-01`, `${ano}-09-07`,
-            `${ano}-10-12`, `${ano}-11-02`, `${ano}-11-15`, `${ano}-11-20`, `${ano}-12-25`
+            `${ano}-01-01`, `${ano}-01-02`, `${ano}-04-20`, `${ano}-04-21`,
+            `${ano}-05-01`, `${ano}-06-05`, `${ano}-09-07`, `${ano}-10-12`,
+            `${ano}-10-28`, `${ano}-11-02`, `${ano}-11-15`, `${ano}-11-20`,
+            `${ano}-11-30`, `${ano}-12-24`, `${ano}-12-25`, `${ano}-12-31`
         ];
 
         const pascoa = this.obterDataPascoa(ano);
         const sextaSanta = new Date(ano, pascoa.getMonth(), pascoa.getDate() - 2);
+        const carnavalSegunda = new Date(ano, pascoa.getMonth(), pascoa.getDate() - 48);
+        const carnavalTerca = new Date(ano, pascoa.getMonth(), pascoa.getDate() - 47);
+        const quartaCinzas = new Date(ano, pascoa.getMonth(), pascoa.getDate() - 46);
+        const corpusChristi = new Date(ano, pascoa.getMonth(), pascoa.getDate() + 60);
         const sextaIso = `${sextaSanta.getFullYear()}-${String(sextaSanta.getMonth() + 1).padStart(2, "0")}-${String(sextaSanta.getDate()).padStart(2, "0")}`;
+        const carnavalSegundaIso = `${carnavalSegunda.getFullYear()}-${String(carnavalSegunda.getMonth() + 1).padStart(2, "0")}-${String(carnavalSegunda.getDate()).padStart(2, "0")}`;
+        const carnavalTercaIso = `${carnavalTerca.getFullYear()}-${String(carnavalTerca.getMonth() + 1).padStart(2, "0")}-${String(carnavalTerca.getDate()).padStart(2, "0")}`;
+        const quartaCinzasIso = `${quartaCinzas.getFullYear()}-${String(quartaCinzas.getMonth() + 1).padStart(2, "0")}-${String(quartaCinzas.getDate()).padStart(2, "0")}`;
+        const corpusChristiIso = `${corpusChristi.getFullYear()}-${String(corpusChristi.getMonth() + 1).padStart(2, "0")}-${String(corpusChristi.getDate()).padStart(2, "0")}`;
 
         feriados.push(sextaIso);
+        feriados.push(carnavalSegundaIso, carnavalTercaIso, quartaCinzasIso, corpusChristiIso);
+
         return feriados;
     },
 
