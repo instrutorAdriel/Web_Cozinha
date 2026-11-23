@@ -46,7 +46,7 @@ public class UsuarioController {
         model.addAttribute("usuarioForm", new UsuarioForm());
 
         model.addAttribute("tituloPagina", "Cadastro");
-        model.addAttribute("subTituloPagina", "Sistema de Gerenciamento de Estoque da Cozinha");
+        model.addAttribute("subTituloPagina", "Sistema de Gestão de Estoque da Cozinha");
 
         return "cadastro";
     }
@@ -78,7 +78,7 @@ public class UsuarioController {
         model.addAttribute("tituloPagina", "Bem-Vindo");
         model.addAttribute(
                 "subTituloPagina",
-                "Sistema de Gerenciamento de Estoque da Cozinha"
+                "Sistema de Gestão de Estoque da Cozinha"
         );
 
         return "login";
@@ -100,7 +100,7 @@ public class UsuarioController {
             model.addAttribute("tituloPagina", "Bem-Vindo");
             model.addAttribute(
                     "subTituloPagina",
-                    "Sistema de Gerenciamento de Estoque da Cozinha"
+                    "Sistema de Gestão de Estoque da Cozinha"
             );
             model.addAttribute("usuarioForm", form);
 
