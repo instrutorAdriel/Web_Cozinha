@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+// import java.time.LocalDate; // Descomente se ativar o filtro apenas de hoje
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -37,11 +39,11 @@ public class NotificacaoController {
     public ResponseEntity<List<Notificacao>> listarNotificacoes(HttpSession session) {
         Usuario usuarioLogado = sessaoService.buscarUsuarioLogado(session);
         Long userId = usuarioLogado.getId();
+        String hojePrefixo = LocalDate.now() + "%";
 
         List<Notificacao> notificacoes = new ArrayList<>();
+        List<SolicitacaoInsumo> insumos = insumoRepository.buscarDoDiaPorUsuario(userId, hojePrefixo);
 
-        // 1. Solicitações de Insumo apenas do usuário logado
-        List<SolicitacaoInsumo> insumos = insumoRepository.buscarPorUsuario(userId);
         for (SolicitacaoInsumo ins : insumos) {
             String nomeProduto = (ins.getId_insumo() != null && ins.getId_insumo().getProduto() != null)
                     ? ins.getId_insumo().getProduto().getNomeProduto()
@@ -59,8 +61,8 @@ public class NotificacaoController {
             ));
         }
 
-        // 2. Solicitações de Utensílio apenas do usuário logado
-        List<SolicitacaoUtensilio> utensilios = utensilioRepository.buscarPorUsuario(userId);
+        List<SolicitacaoUtensilio> utensilios = utensilioRepository.buscarDoDiaPorUsuario(userId, hojePrefixo);
+
         for (SolicitacaoUtensilio ut : utensilios) {
             String nomeUtensilio = (ut.getId_utensilio() != null && ut.getId_utensilio().getNomeUtensilio() != null)
                     ? ut.getId_utensilio().getNomeUtensilio()
@@ -77,11 +79,10 @@ public class NotificacaoController {
             ));
         }
 
-        // Ordena da mais recente para a mais antiga
-        notificacoes.sort(Comparator.comparing(
-                Notificacao::getDataSolicitacao,
-                Comparator.nullsLast(Comparator.reverseOrder())
-        ));
+        notificacoes.sort(
+                Comparator.comparing(Notificacao::getDataSolicitacao, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(Notificacao::getId, Comparator.nullsLast(Comparator.reverseOrder()))
+        );
 
         return ResponseEntity.ok(notificacoes);
     }

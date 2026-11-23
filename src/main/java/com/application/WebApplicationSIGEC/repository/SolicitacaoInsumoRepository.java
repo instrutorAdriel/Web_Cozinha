@@ -13,5 +13,8 @@ public interface SolicitacaoInsumoRepository extends JpaRepository<SolicitacaoIn
     @Query("SELECT s FROM SolicitacaoInsumo s WHERE s.id_usuario.id = :idUsuario")
     List<SolicitacaoInsumo> buscarPorUsuario(@Param("idUsuario") Long idUsuario);
 
+    @Query("SELECT s FROM SolicitacaoInsumo s WHERE s.id_usuario.id = :idUsuario AND s.data_solicitacao LIKE :dataPrefixo ORDER BY s.data_solicitacao DESC")
+    List<SolicitacaoInsumo> buscarDoDiaPorUsuario(@Param("idUsuario") Long idUsuario, @Param("dataPrefixo") String dataPrefixo);
+
     List<SolicitacaoInsumo> findBySituacao(String situacao);
 }
