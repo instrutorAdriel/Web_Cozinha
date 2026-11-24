@@ -568,10 +568,10 @@ function limparDetalhesDaTela() {
 
     if ($('checklist-main')) $('checklist-main').innerHTML = '';
     if ($('util-checklist')) $('util-checklist').innerHTML = '';
-    if ($('recipe-name')) $('recipe-name').textContent = '';
-    if ($('turma-badge')) $('turma-badge').textContent = '';
-    if ($('util-recipe-name')) $('util-recipe-name').textContent = '';
-    if ($('util-turma-badge')) $('util-turma-badge').textContent = '';
+    if ($('recipe-name')) $('recipe-name').textContent = 'Nenhuma receita diponivel';
+    if ($('turma-badge')) $('turma-badge').textContent = 'N/D';
+    if ($('util-recipe-name')) $('util-recipe-name').textContent = 'Nenhuma Aula diponivel';
+    if ($('util-turma-badge')) $('util-turma-badge').textContent = 'N/D';
 
     atualizarProgresso(
         $('checklist-main'),
