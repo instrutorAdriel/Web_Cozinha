@@ -488,8 +488,8 @@ function renderizarSemana(agendamentos, container) {
         const ehHoje = dataISO === dataAtual;
         const receitas = agendamentos.filter(a => String(a.data ?? '').slice(0, 10) === dataISO);
 
-        // Abre automaticamente o dia atual E qualquer dia que possua receita agendada
-        const deveAbrir = ehHoje || receitas.length > 0;
+        // Abre automaticamente apenas o dia atual, e somente se houver receitas.
+        const deveAbrir = ehHoje && receitas.length > 0;
 
         const card = document.createElement('div');
         card.className = 'semana-dia-card' + (deveAbrir ? ' aberto' : '');
@@ -504,10 +504,8 @@ function renderizarSemana(agendamentos, container) {
 
         const titulo = document.createElement('h3');
         const sufixoHoje = ehHoje ? ' (Hoje)' : '';
-        const sufixoQtd = receitas.length > 0
-            ? ` • ${receitas.length} ${receitas.length === 1 ? 'receita' : 'receitas'}`
-            : '';
-        titulo.textContent = `${nomeDia}${sufixoHoje}${sufixoQtd}`;
+
+        titulo.textContent = `${nomeDia}${sufixoHoje}`;
 
         info.appendChild(titulo);
 
