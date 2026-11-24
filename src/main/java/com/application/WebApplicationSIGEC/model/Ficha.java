@@ -27,8 +27,6 @@ public class Ficha {
     @Column(name = "categoria")
     private String categoria;
 
-
-
     @JsonIgnore
     @OneToMany(mappedBy = "ficha", fetch = FetchType.LAZY)
     private List<InsumoFicha> insumos = new ArrayList<>();

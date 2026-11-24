@@ -3075,7 +3075,7 @@ main,
 }
 /* Evita o salto lateral da barra de rolagem */
 html {
-    scrollbar-gutter: stable;
+
     box-sizing: border-box;
 }
 *, *::before, *::after {
