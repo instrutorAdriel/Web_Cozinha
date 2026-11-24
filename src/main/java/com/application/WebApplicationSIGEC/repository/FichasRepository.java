@@ -17,12 +17,6 @@ public interface FichasRepository extends JpaRepository<Ficha, Long> {
 
     boolean existsByNomeFicha(String nomeFicha);
 
-    List<Ficha> findByData(LocalDate data);
-
-    List<Ficha> findByDataIsNull();
-
-    List<Ficha> findByDataIsNotNull();
-
     // Retorna todas as receitas ativas acessíveis por meio dos cursos das turmas do usuário
     @Query("""
         SELECT DISTINCT cf.ficha FROM CursoFicha cf
