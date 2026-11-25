@@ -107,11 +107,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(() => {
-                    alert("Insumo extra solicitado com sucesso para validação!");
                     $('extra-name').value = '';
                     $('extra-qtd').value = '';
                     $('extra-obs').value = '';
                     fecharModalInsumo();
+
+                    const notifList = document.getElementById("notif-list") || document.querySelector(".notif-list");
+                    if (typeof carregarNotificacoesReais === "function" && notifList) {
+                        carregarNotificacoesReais(notifList);
+                    }
                 })
                 .catch(err => alert("Erro: " + err.message))
                 .finally(() => {
@@ -166,11 +170,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(() => {
-                    alert("Utensílio extra solicitado com sucesso para validação!");
                     $('util-name').value = '';
                     $('util-qtd').value = '';
                     $('util-obs').value = '';
                     fecharModalUtil();
+
+                    const notifList = document.getElementById("notif-list") || document.querySelector(".notif-list");
+                    if (typeof carregarNotificacoesReais === "function" && notifList) {
+                        carregarNotificacoesReais(notifList);
+                    }
                 })
                 .catch(err => alert("Erro: " + err.message))
                 .finally(() => {
