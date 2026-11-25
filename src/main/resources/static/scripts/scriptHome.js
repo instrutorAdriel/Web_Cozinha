@@ -13,6 +13,21 @@ function obterSelectTurma() {
     return $('turma-select') || $('select-turma') || $('turma');
 }
 
+function obterIdTurmaAtiva() {
+    const turmaAgendamento = agendamentoAtual?.turma;
+    const idDoAgendamento = turmaAgendamento?.idTurma ?? turmaAgendamento?.id;
+    if (idDoAgendamento != null && idDoAgendamento !== '') {
+        return Number(idDoAgendamento);
+    }
+
+    const turmaSelect = obterSelectTurma();
+    if (turmaSelect && turmaSelect.value && turmaSelect.value !== 'todas') {
+        return Number(turmaSelect.value);
+    }
+
+    return null;
+}
+
 // ===== INICIALIZAÇÃO =====
 document.addEventListener("DOMContentLoaded", () => {
     atualizarEstadoBotoesChecklist(false);
@@ -667,9 +682,11 @@ function selecionarAula(fichaId, agendamentoSelecionado = null) {
     fichaAtual = agendamento.ficha;
     agendamentoAtual = agendamento;
 
+    const idTurma = obterIdTurmaAtiva();
+    const queryTurma = idTurma ? `?idTurma=${encodeURIComponent(idTurma)}` : '';
     const requisicaoAtual = ++requisicaoDetalhesAtual;
 
-    fetch(`/api/fichas/${fichaId}/detalhes`)
+    fetch(`/api/fichas/${fichaId}/detalhes${queryTurma}`)
         .then(async res => {
             if (!res.ok) {
                 const corpo = await res.text().catch(() => '');
@@ -868,7 +885,14 @@ if (btnFinishInsumos) {
         );
 
         if (marcados.length === 0) {
+
             alert("Selecione pelo menos um insumo NOVO para confirmar a separação.");
+            return;
+        }
+
+        const idTurma = obterIdTurmaAtiva();
+        if (!idTurma) {
+            alert("Selecione uma turma antes de confirmar a separação.");
             return;
         }
 
@@ -886,6 +910,7 @@ if (btnFinishInsumos) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 insumosMarcados: insumoIds,
+                idTurma: idTurma,
                 observacao: "Separação de Aula confirmada via Painel."
             })
         })
@@ -900,17 +925,21 @@ if (btnFinishInsumos) {
                 alert("Separação confirmada! O estoque foi deduzido com sucesso.");
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
-                    fetch(`/api/fichas/${idFicha}/detalhes`)
-                        .then(res => res.json())
-                        .then(detalhes => {
-                            detalhesReceitaAtual = detalhes;
-                            renderChecklistInsumos(
-                                detalhes.insumos,
-                                fichaAtual,
-                                detalhes.insumosSeparados,
-                                agendamentoAtual?.turma
+                    if (fichaAtual) {
+                        const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
+                        const queryTurma = `?idTurma=${encodeURIComponent(idTurma)}`;
+                            fetch(`/api/fichas/${idFicha}/detalhes`)
+                                .then(res => res.json())
+                                .then(detalhes => {
+                                    detalhesReceitaAtual = detalhes;
+                                    renderChecklistInsumos(
+                                        detalhes.insumos,
+                                        fichaAtual,
+                                        detalhes.insumosSeparados,
+                                        agendamentoAtual?.turma
                             );
                         });
+                    }
                 }
             })
             .catch(err => {

@@ -31,6 +31,7 @@ public class HomeService {
     private final SolicitacaoUtensilioRepository solicitacaoUtensilioRepository;
     private final UsuarioRepository usuarioRepository;
     private final TurmaRepository turmaRepository;
+    private final CursoFichaRepository cursoFichaRepository;
 
     public HomeService(AgendamentoRepository agendamentoRepository,
                        InsumoRepository insumoRepository,
@@ -41,7 +42,7 @@ public class HomeService {
                        SolicitacaoInsumoRepository solicitacaoInsumoRepository,
                        SolicitacaoUtensilioRepository solicitacaoUtensilioRepository,
                        UsuarioRepository usuarioRepository,
-                       TurmaRepository turmaRepository) {
+                       TurmaRepository turmaRepository, CursoFichaRepository cursoFichaRepository) {
         this.agendamentoRepository = agendamentoRepository;
         this.insumoRepository = insumoRepository;
         this.insumoFichaRepository = insumoFichaRepository;
@@ -52,6 +53,7 @@ public class HomeService {
         this.solicitacaoUtensilioRepository = solicitacaoUtensilioRepository;
         this.usuarioRepository = usuarioRepository;
         this.turmaRepository = turmaRepository;
+        this.cursoFichaRepository = cursoFichaRepository;
     }
 
     // ==========================================
@@ -73,12 +75,18 @@ public class HomeService {
     // ==========================================
 
     @Transactional(readOnly = true)
-    public Map<String, Object> buscarDetalhesDaReceita(Long fichaId) {
+    public Map<String, Object> buscarDetalhesDaReceita(Long fichaId, Long idTurma) {
         Map<String, Object> detalhes = new HashMap<>();
 
         List<?> insumos = montarInsumosDaFicha(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
         List<Long> insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId);
+       if(idTurma != null){
+           Turma turma = turmaRepository.findById(idTurma).orElse(null);
+           if(turma != null && turma.getCurso() != null){
+               insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId, turma.getCurso().getId());
+           }
+       }
 
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
@@ -120,7 +128,23 @@ public class HomeService {
     }
 
     @Transactional
-    public void confirmarSeparacaoInsumos(List<Long> insumoFichaIds, String observacaoGeral) {
+    public void confirmarSeparacaoInsumos(List<Long> insumoFichaIds, Long idTurma, String observacaoGeral) {
+
+        if (insumoFichaIds == null || insumoFichaIds.isEmpty()) {
+            throw new IllegalArgumentException("Nenhum insumo selecionado.");
+        }
+        if (idTurma == null) {
+            throw new IllegalArgumentException("Turma não informada para confirmar a separação.");
+        }
+
+        Turma turma = turmaRepository.findById(idTurma)
+                .orElseThrow(() -> new IllegalArgumentException("Turma não encontrada."));
+
+        Curso curso = turma.getCurso();
+        if (curso == null) {
+            throw new IllegalArgumentException("A turma '" + turma.getNomeTurma() + "' não possui curso vinculado.");
+        }
+
         String obs = (observacaoGeral != null && !observacaoGeral.trim().isEmpty())
                 ? observacaoGeral
                 : "Baixa confirmada pelo instrutor via Web";
@@ -131,7 +155,15 @@ public class HomeService {
                 continue;
             }
 
-            if (insumoFichaRepository.buscarIdsSeparadosHoje(item.getFicha().getId()).contains(item.getId())) {
+            Long fichaId = item.getFicha().getId();
+
+            // 1. Busca o vínculo exato (Curso + Ficha) que será gravado em movimentacao_estoque
+            CursoFicha cursoFicha = cursoFichaRepository.findByCurso_IdAndFicha_Id(curso.getId(), fichaId)
+                    .orElseThrow(() -> new IllegalArgumentException("A ficha '" + item.getFicha().getNomeFicha()
+                            + "' não pertence ao curso '" + curso.getNomeCurso() + "'."));
+
+            // 2. Passa os 2 parâmetros (fichaId e cursoId) na verificação
+            if (insumoFichaRepository.buscarIdsSeparadosHoje(fichaId, curso.getId()).contains(item.getId())) {
                 continue;
             }
 
@@ -139,7 +171,8 @@ public class HomeService {
             int necessario = item.getQuantidade() == null ? 0 : item.getQuantidade();
 
             if (necessario <= 0) {
-                registrarSaida(produto, null, 0, obs);
+                // 3. Repassa cursoFicha para gravar id_curso_ficha
+                registrarSaida(produto, null, cursoFicha, 0, obs);
                 continue;
             }
 
@@ -161,19 +194,21 @@ public class HomeService {
                 lote.setQuantidade(lote.getQuantidade() - baixa);
                 insumoRepository.save(lote);
 
-                registrarSaida(produto, lote, baixa, obs);
+                // 3. Repassa cursoFicha para gravar id_curso_ficha
+                registrarSaida(produto, lote, cursoFicha, baixa, obs);
                 faltaBaixar -= baixa;
             }
         }
     }
 
-    private void registrarSaida(Produto produto, Insumo lote, int quantidade, String observacao) {
+    private void registrarSaida(Produto produto, Insumo lote, CursoFicha cursoFicha, int quantidade, String observacao) {
         MovimentacaoEstoque mov = new MovimentacaoEstoque();
         mov.setTipoMovimentacao("SAIDA");
         mov.setQuantidade(BigDecimal.valueOf(quantidade));
         mov.setDataMovimentacao(LocalDateTime.now());
         mov.setProduto(produto);
         mov.setInsumo(lote);
+        mov.getCursoFicha(cursoFicha);
         mov.setObservacao(observacao);
 
         movimentacaoEstoqueRepository.save(mov);

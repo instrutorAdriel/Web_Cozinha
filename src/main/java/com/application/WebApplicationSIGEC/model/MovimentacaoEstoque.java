@@ -32,6 +32,10 @@ public class MovimentacaoEstoque {
     @Column(name = "id_insumo")
     private Long idInsumo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_curso_ficha")
+    private CursoFicha cursoFicha;
+
     @Transient
     private Insumo insumo;
 
@@ -85,9 +89,7 @@ public class MovimentacaoEstoque {
 
     public void setProduto(Produto produto) {
         this.produto = produto;
-    }
-
-    public Long getIdInsumo() {
+    }public Long getIdInsumo() {
         return idInsumo;
     }
 
@@ -101,5 +103,12 @@ public class MovimentacaoEstoque {
 
     public void setInsumo(Insumo insumo) {
         this.insumo = insumo;
+    }
+
+    public void setCursoFicha(CursoFicha cursoFicha) {
+        this.cursoFicha = cursoFicha;
+    }
+
+    public void getCursoFicha(CursoFicha cursoFicha) {
     }
 }
