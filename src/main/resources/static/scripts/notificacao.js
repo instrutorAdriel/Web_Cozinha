@@ -46,10 +46,6 @@ function iniciarNotificacoes() {
     // Carregamento inicial ao abrir a página
     if (notifList) {
         carregarNotificacoesReais(notifList);
-        // Verifica periodicamente se o Desktop aprovou/avaliou as solicitações
-        setInterval(() => {
-            carregarNotificacoesReais(notifList);
-        }, 10000);
     }
 
     // Clique no botão do sino (TopBar)
@@ -57,9 +53,11 @@ function iniciarNotificacoes() {
         e.preventDefault();
         e.stopPropagation();
 
+        pararSino();
+
         const containerLista = document.getElementById("notif-list") || document.querySelector(".notif-list");
         if (containerLista) {
-            carregarNotificacoesReais(containerLista);
+            carregarNotificacoesReais(containerLista, false);
         }
 
         const estaAberto = notifPanel.classList.contains("active") || notifPanel.classList.contains("show");
@@ -75,7 +73,6 @@ function iniciarNotificacoes() {
         notifClear.onclick = function (e) {
             e.preventDefault();
             e.stopPropagation();
-            notificacoesLidas = true;
             const badge = document.getElementById("notif-badge");
             if (badge) badge.hidden = true;
             pararSino();
@@ -98,23 +95,13 @@ function iniciarNotificacoes() {
     function fecharPainel() {
         notifPanel.classList.remove("active", "show");
         notifBtn.setAttribute("aria-expanded", "false");
-
-        // Se fechou o painel sem marcar como lida e ainda há pendente do Desktop, continua balançando
-        if (temPendente && !notificacoesLidas) {
-            balancarSino();
-        }
     }
 }
-
-let animacaoSino = null;
-let notificacoesLidas = false;
-let temPendente = false;
-let idsPendentesConhecidos = new Set();
 
 /**
  * Consome o endpoint /api/notificacoes e renderiza os cards com as 3 colunas
  */
-function carregarNotificacoesReais(container) {
+function carregarNotificacoesReais(container, animarSino = true) {
     if (!container) return;
 
     fetch("/api/notificacoes")
@@ -129,21 +116,9 @@ function carregarNotificacoesReais(container) {
                 container.innerHTML = '<p style="padding:15px; text-align:center; color:#777; font-size:0.8rem;">Nenhuma notificação encontrada.</p>';
                 const badge = document.getElementById("notif-badge");
                 if (badge) badge.hidden = true;
-                temPendente = false;
                 pararSino();
                 return;
             }
-
-            // Verifica se surgiu uma nova solicitação pendente (para reativar o alerta mesmo se já tinha clicado em limpar antes)
-            const pendentesAtuais = notificacoes.filter(item => item.status === "pendente");
-            const chegouNovaPendente = pendentesAtuais.some(item => !idsPendentesConhecidos.has(`${item.tipo}-${item.id}`));
-
-            if (chegouNovaPendente) {
-                notificacoesLidas = false;
-            }
-
-            idsPendentesConhecidos = new Set(pendentesAtuais.map(item => `${item.tipo}-${item.id}`));
-            temPendente = pendentesAtuais.length > 0;
 
             notificacoes.forEach((item) => {
                 const cardHtml = `
@@ -168,15 +143,13 @@ function carregarNotificacoesReais(container) {
                 container.innerHTML += cardHtml;
             });
 
+            // Ativa o badge de notificação no sino se houver registros
             const badge = document.getElementById("notif-badge");
+            if (badge) badge.hidden = false;
 
-            // Continua balançando enquanto não for marcada como lida E não for aprovada/avaliada pelo Desktop
-            if (temPendente && !notificacoesLidas) {
-                if (badge) badge.hidden = false;
+            // Faz o sino balançar até o usuário clicar nele
+            if (animarSino) {
                 balancarSino();
-            } else {
-                if (badge) badge.hidden = notificacoesLidas || !temPendente;
-                pararSino();
             }
 
         })
@@ -185,6 +158,8 @@ function carregarNotificacoesReais(container) {
             container.innerHTML = '<p style="padding:15px; color:red; text-align:center; font-size:0.8rem;">Erro ao carregar notificações.</p>';
         });
 }
+
+let animacaoSino = null;
 
 /**
  * Anima o ícone do sino balançando continuamente até o usuário clicar
