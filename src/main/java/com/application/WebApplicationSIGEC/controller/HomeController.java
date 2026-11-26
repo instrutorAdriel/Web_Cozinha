@@ -130,8 +130,13 @@ public class HomeController {
 
     @GetMapping("/api/fichas/{fichaId}/detalhes")
     @ResponseBody
-    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId) {
-        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId);
+    public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId,
+                                              @RequestParam(value = "idTurma", required = false) Long idTurma, HttpSession httpSession) {
+        Usuario user = (Usuario) httpSession.getAttribute("usuarioLogado");
+        Long turmaAtiva = (user != null)
+                ? resolverTurmaSelecionada(user.getId(), idTurma)
+                : idTurma;
+        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId, turmaAtiva);
         return ResponseEntity.ok(detalhes);
     }
 
@@ -163,13 +168,27 @@ public class HomeController {
 
     @PostMapping("/api/fichas/confirmar-separacao")
     @ResponseBody
-    public ResponseEntity<String> confirmarSeparacaoInsumos(@RequestBody Map<String, Object> payload) {
-        List<Integer> insumosInt = (List<Integer>) payload.get("insumosMarcados");
-        List<Long> insumoIds = insumosInt.stream().map(Integer::longValue).toList();
+    public ResponseEntity<String> confirmarSeparacaoInsumos(@RequestBody Map<String, Object> payload, HttpSession httpSession) {
+        Usuario usuarioLogado = (Usuario) httpSession.getAttribute("usuarioLogado");
+        if (usuarioLogado == null) {
+            return ResponseEntity.status(401).body("Usuário não autenticado.");
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Number> insumosNum = (List<Number>) payload.get("insumosMarcados");
+        if (insumosNum == null || insumosNum.isEmpty()) {
+            return ResponseEntity.badRequest().body("Nenhum insumo selecionado.");
+        }
+
+        List<Long> insumoIds = insumosNum.stream().map(Number::longValue).toList();
+        Long idTurmaParam = payload.get("idTurma") != null
+                ? Long.valueOf(payload.get("idTurma").toString())
+                : null;
+        Long turmaAtiva = resolverTurmaSelecionada(usuarioLogado.getId(), idTurmaParam);
         String observacao = (String) payload.get("observacao");
 
         try {
-            homeService.confirmarSeparacaoInsumos(insumoIds, observacao);
+            homeService.confirmarSeparacaoInsumos(insumoIds, turmaAtiva, observacao);
             return ResponseEntity.ok("Estoque atualizado com sucesso!");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

@@ -26,4 +26,21 @@ public interface InsumoFichaRepository extends JpaRepository<InsumoFicha, Long> 
       AND DATE(m.data_movimentacao) = CURDATE()
 """, nativeQuery = true)
     List<Long> buscarIdsSeparadosHoje(@Param("fichaId") Long fichaId);
+
+    @Query(value = """
+        SELECT DISTINCT f.id_insumo_ficha
+        FROM insumo_ficha f
+        INNER JOIN curso_ficha cf ON cf.id_ficha = f.id_ficha
+        INNER JOIN movimentacao_estoque m
+                ON m.id_curso_ficha = cf.id_curso_ficha
+               AND m.id_produto = f.id_produto
+        WHERE f.id_ficha = :fichaId
+          AND cf.id_curso = :cursoId
+          AND m.tipo_movimentacao = 'SAIDA'
+          AND DATE(m.data_movimentacao) = CURDATE()
+    """, nativeQuery = true)
+    List<Long> buscarIdsSeparadosHoje(
+            @Param("fichaId") Long fichaId,
+            @Param("cursoId") Long cursoId
+    );
 }
