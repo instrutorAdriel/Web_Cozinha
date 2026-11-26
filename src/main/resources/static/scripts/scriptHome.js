@@ -895,17 +895,11 @@ if (btnFinishInsumos) {
         );
 
         if (marcados.length === 0) {
-            alert("Selecione pelo menos um insumo NOVO para confirmar a separação.");
             return;
         }
 
         const idTurma = obterIdTurmaAtiva();
         if (!idTurma) {
-            alert("Selecione uma turma antes de confirmar a separação.");
-            return;
-        }
-
-        if (!confirm("Deseja confirmar a separação? As quantidades serão deduzidas do estoque.")) {
             return;
         }
 
