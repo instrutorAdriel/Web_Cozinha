@@ -9,11 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,13 +76,13 @@ public class HomeService {
 
         List<?> insumos = montarInsumosDaFicha(fichaId);
         List<ChecklistUtensilio> utensilios = checklistUtensilioRepository.findByFichaId(fichaId);
-        List<Long> insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId);
-       if(idTurma != null){
-           Turma turma = turmaRepository.findById(idTurma).orElse(null);
-           if(turma != null && turma.getCurso() != null){
-               insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId, turma.getCurso().getId());
-           }
-       }
+        List<Long> insumosSeparados = Collections.emptyList();
+        if (idTurma != null) {
+            Turma turma = turmaRepository.findById(idTurma).orElse(null);
+            if (turma != null && turma.getCurso() != null) {
+                insumosSeparados = insumoFichaRepository.buscarIdsSeparadosHoje(fichaId, turma.getCurso().getId());
+            }
+        }
 
         detalhes.put("insumos", insumos);
         detalhes.put("utensilios", utensilios);
@@ -208,7 +204,7 @@ public class HomeService {
         mov.setDataMovimentacao(LocalDateTime.now());
         mov.setProduto(produto);
         mov.setInsumo(lote);
-        mov.getCursoFicha(cursoFicha);
+        mov.setCursoFicha(cursoFicha);
         mov.setObservacao(observacao);
 
         movimentacaoEstoqueRepository.save(mov);

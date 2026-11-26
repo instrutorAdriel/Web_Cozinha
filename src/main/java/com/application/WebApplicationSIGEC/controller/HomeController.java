@@ -132,7 +132,11 @@ public class HomeController {
     @ResponseBody
     public ResponseEntity<?> getDetalhesFicha(@PathVariable Long fichaId,
                                               @RequestParam(value = "idTurma", required = false) Long idTurma, HttpSession httpSession) {
-        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId, idTurma);
+        Usuario user = (Usuario) httpSession.getAttribute("usuarioLogado");
+        Long turmaAtiva = (user != null)
+                ? resolverTurmaSelecionada(user.getId(), idTurma)
+                : idTurma;
+        Map<String, Object> detalhes = homeService.buscarDetalhesDaReceita(fichaId, turmaAtiva);
         return ResponseEntity.ok(detalhes);
     }
 

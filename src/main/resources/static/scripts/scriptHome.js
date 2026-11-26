@@ -885,7 +885,6 @@ if (btnFinishInsumos) {
         );
 
         if (marcados.length === 0) {
-
             alert("Selecione pelo menos um insumo NOVO para confirmar a separação.");
             return;
         }
@@ -925,21 +924,19 @@ if (btnFinishInsumos) {
                 alert("Separação confirmada! O estoque foi deduzido com sucesso.");
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
-                    if (fichaAtual) {
-                        const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
-                        const queryTurma = `?idTurma=${encodeURIComponent(idTurma)}`;
-                            fetch(`/api/fichas/${idFicha}/detalhes`)
-                                .then(res => res.json())
-                                .then(detalhes => {
-                                    detalhesReceitaAtual = detalhes;
-                                    renderChecklistInsumos(
-                                        detalhes.insumos,
-                                        fichaAtual,
-                                        detalhes.insumosSeparados,
-                                        agendamentoAtual?.turma
+                    const queryTurma = `?idTurma=${encodeURIComponent(idTurma)}`;
+
+                    fetch(`/api/fichas/${idFicha}/detalhes${queryTurma}`)
+                        .then(res => res.json())
+                        .then(detalhes => {
+                            detalhesReceitaAtual = detalhes;
+                            renderChecklistInsumos(
+                                detalhes.insumos,
+                                fichaAtual,
+                                detalhes.insumosSeparados,
+                                agendamentoAtual?.turma
                             );
                         });
-                    }
                 }
             })
             .catch(err => {
