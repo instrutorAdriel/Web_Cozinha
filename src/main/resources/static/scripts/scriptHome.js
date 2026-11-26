@@ -87,19 +87,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const unidade = $('extra-un') ? $('extra-un').value : 'un';
             const observacao = $('extra-obs') ? $('extra-obs').value.trim() : '';
             const turmaSelect = obterSelectTurma();
-            const idTurma = turmaSelect ? turmaSelect.value : null;
+            let idTurma = turmaSelect ? turmaSelect.value : null;
+            if (!idTurma || idTurma === "todas" || idTurma === "") {
+                idTurma = agendamentoAtual?.turma?.id ?? agendamentoAtual?.turma?.idTurma ?? (turmaSelect?.options?.[0]?.value || null);
+            }
 
             if (!nomeInsumo || !quantidadeStr) {
-                alert("Por favor, preencha o nome do insumo e a quantidade.");
+                $('extra-name')?.focus();
                 return;
             }
             if (isNaN(quantidade) || quantidade <= 0) {
-                alert("A quantidade solicitada deve ser maior que zero.");
                 $('extra-qtd')?.focus();
                 return;
             }
             if (!idTurma || idTurma === "todas" || idTurma === "") {
-                alert("Selecione uma turma específica na barra superior antes de solicitar um insumo extra.");
                 return;
             }
 
@@ -122,13 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(() => {
-                    alert("Insumo extra solicitado com sucesso para validação!");
                     $('extra-name').value = '';
                     $('extra-qtd').value = '';
                     $('extra-obs').value = '';
                     fecharModalInsumo();
+
+                    const notifList = document.getElementById("notif-list") || document.querySelector(".notif-list");
+                    if (typeof carregarNotificacoesReais === "function" && notifList) {
+                        carregarNotificacoesReais(notifList);
+                    }
                 })
-                .catch(err => alert("Erro: " + err.message))
+                .catch(err => console.error("Erro:", err.message))
                 .finally(() => {
                     btnSaveExtra.innerText = "Adicionar";
                     btnSaveExtra.disabled = false;
@@ -147,19 +152,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const quantidade = parseInt(quantidadeStr, 10);
             const observacao = $('util-obs') ? $('util-obs').value.trim() : '';
             const turmaSelect = obterSelectTurma();
-            const idTurma = turmaSelect ? turmaSelect.value : null;
+            let idTurma = turmaSelect ? turmaSelect.value : null;
+            if (!idTurma || idTurma === "todas" || idTurma === "") {
+                idTurma = agendamentoAtual?.turma?.id ?? agendamentoAtual?.turma?.idTurma ?? (turmaSelect?.options?.[0]?.value || null);
+            }
 
             if (!nomeUtensilio || !quantidadeStr) {
-                alert("Por favor, preencha o nome do utensílio e a quantidade.");
+                $('util-name')?.focus();
                 return;
             }
             if (isNaN(quantidade) || quantidade <= 0) {
-                alert("A quantidade de utensílios deve ser maior que zero.");
                 $('util-qtd')?.focus();
                 return;
             }
             if (!idTurma || idTurma === "todas" || idTurma === "") {
-                alert("Selecione uma turma específica na barra superior antes de solicitar um utensílio extra.");
                 return;
             }
 
@@ -181,13 +187,17 @@ document.addEventListener("DOMContentLoaded", () => {
                     return res.text();
                 })
                 .then(() => {
-                    alert("Utensílio extra solicitado com sucesso para validação!");
                     $('util-name').value = '';
                     $('util-qtd').value = '';
                     $('util-obs').value = '';
                     fecharModalUtil();
+
+                    const notifList = document.getElementById("notif-list") || document.querySelector(".notif-list");
+                    if (typeof carregarNotificacoesReais === "function" && notifList) {
+                        carregarNotificacoesReais(notifList);
+                    }
                 })
-                .catch(err => alert("Erro: " + err.message))
+                .catch(err => console.error("Erro:", err.message))
                 .finally(() => {
                     btnSaveUtil.innerText = "Adicionar Utensílio";
                     btnSaveUtil.disabled = false;
@@ -921,7 +931,6 @@ if (btnFinishInsumos) {
                 return res.text();
             })
             .then(() => {
-                alert("Separação confirmada! O estoque foi deduzido com sucesso.");
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
                     const queryTurma = `?idTurma=${encodeURIComponent(idTurma)}`;
@@ -941,7 +950,6 @@ if (btnFinishInsumos) {
             })
             .catch(err => {
                 console.error(err);
-                alert(err.message || "Ocorreu um erro ao confirmar a separação no banco de dados.");
             })
             .finally(() => {
                 btnFinishInsumos.innerText = "Confirmar Separação";
@@ -958,23 +966,16 @@ if (btnFinishUtensilios) {
         );
 
         if (marcados.length === 0) {
-            alert("Selecione pelo menos um utensílio para registrar a saída.");
             return;
         }
 
         const temItemInapto = Array.from(marcados).some(cb => cb.dataset.estado !== 'PRONTO');
         if (temItemInapto) {
-            alert("Atenção: Você selecionou utensílios que estão DANIFICADOS ou EM MANUTENÇÃO.\n\nSe eles já foram consertados, selecione-os e clique em 'Registrar Devolução' para atualizar o estado para 'PRONTO' antes de confirmar a saída.");
             return;
         }
 
         const temEmUso = Array.from(marcados).some(cb => cb.dataset.emUso === 'true');
         if (temEmUso) {
-            alert("Atenção: Você selecionou utensílios que já estão EM USO.\n\nEles não podem ser retirados 2 vezes. Desmarque-os para retirar novos itens ou utilize o botão 'Registrar Devolução'.");
-            return;
-        }
-
-        if (!confirm("Confirmar a retirada destes utensílios para a aula? A hora de saída será registrada.")) {
             return;
         }
 
@@ -996,8 +997,6 @@ if (btnFinishUtensilios) {
                 return res.text();
             })
             .then(() => {
-                alert("Retirada de utensílios registrada com sucesso!");
-
                 if (fichaAtual) {
                     const idFicha = fichaAtual.id ?? fichaAtual.idFicha;
                     fetch(`/api/fichas/${idFicha}/detalhes`)
@@ -1014,7 +1013,6 @@ if (btnFinishUtensilios) {
             })
             .catch(err => {
                 console.error(err);
-                alert(err.message || "Ocorreu um erro ao confirmar a retirada no banco de dados.");
             })
             .finally(() => {
                 btnFinishUtensilios.innerText = "Confirmar Utensílios";
@@ -1034,7 +1032,6 @@ if (btnDevolucao && devolucaoModal) {
         );
 
         if (marcados.length === 0) {
-            alert("Selecione pelo menos um utensílio na lista para registrar a devolução.");
             return;
         }
 
@@ -1072,7 +1069,6 @@ if ($('devolucao-save')) {
         const obs = $('devolucao-obs') ? $('devolucao-obs').value.trim() : '';
 
         if (checklistIdsSelecionadosParaDevolucao.length === 0) {
-            alert("Erro interno: Nenhum utensílio válido foi selecionado para devolução.");
             return;
         }
 
@@ -1094,7 +1090,6 @@ if ($('devolucao-save')) {
                 return res.text();
             })
             .then(() => {
-                alert("Status / Devolução registrada com sucesso no banco de dados!");
                 fecharModalDevolucao();
 
                 if (fichaAtual) {
@@ -1113,7 +1108,6 @@ if ($('devolucao-save')) {
             })
             .catch(err => {
                 console.error(err);
-                alert("Erro ao tentar registrar devolução no banco de dados.");
             })
             .finally(() => {
                 btnSave.innerText = "Confirmar Devolução";

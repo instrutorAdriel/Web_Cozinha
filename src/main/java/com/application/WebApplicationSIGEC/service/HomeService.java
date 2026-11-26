@@ -23,6 +23,7 @@ public class HomeService {
     private final ChecklistUtensilioRepository checklistUtensilioRepository;
     private final MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
     private final UtensilioRepository utensilioRepository;
+    private final ProdutoRepository produtoRepository;
     private final SolicitacaoInsumoRepository solicitacaoInsumoRepository;
     private final SolicitacaoUtensilioRepository solicitacaoUtensilioRepository;
     private final UsuarioRepository usuarioRepository;
@@ -35,6 +36,7 @@ public class HomeService {
                        ChecklistUtensilioRepository checklistUtensilioRepository,
                        MovimentacaoEstoqueRepository movimentacaoEstoqueRepository,
                        UtensilioRepository utensilioRepository,
+                       ProdutoRepository produtoRepository,
                        SolicitacaoInsumoRepository solicitacaoInsumoRepository,
                        SolicitacaoUtensilioRepository solicitacaoUtensilioRepository,
                        UsuarioRepository usuarioRepository,
@@ -45,6 +47,7 @@ public class HomeService {
         this.checklistUtensilioRepository = checklistUtensilioRepository;
         this.movimentacaoEstoqueRepository = movimentacaoEstoqueRepository;
         this.utensilioRepository = utensilioRepository;
+        this.produtoRepository = produtoRepository;
         this.solicitacaoInsumoRepository = solicitacaoInsumoRepository;
         this.solicitacaoUtensilioRepository = solicitacaoUtensilioRepository;
         this.usuarioRepository = usuarioRepository;
@@ -268,9 +271,25 @@ public class HomeService {
         Insumo insumo = insumoRepository.buscarPorNomeProdutoOrdenado(nomeInsumo)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "O item '" + nomeInsumo + "' não foi encontrado no estoque. Certifique-se de que o produto está cadastrado e possui lote."
-                ));
+                .orElseGet(() -> {
+                    Produto produto = produtoRepository
+                            .findByNomeProdutoContainingIgnoreCaseAndSituacao(nomeInsumo.trim(), "A")
+                            .stream()
+                            .filter(p -> p.getNomeProduto() != null && p.getNomeProduto().trim().equalsIgnoreCase(nomeInsumo.trim()))
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException(
+                                    "O item '" + nomeInsumo + "' não foi encontrado no estoque."
+                            ));
+
+                    Insumo novoInsumo = new Insumo();
+                    novoInsumo.setProduto(produto);
+                    novoInsumo.setQuantidade(0);
+                    novoInsumo.setQuantidadeMinima(0);
+                    novoInsumo.setUnidadeMedida(unidadeMedida != null ? unidadeMedida : produto.getUnidade());
+                    novoInsumo.setCancelado('N');
+                    novoInsumo.setIdUnidade(1);
+                    return insumoRepository.save(novoInsumo);
+                });
 
         SolicitacaoInsumo solicitacao = new SolicitacaoInsumo();
         solicitacao.setId_usuario(usuario);
